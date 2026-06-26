@@ -1,0 +1,78 @@
+#usda 1.0
+(
+    defaultPrim = "standard_shader_ball_scene"
+    endTimeCode = 3
+    framesPerSecond = 24
+    metersPerUnit = 0.01
+    renderSettingsPrimPath = "/Render/RenderSettings"
+    startTimeCode = 3
+    subLayers = [
+        @assets/full_assets/StandardShaderBall/standard_shader_ball_scene.usda@
+    ]
+    timeCodesPerSecond = 24
+    upAxis = "Y"
+)
+
+over "standard_shader_ball_scene" (
+    variants = {
+        string example_material = "mtlx_plastic"
+    }
+)
+{
+    over "materials" (
+        variants = {
+            string material_model = "OpenPBRSurface"
+        }
+    )
+    {
+        over "examples" (
+            variants = {
+                string material_model = ""
+            }
+        )
+        {
+            def Scope "mtlx"
+            {
+                def Material "plastic"
+                {
+                    token outputs:mtlx:surface.connect = </standard_shader_ball_scene/materials/examples/mtlx/plastic/open_pbr_surface.outputs:out>
+
+                    def Shader "open_pbr_surface"
+                    {
+                        uniform token info:id = "ND_open_pbr_surface_surfaceshader"
+                        color3f inputs:base_color = (0.209884, 0.562091, 0.766)
+                        float inputs:specular_roughness = 0.15
+                        token outputs:out
+                    }
+                }
+            }
+        }
+    }
+}
+
+def Scope "Render" {
+
+    def RenderSettings "RenderSettings" (
+        prepend apiSchemas = ["TyphoonRenderSettingsAPI"]
+    )
+    {
+        int ty:convergedSamplesPerPixel = 1
+        rel camera = </standard_shader_ball_scene/camera>
+        rel products = [</Render/RenderProduct>]
+    }
+
+    def RenderProduct "RenderProduct"
+    {
+        rel camera = </standard_shader_ball_scene/camera>
+        rel orderedVars = [</Render/RenderProduct/Color>]
+        token productType = "raster"
+        token productName = "shaderball.mtlx_plastic.exr"
+
+        def RenderVar "Color"
+        {
+            token dataType = "color4f"
+            string sourceName = "color"
+            token sourceType = "raw"
+        }
+    }
+}

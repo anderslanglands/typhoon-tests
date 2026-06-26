@@ -1,0 +1,83 @@
+#usda 1.0
+(
+    defaultPrim = "standard_shader_ball_scene"
+    endTimeCode = 3
+    framesPerSecond = 24
+    metersPerUnit = 0.01
+    renderSettingsPrimPath = "/Render/RenderSettings"
+    startTimeCode = 3
+    subLayers = [
+        @assets/full_assets/StandardShaderBall/standard_shader_ball_scene.usda@
+    ]
+    timeCodesPerSecond = 24
+    upAxis = "Y"
+)
+
+over "standard_shader_ball_scene" (
+    variants = {
+        string example_material = "mtlx_bubblegum"
+    }
+)
+{
+    over "materials" (
+        variants = {
+            string material_model = "OpenPBRSurface"
+        }
+    )
+    {
+        over "examples" (
+            variants = {
+                string material_model = ""
+            }
+        )
+        {
+            def Scope "mtlx"
+            {
+                def Material "bubblegum"
+                {
+                    token outputs:mtlx:surface.connect = </standard_shader_ball_scene/materials/examples/mtlx/bubblegum/open_pbr_surface.outputs:out>
+
+                    def Shader "open_pbr_surface"
+                    {
+                        uniform token info:id = "ND_open_pbr_surface_surfaceshader"
+                        float inputs:subsurface_weight = 1
+                        float inputs:specular_weight = 0.383
+                        float inputs:specular_roughness = 0.176
+                        float inputs:specular_ior = 1.584
+                        color3f inputs:subsurface_color = (1, 0.22, 0.493)
+                        color3f inputs:subsurface_radius_scale = (1, 0, 0.068)
+                        float inputs:subsurface_radius = 0.0325
+                        token outputs:out
+                    }
+                }
+            }
+        }
+    }
+}
+
+def Scope "Render" {
+
+    def RenderSettings "RenderSettings" (
+        prepend apiSchemas = ["TyphoonRenderSettingsAPI"]
+    )
+    {
+        int ty:convergedSamplesPerPixel = 1
+        rel camera = </standard_shader_ball_scene/camera>
+        rel products = [</Render/RenderProduct>]
+    }
+
+    def RenderProduct "RenderProduct"
+    {
+        rel camera = </standard_shader_ball_scene/camera>
+        rel orderedVars = [</Render/RenderProduct/Color>]
+        token productType = "raster"
+        token productName = "shaderball.mtlx_bubblegum.exr"
+
+        def RenderVar "Color"
+        {
+            token dataType = "color4f"
+            string sourceName = "color"
+            token sourceType = "raw"
+        }
+    }
+}

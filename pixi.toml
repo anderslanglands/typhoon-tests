@@ -1,0 +1,9 @@
+[workspace]
+name = "typhoon-tests"
+platforms = ["linux-64", "win-64"]
+channels = ["https://conda.anaconda.org/anderslanglands", "conda-forge"]
+channel-priority = "strict"
+
+[dependencies]
+python = "3.11.*"
+materialx = "*"
