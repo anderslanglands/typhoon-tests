@@ -1,0 +1,82 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/standard_surface_greysphere_calibration_Greysphere_Calibration>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "standard_surface_greysphere_calibration_Greysphere_Calibration"
+    {
+        token outputs:mtlx:surface.connect = </Looks/standard_surface_greysphere_calibration_Greysphere_Calibration/SR_Greysphere_Calibration.outputs:out>
+        token outputs:surface.connect = </Looks/standard_surface_greysphere_calibration_Greysphere_Calibration/SR_Greysphere_Calibration.outputs:out>
+
+        def Shader "SR_Greysphere_Calibration"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/standard_surface_greysphere_calibration_Greysphere_Calibration/NG_Greysphere_Calibration.outputs:out1>
+            float inputs:specular_roughness = 0.7
+            token outputs:out
+        }
+
+
+        def NodeGraph "NG_Greysphere_Calibration"
+        {
+            color3f outputs:out1.connect = </Looks/standard_surface_greysphere_calibration_Greysphere_Calibration/NG_Greysphere_Calibration/image1.outputs:out>
+
+            def Shader "texcoord1"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                token outputs:out
+            }
+            def Shader "place2d"
+            {
+                uniform token info:id = "ND_place2d_vector2"
+                float2 inputs:texcoord.connect = </Looks/standard_surface_greysphere_calibration_Greysphere_Calibration/NG_Greysphere_Calibration/texcoord1.outputs:out>
+                float2 inputs:offset = (-1.66, -0.49)
+                float2 inputs:scale = (0.21, 0.21)
+                float2 inputs:pivot = (0.5, 0.5)
+                token outputs:out
+            }
+            def Shader "image1"
+            {
+                uniform token info:id = "ND_image_color3"
+                float2 inputs:texcoord.connect = </Looks/standard_surface_greysphere_calibration_Greysphere_Calibration/NG_Greysphere_Calibration/place2d.outputs:out>
+                asset inputs:file = @assets/Images/greysphere_calibration.png@ (
+                    colorSpace = "srgb_texture"
+                )
+                string inputs:uaddressmode = "clamp"
+                string inputs:vaddressmode = "clamp"
+                token outputs:out
+            }
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.standard_surface_greysphere_calibration_Greysphere_Calibration.exr"
+        }
+    }
+}

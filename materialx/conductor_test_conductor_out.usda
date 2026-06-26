@@ -1,0 +1,79 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/conductor_test_conductor_out>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "conductor_test_conductor_out"
+    {
+        token outputs:mtlx:surface.connect = </Looks/conductor_test_conductor_out/test_conductor.outputs:out>
+        token outputs:surface.connect = </Looks/conductor_test_conductor_out/test_conductor.outputs:out>
+
+        def NodeGraph "test_conductor"
+        {
+            token outputs:out.connect = </Looks/conductor_test_conductor_out/test_conductor/surface1.outputs:out>
+
+            def Shader "roughness1"
+            {
+                uniform token info:id = "ND_roughness_anisotropy"
+                float inputs:roughness = 0.2
+                float inputs:anisotropy = 0.0
+                token outputs:out
+            }
+            def Shader "conductor_brdf1"
+            {
+                uniform token info:id = "ND_conductor_bsdf"
+                float2 inputs:roughness.connect = </Looks/conductor_test_conductor_out/test_conductor/roughness1.outputs:out>
+                bool inputs:retroreflective = false
+                color3f inputs:ior.connect = </Looks/conductor_test_conductor_out/test_conductor/conductor_brdf1_artistic_ior.outputs:ior>
+                color3f inputs:extinction.connect = </Looks/conductor_test_conductor_out/test_conductor/conductor_brdf1_artistic_ior.outputs:extinction>
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/conductor_test_conductor_out/test_conductor/conductor_brdf1.outputs:out>
+                float inputs:opacity = 1.0
+                token outputs:out
+            }
+            def Shader "conductor_brdf1_artistic_ior"
+            {
+                uniform token info:id = "ND_artistic_ior"
+                color3f inputs:reflectivity = (1, 1, 1)
+                color3f inputs:edge_color = (1, 1, 1)
+                color3f outputs:ior
+                color3f outputs:extinction
+            }
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.conductor_test_conductor_out.exr"
+        }
+    }
+}

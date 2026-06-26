@@ -1,0 +1,52 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/standard_surface_plastic_Plastic>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "standard_surface_plastic_Plastic"
+    {
+        token outputs:mtlx:surface.connect = </Looks/standard_surface_plastic_Plastic/SR_plastic.outputs:out>
+        token outputs:surface.connect = </Looks/standard_surface_plastic_Plastic/SR_plastic.outputs:out>
+
+        def Shader "SR_plastic"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            float inputs:base = 1
+            color3f inputs:base_color = (0.10470402, 0.24188282, 0.81800002)
+            float inputs:specular_roughness = 0.32467532157897949
+            token outputs:out
+        }
+
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.standard_surface_plastic_Plastic.exr"
+        }
+    }
+}

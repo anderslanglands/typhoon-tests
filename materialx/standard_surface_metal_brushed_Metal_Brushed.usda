@@ -1,0 +1,58 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/standard_surface_metal_brushed_Metal_Brushed>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "standard_surface_metal_brushed_Metal_Brushed"
+    {
+        token outputs:mtlx:surface.connect = </Looks/standard_surface_metal_brushed_Metal_Brushed/SR_metal_brushed.outputs:out>
+        token outputs:surface.connect = </Looks/standard_surface_metal_brushed_Metal_Brushed/SR_metal_brushed.outputs:out>
+
+        def Shader "SR_metal_brushed"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            float inputs:base = 1
+            color3f inputs:base_color = (0.5, 0.5, 0.5)
+            float inputs:specular = 0
+            color3f inputs:specular_color = (0, 0, 0)
+            float inputs:specular_roughness = 0.25
+            float inputs:specular_IOR = 1.52
+            float inputs:specular_anisotropy = 0.65
+            float inputs:specular_rotation = 0.0
+            float inputs:metalness = 1
+            token outputs:out
+        }
+
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.standard_surface_metal_brushed_Metal_Brushed.exr"
+        }
+    }
+}

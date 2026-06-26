@@ -1,0 +1,54 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/open_pbr_aluminum_brushed_Aluminum_Brushed>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "open_pbr_aluminum_brushed_Aluminum_Brushed"
+    {
+        token outputs:mtlx:surface.connect = </Looks/open_pbr_aluminum_brushed_Aluminum_Brushed/open_pbr_surface_surfaceshader.outputs:out>
+        token outputs:surface.connect = </Looks/open_pbr_aluminum_brushed_Aluminum_Brushed/open_pbr_surface_surfaceshader.outputs:out>
+
+
+        def Shader "open_pbr_surface_surfaceshader"
+        {
+            uniform token info:id = "ND_open_pbr_surface_surfaceshader"
+            color3f inputs:base_color = (0.912, 0.914, 0.920)
+            float inputs:base_metalness = 1.0
+            color3f inputs:specular_color = (0.970, 0.979, 0.988)
+            float inputs:specular_roughness = 0.2
+            float inputs:specular_roughness_anisotropy = 0.9
+            token outputs:out
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.open_pbr_aluminum_brushed_Aluminum_Brushed.exr"
+        }
+    }
+}

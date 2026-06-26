@@ -1,0 +1,101 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/add_bsdf_add_bsdf_test_out>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "add_bsdf_add_bsdf_test_out"
+    {
+        token outputs:mtlx:surface.connect = </Looks/add_bsdf_add_bsdf_test_out/add_bsdf_test.outputs:out>
+        token outputs:surface.connect = </Looks/add_bsdf_add_bsdf_test_out/add_bsdf_test.outputs:out>
+
+        def NodeGraph "add_bsdf_test"
+        {
+            token outputs:out.connect = </Looks/add_bsdf_add_bsdf_test_out/add_bsdf_test/surface1.outputs:out>
+
+            def Shader "constant1"
+            {
+                uniform token info:id = "ND_constant_float"
+                float inputs:value = 0.5
+                token outputs:out
+            }
+            def Shader "clamp1"
+            {
+                uniform token info:id = "ND_clamp_float"
+                float inputs:in.connect = </Looks/add_bsdf_add_bsdf_test_out/add_bsdf_test/constant1.outputs:out>
+                float inputs:low = 0.0
+                float inputs:high = 1.0
+                token outputs:out
+            }
+            def Shader "invert1"
+            {
+                uniform token info:id = "ND_invert_float"
+                float inputs:in.connect = </Looks/add_bsdf_add_bsdf_test_out/add_bsdf_test/clamp1.outputs:out>
+                float inputs:amount = 1.0
+                token outputs:out
+            }
+            def Shader "diffuse_brdf1"
+            {
+                uniform token info:id = "ND_oren_nayar_diffuse_bsdf"
+                float inputs:weight.connect = </Looks/add_bsdf_add_bsdf_test_out/add_bsdf_test/invert1.outputs:out>
+                color3f inputs:color = (0.9600, 0.1, 0.1)
+                float inputs:roughness = 0.0
+                float3 inputs:normal = (0.0, 0.0, 0.0)
+                token outputs:out
+            }
+            def Shader "dielectric_brdf1"
+            {
+                uniform token info:id = "ND_dielectric_bsdf"
+                float inputs:weight.connect = </Looks/add_bsdf_add_bsdf_test_out/add_bsdf_test/clamp1.outputs:out>
+                color3f inputs:tint = (1.0, 1.0, 1.0)
+                float inputs:ior = 1.52
+                token outputs:out
+            }
+            def Shader "add_bsdf1"
+            {
+                uniform token info:id = "ND_add_bsdf"
+                token inputs:in1.connect = </Looks/add_bsdf_add_bsdf_test_out/add_bsdf_test/dielectric_brdf1.outputs:out>
+                token inputs:in2.connect = </Looks/add_bsdf_add_bsdf_test_out/add_bsdf_test/diffuse_brdf1.outputs:out>
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/add_bsdf_add_bsdf_test_out/add_bsdf_test/add_bsdf1.outputs:out>
+                token inputs:edf = ""
+                float inputs:opacity = 1.0
+                token outputs:out
+            }
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.add_bsdf_add_bsdf_test_out.exr"
+        }
+    }
+}

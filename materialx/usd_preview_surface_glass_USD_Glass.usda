@@ -1,0 +1,56 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/usd_preview_surface_glass_USD_Glass>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "usd_preview_surface_glass_USD_Glass"
+    {
+        token outputs:mtlx:surface.connect = </Looks/usd_preview_surface_glass_USD_Glass/SR_glass.outputs:out>
+        token outputs:surface.connect = </Looks/usd_preview_surface_glass_USD_Glass/SR_glass.outputs:out>
+
+        def Shader "SR_glass"
+        {
+            uniform token info:id = "ND_UsdPreviewSurface_surfaceshader"
+            color3f inputs:diffuseColor = (0.0, 0.0, 0.0)
+            int inputs:useSpecularWorkflow = 0
+            float inputs:metallic = 0
+            float inputs:roughness = 0.01
+            float inputs:opacity = 0
+            float inputs:opacityThreshold = 0
+            float inputs:ior = 1.52
+            token outputs:out
+        }
+
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.usd_preview_surface_glass_USD_Glass.exr"
+        }
+    }
+}

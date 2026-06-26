@@ -1,0 +1,54 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/open_pbr_glass_Glass>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "open_pbr_glass_Glass"
+    {
+        token outputs:mtlx:surface.connect = </Looks/open_pbr_glass_Glass/open_pbr_surface_surfaceshader.outputs:out>
+        token outputs:surface.connect = </Looks/open_pbr_glass_Glass/open_pbr_surface_surfaceshader.outputs:out>
+
+
+        def Shader "open_pbr_surface_surfaceshader"
+        {
+            uniform token info:id = "ND_open_pbr_surface_surfaceshader"
+            float inputs:specular_roughness = 0.0
+            float inputs:specular_ior = 1.52
+            float inputs:transmission_weight = 1.0
+            float inputs:transmission_dispersion_abbe_number = 64
+            float inputs:transmission_dispersion_scale = 1.0
+            token outputs:out
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.open_pbr_glass_Glass.exr"
+        }
+    }
+}

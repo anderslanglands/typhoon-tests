@@ -1,0 +1,61 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/open_pbr_pearl_Pearl>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "open_pbr_pearl_Pearl"
+    {
+        token outputs:mtlx:surface.connect = </Looks/open_pbr_pearl_Pearl/open_pbr_surface_surfaceshader.outputs:out>
+        token outputs:surface.connect = </Looks/open_pbr_pearl_Pearl/open_pbr_surface_surfaceshader.outputs:out>
+
+
+        def Shader "open_pbr_surface_surfaceshader"
+        {
+            uniform token info:id = "ND_open_pbr_surface_surfaceshader"
+            color3f inputs:base_color = (0.8, 0.75, 0.7)
+            float inputs:specular_roughness = 0.35
+            float inputs:specular_ior = 1.5
+            float inputs:subsurface_weight = 1.0
+            color3f inputs:subsurface_color = (0.8, 0.75, 0.7)
+            color3f inputs:subsurface_radius_scale = (0.3, 0.5, 0.3)
+            float inputs:coat_weight = 1
+            float inputs:coat_roughness = 0.15
+            float inputs:coat_ior = 1.68
+            float inputs:thin_film_weight = 1.0
+            float inputs:thin_film_thickness = 0.420
+            float inputs:thin_film_ior = 2
+            token outputs:out
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.open_pbr_pearl_Pearl.exr"
+        }
+    }
+}

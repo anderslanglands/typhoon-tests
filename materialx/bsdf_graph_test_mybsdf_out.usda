@@ -1,0 +1,97 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/bsdf_graph_test_mybsdf_out>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "bsdf_graph_test_mybsdf_out"
+    {
+        token outputs:mtlx:surface.connect = </Looks/bsdf_graph_test_mybsdf_out/test_mybsdf.outputs:out>
+        token outputs:surface.connect = </Looks/bsdf_graph_test_mybsdf_out/test_mybsdf.outputs:out>
+
+        def NodeGraph "IMP_mybsdf"
+        {
+            float inputs:diffuse = 0.8
+            color3f inputs:diffuseColor = (0.0, 1.0, 0.0)
+            float inputs:specular = 1.0
+            color3f inputs:specularColor = (1.0, 1.0, 1.0)
+            token outputs:out.connect = </Looks/bsdf_graph_test_mybsdf_out/IMP_mybsdf/layer1.outputs:out>
+
+            def Shader "diffuse_brdf1"
+            {
+                uniform token info:id = "ND_oren_nayar_diffuse_bsdf"
+                float inputs:weight.connect = </Looks/bsdf_graph_test_mybsdf_out/IMP_mybsdf.inputs:diffuse>
+                color3f inputs:color.connect = </Looks/bsdf_graph_test_mybsdf_out/IMP_mybsdf.inputs:diffuseColor>
+                token outputs:out
+            }
+            def Shader "dielectric_brdf1"
+            {
+                uniform token info:id = "ND_dielectric_bsdf"
+                float inputs:weight.connect = </Looks/bsdf_graph_test_mybsdf_out/IMP_mybsdf.inputs:specular>
+                color3f inputs:tint.connect = </Looks/bsdf_graph_test_mybsdf_out/IMP_mybsdf.inputs:specularColor>
+                float inputs:ior = 1.52
+                token outputs:out
+            }
+            def Shader "layer1"
+            {
+                uniform token info:id = "ND_layer_bsdf"
+                token inputs:top.connect = </Looks/bsdf_graph_test_mybsdf_out/IMP_mybsdf/dielectric_brdf1.outputs:out>
+                token inputs:base.connect = </Looks/bsdf_graph_test_mybsdf_out/IMP_mybsdf/diffuse_brdf1.outputs:out>
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "test_mybsdf"
+        {
+            token outputs:out.connect = </Looks/bsdf_graph_test_mybsdf_out/test_mybsdf/surface1.outputs:out>
+
+            def Shader "mybsdf1"
+            {
+                uniform token info:id = "ND_mybsdf"
+                float inputs:diffuse = 0.4
+                color3f inputs:diffuseColor = (1.0, 0.1, 0.1)
+                float inputs:specular = 1.0
+                color3f inputs:specularColor = (1.0, 1.0, 1.0)
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/bsdf_graph_test_mybsdf_out/test_mybsdf/mybsdf1.outputs:out>
+                token inputs:edf = ""
+                float inputs:opacity = 1.0
+                token outputs:out
+            }
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.bsdf_graph_test_mybsdf_out.exr"
+        }
+    }
+}

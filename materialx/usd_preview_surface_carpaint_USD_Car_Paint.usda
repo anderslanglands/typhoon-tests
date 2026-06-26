@@ -1,0 +1,53 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/usd_preview_surface_carpaint_USD_Car_Paint>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "usd_preview_surface_carpaint_USD_Car_Paint"
+    {
+        token outputs:mtlx:surface.connect = </Looks/usd_preview_surface_carpaint_USD_Car_Paint/SR_carpaint.outputs:out>
+        token outputs:surface.connect = </Looks/usd_preview_surface_carpaint_USD_Car_Paint/SR_carpaint.outputs:out>
+
+        def Shader "SR_carpaint"
+        {
+            uniform token info:id = "ND_UsdPreviewSurface_surfaceshader"
+            color3f inputs:diffuseColor = (0.0518895, 0.29606, 0.425324)
+            float inputs:roughness = 0.4
+            float inputs:clearcoat = 1
+            float inputs:clearcoatRoughness = 0
+            token outputs:out
+        }
+
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.usd_preview_surface_carpaint_USD_Car_Paint.exr"
+        }
+    }
+}

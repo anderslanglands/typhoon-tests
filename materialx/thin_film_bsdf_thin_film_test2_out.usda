@@ -1,0 +1,285 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/thin_film_bsdf_thin_film_test2_out>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "thin_film_bsdf_thin_film_test2_out"
+    {
+        token outputs:mtlx:surface.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test2.outputs:out>
+        token outputs:surface.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test2.outputs:out>
+
+        def NodeGraph "thin_film_test1"
+        {
+            token outputs:out.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test1/surface1.outputs:out>
+
+            def Shader "dielectric_brdf_1"
+            {
+                uniform token info:id = "ND_dielectric_bsdf"
+                float inputs:ior = 2.5
+                float2 inputs:roughness = (0, 0)
+                float inputs:thinfilm_thickness = 550
+                float inputs:thinfilm_ior = 1.5
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test1/dielectric_brdf_1.outputs:out>
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "thin_film_test2"
+        {
+            token outputs:out.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test2/surface1.outputs:out>
+
+            def Shader "diffuse_bsdf"
+            {
+                uniform token info:id = "ND_oren_nayar_diffuse_bsdf"
+                float inputs:weight = 0.5
+                color3f inputs:color = (1, 1, 1)
+                token outputs:out
+            }
+            def Shader "dielectric_brdf_1"
+            {
+                uniform token info:id = "ND_dielectric_bsdf"
+                float inputs:ior = 2.5
+                float2 inputs:roughness = (0, 0)
+                float inputs:thinfilm_thickness = 550
+                float inputs:thinfilm_ior = 1.5
+                token outputs:out
+            }
+            def Shader "layer_bsdf_1"
+            {
+                uniform token info:id = "ND_layer_bsdf"
+                token inputs:top.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test2/dielectric_brdf_1.outputs:out>
+                token inputs:base.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test2/diffuse_bsdf.outputs:out>
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test2/layer_bsdf_1.outputs:out>
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "thin_film_test3"
+        {
+            token outputs:out.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test3/surface1.outputs:out>
+
+            def Shader "dielectric_brdf_1"
+            {
+                uniform token info:id = "ND_dielectric_bsdf"
+                float inputs:ior = 2.5
+                float2 inputs:roughness = (0, 0)
+                float inputs:thinfilm_thickness = 550
+                float inputs:thinfilm_ior = 1.5
+                token outputs:out
+            }
+            def Shader "diffuse_bsdf"
+            {
+                uniform token info:id = "ND_oren_nayar_diffuse_bsdf"
+                float inputs:weight = 0.5
+                color3f inputs:color = (1, 1, 1)
+                token outputs:out
+            }
+            def Shader "layer_bsdf_2"
+            {
+                uniform token info:id = "ND_layer_bsdf"
+                token inputs:top.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test3/dielectric_brdf_1.outputs:out>
+                token inputs:base.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test3/diffuse_bsdf.outputs:out>
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test3/layer_bsdf_2.outputs:out>
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "thin_film_test4"
+        {
+            token outputs:out.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test4/surface1.outputs:out>
+
+            def Shader "dielectric_brdf_1"
+            {
+                uniform token info:id = "ND_dielectric_bsdf"
+                color3f inputs:tint = (1.0, 1.0, 1.0)
+                float inputs:ior = 1.5
+                float2 inputs:roughness = (0.3, 0.3)
+                float inputs:thinfilm_thickness = 550
+                float inputs:thinfilm_ior = 1.5
+                token outputs:out
+            }
+            def Shader "dielectric_brdf_2"
+            {
+                uniform token info:id = "ND_dielectric_bsdf"
+                color3f inputs:tint = (0.1, 1.0, 0.1)
+                float inputs:ior = 2.5
+                float2 inputs:roughness = (0.0, 0.0)
+                float inputs:thinfilm_thickness = 550
+                float inputs:thinfilm_ior = 1.5
+                token outputs:out
+            }
+            def Shader "layer_bsdf_1"
+            {
+                uniform token info:id = "ND_layer_bsdf"
+                token inputs:top.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test4/dielectric_brdf_2.outputs:out>
+                token inputs:base.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test4/dielectric_brdf_1.outputs:out>
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test4/layer_bsdf_1.outputs:out>
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "thin_film_test5"
+        {
+            token outputs:out.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test5/surface1.outputs:out>
+
+            def Shader "dielectric_brdf_1"
+            {
+                uniform token info:id = "ND_dielectric_bsdf"
+                color3f inputs:tint = (1.0, 0.0, 0.0)
+                float inputs:ior = 1.5
+                float2 inputs:roughness = (0.3, 0.3)
+                float inputs:thinfilm_thickness = 550
+                float inputs:thinfilm_ior = 1.5
+                token outputs:out
+            }
+            def Shader "dielectric_brdf_2"
+            {
+                uniform token info:id = "ND_dielectric_bsdf"
+                color3f inputs:tint = (0.0, 1.0, 0.0)
+                float inputs:ior = 2.5
+                float2 inputs:roughness = (0.3, 0.3)
+                float inputs:thinfilm_thickness = 550
+                float inputs:thinfilm_ior = 1.5
+                token outputs:out
+            }
+            def Shader "mix_bsdf_1"
+            {
+                uniform token info:id = "ND_mix_bsdf"
+                token inputs:fg.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test5/dielectric_brdf_2.outputs:out>
+                token inputs:bg.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test5/dielectric_brdf_1.outputs:out>
+                float inputs:mix = 0.5
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test5/mix_bsdf_1.outputs:out>
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "thin_film_test6"
+        {
+            token outputs:out.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test6/surface1.outputs:out>
+
+            def Shader "dielectric_brdf_1"
+            {
+                uniform token info:id = "ND_dielectric_bsdf"
+                color3f inputs:tint = (1.0, 1.0, 1.0)
+                float inputs:ior = 2.5
+                float2 inputs:roughness = (0.0, 0.0)
+                float inputs:thinfilm_thickness = 550
+                float inputs:thinfilm_ior = 1.5
+                token outputs:out
+            }
+            def Shader "multiply_bsdf_1"
+            {
+                uniform token info:id = "ND_multiply_bsdfF"
+                token inputs:in1.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test6/dielectric_brdf_1.outputs:out>
+                float inputs:in2 = 0.8
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test6/multiply_bsdf_1.outputs:out>
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "thin_film_test7"
+        {
+            token outputs:out.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test7/surface1.outputs:out>
+
+            def Shader "conductor_brdf_1"
+            {
+                uniform token info:id = "ND_conductor_bsdf"
+                color3f inputs:ior = (0.18, 0.42, 1.37)
+                color3f inputs:extinction = (3.42, 2.35, 1.77)
+                float2 inputs:roughness = (0.0, 0.0)
+                float inputs:thinfilm_thickness = 550
+                float inputs:thinfilm_ior = 1.5
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test7/conductor_brdf_1.outputs:out>
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "thin_film_test8"
+        {
+            token outputs:out.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test8/surface1.outputs:out>
+
+            def Shader "generalized_schlick_brdf_1"
+            {
+                uniform token info:id = "ND_generalized_schlick_bsdf"
+                color3f inputs:color0 = (0.04, 0.04, 0.04)
+                color3f inputs:color90 = (1.0, 1.0, 1.0)
+                float2 inputs:roughness = (0, 0)
+                float inputs:thinfilm_thickness = 550
+                float inputs:thinfilm_ior = 1.5
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/thin_film_bsdf_thin_film_test2_out/thin_film_test8/generalized_schlick_brdf_1.outputs:out>
+                token outputs:out
+            }
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.thin_film_bsdf_thin_film_test2_out.exr"
+        }
+    }
+}

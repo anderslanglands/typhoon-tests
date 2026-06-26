@@ -1,0 +1,115 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/varying_ior_varying_ior_test2_mtrl>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "varying_ior_varying_ior_test2_mtrl"
+    {
+        token outputs:mtlx:surface.connect = </Looks/varying_ior_varying_ior_test2_mtrl/varying_ior_test2.outputs:out>
+        token outputs:surface.connect = </Looks/varying_ior_varying_ior_test2_mtrl/varying_ior_test2.outputs:out>
+
+        def Shader "texcoord1"
+        {
+            uniform token info:id = "ND_texcoord_vector2"
+            token outputs:out
+        }
+
+        def Shader "texcoord1_x"
+        {
+            uniform token info:id = "ND_extract_vector2"
+            float2 inputs:in.connect = </Looks/varying_ior_varying_ior_test2_mtrl/texcoord1.outputs:out>
+            int inputs:index = 0
+            token outputs:out
+        }
+
+        def Shader "varying_ior_test1"
+        {
+            uniform token info:id = "ND_foo_surface"
+            float inputs:ior.connect = </Looks/varying_ior_varying_ior_test2_mtrl/texcoord1_x.outputs:out>
+            token outputs:out
+        }
+
+
+        def Shader "constant1"
+        {
+            uniform token info:id = "ND_constant_float"
+            float inputs:value = 1.7
+            token outputs:out
+        }
+
+        def Shader "varying_ior_test2"
+        {
+            uniform token info:id = "ND_foo_surface"
+            float inputs:ior = 2.3
+            token outputs:out
+        }
+
+
+        def NodeGraph "IMP_foo_surface"
+        {
+            float inputs:ior = 1.33
+            float2 inputs:roughness = (0.1, 0.1)
+            token outputs:out.connect = </Looks/varying_ior_varying_ior_test2_mtrl/IMP_foo_surface/surface1.outputs:out>
+
+            def Shader "dielectric_btdf_1"
+            {
+                uniform token info:id = "ND_dielectric_bsdf"
+                float inputs:ior.connect = </Looks/varying_ior_varying_ior_test2_mtrl/IMP_foo_surface.inputs:ior>
+                float2 inputs:roughness.connect = </Looks/varying_ior_varying_ior_test2_mtrl/IMP_foo_surface.inputs:roughness>
+                string inputs:scatter_mode = "T"
+                token outputs:out
+            }
+            def Shader "dielectric_brdf_1_layer_top"
+            {
+                uniform token info:id = "ND_dielectric_bsdf"
+                float inputs:ior.connect = </Looks/varying_ior_varying_ior_test2_mtrl/IMP_foo_surface.inputs:ior>
+                float2 inputs:roughness.connect = </Looks/varying_ior_varying_ior_test2_mtrl/IMP_foo_surface.inputs:roughness>
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/varying_ior_varying_ior_test2_mtrl/IMP_foo_surface/dielectric_brdf_1.outputs:out>
+                token outputs:out
+            }
+            def Shader "dielectric_brdf_1"
+            {
+                uniform token info:id = "ND_layer_bsdf"
+                token inputs:top.connect = </Looks/varying_ior_varying_ior_test2_mtrl/IMP_foo_surface/dielectric_brdf_1_layer_top.outputs:out>
+                token inputs:base.connect = </Looks/varying_ior_varying_ior_test2_mtrl/IMP_foo_surface/dielectric_btdf_1.outputs:out>
+                token outputs:out
+            }
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.varying_ior_varying_ior_test2_mtrl.exr"
+        }
+    }
+}

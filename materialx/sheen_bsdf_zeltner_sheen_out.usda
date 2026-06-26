@@ -1,0 +1,86 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/sheen_bsdf_zeltner_sheen_out>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "sheen_bsdf_zeltner_sheen_out"
+    {
+        token outputs:mtlx:surface.connect = </Looks/sheen_bsdf_zeltner_sheen_out/zeltner_sheen.outputs:out>
+        token outputs:surface.connect = </Looks/sheen_bsdf_zeltner_sheen_out/zeltner_sheen.outputs:out>
+
+        def NodeGraph "conty_kulla_sheen"
+        {
+            token outputs:out.connect = </Looks/sheen_bsdf_zeltner_sheen_out/conty_kulla_sheen/surface1.outputs:out>
+
+            def Shader "conty_kulla_sheen_bsdf1"
+            {
+                uniform token info:id = "ND_sheen_bsdf"
+                float inputs:weight = 1.0
+                color3f inputs:color = (0.516, 0.524, 0.778)
+                float inputs:roughness = 0.3
+                string inputs:mode = "conty_kulla"
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/sheen_bsdf_zeltner_sheen_out/conty_kulla_sheen/conty_kulla_sheen_bsdf1.outputs:out>
+                float inputs:opacity = 1.0
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "zeltner_sheen"
+        {
+            token outputs:out.connect = </Looks/sheen_bsdf_zeltner_sheen_out/zeltner_sheen/surface2.outputs:out>
+
+            def Shader "zeltner_sheen_bsdf2"
+            {
+                uniform token info:id = "ND_sheen_bsdf"
+                float inputs:weight = 1.0
+                color3f inputs:color = (0.516, 0.524, 0.778)
+                float inputs:roughness = 0.3
+                string inputs:mode = "zeltner"
+                token outputs:out
+            }
+            def Shader "surface2"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/sheen_bsdf_zeltner_sheen_out/zeltner_sheen/zeltner_sheen_bsdf2.outputs:out>
+                float inputs:opacity = 1.0
+                token outputs:out
+            }
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.sheen_bsdf_zeltner_sheen_out.exr"
+        }
+    }
+}

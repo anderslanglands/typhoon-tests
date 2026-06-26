@@ -1,0 +1,122 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/oren_nayar_diffuse_oren_nayar_diffuse_out3>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "oren_nayar_diffuse_oren_nayar_diffuse_out3"
+    {
+        token outputs:mtlx:surface.connect = </Looks/oren_nayar_diffuse_oren_nayar_diffuse_out3/oren_nayar_diffuse.outputs:out3>
+        token outputs:surface.connect = </Looks/oren_nayar_diffuse_oren_nayar_diffuse_out3/oren_nayar_diffuse.outputs:out3>
+
+        def NodeGraph "oren_nayar_diffuse"
+        {
+            token outputs:out1.connect = </Looks/oren_nayar_diffuse_oren_nayar_diffuse_out3/oren_nayar_diffuse/surface1.outputs:out>
+            token outputs:out2.connect = </Looks/oren_nayar_diffuse_oren_nayar_diffuse_out3/oren_nayar_diffuse/surface2.outputs:out>
+            token outputs:out3.connect = </Looks/oren_nayar_diffuse_oren_nayar_diffuse_out3/oren_nayar_diffuse/surface3.outputs:out>
+            token outputs:out4.connect = </Looks/oren_nayar_diffuse_oren_nayar_diffuse_out3/oren_nayar_diffuse/surface4.outputs:out>
+            token outputs:out5.connect = </Looks/oren_nayar_diffuse_oren_nayar_diffuse_out3/oren_nayar_diffuse/surface5.outputs:out>
+
+            def Shader "diffuse1"
+            {
+                uniform token info:id = "ND_oren_nayar_diffuse_bsdf"
+                color3f inputs:color = (0.6, 0.6, 0.6)
+                float inputs:roughness = 0.0
+                bool inputs:energy_compensation = true
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/oren_nayar_diffuse_oren_nayar_diffuse_out3/oren_nayar_diffuse/diffuse1.outputs:out>
+                token outputs:out
+            }
+            def Shader "diffuse2"
+            {
+                uniform token info:id = "ND_oren_nayar_diffuse_bsdf"
+                color3f inputs:color = (0.6, 0.6, 0.6)
+                float inputs:roughness = 0.25
+                bool inputs:energy_compensation = true
+                token outputs:out
+            }
+            def Shader "surface2"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/oren_nayar_diffuse_oren_nayar_diffuse_out3/oren_nayar_diffuse/diffuse2.outputs:out>
+                token outputs:out
+            }
+            def Shader "diffuse3"
+            {
+                uniform token info:id = "ND_oren_nayar_diffuse_bsdf"
+                color3f inputs:color = (0.6, 0.6, 0.6)
+                float inputs:roughness = 0.5
+                bool inputs:energy_compensation = true
+                token outputs:out
+            }
+            def Shader "surface3"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/oren_nayar_diffuse_oren_nayar_diffuse_out3/oren_nayar_diffuse/diffuse3.outputs:out>
+                token outputs:out
+            }
+            def Shader "diffuse4"
+            {
+                uniform token info:id = "ND_oren_nayar_diffuse_bsdf"
+                color3f inputs:color = (0.6, 0.6, 0.6)
+                float inputs:roughness = 0.75
+                bool inputs:energy_compensation = true
+                token outputs:out
+            }
+            def Shader "surface4"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/oren_nayar_diffuse_oren_nayar_diffuse_out3/oren_nayar_diffuse/diffuse4.outputs:out>
+                token outputs:out
+            }
+            def Shader "diffuse5"
+            {
+                uniform token info:id = "ND_oren_nayar_diffuse_bsdf"
+                color3f inputs:color = (0.6, 0.6, 0.6)
+                float inputs:roughness = 1.0
+                bool inputs:energy_compensation = true
+                token outputs:out
+            }
+            def Shader "surface5"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/oren_nayar_diffuse_oren_nayar_diffuse_out3/oren_nayar_diffuse/diffuse5.outputs:out>
+                token outputs:out
+            }
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.oren_nayar_diffuse_oren_nayar_diffuse_out3.exr"
+        }
+    }
+}

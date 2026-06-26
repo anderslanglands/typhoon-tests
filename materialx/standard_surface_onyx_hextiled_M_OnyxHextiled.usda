@@ -1,0 +1,102 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/standard_surface_onyx_hextiled_M_OnyxHextiled>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "standard_surface_onyx_hextiled_M_OnyxHextiled"
+    {
+        token outputs:mtlx:surface.connect = </Looks/standard_surface_onyx_hextiled_M_OnyxHextiled/N_StandardSurface.outputs:out>
+        token outputs:surface.connect = </Looks/standard_surface_onyx_hextiled_M_OnyxHextiled/N_StandardSurface.outputs:out>
+
+        def Shader "N_StandardSurface"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/standard_surface_onyx_hextiled_M_OnyxHextiled/NG_OnyxHextiled.outputs:out_color>
+            float inputs:specular_roughness.connect = </Looks/standard_surface_onyx_hextiled_M_OnyxHextiled/NG_OnyxHextiled.outputs:out_roughness>
+            token outputs:out
+        }
+
+
+        def NodeGraph "NG_OnyxHextiled"
+        {
+            float inputs:tiling = 4.0
+            float inputs:rotation = 1.0
+            float inputs:scale = 1.0
+            float inputs:offset = 1.0
+            float inputs:falloff = 0.75
+            color3f outputs:out_color.connect = </Looks/standard_surface_onyx_hextiled_M_OnyxHextiled/NG_OnyxHextiled/image_color.outputs:out>
+            float outputs:out_roughness.connect = </Looks/standard_surface_onyx_hextiled_M_OnyxHextiled/NG_OnyxHextiled/image_roughness_float.outputs:out>
+
+            def Shader "tiling_vector2"
+            {
+                uniform token info:id = "ND_convert_float_vector2"
+                float inputs:in.connect = </Looks/standard_surface_onyx_hextiled_M_OnyxHextiled/NG_OnyxHextiled.inputs:tiling>
+                token outputs:out
+            }
+            def Shader "image_color"
+            {
+                uniform token info:id = "ND_hextiledimage_color3"
+                asset inputs:file = @assets/Images/onyx_color.jpg@ (
+                    colorSpace = "srgb_texture"
+                )
+                float2 inputs:tiling.connect = </Looks/standard_surface_onyx_hextiled_M_OnyxHextiled/NG_OnyxHextiled/tiling_vector2.outputs:out>
+                float inputs:rotation.connect = </Looks/standard_surface_onyx_hextiled_M_OnyxHextiled/NG_OnyxHextiled.inputs:rotation>
+                float inputs:scale.connect = </Looks/standard_surface_onyx_hextiled_M_OnyxHextiled/NG_OnyxHextiled.inputs:scale>
+                float inputs:offset.connect = </Looks/standard_surface_onyx_hextiled_M_OnyxHextiled/NG_OnyxHextiled.inputs:offset>
+                float inputs:falloff.connect = </Looks/standard_surface_onyx_hextiled_M_OnyxHextiled/NG_OnyxHextiled.inputs:falloff>
+                token outputs:out
+            }
+            def Shader "image_roughness"
+            {
+                uniform token info:id = "ND_hextiledimage_color3"
+                asset inputs:file = @assets/Images/onyx_roughness.jpg@ (
+                    colorSpace = "none"
+                )
+                float2 inputs:tiling.connect = </Looks/standard_surface_onyx_hextiled_M_OnyxHextiled/NG_OnyxHextiled/tiling_vector2.outputs:out>
+                float inputs:rotation.connect = </Looks/standard_surface_onyx_hextiled_M_OnyxHextiled/NG_OnyxHextiled.inputs:rotation>
+                float inputs:scale.connect = </Looks/standard_surface_onyx_hextiled_M_OnyxHextiled/NG_OnyxHextiled.inputs:scale>
+                float inputs:offset.connect = </Looks/standard_surface_onyx_hextiled_M_OnyxHextiled/NG_OnyxHextiled.inputs:offset>
+                float inputs:falloff.connect = </Looks/standard_surface_onyx_hextiled_M_OnyxHextiled/NG_OnyxHextiled.inputs:falloff>
+                token outputs:out
+            }
+            def Shader "image_roughness_float"
+            {
+                uniform token info:id = "ND_extract_color3"
+                color3f inputs:in.connect = </Looks/standard_surface_onyx_hextiled_M_OnyxHextiled/NG_OnyxHextiled/image_roughness.outputs:out>
+                int inputs:index = 0
+                token outputs:out
+            }
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.standard_surface_onyx_hextiled_M_OnyxHextiled.exr"
+        }
+    }
+}

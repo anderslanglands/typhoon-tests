@@ -1,0 +1,196 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/subsurface_bsdf_subsurface_2_radius_0_01_out>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "subsurface_bsdf_subsurface_2_radius_0_01_out"
+    {
+        token outputs:mtlx:surface.connect = </Looks/subsurface_bsdf_subsurface_2_radius_0_01_out/subsurface_2_radius_0_01.outputs:out>
+        token outputs:surface.connect = </Looks/subsurface_bsdf_subsurface_2_radius_0_01_out/subsurface_2_radius_0_01.outputs:out>
+
+        def NodeGraph "subsurface_1_common"
+        {
+            token outputs:out.connect = </Looks/subsurface_bsdf_subsurface_2_radius_0_01_out/subsurface_1_common/surface1.outputs:out>
+
+            def Shader "subsurface_bsdf1"
+            {
+                uniform token info:id = "ND_subsurface_bsdf"
+                float inputs:weight = 1.0
+                color3f inputs:color = (0.816, 0.140, 0.124)
+                color3f inputs:radius = (1.0, 1.0, 1.0)
+                float inputs:anisotropy = 0.0
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/subsurface_bsdf_subsurface_2_radius_0_01_out/subsurface_1_common/subsurface_bsdf1.outputs:out>
+                float inputs:opacity = 1.0
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "subsurface_2_radius_0_01"
+        {
+            token outputs:out.connect = </Looks/subsurface_bsdf_subsurface_2_radius_0_01_out/subsurface_2_radius_0_01/surface1.outputs:out>
+
+            def Shader "subsurface_bsdf1"
+            {
+                uniform token info:id = "ND_subsurface_bsdf"
+                float inputs:weight = 1.0
+                color3f inputs:color = (0.816, 0.140, 0.124)
+                color3f inputs:radius = (0.01, 0.01, 0.01)
+                float inputs:anisotropy = 0.0
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/subsurface_bsdf_subsurface_2_radius_0_01_out/subsurface_2_radius_0_01/subsurface_bsdf1.outputs:out>
+                float inputs:opacity = 1.0
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "subsurface_2_radius_0_025"
+        {
+            token outputs:out.connect = </Looks/subsurface_bsdf_subsurface_2_radius_0_01_out/subsurface_2_radius_0_025/surface1.outputs:out>
+
+            def Shader "subsurface_bsdf1"
+            {
+                uniform token info:id = "ND_subsurface_bsdf"
+                float inputs:weight = 1.0
+                color3f inputs:color = (0.816, 0.140, 0.124)
+                color3f inputs:radius = (0.025, 0.025, 0.025)
+                float inputs:anisotropy = 0.0
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/subsurface_bsdf_subsurface_2_radius_0_01_out/subsurface_2_radius_0_025/subsurface_bsdf1.outputs:out>
+                float inputs:opacity = 1.0
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "subsurface_2_radius_5_0"
+        {
+            token outputs:out.connect = </Looks/subsurface_bsdf_subsurface_2_radius_0_01_out/subsurface_2_radius_5_0/surface1.outputs:out>
+
+            def Shader "subsurface_bsdf1"
+            {
+                uniform token info:id = "ND_subsurface_bsdf"
+                float inputs:weight = 1.0
+                color3f inputs:color = (0.816, 0.140, 0.124)
+                color3f inputs:radius = (5.0, 5.0, 5.0)
+                float inputs:anisotropy = 0.0
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/subsurface_bsdf_subsurface_2_radius_0_01_out/subsurface_2_radius_5_0/subsurface_bsdf1.outputs:out>
+                float inputs:opacity = 1.0
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "subsurface_3_weighted"
+        {
+            token outputs:out.connect = </Looks/subsurface_bsdf_subsurface_2_radius_0_01_out/subsurface_3_weighted/surface1.outputs:out>
+
+            def Shader "subsurface_bsdf1"
+            {
+                uniform token info:id = "ND_subsurface_bsdf"
+                float inputs:weight = 0.25
+                color3f inputs:color = (0.816, 0.140, 0.124)
+                color3f inputs:radius = (1.0, 1.0, 1.0)
+                float inputs:anisotropy = 0.0
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/subsurface_bsdf_subsurface_2_radius_0_01_out/subsurface_3_weighted/subsurface_bsdf1.outputs:out>
+                float inputs:opacity = 1.0
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "subsurface_4_forward"
+        {
+            token outputs:out.connect = </Looks/subsurface_bsdf_subsurface_2_radius_0_01_out/subsurface_4_forward/surface1.outputs:out>
+
+            def Shader "subsurface_bsdf1"
+            {
+                uniform token info:id = "ND_subsurface_bsdf"
+                float inputs:weight = 1.0
+                color3f inputs:color = (0.816, 0.140, 0.124)
+                color3f inputs:radius = (1.0, 1.0, 1.0)
+                float inputs:anisotropy = 0.9
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/subsurface_bsdf_subsurface_2_radius_0_01_out/subsurface_4_forward/subsurface_bsdf1.outputs:out>
+                float inputs:opacity = 1.0
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "subsurface_4_backward"
+        {
+            token outputs:out.connect = </Looks/subsurface_bsdf_subsurface_2_radius_0_01_out/subsurface_4_backward/surface1.outputs:out>
+
+            def Shader "subsurface_bsdf1"
+            {
+                uniform token info:id = "ND_subsurface_bsdf"
+                float inputs:weight = 1.0
+                color3f inputs:color = (0.816, 0.140, 0.124)
+                color3f inputs:radius = (1.0, 1.0, 1.0)
+                float inputs:anisotropy = -0.9
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/subsurface_bsdf_subsurface_2_radius_0_01_out/subsurface_4_backward/subsurface_bsdf1.outputs:out>
+                float inputs:opacity = 1.0
+                token outputs:out
+            }
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.subsurface_bsdf_subsurface_2_radius_0_01_out.exr"
+        }
+    }
+}

@@ -1,0 +1,75 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/edge_brighten_edge_brighten_out>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "edge_brighten_edge_brighten_out"
+    {
+        token outputs:mtlx:surface.connect = </Looks/edge_brighten_edge_brighten_out/out_to_surfaceshader.outputs:out>
+        token outputs:surface.connect = </Looks/edge_brighten_edge_brighten_out/out_to_surfaceshader.outputs:out>
+
+        def NodeGraph "edge_brighten"
+        {
+            color3f outputs:out.connect = </Looks/edge_brighten_edge_brighten_out/edge_brighten/mix_color3.outputs:out>
+
+            def Shader "facingratio_float"
+            {
+                uniform token info:id = "ND_facingratio_float"
+                bool inputs:invert = true
+                token outputs:out
+            }
+            def Shader "power_float"
+            {
+                uniform token info:id = "ND_power_float"
+                float inputs:in1.connect = </Looks/edge_brighten_edge_brighten_out/edge_brighten/facingratio_float.outputs:out>
+                float inputs:in2 = 3.0
+                token outputs:out
+            }
+            def Shader "mix_color3"
+            {
+                uniform token info:id = "ND_mix_color3"
+                color3f inputs:bg = (0, 0.0986187, 0.186275)
+                color3f inputs:fg = (0.735294, 0.735294, 0.735294)
+                float inputs:mix.connect = </Looks/edge_brighten_edge_brighten_out/edge_brighten/power_float.outputs:out>
+                token outputs:out
+            }
+        }
+
+        def Shader "out_to_surfaceshader"
+        {
+            uniform token info:id = "ND_convert_color3_surfaceshader"
+            color3f inputs:in.connect = </Looks/edge_brighten_edge_brighten_out/edge_brighten.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.edge_brighten_edge_brighten_out.exr"
+        }
+    }
+}

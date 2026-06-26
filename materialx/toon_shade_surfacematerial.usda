@@ -1,0 +1,292 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/toon_shade_surfacematerial>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "toon_shade_surfacematerial"
+    {
+        token outputs:mtlx:surface.connect = </Looks/toon_shade_surfacematerial/surface_unlit.outputs:out>
+        token outputs:surface.connect = </Looks/toon_shade_surfacematerial/surface_unlit.outputs:out>
+
+        def Shader "surface_unlit"
+        {
+            uniform token info:id = "ND_surface_unlit"
+            color3f inputs:emission_color.connect = </Looks/toon_shade_surfacematerial/toon_shade1.outputs:out>
+            token outputs:out
+        }
+
+
+        def Shader "toon_shade1"
+        {
+            uniform token info:id = "ND_toon_sample"
+            color3f inputs:base_color = (0.4, 0.4, 0.4)
+            color3f inputs:ambient_color = (0.1, 0.1, 0.1)
+            color3f inputs:specular_color = (0.769337, 0.872861, 0.599692)
+            float inputs:glossiness = 16
+            color3f inputs:rim_color = (0.5, 0.5, 0.5)
+            float3 inputs:light_direction = (1, -0.5, -0.5)
+            color3f inputs:light_color = (0.968215, 0.968215, 0.968215)
+            token outputs:out
+        }
+
+        def NodeGraph "NG_toon_sample"
+        {
+            color3f inputs:base_color = (0.0156384, 0.632771, 0.799511)
+            color3f inputs:ambient_color = (0.574572, 0.207914, 0.207914)
+            color3f inputs:specular_color = (0.726161, 0.726161, 0.726161)
+            float inputs:glossiness = 16
+            color3f inputs:rim_color = (0.775061, 0.775061, 0.775061)
+            float3 inputs:light_direction = (1.0, -0.5, -0.5)
+            color3f inputs:light_color = (0.885086, 0.885086, 0.885086)
+            color3f outputs:output_color3.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/multiply_color3.outputs:out>
+
+            def Shader "normal"
+            {
+                uniform token info:id = "ND_normal_vector3"
+                string inputs:space = "world"
+                token outputs:out
+            }
+            def Shader "NdotL"
+            {
+                uniform token info:id = "ND_dotproduct_vector3"
+                float3 inputs:in1.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/unit_normal.outputs:out>
+                float3 inputs:in2.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/multiply_vector4.outputs:out>
+                token outputs:out
+            }
+            def Shader "unit_light_direction"
+            {
+                uniform token info:id = "ND_normalize_vector3"
+                float3 inputs:in.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample.inputs:light_direction>
+                token outputs:out
+            }
+            def Shader "multiply_color3"
+            {
+                uniform token info:id = "ND_multiply_color3"
+                color3f inputs:in1.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample.inputs:base_color>
+                color3f inputs:in2.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/add_color5.outputs:out>
+                token outputs:out
+            }
+            def Shader "add_color3"
+            {
+                uniform token info:id = "ND_add_color3"
+                color3f inputs:in1.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/gradient_light.outputs:out>
+                color3f inputs:in2.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample.inputs:ambient_color>
+                token outputs:out
+            }
+            def Shader "smooth_gradient"
+            {
+                uniform token info:id = "ND_smoothstep_float"
+                float inputs:in.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/NdotL.outputs:out>
+                float inputs:high = 0.001
+                token outputs:out
+            }
+            def Shader "viewdirection_vector3"
+            {
+                uniform token info:id = "ND_viewdirection_vector3"
+                string inputs:space = "world"
+                token outputs:out
+            }
+            def Shader "unit_viewdirection"
+            {
+                uniform token info:id = "ND_normalize_vector3"
+                float3 inputs:in.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/viewdirection_vector3.outputs:out>
+                token outputs:out
+            }
+            def Shader "multiply_float"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/smooth_gradient.outputs:out>
+                float inputs:in2.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/max_float.outputs:out>
+                token outputs:out
+            }
+            def Shader "specular_intensity_power"
+            {
+                uniform token info:id = "ND_safepower_float"
+                float inputs:in1.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/multiply_float.outputs:out>
+                float inputs:in2.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample.inputs:glossiness>
+                token outputs:out
+            }
+            def Shader "specular_intensity_color"
+            {
+                uniform token info:id = "ND_convert_float_color3"
+                float inputs:in.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/specular_remap.outputs:out>
+                token outputs:out
+            }
+            def Shader "add_color4"
+            {
+                uniform token info:id = "ND_add_color3"
+                color3f inputs:in1.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/add_color3.outputs:out>
+                color3f inputs:in2.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/specular.outputs:out>
+                token outputs:out
+            }
+            def Shader "multiply_vector3"
+            {
+                uniform token info:id = "ND_multiply_vector3"
+                float3 inputs:in1.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/unit_viewdirection.outputs:out>
+                float3 inputs:in2 = (-1, -1, -1)
+                token outputs:out
+            }
+            def Shader "specular_remap"
+            {
+                uniform token info:id = "ND_smoothstep_float"
+                float inputs:in.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/specular_intensity_power.outputs:out>
+                float inputs:low = 0.005
+                float inputs:high = 0.008
+                token outputs:out
+            }
+            def Shader "specular"
+            {
+                uniform token info:id = "ND_multiply_color3"
+                color3f inputs:in1.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/specular_intensity_color.outputs:out>
+                color3f inputs:in2.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample.inputs:specular_color>
+                token outputs:out
+            }
+            def Shader "NdotV"
+            {
+                uniform token info:id = "ND_dotproduct_vector3"
+                float3 inputs:in1.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/unit_normal.outputs:out>
+                float3 inputs:in2.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/multiply_vector3.outputs:out>
+                token outputs:out
+            }
+            def Shader "NdotV_invert"
+            {
+                uniform token info:id = "ND_invert_float"
+                float inputs:in.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/NdotV.outputs:out>
+                token outputs:out
+            }
+            def Shader "add_color5"
+            {
+                uniform token info:id = "ND_add_color3"
+                color3f inputs:in1.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/add_color4.outputs:out>
+                color3f inputs:in2.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/rim.outputs:out>
+                token outputs:out
+            }
+            def Shader "rim_gradient"
+            {
+                uniform token info:id = "ND_smoothstep_float"
+                float inputs:in.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/rmi_intensity.outputs:out>
+                float inputs:low.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/add_float.outputs:out>
+                float inputs:high.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/subtract_float.outputs:out>
+                token outputs:out
+            }
+            def Shader "rim_amount"
+            {
+                uniform token info:id = "ND_constant_float"
+                float inputs:value = 0.7
+                token outputs:out
+            }
+            def Shader "add_float"
+            {
+                uniform token info:id = "ND_add_float"
+                float inputs:in1.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/rim_amount.outputs:out>
+                float inputs:in2 = 0.01
+                token outputs:out
+            }
+            def Shader "subtract_float"
+            {
+                uniform token info:id = "ND_subtract_float"
+                float inputs:in1.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/rim_amount.outputs:out>
+                float inputs:in2 = 0.01
+                token outputs:out
+            }
+            def Shader "rmi_intensity"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/NdotV_invert.outputs:out>
+                float inputs:in2.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/rim_power.outputs:out>
+                token outputs:out
+            }
+            def Shader "rim_threshold"
+            {
+                uniform token info:id = "ND_constant_float"
+                float inputs:value = 0.1
+                token outputs:out
+            }
+            def Shader "rim_power"
+            {
+                uniform token info:id = "ND_safepower_float"
+                float inputs:in1.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/NdotL.outputs:out>
+                float inputs:in2.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/rim_threshold.outputs:out>
+                token outputs:out
+            }
+            def Shader "multiply_vector4"
+            {
+                uniform token info:id = "ND_multiply_vector3"
+                float3 inputs:in1.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/unit_light_direction.outputs:out>
+                float3 inputs:in2 = (-1, -1, -1)
+                token outputs:out
+            }
+            def Shader "unit_normal"
+            {
+                uniform token info:id = "ND_normalize_vector3"
+                float3 inputs:in.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/normal.outputs:out>
+                token outputs:out
+            }
+            def Shader "rim"
+            {
+                uniform token info:id = "ND_multiply_color3FA"
+                color3f inputs:in1.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample.inputs:rim_color>
+                float inputs:in2.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/rim_gradient.outputs:out>
+                token outputs:out
+            }
+            def Shader "gradient_light"
+            {
+                uniform token info:id = "ND_multiply_color3FA"
+                float inputs:in2.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/smooth_gradient.outputs:out>
+                color3f inputs:in1.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample.inputs:light_color>
+                token outputs:out
+            }
+            def Shader "reflect"
+            {
+                uniform token info:id = "ND_reflect_vector3"
+                float3 inputs:in.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/unit_viewdirection.outputs:out>
+                float3 inputs:normal.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/unit_normal.outputs:out>
+                token outputs:out
+            }
+            def Shader "LdotV"
+            {
+                uniform token info:id = "ND_dotproduct_vector3"
+                float3 inputs:in2.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/reflect.outputs:out>
+                float3 inputs:in1.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/multiply_vector4.outputs:out>
+                token outputs:out
+            }
+            def Shader "max_float"
+            {
+                uniform token info:id = "ND_max_float"
+                float inputs:in1.connect = </Looks/toon_shade_surfacematerial/NG_toon_sample/LdotV.outputs:out>
+                token outputs:out
+            }
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.toon_shade_surfacematerial.exr"
+        }
+    }
+}

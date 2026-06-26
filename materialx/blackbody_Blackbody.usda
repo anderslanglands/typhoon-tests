@@ -1,0 +1,63 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/blackbody_Blackbody>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "blackbody_Blackbody"
+    {
+        token outputs:mtlx:surface.connect = </Looks/blackbody_Blackbody/SR_blackbody.outputs:out>
+        token outputs:surface.connect = </Looks/blackbody_Blackbody/SR_blackbody.outputs:out>
+
+        def Shader "SR_blackbody"
+        {
+            uniform token info:id = "ND_surface_unlit"
+            color3f inputs:emission_color.connect = </Looks/blackbody_Blackbody/NG_blackbody.outputs:emission_color_output>
+            token outputs:out
+        }
+
+
+        def NodeGraph "NG_blackbody"
+        {
+            float inputs:blackbody_temperature = 5000.0
+            color3f outputs:emission_color_output.connect = </Looks/blackbody_Blackbody/NG_blackbody/blackbody_color_out.outputs:out>
+
+            def Shader "blackbody_color_out"
+            {
+                uniform token info:id = "ND_blackbody"
+                float inputs:temperature.connect = </Looks/blackbody_Blackbody/NG_blackbody.inputs:blackbody_temperature>
+                token outputs:out
+            }
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.blackbody_Blackbody.exr"
+        }
+    }
+}

@@ -1,0 +1,75 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/usd_preview_surface_brass_tiled_USD_Tiled_Brass>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "usd_preview_surface_brass_tiled_USD_Tiled_Brass"
+    {
+        token outputs:mtlx:surface.connect = </Looks/usd_preview_surface_brass_tiled_USD_Tiled_Brass/SR_brass1.outputs:out>
+        token outputs:surface.connect = </Looks/usd_preview_surface_brass_tiled_USD_Tiled_Brass/SR_brass1.outputs:out>
+
+        def Shader "SR_brass1"
+        {
+            uniform token info:id = "ND_UsdPreviewSurface_surfaceshader"
+            color3f inputs:diffuseColor.connect = </Looks/usd_preview_surface_brass_tiled_USD_Tiled_Brass/NG_brass1.outputs:out_color>
+            float inputs:metallic = 1
+            float inputs:roughness.connect = </Looks/usd_preview_surface_brass_tiled_USD_Tiled_Brass/NG_brass1.outputs:out_roughness>
+            token outputs:out
+        }
+
+
+        def NodeGraph "NG_brass1"
+        {
+            color3f outputs:out_color.connect = </Looks/usd_preview_surface_brass_tiled_USD_Tiled_Brass/NG_brass1/image_color.outputs:out>
+            float outputs:out_roughness.connect = </Looks/usd_preview_surface_brass_tiled_USD_Tiled_Brass/NG_brass1/image_roughness.outputs:out>
+
+            def Shader "image_color"
+            {
+                uniform token info:id = "ND_tiledimage_color3"
+                asset inputs:file = @assets/Images/brass_color.jpg@ (
+                    colorSpace = "srgb_texture"
+                )
+                float2 inputs:uvtiling = (1.0, 1.0)
+                token outputs:out
+            }
+            def Shader "image_roughness"
+            {
+                uniform token info:id = "ND_tiledimage_float"
+                asset inputs:file = @assets/Images/brass_roughness.jpg@
+                float2 inputs:uvtiling = (1.0, 1.0)
+                token outputs:out
+            }
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.usd_preview_surface_brass_tiled_USD_Tiled_Brass.exr"
+        }
+    }
+}

@@ -1,0 +1,52 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/usd_preview_surface_gold_USD_Gold>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "usd_preview_surface_gold_USD_Gold"
+    {
+        token outputs:mtlx:surface.connect = </Looks/usd_preview_surface_gold_USD_Gold/SR_gold.outputs:out>
+        token outputs:surface.connect = </Looks/usd_preview_surface_gold_USD_Gold/SR_gold.outputs:out>
+
+        def Shader "SR_gold"
+        {
+            uniform token info:id = "ND_UsdPreviewSurface_surfaceshader"
+            color3f inputs:diffuseColor = (0.944, 0.776, 0.373)
+            float inputs:metallic = 1
+            float inputs:roughness = 0.02
+            token outputs:out
+        }
+
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.usd_preview_surface_gold_USD_Gold.exr"
+        }
+    }
+}

@@ -1,0 +1,186 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/generalized_schlick_schlick_bsdf_layer_RT_out>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "generalized_schlick_schlick_bsdf_layer_RT_out"
+    {
+        token outputs:mtlx:surface.connect = </Looks/generalized_schlick_schlick_bsdf_layer_RT_out/schlick_bsdf.outputs:layer_RT_out>
+        token outputs:surface.connect = </Looks/generalized_schlick_schlick_bsdf_layer_RT_out/schlick_bsdf.outputs:layer_RT_out>
+
+        def NodeGraph "schlick_bsdf"
+        {
+            token outputs:R_out.connect = </Looks/generalized_schlick_schlick_bsdf_layer_RT_out/schlick_bsdf/surface_R.outputs:out>
+            token outputs:T_out.connect = </Looks/generalized_schlick_schlick_bsdf_layer_RT_out/schlick_bsdf/surface_T.outputs:out>
+            token outputs:RT_out.connect = </Looks/generalized_schlick_schlick_bsdf_layer_RT_out/schlick_bsdf/surface_RT.outputs:out>
+            token outputs:layer_RT_out.connect = </Looks/generalized_schlick_schlick_bsdf_layer_RT_out/schlick_bsdf/surface_layer_RT.outputs:out>
+            token outputs:R2_out.connect = </Looks/generalized_schlick_schlick_bsdf_layer_RT_out/schlick_bsdf/surface_R2.outputs:out>
+            token outputs:T2_out.connect = </Looks/generalized_schlick_schlick_bsdf_layer_RT_out/schlick_bsdf/surface_T2.outputs:out>
+            token outputs:RT2_out.connect = </Looks/generalized_schlick_schlick_bsdf_layer_RT_out/schlick_bsdf/surface_RT2.outputs:out>
+            token outputs:layer_RT2_out.connect = </Looks/generalized_schlick_schlick_bsdf_layer_RT_out/schlick_bsdf/surface_layer_RT2.outputs:out>
+            token outputs:R3_out.connect = </Looks/generalized_schlick_schlick_bsdf_layer_RT_out/schlick_bsdf/surface_R3.outputs:out>
+
+            def Shader "schlick_R"
+            {
+                uniform token info:id = "ND_generalized_schlick_bsdf"
+                color3f inputs:color0 = (0.8, 0.8, 0.8)
+                float2 inputs:roughness = (0.02, 0.02)
+                bool inputs:retroreflective = false
+                string inputs:scatter_mode = "R"
+                token outputs:out
+            }
+            def Shader "surface_R"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/generalized_schlick_schlick_bsdf_layer_RT_out/schlick_bsdf/schlick_R.outputs:out>
+                token outputs:out
+            }
+            def Shader "schlick_T"
+            {
+                uniform token info:id = "ND_generalized_schlick_bsdf"
+                color3f inputs:color0 = (0.2, 0.2, 0.2)
+                float2 inputs:roughness = (0.02, 0.02)
+                string inputs:scatter_mode = "T"
+                token outputs:out
+            }
+            def Shader "surface_T"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/generalized_schlick_schlick_bsdf_layer_RT_out/schlick_bsdf/schlick_T.outputs:out>
+                token outputs:out
+            }
+            def Shader "schlick_RT"
+            {
+                uniform token info:id = "ND_generalized_schlick_bsdf"
+                color3f inputs:color0 = (0.2, 0.2, 0.2)
+                float2 inputs:roughness = (0.02, 0.02)
+                string inputs:scatter_mode = "RT"
+                token outputs:out
+            }
+            def Shader "surface_RT"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/generalized_schlick_schlick_bsdf_layer_RT_out/schlick_bsdf/schlick_RT.outputs:out>
+                token outputs:out
+            }
+            def Shader "layer_RT"
+            {
+                uniform token info:id = "ND_layer_bsdf"
+                token inputs:top.connect = </Looks/generalized_schlick_schlick_bsdf_layer_RT_out/schlick_bsdf/schlick_R.outputs:out>
+                token inputs:base.connect = </Looks/generalized_schlick_schlick_bsdf_layer_RT_out/schlick_bsdf/schlick_T.outputs:out>
+                token outputs:out
+            }
+            def Shader "surface_layer_RT"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/generalized_schlick_schlick_bsdf_layer_RT_out/schlick_bsdf/layer_RT.outputs:out>
+                token outputs:out
+            }
+            def Shader "schlick_R2"
+            {
+                uniform token info:id = "ND_generalized_schlick_bsdf"
+                color3f inputs:color0 = (0.8, 0.2, 0.2)
+                color3f inputs:color90 = (0.2, 0.8, 0.2)
+                float2 inputs:roughness = (0.02, 0.02)
+                string inputs:scatter_mode = "R"
+                token outputs:out
+            }
+            def Shader "surface_R2"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/generalized_schlick_schlick_bsdf_layer_RT_out/schlick_bsdf/schlick_R2.outputs:out>
+                token outputs:out
+            }
+            def Shader "schlick_T2"
+            {
+                uniform token info:id = "ND_generalized_schlick_bsdf"
+                color3f inputs:color0 = (0.8, 0.2, 0.2)
+                color3f inputs:color90 = (0.2, 0.8, 0.2)
+                float2 inputs:roughness = (0.02, 0.02)
+                string inputs:scatter_mode = "T"
+                token outputs:out
+            }
+            def Shader "surface_T2"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/generalized_schlick_schlick_bsdf_layer_RT_out/schlick_bsdf/schlick_T2.outputs:out>
+                token outputs:out
+            }
+            def Shader "schlick_RT2"
+            {
+                uniform token info:id = "ND_generalized_schlick_bsdf"
+                color3f inputs:color0 = (0.8, 0.2, 0.2)
+                color3f inputs:color90 = (0.2, 0.8, 0.2)
+                float2 inputs:roughness = (0.02, 0.02)
+                string inputs:scatter_mode = "RT"
+                token outputs:out
+            }
+            def Shader "surface_RT2"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/generalized_schlick_schlick_bsdf_layer_RT_out/schlick_bsdf/schlick_RT2.outputs:out>
+                token outputs:out
+            }
+            def Shader "layer_RT2"
+            {
+                uniform token info:id = "ND_layer_bsdf"
+                token inputs:top.connect = </Looks/generalized_schlick_schlick_bsdf_layer_RT_out/schlick_bsdf/schlick_R2.outputs:out>
+                token inputs:base.connect = </Looks/generalized_schlick_schlick_bsdf_layer_RT_out/schlick_bsdf/schlick_T2.outputs:out>
+                token outputs:out
+            }
+            def Shader "surface_layer_RT2"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/generalized_schlick_schlick_bsdf_layer_RT_out/schlick_bsdf/layer_RT2.outputs:out>
+                token outputs:out
+            }
+            def Shader "schlick_R3"
+            {
+                uniform token info:id = "ND_generalized_schlick_bsdf"
+                color3f inputs:color0 = (0.8, 0.8, 0.8)
+                color3f inputs:color82 = (0.2, 0.2, 0.8)
+                color3f inputs:color90 = (0.8, 0.8, 0.8)
+                float2 inputs:roughness = (0.02, 0.02)
+                string inputs:scatter_mode = "R"
+                token outputs:out
+            }
+            def Shader "surface_R3"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/generalized_schlick_schlick_bsdf_layer_RT_out/schlick_bsdf/schlick_R3.outputs:out>
+                token outputs:out
+            }
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.generalized_schlick_schlick_bsdf_layer_RT_out.exr"
+        }
+    }
+}

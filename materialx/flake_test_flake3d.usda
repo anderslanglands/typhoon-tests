@@ -1,0 +1,84 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/flake_test_flake3d>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "flake_test_flake3d"
+    {
+        token outputs:mtlx:surface.connect = </Looks/flake_test_flake3d/SR_flake3d.outputs:out>
+        token outputs:surface.connect = </Looks/flake_test_flake3d/SR_flake3d.outputs:out>
+
+        def Shader "flake2d"
+        {
+            uniform token info:id = "ND_flake2d"
+            float inputs:coverage = 1
+            float inputs:size = 0.001
+            float inputs:roughness = 0.2
+            float3 outputs:flakenormal
+        }
+
+        def Shader "SR_flake2d"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            float inputs:base = 1
+            color3f inputs:base_color = (0.1, 0.1, 0.5)
+            float3 inputs:normal.connect = </Looks/flake_test_flake3d/flake2d.outputs:flakenormal>
+            float inputs:metalness = 1
+            float inputs:specular_roughness = 0.1
+            token outputs:out
+        }
+
+
+        def Shader "flake3d"
+        {
+            uniform token info:id = "ND_flake3d"
+            float inputs:coverage = 1
+            float inputs:size = 0.001
+            float inputs:roughness = 0.2
+            float3 outputs:flakenormal
+        }
+
+        def Shader "SR_flake3d"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            float inputs:base = 1
+            color3f inputs:base_color = (0.1, 0.1, 0.5)
+            float3 inputs:normal.connect = </Looks/flake_test_flake3d/flake3d.outputs:flakenormal>
+            float inputs:metalness = 1
+            float inputs:specular_roughness = 0.1
+            token outputs:out
+        }
+
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.flake_test_flake3d.exr"
+        }
+    }
+}

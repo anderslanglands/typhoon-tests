@@ -1,0 +1,387 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/vertical_layering_vertical_layering_ex3_out>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "vertical_layering_vertical_layering_ex3_out"
+    {
+        token outputs:mtlx:surface.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex3.outputs:out>
+        token outputs:surface.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex3.outputs:out>
+
+        def NodeGraph "vertical_layering_ex1"
+        {
+            token outputs:out.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex1/surface1.outputs:out>
+
+            def Shader "dielectric_bsdf"
+            {
+                uniform token info:id = "ND_dielectric_bsdf"
+                float inputs:ior = 2.0
+                token outputs:out
+            }
+            def Shader "oren_nayar_diffuse_bsdf"
+            {
+                uniform token info:id = "ND_oren_nayar_diffuse_bsdf"
+                token outputs:out
+            }
+            def Shader "layer1"
+            {
+                uniform token info:id = "ND_layer_bsdf"
+                token inputs:top.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex1/dielectric_bsdf.outputs:out>
+                token inputs:base.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex1/oren_nayar_diffuse_bsdf.outputs:out>
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex1/layer1.outputs:out>
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "vertical_layering_ex2"
+        {
+            token outputs:out.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex2/surface1.outputs:out>
+
+            def Shader "oren_nayar_diffuse_bsdf1"
+            {
+                uniform token info:id = "ND_oren_nayar_diffuse_bsdf"
+                color3f inputs:color = (1, 0, 0)
+                token outputs:out
+            }
+            def Shader "dielectric_bsdf1"
+            {
+                uniform token info:id = "ND_dielectric_bsdf"
+                token outputs:out
+            }
+            def Shader "layer1"
+            {
+                uniform token info:id = "ND_layer_bsdf"
+                token inputs:top.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex2/dielectric_bsdf1.outputs:out>
+                token inputs:base.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex2/oren_nayar_diffuse_bsdf1.outputs:out>
+                token outputs:out
+            }
+            def Shader "dielectric_bsdf2"
+            {
+                uniform token info:id = "ND_dielectric_bsdf"
+                float inputs:ior = 3
+                token outputs:out
+            }
+            def Shader "mix1"
+            {
+                uniform token info:id = "ND_mix_bsdf"
+                token inputs:fg.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex2/layer1.outputs:out>
+                token inputs:bg.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex2/dielectric_bsdf2.outputs:out>
+                float inputs:mix = 0.5
+                token outputs:out
+            }
+            def Shader "dielectric_bsdf3"
+            {
+                uniform token info:id = "ND_dielectric_bsdf"
+                float inputs:ior = 3
+                token outputs:out
+            }
+            def Shader "layer2"
+            {
+                uniform token info:id = "ND_layer_bsdf"
+                token inputs:top.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex2/dielectric_bsdf3.outputs:out>
+                token inputs:base.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex2/mix1.outputs:out>
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex2/layer2.outputs:out>
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "vertical_layering_ex3"
+        {
+            token outputs:out.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex3/surface.outputs:out>
+
+            def Shader "dielectric_bsdf2"
+            {
+                uniform token info:id = "ND_dielectric_bsdf"
+                token outputs:out
+            }
+            def Shader "oren_nayar_diffuse_bsdf1"
+            {
+                uniform token info:id = "ND_oren_nayar_diffuse_bsdf"
+                color3f inputs:color = (1, 0, 0)
+                token outputs:out
+            }
+            def Shader "layer"
+            {
+                uniform token info:id = "ND_layer_bsdf"
+                token inputs:top.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex3/dielectric_bsdf2.outputs:out>
+                token inputs:base.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex3/oren_nayar_diffuse_bsdf1.outputs:out>
+                token outputs:out
+            }
+            def Shader "mix"
+            {
+                uniform token info:id = "ND_mix_bsdf"
+                token inputs:fg.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex3/dielectric_bsdf2.outputs:out>
+                token inputs:bg.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex3/layer.outputs:out>
+                float inputs:mix = 0.5
+                token outputs:out
+            }
+            def Shader "surface"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex3/mix.outputs:out>
+                token inputs:edf = ""
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "IMP_mybsdf"
+        {
+            float inputs:diffuse = 0.8
+            color3f inputs:diffuseColor = (0.0, 1.0, 0.0)
+            float inputs:specular = 1.0
+            color3f inputs:specularColor = (1.0, 1.0, 1.0)
+            token outputs:out.connect = </Looks/vertical_layering_vertical_layering_ex3_out/IMP_mybsdf/layer1.outputs:out>
+
+            def Shader "diffuse_brdf1"
+            {
+                uniform token info:id = "ND_oren_nayar_diffuse_bsdf"
+                float inputs:weight.connect = </Looks/vertical_layering_vertical_layering_ex3_out/IMP_mybsdf.inputs:diffuse>
+                color3f inputs:color.connect = </Looks/vertical_layering_vertical_layering_ex3_out/IMP_mybsdf.inputs:diffuseColor>
+                token outputs:out
+            }
+            def Shader "dielectric_brdf1"
+            {
+                uniform token info:id = "ND_dielectric_bsdf"
+                float inputs:weight.connect = </Looks/vertical_layering_vertical_layering_ex3_out/IMP_mybsdf.inputs:specular>
+                color3f inputs:tint.connect = </Looks/vertical_layering_vertical_layering_ex3_out/IMP_mybsdf.inputs:specularColor>
+                float inputs:ior = 1.52
+                token outputs:out
+            }
+            def Shader "layer1"
+            {
+                uniform token info:id = "ND_layer_bsdf"
+                token inputs:top.connect = </Looks/vertical_layering_vertical_layering_ex3_out/IMP_mybsdf/dielectric_brdf1.outputs:out>
+                token inputs:base.connect = </Looks/vertical_layering_vertical_layering_ex3_out/IMP_mybsdf/diffuse_brdf1.outputs:out>
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "vertical_layering_ex4"
+        {
+            token outputs:out.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex4/surface1.outputs:out>
+
+            def Shader "mybsdf1"
+            {
+                uniform token info:id = "ND_mybsdf"
+                float inputs:diffuse = 0.4
+                color3f inputs:diffuseColor = (1.0, 0.1, 0.1)
+                float inputs:specular = 1.0
+                color3f inputs:specularColor = (1.0, 1.0, 1.0)
+                token outputs:out
+            }
+            def Shader "dielectric_brdf1"
+            {
+                uniform token info:id = "ND_dielectric_bsdf"
+                float inputs:weight = 1.0
+                color3f inputs:tint = (1.0, 1.0, 1.0)
+                float inputs:ior = 1.9
+                token outputs:out
+            }
+            def Shader "layer1"
+            {
+                uniform token info:id = "ND_layer_bsdf"
+                token inputs:top.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex4/dielectric_brdf1.outputs:out>
+                token inputs:base.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex4/mybsdf1.outputs:out>
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex4/layer1.outputs:out>
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "vertical_layering_ex5"
+        {
+            token outputs:out.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex5/surface1.outputs:out>
+
+            def Shader "dielectric"
+            {
+                uniform token info:id = "ND_dielectric_bsdf"
+                token outputs:out
+            }
+            def Shader "conductor"
+            {
+                uniform token info:id = "ND_conductor_bsdf"
+                token outputs:out
+            }
+            def Shader "multiply"
+            {
+                uniform token info:id = "ND_multiply_bsdfF"
+                token inputs:in1.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex5/dielectric.outputs:out>
+                float inputs:in2 = 0.5
+                token outputs:out
+            }
+            def Shader "layer"
+            {
+                uniform token info:id = "ND_layer_bsdf"
+                token inputs:top.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex5/multiply.outputs:out>
+                token inputs:base.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex5/conductor.outputs:out>
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex5/layer.outputs:out>
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "NG_custom_layer"
+        {
+            token inputs:top
+            token inputs:base
+            token outputs:out.connect = </Looks/vertical_layering_vertical_layering_ex3_out/NG_custom_layer/layer.outputs:out>
+
+            def Shader "layer"
+            {
+                uniform token info:id = "ND_layer_bsdf"
+                token inputs:top.connect = </Looks/vertical_layering_vertical_layering_ex3_out/NG_custom_layer.inputs:top>
+                token inputs:base.connect = </Looks/vertical_layering_vertical_layering_ex3_out/NG_custom_layer.inputs:base>
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "vertical_layering_ex6"
+        {
+            token outputs:out.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex6/surface1.outputs:out>
+
+            def Shader "dielectric"
+            {
+                uniform token info:id = "ND_dielectric_bsdf"
+                token outputs:out
+            }
+            def Shader "conductor"
+            {
+                uniform token info:id = "ND_conductor_bsdf"
+                token outputs:out
+            }
+            def Shader "custom_layer"
+            {
+                uniform token info:id = "ND_custom_layer"
+                token inputs:top.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex6/dielectric.outputs:out>
+                token inputs:base.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex6/conductor.outputs:out>
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex6/custom_layer.outputs:out>
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "NG_scaled_layer"
+        {
+            token inputs:top
+            token inputs:base
+            float inputs:scale_top = 1.0
+            float inputs:scale_base = 1.0
+            float inputs:scale_layer = 1.0
+            token outputs:out.connect = </Looks/vertical_layering_vertical_layering_ex3_out/NG_scaled_layer/layer_scaled.outputs:out>
+
+            def Shader "top_scaled"
+            {
+                uniform token info:id = "ND_multiply_bsdfF"
+                token inputs:in1.connect = </Looks/vertical_layering_vertical_layering_ex3_out/NG_scaled_layer.inputs:top>
+                float inputs:in2.connect = </Looks/vertical_layering_vertical_layering_ex3_out/NG_scaled_layer.inputs:scale_top>
+                token outputs:out
+            }
+            def Shader "base_scaled"
+            {
+                uniform token info:id = "ND_multiply_bsdfF"
+                token inputs:in1.connect = </Looks/vertical_layering_vertical_layering_ex3_out/NG_scaled_layer.inputs:base>
+                float inputs:in2.connect = </Looks/vertical_layering_vertical_layering_ex3_out/NG_scaled_layer.inputs:scale_base>
+                token outputs:out
+            }
+            def Shader "layer"
+            {
+                uniform token info:id = "ND_layer_bsdf"
+                token inputs:top.connect = </Looks/vertical_layering_vertical_layering_ex3_out/NG_scaled_layer/top_scaled.outputs:out>
+                token inputs:base.connect = </Looks/vertical_layering_vertical_layering_ex3_out/NG_scaled_layer/base_scaled.outputs:out>
+                token outputs:out
+            }
+            def Shader "layer_scaled"
+            {
+                uniform token info:id = "ND_multiply_bsdfF"
+                token inputs:in1.connect = </Looks/vertical_layering_vertical_layering_ex3_out/NG_scaled_layer/layer.outputs:out>
+                float inputs:in2.connect = </Looks/vertical_layering_vertical_layering_ex3_out/NG_scaled_layer.inputs:scale_layer>
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "vertical_layering_ex7"
+        {
+            token outputs:out.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex7/surface1.outputs:out>
+
+            def Shader "dielectric"
+            {
+                uniform token info:id = "ND_dielectric_bsdf"
+                token outputs:out
+            }
+            def Shader "conductor"
+            {
+                uniform token info:id = "ND_conductor_bsdf"
+                token outputs:out
+            }
+            def Shader "custom_layer"
+            {
+                uniform token info:id = "ND_scaled_layer"
+                token inputs:top.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex7/dielectric.outputs:out>
+                token inputs:base.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex7/conductor.outputs:out>
+                float inputs:scale_top = 0.8
+                float inputs:scale_base = 0.3
+                float inputs:scale_layer = 0.9
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/vertical_layering_vertical_layering_ex3_out/vertical_layering_ex7/custom_layer.outputs:out>
+                token outputs:out
+            }
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.vertical_layering_vertical_layering_ex3_out.exr"
+        }
+    }
+}

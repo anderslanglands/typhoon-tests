@@ -1,0 +1,148 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/standard_surface_marble_solid_Marble_3D>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "standard_surface_marble_solid_Marble_3D"
+    {
+        token outputs:mtlx:surface.connect = </Looks/standard_surface_marble_solid_Marble_3D/SR_marble1.outputs:out>
+        token outputs:surface.connect = </Looks/standard_surface_marble_solid_Marble_3D/SR_marble1.outputs:out>
+
+        def Shader "SR_marble1"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            float inputs:base = 1
+            color3f inputs:base_color.connect = </Looks/standard_surface_marble_solid_Marble_3D/NG_marble1.outputs:out>
+            float inputs:specular_roughness = 0.1
+            float inputs:subsurface = 0.4
+            color3f inputs:subsurface_color.connect = </Looks/standard_surface_marble_solid_Marble_3D/NG_marble1.outputs:out>
+            token outputs:out
+        }
+
+
+        def NodeGraph "NG_marble1"
+        {
+            color3f inputs:base_color_1 = (0.8, 0.8, 0.8)
+            color3f inputs:base_color_2 = (0.1, 0.1, 0.3)
+            float inputs:noise_scale_1 = 6.0
+            float inputs:noise_scale_2 = 4.0
+            float inputs:noise_power = 3.0
+            int inputs:noise_octaves = 3
+            color3f outputs:out.connect = </Looks/standard_surface_marble_solid_Marble_3D/NG_marble1/color_mix.outputs:out>
+
+            def Shader "obj_pos"
+            {
+                uniform token info:id = "ND_position_vector3"
+                token outputs:out
+            }
+            def Shader "add_xyz"
+            {
+                uniform token info:id = "ND_dotproduct_vector3"
+                float3 inputs:in1.connect = </Looks/standard_surface_marble_solid_Marble_3D/NG_marble1/obj_pos.outputs:out>
+                float3 inputs:in2 = (1, 1, 1)
+                token outputs:out
+            }
+            def Shader "scale_xyz"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/standard_surface_marble_solid_Marble_3D/NG_marble1/add_xyz.outputs:out>
+                float inputs:in2.connect = </Looks/standard_surface_marble_solid_Marble_3D/NG_marble1.inputs:noise_scale_1>
+                token outputs:out
+            }
+            def Shader "scale_pos"
+            {
+                uniform token info:id = "ND_multiply_vector3FA"
+                float3 inputs:in1.connect = </Looks/standard_surface_marble_solid_Marble_3D/NG_marble1/obj_pos.outputs:out>
+                float inputs:in2.connect = </Looks/standard_surface_marble_solid_Marble_3D/NG_marble1.inputs:noise_scale_2>
+                token outputs:out
+            }
+            def Shader "noise"
+            {
+                uniform token info:id = "ND_fractal3d_float"
+                int inputs:octaves.connect = </Looks/standard_surface_marble_solid_Marble_3D/NG_marble1.inputs:noise_octaves>
+                float3 inputs:position.connect = </Looks/standard_surface_marble_solid_Marble_3D/NG_marble1/scale_pos.outputs:out>
+                token outputs:out
+            }
+            def Shader "scale_noise"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/standard_surface_marble_solid_Marble_3D/NG_marble1/noise.outputs:out>
+                float inputs:in2 = 3.0
+                token outputs:out
+            }
+            def Shader "sum"
+            {
+                uniform token info:id = "ND_add_float"
+                float inputs:in1.connect = </Looks/standard_surface_marble_solid_Marble_3D/NG_marble1/scale_xyz.outputs:out>
+                float inputs:in2.connect = </Looks/standard_surface_marble_solid_Marble_3D/NG_marble1/scale_noise.outputs:out>
+                token outputs:out
+            }
+            def Shader "sin"
+            {
+                uniform token info:id = "ND_sin_float"
+                float inputs:in.connect = </Looks/standard_surface_marble_solid_Marble_3D/NG_marble1/sum.outputs:out>
+                token outputs:out
+            }
+            def Shader "scale"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/standard_surface_marble_solid_Marble_3D/NG_marble1/sin.outputs:out>
+                float inputs:in2 = 0.5
+                token outputs:out
+            }
+            def Shader "bias"
+            {
+                uniform token info:id = "ND_add_float"
+                float inputs:in1.connect = </Looks/standard_surface_marble_solid_Marble_3D/NG_marble1/scale.outputs:out>
+                float inputs:in2 = 0.5
+                token outputs:out
+            }
+            def Shader "power"
+            {
+                uniform token info:id = "ND_power_float"
+                float inputs:in1.connect = </Looks/standard_surface_marble_solid_Marble_3D/NG_marble1/bias.outputs:out>
+                float inputs:in2.connect = </Looks/standard_surface_marble_solid_Marble_3D/NG_marble1.inputs:noise_power>
+                token outputs:out
+            }
+            def Shader "color_mix"
+            {
+                uniform token info:id = "ND_mix_color3"
+                color3f inputs:bg.connect = </Looks/standard_surface_marble_solid_Marble_3D/NG_marble1.inputs:base_color_1>
+                color3f inputs:fg.connect = </Looks/standard_surface_marble_solid_Marble_3D/NG_marble1.inputs:base_color_2>
+                float inputs:mix.connect = </Looks/standard_surface_marble_solid_Marble_3D/NG_marble1/power.outputs:out>
+                token outputs:out
+            }
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.standard_surface_marble_solid_Marble_3D.exr"
+        }
+    }
+}

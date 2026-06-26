@@ -1,0 +1,62 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/translucent_bsdf_translucent_bsdf_out>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "translucent_bsdf_translucent_bsdf_out"
+    {
+        token outputs:mtlx:surface.connect = </Looks/translucent_bsdf_translucent_bsdf_out/translucent_bsdf.outputs:out>
+        token outputs:surface.connect = </Looks/translucent_bsdf_translucent_bsdf_out/translucent_bsdf.outputs:out>
+
+        def NodeGraph "translucent_bsdf"
+        {
+            token outputs:out.connect = </Looks/translucent_bsdf_translucent_bsdf_out/translucent_bsdf/surface1.outputs:out>
+
+            def Shader "translucent_bsdf"
+            {
+                uniform token info:id = "ND_translucent_bsdf"
+                float inputs:weight = 0.6
+                color3f inputs:color = (1.0, 1.0, 1.0)
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/translucent_bsdf_translucent_bsdf_out/translucent_bsdf/translucent_bsdf.outputs:out>
+                float inputs:opacity = 1.0
+                token outputs:out
+            }
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.translucent_bsdf_translucent_bsdf_out.exr"
+        }
+    }
+}

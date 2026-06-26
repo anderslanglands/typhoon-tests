@@ -1,0 +1,103 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/color3_vec3_cm_test_height_to_normal_cm_out>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "color3_vec3_cm_test_height_to_normal_cm_out"
+    {
+        token outputs:mtlx:surface.connect = </Looks/color3_vec3_cm_test_height_to_normal_cm_out/out_to_surfaceshader.outputs:out>
+        token outputs:surface.connect = </Looks/color3_vec3_cm_test_height_to_normal_cm_out/out_to_surfaceshader.outputs:out>
+
+        def NodeGraph "height_to_normal_cm"
+        {
+            float3 outputs:out.connect = </Looks/color3_vec3_cm_test_height_to_normal_cm_out/height_to_normal_cm/impl_heighttonormalmap.outputs:out>
+
+            def Shader "b_image"
+            {
+                uniform token info:id = "ND_image_color3"
+                asset inputs:file = @assets/Images/grid.png@ (
+                    colorSpace = "srgb_texture"
+                )
+                token outputs:out
+            }
+            def Shader "extract1"
+            {
+                uniform token info:id = "ND_extract_color3"
+                color3f inputs:in.connect = </Looks/color3_vec3_cm_test_height_to_normal_cm_out/height_to_normal_cm/b_image.outputs:out>
+                int inputs:index = 1
+                token outputs:out
+            }
+            def Shader "impl_heighttonormalmap"
+            {
+                uniform token info:id = "ND_heighttonormal_vector3"
+                float inputs:in.connect = </Looks/color3_vec3_cm_test_height_to_normal_cm_out/height_to_normal_cm/extract1.outputs:out>
+                float inputs:scale = 1.0
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "normalmap_cm"
+        {
+            float3 outputs:out.connect = </Looks/color3_vec3_cm_test_height_to_normal_cm_out/normalmap_cm/impl_normalmap.outputs:out>
+
+            def Shader "b_image"
+            {
+                uniform token info:id = "ND_image_color3"
+                asset inputs:file = @assets/Images/grid.png@ (
+                    colorSpace = "srgb_texture"
+                )
+                token outputs:out
+            }
+            def Shader "c3tov3"
+            {
+                uniform token info:id = "ND_convert_color3_vector3"
+                color3f inputs:in.connect = </Looks/color3_vec3_cm_test_height_to_normal_cm_out/normalmap_cm/b_image.outputs:out>
+                token outputs:out
+            }
+            def Shader "impl_normalmap"
+            {
+                uniform token info:id = "ND_normalmap_float"
+                float3 inputs:in.connect = </Looks/color3_vec3_cm_test_height_to_normal_cm_out/normalmap_cm/c3tov3.outputs:out>
+                float inputs:scale = 1.5
+                token outputs:out
+            }
+        }
+
+        def Shader "out_to_surfaceshader"
+        {
+            uniform token info:id = "ND_convert_vector3_surfaceshader"
+            float3 inputs:in.connect = </Looks/color3_vec3_cm_test_height_to_normal_cm_out/height_to_normal_cm.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.color3_vec3_cm_test_height_to_normal_cm_out.exr"
+        }
+    }
+}

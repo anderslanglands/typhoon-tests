@@ -1,0 +1,260 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/standard_surface_brick_procedural_M_BrickPattern>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "standard_surface_brick_procedural_M_BrickPattern"
+    {
+        token outputs:mtlx:surface.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/N_StandardSurface.outputs:out>
+        token outputs:surface.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/N_StandardSurface.outputs:out>
+
+        def Shader "N_StandardSurface"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern.outputs:base_color_output>
+            float inputs:specular_roughness.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern.outputs:specular_roughness_output>
+            float3 inputs:normal.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern.outputs:normal_output>
+            token outputs:out
+        }
+
+
+        def NodeGraph "NG_BrickPattern"
+        {
+            color3f inputs:brick_color = (0.661876, 0.19088, 0)
+            float inputs:hue_variation = 0.083
+            float inputs:value_variation = 0.787
+            float inputs:roughness_amount = 0.853
+            color3f inputs:dirt_color = (0.56372, 0.56372, 0.56372)
+            float inputs:dirt_amount = 0.248
+            float inputs:uvtiling = 3
+            color3f outputs:base_color_output.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_clamp_0.outputs:out>
+            float outputs:specular_roughness_output.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_multiply_1.outputs:out>
+            float3 outputs:normal_output.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_normalmap_3.outputs:out>
+
+            def Shader "node_multiply_5"
+            {
+                uniform token info:id = "ND_multiply_color3FA"
+                color3f inputs:in1.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_mix_6.outputs:out>
+                float inputs:in2.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_tiledimage_float_7.outputs:out>
+                token outputs:out
+            }
+            def Shader "node_mix_8"
+            {
+                uniform token info:id = "ND_mix_color3"
+                color3f inputs:fg.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_multiply_5.outputs:out>
+                color3f inputs:bg.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_multiply_9.outputs:out>
+                float inputs:mix.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_tiledimage_float_10.outputs:out>
+                token outputs:out
+            }
+            def Shader "node_color_11"
+            {
+                uniform token info:id = "ND_constant_color3"
+                color3f inputs:value = (0.263273, 0.263273, 0.263273)
+                token outputs:out
+            }
+            def Shader "node_multiply_9"
+            {
+                uniform token info:id = "ND_multiply_color3FA"
+                color3f inputs:in1.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_color_11.outputs:out>
+                float inputs:in2.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_tiledimage_float_7.outputs:out>
+                token outputs:out
+            }
+            def Shader "node_rgbtohsv_12"
+            {
+                uniform token info:id = "ND_rgbtohsv_color3"
+                color3f inputs:in.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern.inputs:brick_color>
+                token outputs:out
+            }
+            def Shader "node_combine3_color3_13"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_multiply_14.outputs:out>
+                float inputs:in2 = 0
+                float inputs:in3.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_multiply_15.outputs:out>
+                token outputs:out
+            }
+            def Shader "node_add_16"
+            {
+                uniform token info:id = "ND_add_color3"
+                color3f inputs:in1.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_combine3_color3_13.outputs:out>
+                color3f inputs:in2.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_rgbtohsv_12.outputs:out>
+                token outputs:out
+            }
+            def Shader "node_hsvtorgb_17"
+            {
+                uniform token info:id = "ND_hsvtorgb_color3"
+                color3f inputs:in.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_add_16.outputs:out>
+                token outputs:out
+            }
+            def Shader "node_subtract_18"
+            {
+                uniform token info:id = "ND_subtract_float"
+                float inputs:in1.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_add_19.outputs:out>
+                float inputs:in2 = 0.35
+                token outputs:out
+            }
+            def Shader "node_multiply_14"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_subtract_18.outputs:out>
+                float inputs:in2.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern.inputs:hue_variation>
+                token outputs:out
+            }
+            def Shader "node_multiply_15"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_add_19.outputs:out>
+                float inputs:in2.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_multiply_20.outputs:out>
+                token outputs:out
+            }
+            def Shader "node_clamp_0"
+            {
+                uniform token info:id = "ND_clamp_color3"
+                color3f inputs:in.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_mix_8.outputs:out>
+                token outputs:out
+            }
+            def Shader "node_multiply_1"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_divide_21.outputs:out>
+                float inputs:in2.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_tiledimage_float_22.outputs:out>
+                token outputs:out
+            }
+            def Shader "node_max_1"
+            {
+                uniform token info:id = "ND_max_float"
+                float inputs:in1.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_tiledimage_float_10.outputs:out>
+                float inputs:in2 = 0.00001
+                token outputs:out
+            }
+            def Shader "node_divide_21"
+            {
+                uniform token info:id = "ND_divide_float"
+                float inputs:in1.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern.inputs:roughness_amount>
+                float inputs:in2.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_max_1.outputs:out>
+                token outputs:out
+            }
+            def Shader "node_mix_6"
+            {
+                uniform token info:id = "ND_mix_color3"
+                color3f inputs:fg.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern.inputs:dirt_color>
+                color3f inputs:bg.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_hsvtorgb_17.outputs:out>
+                float inputs:mix.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_multiply_23.outputs:out>
+                token outputs:out
+            }
+            def Shader "node_multiply_23"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern.inputs:dirt_amount>
+                float inputs:in2.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_tiledimage_float_24.outputs:out>
+                token outputs:out
+            }
+            def Shader "node_multiply_25"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern.inputs:hue_variation>
+                float inputs:in2.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_tiledimage_float_26.outputs:out>
+                token outputs:out
+            }
+            def Shader "node_add_19"
+            {
+                uniform token info:id = "ND_add_float"
+                float inputs:in1.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_multiply_25.outputs:out>
+                float inputs:in2.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_tiledimage_float_7.outputs:out>
+                token outputs:out
+            }
+            def Shader "node_multiply_20"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern.inputs:value_variation>
+                float inputs:in2.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_tiledimage_float_26.outputs:out>
+                token outputs:out
+            }
+            def Shader "node_normalmap_3"
+            {
+                uniform token info:id = "ND_normalmap_float"
+                float3 inputs:in.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_tiledimage_vector3_27.outputs:out>
+                token outputs:out
+            }
+            def Shader "node_convert_1"
+            {
+                uniform token info:id = "ND_convert_float_vector2"
+                float inputs:in.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern.inputs:uvtiling>
+                token outputs:out
+            }
+            def Shader "node_tiledimage_vector3_27"
+            {
+                uniform token info:id = "ND_tiledimage_vector3"
+                asset inputs:file = @assets/Images/brick_normal.jpg@
+                float2 inputs:uvtiling.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_convert_1.outputs:out>
+                token outputs:out
+            }
+            def Shader "node_tiledimage_float_22"
+            {
+                uniform token info:id = "ND_tiledimage_float"
+                asset inputs:file = @assets/Images/brick_roughness.jpg@
+                float2 inputs:uvtiling.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_convert_1.outputs:out>
+                token outputs:out
+            }
+            def Shader "node_tiledimage_float_10"
+            {
+                uniform token info:id = "ND_tiledimage_float"
+                asset inputs:file = @assets/Images/brick_mask.jpg@
+                float2 inputs:uvtiling.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_convert_1.outputs:out>
+                token outputs:out
+            }
+            def Shader "node_tiledimage_float_7"
+            {
+                uniform token info:id = "ND_tiledimage_float"
+                asset inputs:file = @assets/Images/brick_base_gray.jpg@
+                float2 inputs:uvtiling.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_convert_1.outputs:out>
+                token outputs:out
+            }
+            def Shader "node_tiledimage_float_26"
+            {
+                uniform token info:id = "ND_tiledimage_float"
+                asset inputs:file = @assets/Images/brick_variation_mask.jpg@
+                float2 inputs:uvtiling.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_convert_1.outputs:out>
+                token outputs:out
+            }
+            def Shader "node_tiledimage_float_24"
+            {
+                uniform token info:id = "ND_tiledimage_float"
+                asset inputs:file = @assets/Images/brick_dirt_mask.jpg@
+                float2 inputs:uvtiling.connect = </Looks/standard_surface_brick_procedural_M_BrickPattern/NG_BrickPattern/node_convert_1.outputs:out>
+                token outputs:out
+            }
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.standard_surface_brick_procedural_M_BrickPattern.exr"
+        }
+    }
+}

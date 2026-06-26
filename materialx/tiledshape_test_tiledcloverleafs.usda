@@ -1,0 +1,93 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/tiledshape_test_tiledcloverleafs>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "tiledshape_test_tiledcloverleafs"
+    {
+        token outputs:mtlx:surface.connect = </Looks/tiledshape_test_tiledcloverleafs/SR_test_tiledcloverleafs.outputs:out>
+        token outputs:surface.connect = </Looks/tiledshape_test_tiledcloverleafs/SR_test_tiledcloverleafs.outputs:out>
+
+        def Shader "tiledcircles_color3"
+        {
+            uniform token info:id = "ND_tiledcircles_color3"
+            float2 inputs:uvtiling = (29, 29)
+            float inputs:size = 0.8
+            token outputs:out
+        }
+
+        def Shader "SR_test_tiledcircles"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            float inputs:base = 1
+            color3f inputs:base_color.connect = </Looks/tiledshape_test_tiledcloverleafs/tiledcircles_color3.outputs:out>
+            token outputs:out
+        }
+
+
+        def Shader "tiledcloverleafs_color3"
+        {
+            uniform token info:id = "ND_tiledcloverleafs_color3"
+            float2 inputs:uvtiling = (29, 29)
+            float inputs:size = 0.8
+            token outputs:out
+        }
+
+        def Shader "SR_test_tiledcloverleafs"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            float inputs:base = 1
+            color3f inputs:base_color.connect = </Looks/tiledshape_test_tiledcloverleafs/tiledcloverleafs_color3.outputs:out>
+            token outputs:out
+        }
+
+
+        def Shader "tiledhexagons_color3"
+        {
+            uniform token info:id = "ND_tiledhexagons_color3"
+            float2 inputs:uvtiling = (29, 29)
+            float inputs:size = 0.7
+            token outputs:out
+        }
+
+        def Shader "SR_test_tiledhexagons"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            float inputs:base = 1
+            color3f inputs:base_color.connect = </Looks/tiledshape_test_tiledcloverleafs/tiledhexagons_color3.outputs:out>
+            token outputs:out
+        }
+
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.tiledshape_test_tiledcloverleafs.exr"
+        }
+    }
+}

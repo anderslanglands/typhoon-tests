@@ -1,0 +1,88 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/multiply_bsdf_multiply_bsdf_test_out>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "multiply_bsdf_multiply_bsdf_test_out"
+    {
+        token outputs:mtlx:surface.connect = </Looks/multiply_bsdf_multiply_bsdf_test_out/multiply_bsdf_test.outputs:out>
+        token outputs:surface.connect = </Looks/multiply_bsdf_multiply_bsdf_test_out/multiply_bsdf_test.outputs:out>
+
+        def NodeGraph "multiply_bsdf_test"
+        {
+            token outputs:out.connect = </Looks/multiply_bsdf_multiply_bsdf_test_out/multiply_bsdf_test/surface1.outputs:out>
+
+            def Shader "diffuse_brdf1"
+            {
+                uniform token info:id = "ND_oren_nayar_diffuse_bsdf"
+                color3f inputs:color = (0.96, 0.1, 0.1)
+                token outputs:out
+            }
+            def Shader "multiply_bsdf1"
+            {
+                uniform token info:id = "ND_multiply_bsdfF"
+                token inputs:in1.connect = </Looks/multiply_bsdf_multiply_bsdf_test_out/multiply_bsdf_test/diffuse_brdf1.outputs:out>
+                float inputs:in2 = 0.5
+                token outputs:out
+            }
+            def Shader "diffuse_btdf1"
+            {
+                uniform token info:id = "ND_translucent_bsdf"
+                color3f inputs:color = (0.0, 0.0, 0.8)
+                token outputs:out
+            }
+            def Shader "multiply_bsdf2"
+            {
+                uniform token info:id = "ND_multiply_bsdfC"
+                token inputs:in1.connect = </Looks/multiply_bsdf_multiply_bsdf_test_out/multiply_bsdf_test/diffuse_btdf1.outputs:out>
+                color3f inputs:in2 = (0.5, 0.5, 0.5)
+                token outputs:out
+            }
+            def Shader "mix_bsdf1"
+            {
+                uniform token info:id = "ND_mix_bsdf"
+                token inputs:fg.connect = </Looks/multiply_bsdf_multiply_bsdf_test_out/multiply_bsdf_test/multiply_bsdf1.outputs:out>
+                token inputs:bg.connect = </Looks/multiply_bsdf_multiply_bsdf_test_out/multiply_bsdf_test/multiply_bsdf2.outputs:out>
+                float inputs:mix = 0.5
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/multiply_bsdf_multiply_bsdf_test_out/multiply_bsdf_test/mix_bsdf1.outputs:out>
+                token outputs:out
+            }
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.multiply_bsdf_multiply_bsdf_test_out.exr"
+        }
+    }
+}

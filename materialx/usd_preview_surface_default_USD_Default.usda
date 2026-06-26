@@ -1,0 +1,64 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/usd_preview_surface_default_USD_Default>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "usd_preview_surface_default_USD_Default"
+    {
+        token outputs:mtlx:surface.connect = </Looks/usd_preview_surface_default_USD_Default/SR_default.outputs:out>
+        token outputs:surface.connect = </Looks/usd_preview_surface_default_USD_Default/SR_default.outputs:out>
+
+        def Shader "SR_default"
+        {
+            uniform token info:id = "ND_UsdPreviewSurface_surfaceshader"
+            color3f inputs:diffuseColor = (0.18, 0.18, 0.18)
+            color3f inputs:emissiveColor = (0, 0, 0)
+            int inputs:useSpecularWorkflow = 0
+            color3f inputs:specularColor = (0, 0, 0)
+            float inputs:metallic = 0
+            float inputs:roughness = 0.5
+            float inputs:clearcoat = 0
+            float inputs:clearcoatRoughness = 0.01
+            float inputs:opacity = 1
+            int inputs:opacityMode = 0
+            float inputs:opacityThreshold = 0
+            float inputs:ior = 1.5
+            float3 inputs:normal = (0, 0, 1)
+            float inputs:displacement = 0
+            float inputs:occlusion = 1
+            token outputs:out
+        }
+
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.usd_preview_surface_default_USD_Default.exr"
+        }
+    }
+}

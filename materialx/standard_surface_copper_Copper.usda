@@ -1,0 +1,57 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/standard_surface_copper_Copper>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "standard_surface_copper_Copper"
+    {
+        token outputs:mtlx:surface.connect = </Looks/standard_surface_copper_Copper/SR_copper.outputs:out>
+        token outputs:surface.connect = </Looks/standard_surface_copper_Copper/SR_copper.outputs:out>
+
+        def Shader "SR_copper"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            float inputs:base = 1
+            color3f inputs:base_color = (1, 1, 1)
+            float inputs:specular = 0
+            float inputs:specular_roughness = 0.25
+            float inputs:metalness = 1
+            float inputs:coat = 1
+            color3f inputs:coat_color = (0.96467984, 0.37626296, 0.25818297)
+            float inputs:coat_roughness = 0.20000000298023224
+            token outputs:out
+        }
+
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.standard_surface_copper_Copper.exr"
+        }
+    }
+}

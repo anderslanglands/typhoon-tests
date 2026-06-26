@@ -1,0 +1,109 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/heighttonormal_NG_heighttonormal_usd>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "heighttonormal_NG_heighttonormal_usd"
+    {
+        token outputs:mtlx:surface.connect = </Looks/heighttonormal_NG_heighttonormal_usd/NG_heighttonormal.outputs:usd>
+        token outputs:surface.connect = </Looks/heighttonormal_NG_heighttonormal_usd/NG_heighttonormal.outputs:usd>
+
+        def NodeGraph "NG_heighttonormal"
+        {
+            float3 outputs:vec_out.connect = </Looks/heighttonormal_NG_heighttonormal_usd/NG_heighttonormal/heighttonormal.outputs:out>
+            token outputs:ss_out.connect = </Looks/heighttonormal_NG_heighttonormal_usd/NG_heighttonormal/standard_surface.outputs:out>
+            token outputs:usd.connect = </Looks/heighttonormal_NG_heighttonormal_usd/NG_heighttonormal/UsdPreviewSurface.outputs:out>
+
+            def Shader "texcoord"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                token outputs:out
+            }
+            def Shader "scaled_texcoord"
+            {
+                uniform token info:id = "ND_multiply_vector2FA"
+                float2 inputs:in1.connect = </Looks/heighttonormal_NG_heighttonormal_usd/NG_heighttonormal/texcoord.outputs:out>
+                float inputs:in2 = 10
+                token outputs:out
+            }
+            def Shader "image"
+            {
+                uniform token info:id = "ND_image_float"
+                asset inputs:file = @assets/Images/plain_heightmap.png@
+                float2 inputs:texcoord.connect = </Looks/heighttonormal_NG_heighttonormal_usd/NG_heighttonormal/scaled_texcoord.outputs:out>
+                token outputs:out
+            }
+            def Shader "heighttonormal"
+            {
+                uniform token info:id = "ND_heighttonormal_vector3"
+                float inputs:in.connect = </Looks/heighttonormal_NG_heighttonormal_usd/NG_heighttonormal/image.outputs:out>
+                float inputs:scale = 1
+                float2 inputs:texcoord.connect = </Looks/heighttonormal_NG_heighttonormal_usd/NG_heighttonormal/scaled_texcoord.outputs:out>
+                token outputs:out
+            }
+            def Shader "normalmap"
+            {
+                uniform token info:id = "ND_normalmap_float"
+                float3 inputs:in.connect = </Looks/heighttonormal_NG_heighttonormal_usd/NG_heighttonormal/heighttonormal.outputs:out>
+                token outputs:out
+            }
+            def Shader "standard_surface"
+            {
+                uniform token info:id = "ND_standard_surface_surfaceshader"
+                float3 inputs:normal.connect = </Looks/heighttonormal_NG_heighttonormal_usd/NG_heighttonormal/normalmap.outputs:out>
+                token outputs:out
+            }
+            def Shader "scale"
+            {
+                uniform token info:id = "ND_multiply_vector3FA"
+                float3 inputs:in1.connect = </Looks/heighttonormal_NG_heighttonormal_usd/NG_heighttonormal/heighttonormal.outputs:out>
+                float inputs:in2 = 2
+                token outputs:out
+            }
+            def Shader "bias"
+            {
+                uniform token info:id = "ND_add_vector3"
+                float3 inputs:in1.connect = </Looks/heighttonormal_NG_heighttonormal_usd/NG_heighttonormal/scale.outputs:out>
+                float3 inputs:in2 = (-1, -1, -1)
+                token outputs:out
+            }
+            def Shader "UsdPreviewSurface"
+            {
+                uniform token info:id = "ND_UsdPreviewSurface_surfaceshader"
+                float3 inputs:normal.connect = </Looks/heighttonormal_NG_heighttonormal_usd/NG_heighttonormal/bias.outputs:out>
+                token outputs:out
+            }
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.heighttonormal_NG_heighttonormal_usd.exr"
+        }
+    }
+}

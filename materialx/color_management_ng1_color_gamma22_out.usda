@@ -1,0 +1,443 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/color_management_ng1_color_gamma22_out>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "color_management_ng1_color_gamma22_out"
+    {
+        token outputs:mtlx:surface.connect = </Looks/color_management_ng1_color_gamma22_out/ng1.outputs:color_gamma22_out>
+        token outputs:surface.connect = </Looks/color_management_ng1_color_gamma22_out/ng1.outputs:color_gamma22_out>
+
+        def NodeGraph "ng1"
+        {
+            token outputs:image_lin_rec709_out.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/image_lin_rec709_standard_surface.outputs:out>
+            token outputs:image_gamma18_out.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/image_gamma18_standard_surface2.outputs:out>
+            token outputs:image_gamma22_out.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/image_gamma22_standard_surface3.outputs:out>
+            token outputs:image_gamma24_out.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/image_gamma24_standard_surface4.outputs:out>
+            token outputs:image_acescg_out.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/image_acescg_standard_surface5.outputs:out>
+            token outputs:image_g22_ap1_out.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/image_g22_ap1_standard_surface5.outputs:out>
+            token outputs:image_srgb_texture_out.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/image_srgb_texture_standard_surface6.outputs:out>
+            token outputs:image_adobergb_out.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/image_adobergb_standard_surface7.outputs:out>
+            token outputs:image_lin_adobergb_out.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/image_lin_adobergb_standard_surface8.outputs:out>
+            token outputs:image_srgb_displayp3_out.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/image_srgb_displayp3_standard_surface9.outputs:out>
+            token outputs:image_lin_displayp3_out.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/image_lin_displayp3_standard_surface10.outputs:out>
+            token outputs:color_lin_rec709_out.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_lin_rec709_standard_surface.outputs:out>
+            token outputs:color_gamma18_out.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_gamma18_standard_surface2.outputs:out>
+            token outputs:color_gamma22_out.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_gamma22_standard_surface3.outputs:out>
+            token outputs:color_gamma24_out.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_gamma24_standard_surface4.outputs:out>
+            token outputs:color_acescg_out.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_acescg_standard_surface5.outputs:out>
+            token outputs:color_g22_ap1_out.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_g22_ap1_standard_surface5.outputs:out>
+            token outputs:color_srgb_texture_out.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_srgb_texture_standard_surface6.outputs:out>
+            token outputs:color_adobergb_out.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_adobergb_standard_surface7.outputs:out>
+            token outputs:color_lin_adobergb_out.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_lin_adobergb_standard_surface8.outputs:out>
+            token outputs:color_srgb_displayp3_out.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_srgb_displayp3_standard_surface5.outputs:out>
+            token outputs:color_lin_displayp3_out.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_lin_displayp3_standard_surface5.outputs:out>
+
+            def Shader "image_lin_rec709"
+            {
+                uniform token info:id = "ND_image_color3"
+                asset inputs:file = @assets/Images/grid.png@ (
+                    colorSpace = "lin_rec709"
+                )
+                token outputs:out
+            }
+            def Shader "image_lin_rec709_standard_surface"
+            {
+                uniform token info:id = "ND_standard_surface_surfaceshader"
+                color3f inputs:base_color.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/image_lin_rec709.outputs:out>
+                token outputs:out
+            }
+            def Shader "image_gamma18"
+            {
+                uniform token info:id = "ND_image_color3"
+                asset inputs:file = @assets/Images/grid.png@ (
+                    colorSpace = "gamma18"
+                )
+                token outputs:out
+            }
+            def Shader "image_gamma18_standard_surface2"
+            {
+                uniform token info:id = "ND_standard_surface_surfaceshader"
+                color3f inputs:base_color.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/image_gamma18.outputs:out>
+                token outputs:out
+            }
+            def Shader "image_gamma22"
+            {
+                uniform token info:id = "ND_image_color3"
+                asset inputs:file = @assets/Images/grid.png@ (
+                    colorSpace = "gamma22"
+                )
+                token outputs:out
+            }
+            def Shader "image_gamma22_standard_surface3"
+            {
+                uniform token info:id = "ND_standard_surface_surfaceshader"
+                color3f inputs:base_color.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/image_gamma22.outputs:out>
+                token outputs:out
+            }
+            def Shader "image_gamma24"
+            {
+                uniform token info:id = "ND_image_color3"
+                asset inputs:file = @assets/Images/grid.png@ (
+                    colorSpace = "gamma24"
+                )
+                token outputs:out
+            }
+            def Shader "image_gamma24_standard_surface4"
+            {
+                uniform token info:id = "ND_standard_surface_surfaceshader"
+                color3f inputs:base_color.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/image_gamma24.outputs:out>
+                token outputs:out
+            }
+            def Shader "image_acescg"
+            {
+                uniform token info:id = "ND_image_color3"
+                asset inputs:file = @assets/Images/grid.png@ (
+                    colorSpace = "acescg"
+                )
+                token outputs:out
+            }
+            def Shader "image_acescg_standard_surface5"
+            {
+                uniform token info:id = "ND_standard_surface_surfaceshader"
+                color3f inputs:base_color.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/image_acescg.outputs:out>
+                token outputs:out
+            }
+            def Shader "image_g22_ap1"
+            {
+                uniform token info:id = "ND_image_color3"
+                asset inputs:file = @assets/Images/grid.png@ (
+                    colorSpace = "g22_ap1"
+                )
+                token outputs:out
+            }
+            def Shader "image_g22_ap1_standard_surface5"
+            {
+                uniform token info:id = "ND_standard_surface_surfaceshader"
+                color3f inputs:base_color.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/image_g22_ap1.outputs:out>
+                token outputs:out
+            }
+            def Shader "image_srgb_texture"
+            {
+                uniform token info:id = "ND_image_color3"
+                asset inputs:file = @assets/Images/grid.png@ (
+                    colorSpace = "srgb_texture"
+                )
+                token outputs:out
+            }
+            def Shader "image_srgb_texture_standard_surface6"
+            {
+                uniform token info:id = "ND_standard_surface_surfaceshader"
+                color3f inputs:base_color.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/image_srgb_texture.outputs:out>
+                token outputs:out
+            }
+            def Shader "image_adobergb"
+            {
+                uniform token info:id = "ND_image_color3"
+                asset inputs:file = @assets/Images/grid.png@ (
+                    colorSpace = "adobergb"
+                )
+                token outputs:out
+            }
+            def Shader "image_adobergb_standard_surface7"
+            {
+                uniform token info:id = "ND_standard_surface_surfaceshader"
+                color3f inputs:base_color.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/image_adobergb.outputs:out>
+                token outputs:out
+            }
+            def Shader "image_lin_adobergb"
+            {
+                uniform token info:id = "ND_image_color3"
+                asset inputs:file = @assets/Images/grid.png@ (
+                    colorSpace = "lin_adobergb"
+                )
+                token outputs:out
+            }
+            def Shader "image_lin_adobergb_standard_surface8"
+            {
+                uniform token info:id = "ND_standard_surface_surfaceshader"
+                color3f inputs:base_color.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/image_lin_adobergb.outputs:out>
+                token outputs:out
+            }
+            def Shader "image_srgb_displayp3"
+            {
+                uniform token info:id = "ND_image_color3"
+                asset inputs:file = @assets/Images/grid.png@ (
+                    colorSpace = "srgb_displayp3"
+                )
+                token outputs:out
+            }
+            def Shader "image_srgb_displayp3_standard_surface9"
+            {
+                uniform token info:id = "ND_standard_surface_surfaceshader"
+                color3f inputs:base_color.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/image_srgb_displayp3.outputs:out>
+                token outputs:out
+            }
+            def Shader "image_lin_displayp3"
+            {
+                uniform token info:id = "ND_image_color3"
+                asset inputs:file = @assets/Images/grid.png@ (
+                    colorSpace = "lin_displayp3"
+                )
+                token outputs:out
+            }
+            def Shader "image_lin_displayp3_standard_surface10"
+            {
+                uniform token info:id = "ND_standard_surface_surfaceshader"
+                color3f inputs:base_color.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/image_lin_displayp3.outputs:out>
+                token outputs:out
+            }
+            def Shader "color_lin_rec709"
+            {
+                uniform token info:id = "ND_constant_color4"
+                color4f inputs:value = (0.5, 0.0, 0.0, 1.0) (
+                    colorSpace = "lin_rec709"
+                )
+                token outputs:out
+            }
+            def Shader "color_lin_rec709_color3"
+            {
+                uniform token info:id = "ND_convert_color4_color3"
+                color4f inputs:in.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_lin_rec709.outputs:out>
+                token outputs:out
+            }
+            def Shader "color_lin_rec709_standard_surface"
+            {
+                uniform token info:id = "ND_standard_surface_surfaceshader"
+                color3f inputs:base_color.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_lin_rec709_color3.outputs:out>
+                token outputs:out
+            }
+            def Shader "color_gamma18"
+            {
+                uniform token info:id = "ND_constant_color4"
+                color4f inputs:value = (0.5, 0.0, 0.0, 1.0) (
+                    colorSpace = "gamma18"
+                )
+                token outputs:out
+            }
+            def Shader "color_gamma18_color3"
+            {
+                uniform token info:id = "ND_convert_color4_color3"
+                color4f inputs:in.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_gamma18.outputs:out>
+                token outputs:out
+            }
+            def Shader "color_gamma18_standard_surface2"
+            {
+                uniform token info:id = "ND_standard_surface_surfaceshader"
+                color3f inputs:base_color.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_gamma18_color3.outputs:out>
+                token outputs:out
+            }
+            def Shader "color_gamma22"
+            {
+                uniform token info:id = "ND_constant_color4"
+                color4f inputs:value = (0.5, 0.0, 0.0, 1.0) (
+                    colorSpace = "gamma22"
+                )
+                token outputs:out
+            }
+            def Shader "color_gamma22_color3"
+            {
+                uniform token info:id = "ND_convert_color4_color3"
+                color4f inputs:in.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_gamma22.outputs:out>
+                token outputs:out
+            }
+            def Shader "color_gamma22_standard_surface3"
+            {
+                uniform token info:id = "ND_standard_surface_surfaceshader"
+                color3f inputs:base_color.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_gamma22_color3.outputs:out>
+                token outputs:out
+            }
+            def Shader "color_gamma24"
+            {
+                uniform token info:id = "ND_constant_color4"
+                color4f inputs:value = (0.5, 0.0, 0.0, 1.0) (
+                    colorSpace = "gamma24"
+                )
+                token outputs:out
+            }
+            def Shader "color_gamma24_color3"
+            {
+                uniform token info:id = "ND_convert_color4_color3"
+                color4f inputs:in.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_gamma24.outputs:out>
+                token outputs:out
+            }
+            def Shader "color_gamma24_standard_surface4"
+            {
+                uniform token info:id = "ND_standard_surface_surfaceshader"
+                color3f inputs:base_color.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_gamma24_color3.outputs:out>
+                token outputs:out
+            }
+            def Shader "color_acescg"
+            {
+                uniform token info:id = "ND_constant_color4"
+                color4f inputs:value = (0.5, 0.0, 0.0, 1.0) (
+                    colorSpace = "acescg"
+                )
+                token outputs:out
+            }
+            def Shader "color_acescg_color3"
+            {
+                uniform token info:id = "ND_convert_color4_color3"
+                color4f inputs:in.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_acescg.outputs:out>
+                token outputs:out
+            }
+            def Shader "color_acescg_standard_surface5"
+            {
+                uniform token info:id = "ND_standard_surface_surfaceshader"
+                color3f inputs:base_color.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_acescg_color3.outputs:out>
+                token outputs:out
+            }
+            def Shader "color_g22_ap1"
+            {
+                uniform token info:id = "ND_constant_color4"
+                color4f inputs:value = (0.5, 0.0, 0.0, 1.0) (
+                    colorSpace = "g22_ap1"
+                )
+                token outputs:out
+            }
+            def Shader "color_g22_ap1_color3"
+            {
+                uniform token info:id = "ND_convert_color4_color3"
+                color4f inputs:in.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_g22_ap1.outputs:out>
+                token outputs:out
+            }
+            def Shader "color_g22_ap1_standard_surface5"
+            {
+                uniform token info:id = "ND_standard_surface_surfaceshader"
+                color3f inputs:base_color.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_g22_ap1_color3.outputs:out>
+                token outputs:out
+            }
+            def Shader "color_srgb_texture"
+            {
+                uniform token info:id = "ND_constant_color4"
+                color4f inputs:value = (0.5, 0.0, 0.0, 1.0) (
+                    colorSpace = "srgb_texture"
+                )
+                token outputs:out
+            }
+            def Shader "color_srgb_texture_color3"
+            {
+                uniform token info:id = "ND_convert_color4_color3"
+                color4f inputs:in.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_srgb_texture.outputs:out>
+                token outputs:out
+            }
+            def Shader "color_srgb_texture_standard_surface6"
+            {
+                uniform token info:id = "ND_standard_surface_surfaceshader"
+                color3f inputs:base_color.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_srgb_texture_color3.outputs:out>
+                token outputs:out
+            }
+            def Shader "color_adobergb"
+            {
+                uniform token info:id = "ND_constant_color4"
+                color4f inputs:value = (0.5, 0.0, 0.0, 1.0) (
+                    colorSpace = "adobergb"
+                )
+                token outputs:out
+            }
+            def Shader "color_adobergb_color3"
+            {
+                uniform token info:id = "ND_convert_color4_color3"
+                color4f inputs:in.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_adobergb.outputs:out>
+                token outputs:out
+            }
+            def Shader "color_adobergb_standard_surface7"
+            {
+                uniform token info:id = "ND_standard_surface_surfaceshader"
+                color3f inputs:base_color.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_adobergb_color3.outputs:out>
+                token outputs:out
+            }
+            def Shader "color_lin_adobergb"
+            {
+                uniform token info:id = "ND_constant_color4"
+                color4f inputs:value = (0.5, 0.0, 0.0, 1.0) (
+                    colorSpace = "lin_adobergb"
+                )
+                token outputs:out
+            }
+            def Shader "color_lin_adobergb_color3"
+            {
+                uniform token info:id = "ND_convert_color4_color3"
+                color4f inputs:in.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_lin_adobergb.outputs:out>
+                token outputs:out
+            }
+            def Shader "color_lin_adobergb_standard_surface8"
+            {
+                uniform token info:id = "ND_standard_surface_surfaceshader"
+                color3f inputs:base_color.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_lin_adobergb_color3.outputs:out>
+                token outputs:out
+            }
+            def Shader "color_srgb_displayp3"
+            {
+                uniform token info:id = "ND_constant_color4"
+                color4f inputs:value = (0.5, 0.0, 0.0, 1.0) (
+                    colorSpace = "srgb_displayp3"
+                )
+                token outputs:out
+            }
+            def Shader "color_srgb_displayp3_color3"
+            {
+                uniform token info:id = "ND_convert_color4_color3"
+                color4f inputs:in.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_srgb_displayp3.outputs:out>
+                token outputs:out
+            }
+            def Shader "color_srgb_displayp3_standard_surface5"
+            {
+                uniform token info:id = "ND_standard_surface_surfaceshader"
+                color3f inputs:base_color.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_srgb_displayp3_color3.outputs:out>
+                token outputs:out
+            }
+            def Shader "color_lin_displayp3"
+            {
+                uniform token info:id = "ND_constant_color4"
+                color4f inputs:value = (0.5, 0.0, 0.0, 1.0) (
+                    colorSpace = "lin_displayp3"
+                )
+                token outputs:out
+            }
+            def Shader "color_lin_displayp3_color3"
+            {
+                uniform token info:id = "ND_convert_color4_color3"
+                color4f inputs:in.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_lin_displayp3.outputs:out>
+                token outputs:out
+            }
+            def Shader "color_lin_displayp3_standard_surface5"
+            {
+                uniform token info:id = "ND_standard_surface_surfaceshader"
+                color3f inputs:base_color.connect = </Looks/color_management_ng1_color_gamma22_out/ng1/color_lin_displayp3_color3.outputs:out>
+                token outputs:out
+            }
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.color_management_ng1_color_gamma22_out.exr"
+        }
+    }
+}

@@ -1,0 +1,55 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/open_pbr_carpaint_Car_Paint>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "open_pbr_carpaint_Car_Paint"
+    {
+        token outputs:mtlx:surface.connect = </Looks/open_pbr_carpaint_Car_Paint/open_pbr_surface_surfaceshader.outputs:out>
+        token outputs:surface.connect = </Looks/open_pbr_carpaint_Car_Paint/open_pbr_surface_surfaceshader.outputs:out>
+
+
+        def Shader "open_pbr_surface_surfaceshader"
+        {
+            uniform token info:id = "ND_open_pbr_surface_surfaceshader"
+            color3f inputs:base_color = (0.1, 0.6, 0.9)
+            float inputs:specular_ior = 1.6
+            float inputs:specular_roughness = 0.3
+            float inputs:coat_weight = 1
+            float inputs:coat_roughness = 0.02
+            float inputs:coat_ior = 1.6
+            token outputs:out
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.open_pbr_carpaint_Car_Paint.exr"
+        }
+    }
+}

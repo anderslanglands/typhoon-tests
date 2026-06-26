@@ -1,0 +1,110 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/filename_cm_test_Filename_CM_Test>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "filename_cm_test_Filename_CM_Test"
+    {
+        token outputs:mtlx:surface.connect = </Looks/filename_cm_test_Filename_CM_Test/shaderref1.outputs:out>
+        token outputs:surface.connect = </Looks/filename_cm_test_Filename_CM_Test/shaderref1.outputs:out>
+
+        def Shader "shaderref1"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/filename_cm_test_Filename_CM_Test/nodegraph1.outputs:tmtestout>
+            color3f inputs:specular_color.connect = </Looks/filename_cm_test_Filename_CM_Test/nodegraph1.outputs:tmtestout2>
+            color3f inputs:transmission_color.connect = </Looks/filename_cm_test_Filename_CM_Test/nodegraph1.outputs:troutput>
+            token outputs:out
+        }
+
+
+        def NodeGraph "NG_tm_retest"
+        {
+            asset inputs:texture_file
+            color3f outputs:out.connect = </Looks/filename_cm_test_Filename_CM_Test/NG_tm_retest/b_image.outputs:out>
+
+            def Shader "b_image"
+            {
+                uniform token info:id = "ND_image_color3"
+                asset inputs:file.connect = </Looks/filename_cm_test_Filename_CM_Test/NG_tm_retest.inputs:texture_file>
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "NG_tm_test"
+        {
+            asset inputs:texture_file
+            color3f outputs:out.connect = </Looks/filename_cm_test_Filename_CM_Test/NG_tm_test/b_image.outputs:out>
+
+            def Shader "b_image"
+            {
+                uniform token info:id = "ND_image_color3"
+                asset inputs:file.connect = </Looks/filename_cm_test_Filename_CM_Test/NG_tm_test.inputs:texture_file>
+                token outputs:out
+            }
+        }
+
+        def NodeGraph "nodegraph1"
+        {
+            color3f outputs:tmtestout.connect = </Looks/filename_cm_test_Filename_CM_Test/nodegraph1/bl.outputs:out>
+            color3f outputs:tmtestout2.connect = </Looks/filename_cm_test_Filename_CM_Test/nodegraph1/bl1.outputs:out>
+            color3f outputs:troutput.connect = </Looks/filename_cm_test_Filename_CM_Test/nodegraph1/tr1.outputs:out>
+
+            def Shader "bl"
+            {
+                uniform token info:id = "ND_tm_test"
+                asset inputs:texture_file = @assets/Images/grid.png@ (
+                    colorSpace = "srgb_texture"
+                )
+                token outputs:out
+            }
+            def Shader "bl1"
+            {
+                uniform token info:id = "ND_tm_retest"
+                asset inputs:texture_file = @assets/Images/grid.png@ (
+                    colorSpace = "srgb_texture"
+                )
+                token outputs:out
+            }
+            def Shader "tr1"
+            {
+                uniform token info:id = "ND_image_color3"
+                asset inputs:file = @assets/Images/grid.png@ (
+                    colorSpace = "srgb_texture"
+                )
+                token outputs:out
+            }
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.filename_cm_test_Filename_CM_Test.exr"
+        }
+    }
+}

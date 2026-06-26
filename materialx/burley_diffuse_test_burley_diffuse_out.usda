@@ -1,0 +1,62 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/burley_diffuse_test_burley_diffuse_out>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "burley_diffuse_test_burley_diffuse_out"
+    {
+        token outputs:mtlx:surface.connect = </Looks/burley_diffuse_test_burley_diffuse_out/test_burley_diffuse.outputs:out>
+        token outputs:surface.connect = </Looks/burley_diffuse_test_burley_diffuse_out/test_burley_diffuse.outputs:out>
+
+        def NodeGraph "test_burley_diffuse"
+        {
+            token outputs:out.connect = </Looks/burley_diffuse_test_burley_diffuse_out/test_burley_diffuse/surface1.outputs:out>
+
+            def Shader "burley_brdf1"
+            {
+                uniform token info:id = "ND_burley_diffuse_bsdf"
+                color3f inputs:color = (0.6, 0.6, 0.6)
+                float inputs:roughness = 0.2
+                token outputs:out
+            }
+            def Shader "surface1"
+            {
+                uniform token info:id = "ND_surface"
+                token inputs:bsdf.connect = </Looks/burley_diffuse_test_burley_diffuse_out/test_burley_diffuse/burley_brdf1.outputs:out>
+                float inputs:opacity = 1.0
+                token outputs:out
+            }
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.burley_diffuse_test_burley_diffuse_out.exr"
+        }
+    }
+}

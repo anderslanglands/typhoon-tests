@@ -1,0 +1,51 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/open_pbr_lightbulb_Light_Bulb>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "open_pbr_lightbulb_Light_Bulb"
+    {
+        token outputs:mtlx:surface.connect = </Looks/open_pbr_lightbulb_Light_Bulb/open_pbr_surface_surfaceshader.outputs:out>
+        token outputs:surface.connect = </Looks/open_pbr_lightbulb_Light_Bulb/open_pbr_surface_surfaceshader.outputs:out>
+
+
+        def Shader "open_pbr_surface_surfaceshader"
+        {
+            uniform token info:id = "ND_open_pbr_surface_surfaceshader"
+            color3f inputs:emission_color = (1.000, 0.415, 0.099)
+            float inputs:emission_luminance = 10000
+            token outputs:out
+        }
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.open_pbr_lightbulb_Light_Bulb.exr"
+        }
+    }
+}

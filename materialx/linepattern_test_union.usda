@@ -1,0 +1,93 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)
+
+
+over "World"
+{
+    over "Sphere" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/linepattern_test_union>
+    }
+}
+
+def Scope "Looks"
+{
+    def Material "linepattern_test_union"
+    {
+        token outputs:mtlx:surface.connect = </Looks/linepattern_test_union/SR_test_union.outputs:out>
+        token outputs:surface.connect = </Looks/linepattern_test_union/SR_test_union.outputs:out>
+
+        def Shader "grid_color3"
+        {
+            uniform token info:id = "ND_grid_color3"
+            float2 inputs:uvtiling = (58, 58)
+            float inputs:thickness = 0.1
+            token outputs:out
+        }
+
+        def Shader "crosshatch_color3"
+        {
+            uniform token info:id = "ND_crosshatch_color3"
+            float2 inputs:uvtiling = (29, 29)
+            float inputs:thickness = 0.05
+            token outputs:out
+        }
+
+        def Shader "union_color3"
+        {
+            uniform token info:id = "ND_max_color3"
+            color3f inputs:in1.connect = </Looks/linepattern_test_union/grid_color3.outputs:out>
+            color3f inputs:in2.connect = </Looks/linepattern_test_union/crosshatch_color3.outputs:out>
+            token outputs:out
+        }
+
+        def Shader "SR_test_grid"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            float inputs:base = 1
+            color3f inputs:base_color.connect = </Looks/linepattern_test_union/grid_color3.outputs:out>
+            token outputs:out
+        }
+
+
+        def Shader "SR_test_crosshatch"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            float inputs:base = 1
+            color3f inputs:base_color.connect = </Looks/linepattern_test_union/crosshatch_color3.outputs:out>
+            token outputs:out
+        }
+
+
+        def Shader "SR_test_union"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            float inputs:base = 1
+            color3f inputs:base_color.connect = </Looks/linepattern_test_union/union_color3.outputs:out>
+            token outputs:out
+        }
+
+
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "materialx.linepattern_test_union.exr"
+        }
+    }
+}
