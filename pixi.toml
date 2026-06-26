@@ -7,3 +7,15 @@ channel-priority = "strict"
 [dependencies]
 python = "3.11.*"
 materialx = "*"
+
+[target.linux-64.tasks]
+render-materialx-one = { args = ["usd"], cmd = "python materialx/render_usdas.py one {{ usd }}" }
+render-materialx-all = { cmd = "python materialx/render_usdas.py all" }
+compare-materialx-renders = { cmd = "python materialx/generate_comparison_html.py" }
+
+[target.linux-64.dependencies]
+numpy = ">=2.4.6,<3"
+pillow = ">=12.2.0,<13"
+
+[target.linux-64.pypi-dependencies]
+flip-evaluator = "==1.7"
