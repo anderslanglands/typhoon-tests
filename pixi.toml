@@ -1,16 +1,26 @@
 [workspace]
 name = "typhoon-tests"
 platforms = ["linux-64", "win-64"]
-channels = ["https://conda.anaconda.org/anderslanglands", "conda-forge"]
-channel-priority = "strict"
+channels = [
+  "https://conda.anaconda.org/anderslanglands/label/test",
+  "https://conda.anaconda.org/anderslanglands",
+  "conda-forge",
+]
+channel-priority = "disabled"
 
 [dependencies]
 python = "3.11.*"
 materialx = "*"
+openusd-typhoon = "*"
+pytest = "*"
 
 [target.linux-64.tasks]
-render-materialx-one = { args = ["usd"], cmd = "python materialx/render_usdas.py one {{ usd }}" }
-render-materialx-all = { cmd = "python materialx/render_usdas.py all" }
+test = { cmd = "pytest" }
+test-local = { args = ["provider"], cmd = "pytest --typhoon-provider {{ provider }}" }
+test-materialx = { cmd = "pytest materialx" }
+render-materialx-one = { args = ["usd"], cmd = "pytest {{ usd }}" }
+render-materialx-all = { cmd = "pytest materialx" }
+regenerate-html = { cmd = "python -m typhoon_tests.report_html" }
 compare-materialx-renders = { cmd = "python materialx/generate_comparison_html.py" }
 
 [target.linux-64.dependencies]

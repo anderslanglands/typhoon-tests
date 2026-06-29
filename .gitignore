@@ -1,1 +1,4 @@
 materialx/renders/
+_output/
+__pycache__/
+*.py[cod]

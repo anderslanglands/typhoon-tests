@@ -1,0 +1,19 @@
+[suite]
+name = "materialx"
+
+[render]
+args = ["--disableCameraLight"]
+output_pattern = "materialx.{stem}.exr"
+
+[reference]
+dir = "reference"
+pattern = "{stem}_glsl.png"
+missing = "allow"
+
+[comparison]
+tonemap = "clamp"
+transfer = "linear-to-srgb"
+# Add default_flip_threshold once the suite has curated regression thresholds.
+
+[skip]
+base = "shared MaterialX scene layer, not a standalone render case"

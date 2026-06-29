@@ -186,45 +186,69 @@ Referenced images and HDR maps are copied under `assets/`, and USDA asset paths 
 
 ## Rendering
 
-Use the root Pixi tasks to render this suite:
+The suite is collected by pytest from the USDA files in this directory. Package mode is the default and calls the installed `usdrender` from the `openusd-typhoon` conda package:
 
 ```bash
-pixi run render-materialx-all
+pixi run test-materialx
 pixi run render-materialx-one materialx/open_pbr_carpaint_Car_Paint.usda
 ```
 
-The tasks reuse `/home/anders/code/openusd-omniverse/pixi.toml` with `pixi run --manifest-path`, so they run the OpenUSD `usdrender` task directly. The OpenUSD task supplies `--renderer Embree --complexity high`; the local wrapper supplies `--disableCameraLight`, the USDA path, and `--outputRoot`.
-
-Useful environment overrides:
+For local Typhoon development, pass the OpenUSD checkout as the provider:
 
 ```bash
-MATERIALX_RENDER_DRY_RUN=1 pixi run render-materialx-all
-MATERIALX_RENDER_FAIL_FAST=1 pixi run render-materialx-all
-MATERIALX_RENDER_OUTPUT_ROOT=/tmp/materialx-renders pixi run render-materialx-all
-OPENUSD_PIXI=/path/to/openusd/pixi.toml pixi run render-materialx-all
+pixi run pytest materialx --typhoon-provider /home/anders/code/openusd-omniverse
 ```
-## Comparison Page
 
-Generate a dark HTML comparison page with the MaterialX GLSL PNG references, the local USD render previews, and FLIP perceptual diff maps:
+The suite config is `typhoon-suite.toml`. It adds `--disableCameraLight`, reads references from `reference/`, and maps each test key to a render output in the current run directory:
+
+```text
+_output/run-0001/materialx.<key>.exr
+```
+
+Useful pytest options:
 
 ```bash
-pixi run compare-materialx-renders
+pixi run pytest materialx --typhoon-dry-run  # still writes a numbered run report
+pixi run pytest materialx --typhoon-output-root /tmp/typhoon-output
+pixi run pytest materialx --typhoon-reference-dir /path/to/reference-pngs
+pixi run pytest materialx --typhoon-require-references
+pixi run pytest materialx --typhoon-require-thresholds
+pixi run pytest /path/to/usd-directory --typhoon-collect-unconfigured
 ```
 
-The output is written to `comparison/index.html`, with generated PNG assets under `comparison/assets/`.
+## References
 
-The default correspondence is:
+MaterialX GLSL PNG references are copied into this suite under:
+
+```text
+reference/<key>_glsl.png
+```
+
+The current references were copied from:
 
 ```text
 /home/anders/code/MaterialX/build/glsl-render-tests/flat-glsl-pngs/<key>_glsl.png
-renders/materialx.<key>.exr
 ```
 
-Useful options:
+## Output
+
+Each pytest render run creates a numbered directory and updates the top-level output index:
+
+```text
+_output/index.html
+_output/run-0001/index.html
+_output/run-0001/typhoon-report.json
+_output/run-0001/run-summary.json
+_output/run-0001/materialx.<key>.exr
+_output/run-0001/reference/<key>.png
+_output/run-0001/render/<key>.png
+_output/run-0001/flip/<key>.png
+```
+
+Missing references are allowed by default so the suite can run as render-only smoke coverage. Add thresholds in `typhoon-suite.toml` or adjacent `<test>.typhoon.toml` files when a case is ready to become a strict image regression. Use `--typhoon-require-thresholds` in strict regression jobs.
+
+The legacy HTML generator is still available for existing render directories:
 
 ```bash
-pixi run compare-materialx-renders --limit 5
-pixi run compare-materialx-renders --key open_pbr_carpaint_Car_Paint
-pixi run compare-materialx-renders --tonemap reinhard
-pixi run compare-materialx-renders --output-dir /tmp/materialx-comparison
+pixi run compare-materialx-renders
 ```
