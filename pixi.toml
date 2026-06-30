@@ -21,6 +21,7 @@ test-materialx = { cmd = "pytest materialx" }
 render-materialx-one = { args = ["usd"], cmd = "pytest {{ usd }}" }
 render-materialx-all = { cmd = "pytest materialx" }
 regenerate-html = { cmd = "python -m typhoon_tests.report_html" }
+regenerate-comparisons = { cmd = "python -m typhoon_tests.regenerate_comparisons" }
 compare-materialx-renders = { cmd = "python materialx/generate_comparison_html.py" }
 
 [target.linux-64.dependencies]

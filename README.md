@@ -61,6 +61,8 @@ pixi run render-materialx-all
 pixi run regenerate-html
 pixi run regenerate-html --run _output/run-0003
 pixi run regenerate-html --all
+pixi run regenerate-comparisons
+pixi run regenerate-comparisons --run _output/run-0003
 ```
 
 ## Output Runs
@@ -119,7 +121,9 @@ pixi run regenerate-html --all
 pixi run regenerate-html --output-root /tmp/typhoon-output --run run-0003
 ```
 
-The task reads `typhoon-report.json`, rewrites that run's `index.html` and `run-summary.json`, then refreshes the top-level `_output/index.html`. It does not rerun `usdrender`, recompute FLIP, or modify rendered image artifacts.
+The `regenerate-html` task reads `typhoon-report.json`, rewrites that run's `index.html` and `run-summary.json`, then refreshes the top-level `_output/index.html`. It does not rerun `usdrender`, recompute FLIP, or modify rendered image artifacts.
+
+To recompute comparison PNGs and FLIP metrics from existing render outputs without rerunning `usdrender`, use `pixi run regenerate-comparisons`. It defaults to the latest run and also accepts `--run`, `--all`, and `--output-root`.
 
 The per-run HTML report has sortable columns and defaults to Mean FLIP descending. Status values are:
 
@@ -188,8 +192,6 @@ pattern = "{stem}.png"
 missing = "fail"
 
 [comparison]
-tonemap = "clamp"
-transfer = "linear-to-srgb"
 default_flip_threshold = 0.015
 
 [skip]
@@ -200,17 +202,21 @@ known_renderer_mismatch = "expected to fail until issue #123 is fixed"
 
 [thresholds]
 noisy_glass_case = 0.035
+
+[frames]
+animated_case = "1:24"
 ```
 
 Available config concepts:
 
 - `[suite].name`: suite label used in reports.
 - `[render].args`: extra args appended to `usdrender` for every case in the suite.
-- `[render].output_pattern`: expected render product path relative to the run directory. It can use `{stem}`, `{name}`, `{suffix}`, and `{suite}`.
+- `[render].output_pattern`: expected render product path relative to the run directory. It can use `{stem}`, `{name}`, `{suffix}`, `{suite}`, and `{frame}` for frame-expanded cases.
 - `[reference].dir`: reference directory, relative to the suite directory unless absolute.
 - `[reference].pattern`: reference filename pattern using the same fields as `output_pattern`.
 - `[reference].missing`: `allow` for render-only smoke behavior or `fail` for strict suites.
 - `[comparison].default_flip_threshold`: default mean FLIP threshold for every compared case.
+- `[frames]`: optional frame specs keyed by relative path, filename, or stem. A value like `"1:10"` collects frames 1 through 10, and `"1:10x2"` uses a stride of 2.
 - `[skip]`, `[xfail]`, `[thresholds]`: keyed by relative path, filename, or stem.
 
 For one-off per-test overrides, put a sibling `<test>.typhoon.toml` next to the USDA:
@@ -227,6 +233,9 @@ flip_threshold = 0.025
 
 [test]
 xfail = "known mismatch in this scene"
+
+[frames]
+range = "1001:1010"
 ```
 
 ## Adding A New Suite

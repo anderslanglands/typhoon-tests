@@ -46,6 +46,8 @@ pixi run render-materialx-all
 pixi run regenerate-html
 pixi run regenerate-html --run _output/run-0003
 pixi run regenerate-html --all
+pixi run regenerate-comparisons
+pixi run regenerate-comparisons --run _output/run-0003
 ```
 
 ## Outputs
@@ -57,7 +59,8 @@ pixi run regenerate-html --all
 - `--typhoon-output-root=/path/to/output` changes the base directory that receives numbered `run-NNNN` directories.
 - `--typhoon-dry-run` prints commands without rendering, but still allocates a numbered run directory and writes report/index files.
 - `pixi run regenerate-html` regenerates the latest run HTML and top-level index from saved JSON without rerunning renders. Use `--run _output/run-0003`, `--all`, or `--output-root /path/to/output` for non-default cases.
-- The regeneration task reads `typhoon-report.json`, rewrites `index.html` and `run-summary.json`, and refreshes the top-level `index.html`. It does not rerun `usdrender`, recompute FLIP, or modify rendered image artifacts.
+- The HTML regeneration task reads `typhoon-report.json`, rewrites `index.html` and `run-summary.json`, and refreshes the top-level `index.html`. It does not rerun `usdrender`, recompute FLIP, or modify rendered image artifacts.
+- `pixi run regenerate-comparisons` recomputes comparison PNGs and FLIP metrics from existing render outputs without rerunning `usdrender`. It defaults to the latest run and accepts `--run _output/run-0003`, `--all`, or `--output-root /path/to/output`.
 - Per-run HTML report columns are sortable and default to Mean FLIP descending. Status cells use `passed`, `no-ref`, `dry-run`, `failed-threshold`, `failed-render`, or another `failed-*` value. `passed` is green, `no-ref` uses the table background, `failed-threshold` is red, and failed statuses other than `failed-render` and `failed-threshold` are pink.
 
 Expected run layout:
@@ -111,8 +114,6 @@ pattern = "{stem}.png"
 missing = "fail"
 
 [comparison]
-tonemap = "clamp"
-transfer = "linear-to-srgb"
 default_flip_threshold = 0.015
 
 [skip]
