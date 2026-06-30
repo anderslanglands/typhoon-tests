@@ -2,8 +2,6 @@
   "title": "MaterialX GLSL vs USD Render Comparison",
   "reference_dir": "/home/anders/code/MaterialX/build/glsl-render-tests/flat-glsl-pngs",
   "render_dir": "/home/anders/code/typhoon-tests/materialx/renders",
-  "tonemap": "clamp",
-  "transfer": "linear-to-srgb",
   "count": 143,
   "rows": [
     {

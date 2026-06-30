@@ -14,12 +14,14 @@ import pytest
 
 from .config import (
     CaseConfig,
+    FrameValue,
     SuiteConfig,
     format_pattern,
     find_suite_config,
     load_case_config,
     load_suite_config_for_path,
     lookup_case_value,
+    parse_frame_spec,
 )
 from .images import compare_images
 
@@ -65,6 +67,7 @@ class TyphoonCase:
     skip: str | None
     xfail: str | None
     flip_threshold: float | None
+    frame: FrameValue | None = None
 
 
 class TyphoonRenderError(AssertionError):
@@ -180,12 +183,14 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
 class TyphoonUsdFile(pytest.File):
     def collect(self) -> list[pytest.Item]:
         path = Path(str(self.path))
-        case = build_case(path)
-        item = TyphoonUsdItem.from_parent(self, name=case.key, case=case)
-        item.add_marker(pytest.mark.typhoon_usd)
-        if case.xfail:
-            item.add_marker(pytest.mark.xfail(reason=case.xfail, strict=False))
-        return [item]
+        items = []
+        for case in build_cases(path):
+            item = TyphoonUsdItem.from_parent(self, name=case.key, case=case)
+            item.add_marker(pytest.mark.typhoon_usd)
+            if case.xfail:
+                item.add_marker(pytest.mark.xfail(reason=case.xfail, strict=False))
+            items.append(item)
+        return items
 
 
 class TyphoonUsdItem(pytest.Item):
@@ -214,6 +219,10 @@ class TyphoonUsdItem(pytest.Item):
 
 
 def build_case(path: Path) -> TyphoonCase:
+    return build_cases(path)[0]
+
+
+def build_cases(path: Path) -> list[TyphoonCase]:
     suite = load_suite_config_for_path(str(path.resolve()))
     case_config = load_case_config(path)
     skip = case_config.skip or lookup_case_value(suite.skip, path, suite.root)
@@ -224,24 +233,58 @@ def build_case(path: Path) -> TyphoonCase:
     if threshold is None:
         threshold = suite.default_flip_threshold
 
-    return TyphoonCase(
-        path=path,
-        suite=suite,
-        case_config=case_config,
-        key=case_key(path, suite.root),
-        skip=skip,
-        xfail=xfail,
-        flip_threshold=threshold,
+    frames = resolve_case_frames(path, suite, case_config)
+    return [
+        TyphoonCase(
+            path=path,
+            suite=suite,
+            case_config=case_config,
+            key=case_key(path, suite.root, frame),
+            skip=skip,
+            xfail=xfail,
+            flip_threshold=threshold,
+            frame=frame,
+        )
+        for frame in frames
+    ]
+
+
+def resolve_case_frames(
+    path: Path,
+    suite: SuiteConfig,
+    case_config: CaseConfig,
+) -> tuple[FrameValue | None, ...]:
+    frame_spec = case_config.frame_range or lookup_case_value(
+        suite.frames, path, suite.root
     )
+    if frame_spec is None:
+        return (None,)
+    try:
+        return parse_frame_spec(frame_spec)
+    except ValueError as exc:
+        raise ValueError(f"invalid frame range for {path}: {exc}") from exc
 
 
-def case_key(path: Path, suite_root: Path) -> str:
+def case_key(
+    path: Path,
+    suite_root: Path,
+    frame: FrameValue | None = None,
+) -> str:
     try:
         rel = path.relative_to(suite_root).with_suffix("")
     except ValueError:
         rel = Path(path.stem)
     parts = [sanitize_key_part(part) for part in rel.parts]
-    return "__".join(part for part in parts if part) or sanitize_key_part(path.stem)
+    key = "__".join(part for part in parts if part) or sanitize_key_part(path.stem)
+    if frame is not None:
+        key = f"{key}__frame_{frame_key(frame)}"
+    return key
+
+
+def frame_key(frame: FrameValue) -> str:
+    if isinstance(frame, int):
+        return f"{frame:04d}"
+    return sanitize_key_part(format_frame_argument(frame).replace(".", "_"))
 
 
 def sanitize_key_part(value: str) -> str:
@@ -314,8 +357,6 @@ def next_run_number(output_base: Path) -> int:
 def run_typhoon_case(case: TyphoonCase, options: TyphoonOptions) -> dict[str, Any]:
     output_root = resolve_output_root(case, options)
     artifact_root = resolve_artifact_root(case, options)
-    render_output = resolve_render_output(case, output_root)
-    reference = resolve_reference(case, options)
 
     result: dict[str, Any] = {
         "suite": case.suite.name,
@@ -323,15 +364,25 @@ def run_typhoon_case(case: TyphoonCase, options: TyphoonOptions) -> dict[str, An
         "usd": str(case.path),
         "command": [],
         "output_root": str(output_root),
-        "render_output": str(render_output),
+        "render_output": None,
         "artifact_root": str(artifact_root),
-        "reference": str(reference) if reference else None,
+        "reference": None,
         "flip_threshold": case.flip_threshold,
+        "frame": case.frame,
         "status": "pending",
         "run_number": options.run_context.run_number,
         "run_dir": str(options.run_context.run_dir),
         "started_at": options.run_context.started_at,
     }
+
+    try:
+        render_output = resolve_render_output(case, output_root)
+        reference = resolve_reference(case, options)
+    except ValueError as exc:
+        result["status"] = "failed-config"
+        raise TyphoonRenderError(str(exc), result) from exc
+    result["render_output"] = str(render_output)
+    result["reference"] = str(reference) if reference else None
 
     try:
         cmd = build_render_command(case, options, output_root)
@@ -403,8 +454,6 @@ def run_typhoon_case(case: TyphoonCase, options: TyphoonOptions) -> dict[str, An
             render_path=render_output,
             artifact_dir=artifact_root,
             key=case.key,
-            tonemap=case.suite.tonemap,
-            transfer=case.suite.transfer,
         )
     except Exception as exc:
         result["status"] = "failed-compare"
@@ -464,6 +513,8 @@ def build_render_command(
 
     cmd.extend(case.suite.render_args)
     cmd.extend(case.case_config.render_args)
+    if case.frame is not None:
+        cmd.extend(["--frames", format_frame_argument(case.frame)])
     cmd.extend([str(case.path), "--outputRoot", str(output_root)])
     return cmd
 
@@ -478,16 +529,36 @@ def resolve_artifact_root(case: TyphoonCase, options: TyphoonOptions) -> Path:
 
 def resolve_render_output(case: TyphoonCase, output_root: Path) -> Path:
     if case.case_config.render_output:
-        return (output_root / case.case_config.render_output).resolve()
+        return (
+            output_root
+            / format_pattern(
+                case.case_config.render_output,
+                case.path,
+                case.suite,
+                case.frame,
+            )
+        ).resolve()
     return (
         output_root
-        / format_pattern(case.suite.render_output_pattern, case.path, case.suite)
+        / format_pattern(
+            case.suite.render_output_pattern,
+            case.path,
+            case.suite,
+            case.frame,
+        )
     ).resolve()
 
 
 def resolve_reference(case: TyphoonCase, options: TyphoonOptions) -> Path | None:
     if case.case_config.reference:
-        reference = Path(case.case_config.reference).expanduser()
+        reference = Path(
+            format_pattern(
+                case.case_config.reference,
+                case.path,
+                case.suite,
+                case.frame,
+            )
+        ).expanduser()
         if not reference.is_absolute():
             reference = case.suite.root / reference
         return reference.resolve()
@@ -499,7 +570,9 @@ def resolve_reference(case: TyphoonCase, options: TyphoonOptions) -> Path | None
         return None
     return (
         reference_dir
-        / format_pattern(case.suite.reference_pattern, case.path, case.suite)
+        / format_pattern(
+            case.suite.reference_pattern, case.path, case.suite, case.frame
+        )
     ).resolve()
 
 
@@ -934,6 +1007,14 @@ def _optional_path(value: str | None) -> Path | None:
     if not value:
         return None
     return Path(value).expanduser().resolve()
+
+
+def format_frame_argument(frame: FrameValue) -> str:
+    if isinstance(frame, int):
+        return str(frame)
+    if frame.is_integer():
+        return str(int(frame))
+    return f"{frame:g}"
 
 
 def format_command(cmd: list[str]) -> str:

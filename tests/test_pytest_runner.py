@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from html.parser import HTMLParser
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -60,6 +61,24 @@ def options(tmp_path: Path, **overrides: object) -> TyphoonOptions:
     }
     values.update(overrides)
     return TyphoonOptions(**values)
+
+
+def run_pytest_with_plugin(tmp_path: Path, *args: str) -> subprocess.CompletedProcess[str]:
+    repo_root = Path(__file__).resolve().parents[1]
+    env = os.environ.copy()
+    pythonpath = env.get("PYTHONPATH")
+    env["PYTHONPATH"] = (
+        f"{repo_root}{os.pathsep}{pythonpath}" if pythonpath else str(repo_root)
+    )
+    return subprocess.run(
+        [sys.executable, "-m", "pytest", "-p", "typhoon_tests.pytest_plugin", *args],
+        cwd=tmp_path,
+        check=False,
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
 
 
 class ReportHtmlParser(HTMLParser):
@@ -240,6 +259,303 @@ def test_provider_mode_uses_openusd_pixi_task_without_duplicate_base_flags(
     assert "--disableCameraLight" in cmd
     assert "--complexity" not in cmd
     assert "--renderer" not in cmd
+
+
+def test_frame_spec_parsing_supports_ranges_lists_strides_and_fractional_frames() -> None:
+    assert plugin.parse_frame_spec("1:3") == (1, 2, 3)
+    assert plugin.parse_frame_spec("3:1") == (3, 2, 1)
+    assert plugin.parse_frame_spec("1:5x2,8") == (1, 3, 5, 8)
+    assert plugin.parse_frame_spec("1:2x0.5") == (1, 1.5, 2)
+
+
+@pytest.mark.parametrize(
+    "spec",
+    ["", "1x2", "1:3x", "1:3x0", "1:3x-1", "1:x"],
+)
+def test_frame_spec_parsing_rejects_invalid_specs(spec: str) -> None:
+    with pytest.raises(ValueError):
+        plugin.parse_frame_spec(spec)
+
+
+def test_integer_frame_format_rejects_fractional_frames(tmp_path: Path) -> None:
+    suite = plugin.SuiteConfig(root=tmp_path, name="sample")
+
+    with pytest.raises(ValueError, match="invalid format pattern"):
+        plugin.format_pattern(
+            "{stem}-embree.{frame:04d}.exr",
+            tmp_path / "case.usda",
+            suite,
+            1.5,
+        )
+
+
+def test_fractional_frame_cases_format_keys_paths_and_commands(tmp_path: Path) -> None:
+    suite = tmp_path / "suite"
+    suite.mkdir()
+    (suite / "typhoon-suite.toml").write_text(
+        """
+[suite]
+name = "sample"
+
+[render]
+output_pattern = "{stem}.{frame}.exr"
+
+[frames]
+case = "1.5"
+""",
+        encoding="utf-8",
+    )
+    usd = suite / "case.usda"
+    usd.write_text("#usda 1.0\n", encoding="utf-8")
+
+    cases = plugin.build_cases(usd)
+    opts = options(tmp_path)
+    cmd = plugin.build_render_command(cases[0], opts, opts.run_context.run_dir)
+
+    assert [case.key for case in cases] == ["case__frame_1_5"]
+    assert plugin.resolve_render_output(cases[0], opts.run_context.run_dir) == (
+        opts.run_context.run_dir / "case.1.5.exr"
+    ).resolve()
+    frame_arg = cmd.index("--frames")
+    assert cmd[frame_arg : frame_arg + 2] == ["--frames", "1.5"]
+
+
+def test_configured_frame_ranges_expand_cases_and_format_paths(tmp_path: Path) -> None:
+    suite = tmp_path / "suite"
+    reference_dir = tmp_path / "refs"
+    suite.mkdir()
+    reference_dir.mkdir()
+    (suite / "typhoon-suite.toml").write_text(
+        """
+[suite]
+name = "sample"
+
+[render]
+output_pattern = "{stem}-embree.{frame:04d}.exr"
+
+[reference]
+dir = "../refs"
+pattern = "{stem}-embree.{frame:04d}.exr"
+
+[frames]
+case = "1:3x2"
+""",
+        encoding="utf-8",
+    )
+    usd = suite / "case.usda"
+    usd.write_text("#usda 1.0\n", encoding="utf-8")
+
+    cases = plugin.build_cases(usd)
+    opts = options(tmp_path)
+
+    assert [case.key for case in cases] == [
+        "case__frame_0001",
+        "case__frame_0003",
+    ]
+    assert [case.frame for case in cases] == [1, 3]
+    assert plugin.resolve_render_output(
+        cases[1], opts.run_context.run_dir
+    ) == (opts.run_context.run_dir / "case-embree.0003.exr").resolve()
+    assert plugin.resolve_reference(cases[1], opts) == (
+        reference_dir / "case-embree.0003.exr"
+    ).resolve()
+
+    cmd = plugin.build_render_command(cases[1], opts, opts.run_context.run_dir)
+
+    frame_arg = cmd.index("--frames")
+    assert cmd[frame_arg : frame_arg + 2] == ["--frames", "3"]
+    assert cmd[-3:] == [str(usd), "--outputRoot", str(opts.run_context.run_dir)]
+
+
+def test_pytest_collection_expands_configured_frames(tmp_path: Path) -> None:
+    suite = tmp_path / "suite"
+    suite.mkdir()
+    (suite / "typhoon-suite.toml").write_text(
+        """
+[suite]
+name = "sample"
+
+[frames]
+case = "1:2"
+""",
+        encoding="utf-8",
+    )
+    usd = suite / "case.usda"
+    usd.write_text("#usda 1.0\n", encoding="utf-8")
+    completed = run_pytest_with_plugin(
+        tmp_path,
+        str(usd),
+        "--collect-only",
+        "-q",
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    assert "case.usda::case__frame_0001" in completed.stdout
+    assert "case.usda::case__frame_0002" in completed.stdout
+    assert "2 tests collected" in completed.stdout
+
+
+def test_invalid_frame_spec_fails_pytest_collection(tmp_path: Path) -> None:
+    suite = tmp_path / "suite"
+    suite.mkdir()
+    (suite / "typhoon-suite.toml").write_text(
+        """
+[suite]
+name = "sample"
+
+[frames]
+case = "1:3x0"
+""",
+        encoding="utf-8",
+    )
+    usd = suite / "case.usda"
+    usd.write_text("#usda 1.0\n", encoding="utf-8")
+
+    completed = run_pytest_with_plugin(
+        tmp_path,
+        str(usd),
+        "--collect-only",
+        "-q",
+    )
+
+    output = completed.stdout + completed.stderr
+    assert completed.returncode != 0
+    assert "invalid frame range for" in output
+    assert "zero stride" in output
+
+
+def test_case_frame_override_formats_case_specific_paths(tmp_path: Path) -> None:
+    suite = tmp_path / "suite"
+    suite.mkdir()
+    (suite / "typhoon-suite.toml").write_text(
+        """
+[suite]
+name = "sample"
+
+[frames]
+case = "1:3"
+""",
+        encoding="utf-8",
+    )
+    (suite / "case.typhoon.toml").write_text(
+        """
+[frames]
+range = "5"
+
+[render]
+output = "renders/{stem}.{frame:04d}.exr"
+
+[reference]
+path = "refs/{stem}.{frame:04d}.exr"
+""",
+        encoding="utf-8",
+    )
+    usd = suite / "case.usda"
+    usd.write_text("#usda 1.0\n", encoding="utf-8")
+
+    cases = plugin.build_cases(usd)
+    opts = options(tmp_path)
+
+    assert [case.key for case in cases] == ["case__frame_0005"]
+    assert plugin.resolve_render_output(cases[0], opts.run_context.run_dir) == (
+        opts.run_context.run_dir / "renders" / "case.0005.exr"
+    ).resolve()
+    assert plugin.resolve_reference(cases[0], opts) == (
+        suite / "refs" / "case.0005.exr"
+    ).resolve()
+
+    cmd = plugin.build_render_command(cases[0], opts, opts.run_context.run_dir)
+    frame_arg = cmd.index("--frames")
+    assert cmd[frame_arg : frame_arg + 2] == ["--frames", "5"]
+
+    completed = run_pytest_with_plugin(
+        tmp_path,
+        str(usd),
+        "--collect-only",
+        "-q",
+    )
+    assert completed.returncode == 0, completed.stderr
+    assert "case.usda::case__frame_0005" in completed.stdout
+    assert "case.usda::case__frame_0001" not in completed.stdout
+
+
+def test_frame_pattern_without_frame_config_records_failed_config(
+    tmp_path: Path,
+) -> None:
+    suite = tmp_path / "suite"
+    suite.mkdir()
+    (suite / "typhoon-suite.toml").write_text(
+        """
+[suite]
+name = "sample"
+
+[render]
+output_pattern = "{stem}-embree.{frame:04d}.exr"
+""",
+        encoding="utf-8",
+    )
+    usd = suite / "case.usda"
+    usd.write_text("#usda 1.0\n", encoding="utf-8")
+    case = plugin.build_case(usd)
+    opts = options(tmp_path)
+
+    with pytest.raises(TyphoonRenderError, match="uses .*frame") as excinfo:
+        plugin.run_typhoon_case(case, opts)
+
+    assert excinfo.value.result is not None
+    assert excinfo.value.result["status"] == "failed-config"
+    assert excinfo.value.result["command"] == []
+    assert excinfo.value.result["render_output"] is None
+
+
+def test_pytest_failed_config_writes_report_output(tmp_path: Path) -> None:
+    suite = tmp_path / "suite"
+    suite.mkdir()
+    (suite / "typhoon-suite.toml").write_text(
+        """
+[suite]
+name = "sample"
+
+[render]
+output_pattern = "{stem}-embree.{frame:04d}.exr"
+""",
+        encoding="utf-8",
+    )
+    usd = suite / "case.usda"
+    usd.write_text("#usda 1.0\n", encoding="utf-8")
+
+    completed = run_pytest_with_plugin(
+        tmp_path,
+        str(usd),
+        "--typhoon-dry-run",
+        "-q",
+    )
+
+    assert completed.returncode == 1
+    report_path = tmp_path / "_output" / "run-0001" / "typhoon-report.json"
+    summary_path = tmp_path / "_output" / "run-0001" / "run-summary.json"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    assert report == [
+        {
+            "artifact_root": str(tmp_path / "_output" / "run-0001"),
+            "command": [],
+            "flip_threshold": None,
+            "frame": None,
+            "key": "case",
+            "output_root": str(tmp_path / "_output" / "run-0001"),
+            "reference": None,
+            "render_output": None,
+            "run_dir": str(tmp_path / "_output" / "run-0001"),
+            "run_number": 1,
+            "started_at": report[0]["started_at"],
+            "status": "failed-config",
+            "suite": "sample",
+            "usd": str(usd),
+        }
+    ]
+    assert summary["total"] == 1
+    assert summary["failed"] == 1
 
 
 def test_dry_run_reports_run_directory_without_rendering(tmp_path: Path) -> None:

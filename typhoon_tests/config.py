@@ -8,6 +8,7 @@ import tomllib
 
 
 SUITE_CONFIG_NAME = "typhoon-suite.toml"
+FrameValue = int | float
 
 
 @dataclass(frozen=True)
@@ -20,9 +21,8 @@ class SuiteConfig:
     reference_pattern: str = "{stem}.png"
     default_flip_threshold: float | None = None
     missing_references: str = "allow"
-    tonemap: str = "clamp"
-    transfer: str = "linear-to-srgb"
     render_args: tuple[str, ...] = ()
+    frames: dict[str, str] = field(default_factory=dict)
     skip: dict[str, str] = field(default_factory=dict)
     xfail: dict[str, str] = field(default_factory=dict)
     thresholds: dict[str, float | None] = field(default_factory=dict)
@@ -36,6 +36,7 @@ class CaseConfig:
     render_output: str | None = None
     reference: str | None = None
     render_args: tuple[str, ...] = ()
+    frame_range: str | None = None
 
 
 def find_suite_config(path: Path) -> Path | None:
@@ -95,9 +96,8 @@ def load_suite_config_for_path(path_text: str) -> SuiteConfig:
             reference.get("missing", suite.get("missing_references")),
             "allow",
         ),
-        tonemap=_string(comparison.get("tonemap"), "clamp"),
-        transfer=_string(comparison.get("transfer"), "linear-to-srgb"),
         render_args=tuple(_string_list(render.get("args", []))),
+        frames=_frame_map(data.get("frames", {})),
         skip=_string_map(data.get("skip", {})),
         xfail=_string_map(data.get("xfail", {})),
         thresholds=_threshold_map(data.get("thresholds", {})),
@@ -119,6 +119,7 @@ def load_case_config(path: Path) -> CaseConfig:
     render = _table(data, "render")
     reference = _table(data, "reference")
     comparison = _table(data, "comparison")
+    frames = _table(data, "frames")
 
     return CaseConfig(
         skip=_optional_string(test.get("skip", data.get("skip"))),
@@ -131,6 +132,7 @@ def load_case_config(path: Path) -> CaseConfig:
         ),
         reference=_optional_string(reference.get("path", data.get("reference"))),
         render_args=tuple(_string_list(render.get("args", data.get("render_args", [])))),
+        frame_range=_optional_string(frames.get("range", test.get("frames"))),
     )
 
 
@@ -142,13 +144,71 @@ def lookup_case_value(mapping: dict[str, Any], path: Path, suite_root: Path) -> 
     return None
 
 
-def format_pattern(pattern: str, path: Path, suite: SuiteConfig) -> str:
-    return pattern.format(
-        stem=path.stem,
-        name=path.name,
-        suffix=path.suffix,
-        suite=suite.name,
-    )
+def format_pattern(
+    pattern: str,
+    path: Path,
+    suite: SuiteConfig,
+    frame: FrameValue | None = None,
+) -> str:
+    if frame is None and "{frame" in pattern:
+        raise ValueError(
+            f"pattern {pattern!r} uses {{frame}} but no frame is configured"
+        )
+    try:
+        return pattern.format(
+            stem=path.stem,
+            name=path.name,
+            suffix=path.suffix,
+            suite=suite.name,
+            frame=frame,
+        )
+    except ValueError as exc:
+        raise ValueError(f"invalid format pattern {pattern!r}: {exc}") from exc
+
+
+def parse_frame_spec(spec: str) -> tuple[FrameValue, ...]:
+    frames: list[FrameValue] = []
+    for raw_part in spec.split(","):
+        part = raw_part.strip()
+        if not part:
+            continue
+        range_part, separator, stride_part = part.partition("x")
+        if separator and not stride_part.strip():
+            raise ValueError(f"frame range {part!r} has an empty stride")
+
+        if ":" not in range_part:
+            if separator:
+                raise ValueError(f"single frame {part!r} cannot have a stride")
+            frames.append(_parse_frame_value(range_part))
+            continue
+
+        start_text, end_text = range_part.split(":", 1)
+        start = _parse_frame_value(start_text)
+        end = _parse_frame_value(end_text)
+        if separator:
+            step = _parse_frame_value(stride_part)
+            if step == 0:
+                raise ValueError(f"frame range {part!r} has a zero stride")
+        else:
+            step = 1 if end >= start else -1
+
+        if (end - start) * step < 0:
+            raise ValueError(f"frame range {part!r} stride does not reach the end")
+
+        current = start
+        epsilon = 1e-9
+        if step > 0:
+            while current <= end + epsilon:
+                frames.append(_normalize_frame_value(current))
+                current += step
+        else:
+            while current >= end - epsilon:
+                frames.append(_normalize_frame_value(current))
+                current += step
+
+    if not frames:
+        raise ValueError("frame range is empty")
+    return tuple(frames)
 
 
 def _resolve_path(root: Path, value: str) -> Path:
@@ -187,6 +247,19 @@ def _optional_float(value: Any) -> float | None:
     raise TypeError(f"expected number, got {type(value).__name__}")
 
 
+def _parse_frame_value(value: str) -> FrameValue:
+    text = value.strip()
+    if not text:
+        raise ValueError("empty frame value")
+    return _normalize_frame_value(float(text))
+
+
+def _normalize_frame_value(value: float) -> FrameValue:
+    if float(value).is_integer():
+        return int(value)
+    return value
+
+
 def _string_list(value: Any) -> list[str]:
     if not isinstance(value, list):
         raise TypeError(f"expected list, got {type(value).__name__}")
@@ -211,6 +284,17 @@ def _string_map(value: Any) -> dict[str, str]:
             raise TypeError(
                 f"expected skip/xfail value for {key!r} to be string or true"
             )
+    return result
+
+
+def _frame_map(value: Any) -> dict[str, str]:
+    if not isinstance(value, dict):
+        raise TypeError(f"expected table, got {type(value).__name__}")
+    result: dict[str, str] = {}
+    for key, item in value.items():
+        if not isinstance(item, str):
+            raise TypeError(f"expected frame range value for {key!r} to be string")
+        result[str(key)] = item
     return result
 
 

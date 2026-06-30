@@ -42,7 +42,8 @@ def read_rgb(path: Path) -> np.ndarray:
     if image.shape[-1] == 1:
         image = np.repeat(image, 3, axis=-1)
     rgb = image[..., :3]
-    return np.nan_to_num(rgb, nan=0.0, posinf=1.0, neginf=0.0)
+    rgb = np.nan_to_num(rgb, nan=0.0, posinf=1.0, neginf=0.0)
+    return np.clip(rgb, 0.0, None)
 
 
 def linear_to_srgb(linear: np.ndarray) -> np.ndarray:
@@ -50,23 +51,16 @@ def linear_to_srgb(linear: np.ndarray) -> np.ndarray:
     return np.where(linear <= 0.0031308, linear * 12.92, 1.055 * np.power(linear, 1.0 / 2.4) - 0.055)
 
 
-def render_preview(render_rgb: np.ndarray, tonemap: str, transfer: str) -> np.ndarray:
-    rgb = np.clip(render_rgb, 0.0, None)
-    if tonemap == "reinhard":
-        rgb = rgb / (1.0 + rgb)
-    elif tonemap == "clamp":
-        rgb = np.clip(rgb, 0.0, 1.0)
-    else:
-        raise ValueError(f"unknown tonemap: {tonemap}")
-
-    if transfer == "linear-to-srgb":
-        rgb = linear_to_srgb(rgb)
-    elif transfer == "identity":
-        pass
-    else:
-        raise ValueError(f"unknown transfer: {transfer}")
-
+def ldr_rgb_for_path(path: Path, rgb: np.ndarray) -> np.ndarray:
+    if path.suffix.lower() == ".exr":
+        return np.clip(linear_to_srgb(rgb), 0.0, 1.0)
     return np.clip(rgb, 0.0, 1.0)
+
+
+def render_preview(path: Path, render_rgb: np.ndarray) -> np.ndarray:
+    if path.suffix.lower() == ".exr":
+        return linear_to_srgb(render_rgb)
+    return np.clip(render_rgb, 0.0, 1.0)
 
 
 def save_png(path: Path, rgb: np.ndarray) -> None:
@@ -346,8 +340,6 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--title", default="MaterialX GLSL vs USD Render Comparison")
     parser.add_argument("--limit", type=int, default=0, help="limit number of matched cases, for quick test generation")
     parser.add_argument("--key", action="append", default=[], help="only generate selected test key; may be repeated")
-    parser.add_argument("--tonemap", choices=["clamp", "reinhard"], default="clamp", help="tonemap used for EXR preview PNGs before FLIP")
-    parser.add_argument("--transfer", choices=["linear-to-srgb", "identity"], default="linear-to-srgb", help="transfer applied to EXR preview PNGs")
     parser.add_argument("--allow-missing", action="store_true", help="continue if either side has unmatched files")
     return parser.parse_args(argv)
 
@@ -405,14 +397,16 @@ def main(argv: list[str]) -> int:
         shutil.copy2(reference_path, reference_png)
         reference_rgb = read_rgb(reference_path)
         render_rgb = read_rgb(render_path)
-        preview_rgb = render_preview(render_rgb, args.tonemap, args.transfer)
+        preview_rgb = render_preview(render_path, render_rgb)
+        reference_for_flip = ldr_rgb_for_path(reference_path, reference_rgb)
+        render_for_flip = ldr_rgb_for_path(render_path, render_rgb)
 
-        if reference_rgb.shape[:2] != preview_rgb.shape[:2]:
-            print(f"resolution mismatch for {key}: reference {reference_rgb.shape[:2]} render {preview_rgb.shape[:2]}", file=sys.stderr)
+        if reference_for_flip.shape[:2] != render_for_flip.shape[:2]:
+            print(f"resolution mismatch for {key}: reference {reference_for_flip.shape[:2]} render {render_for_flip.shape[:2]}", file=sys.stderr)
             return 1
 
         save_png(render_png, preview_rgb)
-        flip_map, mean_flip, _ = flip_evaluator.evaluate(reference_rgb, preview_rgb, "LDR", inputsRGB=True, applyMagma=True, computeMeanError=True)
+        flip_map, mean_flip, _ = flip_evaluator.evaluate(reference_for_flip, render_for_flip, "LDR", inputsRGB=True, applyMagma=True, computeMeanError=True)
         save_png(diff_png, np.asarray(flip_map, dtype=np.float32)[..., :3])
 
         rows.append(
@@ -433,8 +427,6 @@ def main(argv: list[str]) -> int:
         "title": args.title,
         "reference_dir": str(reference_dir),
         "render_dir": str(render_dir),
-        "tonemap": args.tonemap,
-        "transfer": args.transfer,
         "count": len(rows),
         "rows": rows,
     }

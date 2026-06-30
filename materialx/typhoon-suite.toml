@@ -11,8 +11,6 @@ pattern = "{stem}_glsl.png"
 missing = "allow"
 
 [comparison]
-tonemap = "clamp"
-transfer = "linear-to-srgb"
 # Add default_flip_threshold once the suite has curated regression thresholds.
 
 [skip]
