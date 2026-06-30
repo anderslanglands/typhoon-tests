@@ -23,7 +23,7 @@ from .config import (
     lookup_case_value,
     parse_frame_spec,
 )
-from .images import compare_images
+from .images import compare_images, write_image_preview
 
 
 RUN_DIR_RE = re.compile(r"^run-(\d+)$")
@@ -435,6 +435,17 @@ def run_typhoon_case(case: TyphoonCase, options: TyphoonOptions) -> dict[str, An
 
     if reference is None or not reference.is_file():
         result["comparison"] = "missing-reference"
+        try:
+            result["render_png"] = str(
+                write_image_preview(
+                    image_path=render_output,
+                    artifact_dir=artifact_root,
+                    key=case.key,
+                    category="render",
+                )
+            )
+        except Exception as exc:
+            result["preview_error"] = str(exc)
         if options.require_references or case.suite.missing_references == "fail":
             result["status"] = "failed-missing-reference"
             raise TyphoonRenderError(
@@ -701,16 +712,31 @@ def sortable_table_script() -> str:
           }
           button.dataset.sortDirection = direction === 1 ? "asc" : "desc";
         };
+        const rowGroups = () => {
+          const groups = [];
+          for (const row of Array.from(tbody.rows)) {
+            if (row.classList.contains("result-detail-row")) continue;
+            const detailId = row.dataset.detailRow;
+            const detail = detailId ? document.getElementById(detailId) : null;
+            groups.push({ row, detail });
+          }
+          return groups;
+        };
         const sortRows = (column, type, direction) => {
-          const rows = Array.from(tbody.rows);
-          rows.sort((leftRow, rightRow) => {
-            const left = readValue(leftRow, column, type);
-            const right = readValue(rightRow, column, type);
+          const groups = rowGroups();
+          groups.sort((leftGroup, rightGroup) => {
+            const left = readValue(leftGroup.row, column, type);
+            const right = readValue(rightGroup.row, column, type);
             if (left < right) return -1 * direction;
             if (left > right) return 1 * direction;
             return 0;
           });
-          tbody.append(...rows);
+          const sortedRows = [];
+          for (const group of groups) {
+            sortedRows.push(group.row);
+            if (group.detail) sortedRows.push(group.detail);
+          }
+          tbody.append(...sortedRows);
         };
         if (initialButton) {
           sortRows(
@@ -731,6 +757,48 @@ def sortable_table_script() -> str:
           });
         }
       }
+      for (const row of document.querySelectorAll("tr.result-row[data-detail-row]")) {
+        row.addEventListener("click", (event) => {
+          if (event.target.closest("a, button, input, select, textarea")) return;
+          const detail = document.getElementById(row.dataset.detailRow);
+          if (!detail) return;
+          const expanded = row.getAttribute("aria-expanded") === "true";
+          row.setAttribute("aria-expanded", expanded ? "false" : "true");
+          detail.hidden = expanded;
+        });
+      }
+      let activeComparisonImage = null;
+      const setComparisonImage = (image, mode) => {
+        const src = mode === "render" ? image.dataset.renderSrc : image.dataset.referenceSrc;
+        const alt = mode === "render" ? image.dataset.renderAlt : image.dataset.referenceAlt;
+        if (!src) return;
+        image.src = src;
+        image.alt = alt || "";
+        image.dataset.activeImage = mode;
+        const viewer = image.closest("[data-comparison-viewer]");
+        const label = viewer?.querySelector("[data-comparison-mode]");
+        if (label) label.textContent = mode === "render" ? "Render" : "Reference";
+      };
+      for (const viewer of document.querySelectorAll("[data-comparison-viewer]")) {
+        const image = viewer.querySelector("img[data-reference-src][data-render-src]");
+        if (!image) continue;
+        viewer.addEventListener("mouseenter", () => {
+          activeComparisonImage = image;
+        });
+        viewer.addEventListener("mouseleave", () => {
+          if (activeComparisonImage === image) activeComparisonImage = null;
+        });
+      }
+      document.addEventListener("keydown", (event) => {
+        if (!activeComparisonImage) return;
+        if (event.key === "1") {
+          event.preventDefault();
+          setComparisonImage(activeComparisonImage, "reference");
+        } else if (event.key === "2") {
+          event.preventDefault();
+          setComparisonImage(activeComparisonImage, "render");
+        }
+      });
     })();
   </script>"""
 
@@ -750,10 +818,22 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
         return html.escape(str(value), quote=True)
 
     body_rows = []
-    for row in rows:
+    for index, row in enumerate(rows):
         flip = row.get("flip_mean")
         threshold = row.get("flip_threshold")
         status = status_label(row.get("status", ""))
+        row_id = f"result-row-{index}"
+        detail_id = f"result-detail-{index}"
+        reference_png = (
+            relpath(Path(str(row["reference_png"])), context.run_dir)
+            if row.get("reference_png")
+            else ""
+        )
+        render_png = (
+            relpath(Path(str(row["render_png"])), context.run_dir)
+            if row.get("render_png")
+            else ""
+        )
         image_cells = ""
         if row.get("comparison") == "flip":
             image_cells = "".join(
@@ -765,6 +845,41 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
                     ("diff_png", "flip diff"),
                 )
                 if row.get(key)
+            )
+        escaped_key = esc(row.get("key", ""))
+        detail_content = '<div class="detail-empty">No comparison images.</div>'
+        if reference_png and render_png:
+            escaped_reference = esc(reference_png)
+            escaped_render = esc(render_png)
+            detail_content = (
+                '<div class="comparison-viewer" data-comparison-viewer>'
+                '<div class="comparison-mode" data-comparison-mode>Reference</div>'
+                f'<img class="comparison-toggle-image" src="{escaped_reference}" '
+                f'alt="{escaped_key} reference" '
+                f'data-reference-src="{escaped_reference}" '
+                f'data-render-src="{escaped_render}" '
+                f'data-reference-alt="{escaped_key} reference" '
+                f'data-render-alt="{escaped_key} render" '
+                'data-active-image="reference">'
+                "</div>"
+            )
+        elif render_png:
+            escaped_render = esc(render_png)
+            detail_content = (
+                '<div class="single-image-viewer">'
+                '<div class="comparison-mode">Render</div>'
+                f'<img class="detail-image" src="{escaped_render}" '
+                f'alt="{escaped_key} render">'
+                "</div>"
+            )
+        elif reference_png:
+            escaped_reference = esc(reference_png)
+            detail_content = (
+                '<div class="single-image-viewer">'
+                '<div class="comparison-mode">Reference</div>'
+                f'<img class="detail-image" src="{escaped_reference}" '
+                f'alt="{escaped_key} reference">'
+                "</div>"
             )
         status_css = " ".join(part for part in ("status-cell", status_class(status)) if part)
         cells = [
@@ -785,7 +900,15 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
             ),
             sortable_cell(image_cells, sort_value="1" if image_cells else "0"),
         ]
-        body_rows.append("<tr>" + "".join(cells) + "</tr>")
+        body_rows.append(
+            f'<tr id="{row_id}" class="result-row" data-detail-row="{detail_id}" '
+            f'aria-expanded="false">'
+            + "".join(cells)
+            + "</tr>"
+            + f'<tr id="{detail_id}" class="result-detail-row" hidden>'
+            + f'<td colspan="7"><div class="detail-panel">{detail_content}</div></td>'
+            + "</tr>"
+        )
 
     headers = "".join(
         [
@@ -820,6 +943,15 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
     th button::after {{ color: #999; font-size: 12px; margin-left: 6px; }}
     th button[data-sort-direction="asc"]::after {{ content: " \\2191"; }}
     th button[data-sort-direction="desc"]::after {{ content: " \\2193"; }}
+    tr.result-row {{ cursor: pointer; }}
+    tr.result-row:hover td:not(.status-cell) {{ background: #202020; }}
+    tr.result-row[aria-expanded="true"] td {{ border-bottom-color: #4a4a4a; }}
+    .result-detail-row td {{ padding: 0 10px 18px; background: #101010; border-bottom: 1px solid #3a3a3a; }}
+    .detail-panel {{ padding-top: 16px; }}
+    .detail-empty {{ color: #888; }}
+    .comparison-viewer, .single-image-viewer {{ position: relative; display: inline-block; max-width: 100%; background: #050505; border: 1px solid #333; }}
+    .comparison-mode {{ position: absolute; top: 8px; left: 8px; padding: 3px 8px; border-radius: 4px; background: rgba(0, 0, 0, 0.72); color: #fff; font-size: 12px; font-weight: 700; pointer-events: none; }}
+    .comparison-toggle-image, .detail-image {{ display: block; width: auto; max-width: 100%; height: auto; margin: 0; border: 0; background: #050505; }}
     td:nth-child(6) {{ word-break: break-all; color: #bbb; }}
     td:last-child {{ min-width: 240px; }}
     .status-cell {{ font-weight: 700; white-space: nowrap; }}
@@ -827,7 +959,7 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
     .status-no-ref {{ background: #181818; color: #bbb; }}
     .status-failed-threshold {{ background: #7f1d1d; color: #fee2e2; }}
     .status-failed-other {{ background: #831843; color: #fce7f3; }}
-    img {{ width: 76px; height: 76px; object-fit: contain; background: #050505; margin-right: 6px; border: 1px solid #333; }}
+    tr.result-row td:last-child img {{ width: 76px; height: 76px; object-fit: contain; background: #050505; margin-right: 6px; border: 1px solid #333; }}
   </style>
 </head>
 <body>

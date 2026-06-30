@@ -13,6 +13,7 @@ from typhoon_tests.images import (
     linear_to_srgb,
     preview_rgb_for_path,
     save_png,
+    write_image_preview,
 )
 
 
@@ -44,6 +45,35 @@ def test_save_png_clamps_and_sanitizes_non_finite_values(tmp_path) -> None:
 
     pixel = np.asarray(Image.open(png_path))[0, 0]
     np.testing.assert_array_equal(pixel, np.array([0, 0, 255], dtype=np.uint8))
+
+
+def test_write_image_preview_uses_existing_preview_transfer(tmp_path, monkeypatch) -> None:
+    render_path = tmp_path / "render.exr"
+    render_path.write_bytes(b"placeholder")
+
+    monkeypatch.setitem(
+        sys.modules,
+        "flip_evaluator",
+        SimpleNamespace(
+            load=lambda path: np.array([[[4.0, 0.5, -1.0]]], dtype=np.float32)
+        ),
+    )
+
+    preview_path = write_image_preview(
+        image_path=render_path,
+        artifact_dir=tmp_path / "artifacts",
+        key="case",
+        category="render",
+    )
+
+    assert preview_path == tmp_path / "artifacts" / "render" / "case.png"
+    pixel = np.asarray(Image.open(preview_path))[0, 0]
+    expected = (
+        np.clip(linear_to_srgb(np.array([4.0, 0.5, -1.0])), 0.0, 1.0)
+        * 255.0
+        + 0.5
+    ).astype(np.uint8)
+    np.testing.assert_array_equal(pixel, expected)
 
 
 def test_compare_images_runs_flip_on_float_data_and_writes_srgb_previews(

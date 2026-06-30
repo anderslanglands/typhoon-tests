@@ -31,12 +31,7 @@ def compare_images(
     artifact_dir: Path,
     key: str,
 ) -> ImageComparison:
-    try:
-        import flip_evaluator
-    except ImportError as exc:
-        raise RuntimeError(
-            "flip-evaluator is required for Typhoon image comparisons"
-        ) from exc
+    flip_evaluator = import_flip_evaluator()
 
     reference_rgb = read_rgb(flip_evaluator, reference_path)
     render_rgb = read_rgb(flip_evaluator, render_path)
@@ -92,6 +87,30 @@ def compare_images(
         diff_png=diff_png,
         flip_mean=float(mean_flip),
     )
+
+
+def write_image_preview(
+    *,
+    image_path: Path,
+    artifact_dir: Path,
+    key: str,
+    category: str,
+) -> Path:
+    flip_evaluator = import_flip_evaluator()
+    rgb = read_rgb(flip_evaluator, image_path)
+    preview_png = artifact_dir / category / f"{key}.png"
+    save_png(preview_png, preview_rgb_for_path(image_path, rgb))
+    return preview_png
+
+
+def import_flip_evaluator() -> object:
+    try:
+        import flip_evaluator
+    except ImportError as exc:
+        raise RuntimeError(
+            "flip-evaluator is required for Typhoon image comparisons"
+        ) from exc
+    return flip_evaluator
 
 
 def flip_evaluation_parameters(

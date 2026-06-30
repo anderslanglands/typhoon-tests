@@ -87,6 +87,9 @@ class ReportHtmlParser(HTMLParser):
         self.sort_buttons: list[dict[str, str]] = []
         self.status_cells: list[dict[str, str]] = []
         self.rows: list[list[str]] = []
+        self.detail_rows: list[dict[str, str]] = []
+        self.comparison_images: list[dict[str, str]] = []
+        self.detail_images: list[dict[str, str]] = []
         self._button: dict[str, str] | None = None
         self._status_cell: dict[str, str] | None = None
         self._row: list[str] | None = None
@@ -102,7 +105,17 @@ class ReportHtmlParser(HTMLParser):
                 "label": "",
             }
         if tag == "tr":
-            self._row = []
+            classes = attr_map.get("class", "").split()
+            if "result-detail-row" in classes:
+                self.detail_rows.append(
+                    {
+                        "id": attr_map.get("id", ""),
+                        "hidden": str("hidden" in attr_map).lower(),
+                    }
+                )
+                self._row = None
+            else:
+                self._row = []
         if tag == "td" and self._row is not None:
             self._cell_text = ""
         if tag == "td" and "status-cell" in attr_map.get("class", "").split():
@@ -111,6 +124,23 @@ class ReportHtmlParser(HTMLParser):
                 "sort": attr_map.get("data-sort-value", ""),
                 "text": "",
             }
+        if tag == "img" and "comparison-toggle-image" in attr_map.get("class", "").split():
+            self.comparison_images.append(
+                {
+                    "src": attr_map.get("src", ""),
+                    "reference": attr_map.get("data-reference-src", ""),
+                    "render": attr_map.get("data-render-src", ""),
+                    "active": attr_map.get("data-active-image", ""),
+                    "alt": attr_map.get("alt", ""),
+                }
+            )
+        if tag == "img" and "detail-image" in attr_map.get("class", "").split():
+            self.detail_images.append(
+                {
+                    "src": attr_map.get("src", ""),
+                    "alt": attr_map.get("alt", ""),
+                }
+            )
 
     def handle_data(self, data: str) -> None:
         if self._button is not None:
@@ -132,8 +162,8 @@ class ReportHtmlParser(HTMLParser):
             self._status_cell["text"] = self._status_cell["text"].strip()
             self.status_cells.append(self._status_cell)
             self._status_cell = None
-        if tag == "tr" and self._row is not None:
-            if self._row:
+        if tag == "tr":
+            if self._row is not None and self._row:
                 self.rows.append(self._row)
             self._row = None
 
@@ -636,11 +666,17 @@ pattern = "{stem}.png"
         return SimpleNamespace(returncode=0, stdout="", stderr="")
 
     monkeypatch.setattr(plugin.subprocess, "run", fake_run)
+    monkeypatch.setattr(
+        plugin,
+        "write_image_preview",
+        lambda **kwargs: opts.run_context.run_dir / "render" / "case.png",
+    )
 
     result = plugin.run_typhoon_case(case, opts)
 
     assert result["status"] == "no-ref"
     assert result["comparison"] == "missing-reference"
+    assert result["render_png"] == str(opts.run_context.run_dir / "render" / "case.png")
 
 
 def test_require_thresholds_fails_compared_case_without_threshold(
@@ -708,12 +744,20 @@ pattern = "{stem}.png"
         return SimpleNamespace(returncode=0, stdout="", stderr="")
 
     monkeypatch.setattr(plugin.subprocess, "run", fake_run)
+    monkeypatch.setattr(
+        plugin,
+        "write_image_preview",
+        lambda **kwargs: opts.run_context.run_dir / "render" / "case.png",
+    )
 
     with pytest.raises(TyphoonRenderError) as excinfo:
         plugin.run_typhoon_case(case, opts)
 
     assert excinfo.value.result is not None
     assert excinfo.value.result["status"] == "failed-missing-reference"
+    assert excinfo.value.result["render_png"] == str(
+        opts.run_context.run_dir / "render" / "case.png"
+    )
 
 
 def test_unconfigured_usdas_are_not_collected_by_default(tmp_path: Path) -> None:
@@ -894,6 +938,76 @@ def test_html_report_styles_statuses_and_makes_columns_sortable(tmp_path: Path) 
     assert 'th button[data-sort-direction="desc"]::after { content: " \\2193"; }' in html
     assert 'setSortDirection(button, direction);' in html
     assert 'if (initialButton)' in html
+
+
+def test_html_report_rows_expand_with_hover_keyboard_image_toggle(tmp_path: Path) -> None:
+    context = run_context(tmp_path)
+    html = plugin.build_html_report(
+        [
+            {
+                "suite": "sample",
+                "key": "case",
+                "status": "passed",
+                "comparison": "flip",
+                "flip_mean": 0.01,
+                "flip_threshold": 0.02,
+                "render_output": str(context.run_dir / "case.exr"),
+                "reference_png": str(context.run_dir / "reference" / "case.png"),
+                "render_png": str(context.run_dir / "render" / "case.png"),
+                "diff_png": str(context.run_dir / "flip" / "case.png"),
+            },
+            {
+                "suite": "sample",
+                "key": "render-only",
+                "status": "no-ref",
+                "comparison": "missing-reference",
+                "render_output": str(context.run_dir / "render-only.exr"),
+                "render_png": str(context.run_dir / "render" / "render-only.png"),
+            },
+        ],
+        context,
+    )
+    parser = parse_report(html)
+
+    assert len(parser.rows) == 2
+    assert parser.detail_rows == [
+        {"id": "result-detail-0", "hidden": "true"},
+        {"id": "result-detail-1", "hidden": "true"},
+    ]
+    assert parser.comparison_images == [
+        {
+            "src": "reference/case.png",
+            "reference": "reference/case.png",
+            "render": "render/case.png",
+            "active": "reference",
+            "alt": "case reference",
+        }
+    ]
+    assert parser.detail_images == [
+        {"src": "render/render-only.png", "alt": "render-only render"}
+    ]
+    assert (
+        '<tr id="result-row-0" class="result-row" '
+        'data-detail-row="result-detail-0" aria-expanded="false">'
+    ) in html
+    assert '<tr id="result-detail-0" class="result-detail-row" hidden>' in html
+    assert '<td colspan="7"><div class="detail-panel">' in html
+    assert 'const rowGroups = () =>' in html
+    assert 'if (row.classList.contains("result-detail-row")) continue;' in html
+    assert 'if (group.detail) sortedRows.push(group.detail);' in html
+    assert 'row.addEventListener("click", (event) =>' in html
+    assert 'row.setAttribute("aria-expanded", expanded ? "false" : "true");' in html
+    assert 'const image = viewer.querySelector("img[data-reference-src][data-render-src]");' in html
+    assert 'viewer.addEventListener("mouseenter", () =>' in html
+    assert 'document.addEventListener("keydown", (event) =>' in html
+    assert 'event.key === "1"' in html
+    assert 'setComparisonImage(activeComparisonImage, "reference");' in html
+    assert 'event.key === "2"' in html
+    assert 'setComparisonImage(activeComparisonImage, "render");' in html
+    assert '<div class="single-image-viewer"><div class="comparison-mode">Render</div>' in html
+    assert 'pointer-events: none;' in html
+    assert '.comparison-toggle-image, .detail-image {' in html
+    assert 'tr.result-row td:last-child img {' in html
 
 
 def test_html_report_normalizes_legacy_status_labels(tmp_path: Path) -> None:
