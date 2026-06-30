@@ -1,0 +1,123 @@
+#usda 1.0
+(
+    renderSettingsPrimPath = "/Render/Settings"
+    endTimeCode = 1
+    framesPerSecond = 24
+    metersPerUnit = 1
+    startTimeCode = 1
+    timeCodesPerSecond = 24
+    upAxis = "Y"
+)
+
+def Scope "Render"
+{
+    def RenderSettings "Settings" (
+        prepend apiSchemas = ["KarmaRenderSettingsAPI", "TyphoonRenderSettingsAPI"]
+    )
+    {
+        custom int arnold:global:AA_samples = 6
+        custom bool arnold:global:enable_progressive_render = 1
+        custom int arnold:global:GI_total_depth = 0
+        rel camera = </cameras/camera1>
+        rel products = [</Render/RenderProduct>]
+        float4 dataWindowNDC = (0, 0, 1, 1)
+        uniform bool disableMotionBlur = 1
+        token[] includedPurposes = ["default", "render"]
+        bool instantaneousShutter = 1
+        int karma:global:pathtracedsamples = 64
+        int ty:convergedSamplesPerPixel = 64
+        int ty:maxBounces = 0
+        int karma:global:samplesperpixel = 9
+        custom float karma:object:diffuselimit = 0
+        custom float karma:object:reflectlimit = 0
+        custom float karma:object:refractlimit = 0
+        custom float karma:object:ssslimit = 0
+        token[] materialBindingPurposes = ["full", "allPurpose"]
+        float pixelAspectRatio = 1
+        int2 resolution = (512, 512)
+        custom string ri:integrator:name = "PxrDirectLighting"
+    }
+
+
+    def RenderProduct "RenderProduct"
+    {
+        rel camera = </cameras/camera1>
+        rel orderedVars = [</Render/RenderProduct/Color>]
+        token productType = "raster"
+        token productName = "dome-embree.{frame:04d}.exr"
+
+        def RenderVar "Color"
+        {
+            token dataType = "color4f"
+            string sourceName = "color"
+            token sourceType = "raw"
+        }
+    }
+}
+
+def Scope "materials"
+{
+    def Material "usdpreviewsurface1"
+    {
+        token outputs:displacement.connect = </materials/usdpreviewsurface1/usdpreviewsurface1.outputs:displacement>
+        token outputs:surface.connect = </materials/usdpreviewsurface1/usdpreviewsurface1.outputs:surface>
+
+        def Shader "usdpreviewsurface1"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (1, 1, 1)
+            float inputs:ior = 1
+            int inputs:useSpecularWorkflow = 1
+            token outputs:displacement
+            token outputs:surface
+        }
+    }
+}
+
+def Xform "cameras"
+{
+    def Camera "camera1" (
+    )
+    {
+        float2 clippingRange = (1, 1000000)
+        float exposure = 0
+        float focalLength = 0.5
+        float focusDistance = 5
+        float fStop = 0
+        float horizontalAperture = 0.20955
+        float horizontalApertureOffset = 0
+        token projection = "perspective"
+        double shutter:close = 0
+        double shutter:open = 0
+        float verticalAperture = 0.20955
+        float verticalApertureOffset = 0
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 0, -1, 0), (0, 1, 0, 0), (0, 30, 0, 1) )
+        matrix4d xformOp:transform:xform1 = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+        uniform token[] xformOpOrder = ["xformOp:transform:xform1"]
+    }
+}
+
+def Xform "lights"
+{
+    def DomeLight "dome_light" (
+        prepend apiSchemas = ["KarmaLightAPI", "LightAPI"]    )
+    {
+        custom rel filters = None
+        color3f inputs:color = (1, 1, 1)
+        float inputs:colorTemperature = 6500
+        float inputs:diffuse = 1
+        bool inputs:enableColorTemperature = 0
+        float inputs:exposure = 0
+        float inputs:intensity = 1
+        bool inputs:normalize = 0
+        float inputs:specular = 1
+        asset inputs:texture:file = @../dome_grid_2k.exr@
+        token inputs:texture:format = "latlong"
+        custom bool karma:light:renderlightgeo = 1
+        rel light:filters = None
+        rel portals = None
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+    }
+}
+
