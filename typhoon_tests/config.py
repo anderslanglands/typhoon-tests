@@ -8,6 +8,7 @@ import tomllib
 
 
 SUITE_CONFIG_NAME = "typhoon-suite.toml"
+DEFAULT_FLIP_THRESHOLD = 0.04
 FrameValue = int | float
 
 
@@ -19,7 +20,7 @@ class SuiteConfig:
     artifact_dir: str = "comparison"
     reference_dir: str | None = None
     reference_pattern: str = "{stem}.png"
-    default_flip_threshold: float | None = None
+    default_flip_threshold: float | None = DEFAULT_FLIP_THRESHOLD
     missing_references: str = "allow"
     render_args: tuple[str, ...] = ()
     frames: dict[str, str] = field(default_factory=dict)
@@ -89,7 +90,7 @@ def load_suite_config_for_path(path_text: str) -> SuiteConfig:
         default_flip_threshold=_optional_float(
             comparison.get(
                 "default_flip_threshold",
-                suite.get("default_flip_threshold"),
+                suite.get("default_flip_threshold", DEFAULT_FLIP_THRESHOLD),
             )
         ),
         missing_references=_string(

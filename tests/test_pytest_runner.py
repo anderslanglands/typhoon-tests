@@ -690,7 +690,7 @@ output_pattern = "{stem}-embree.{frame:04d}.exr"
             "artifact_root": str(tmp_path / "_output" / "run-0001"),
             "camera": "",
             "command": [],
-            "flip_threshold": None,
+            "flip_threshold": 0.04,
             "frame": None,
             "key": "case",
             "output_root": str(tmp_path / "_output" / "run-0001"),
@@ -796,7 +796,7 @@ pattern = "{stem}.png"
     assert "render_png" not in result
 
 
-def test_require_thresholds_fails_compared_case_without_threshold(
+def test_require_thresholds_accepts_builtin_default_threshold(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -832,11 +832,192 @@ pattern = "{stem}.png"
         ),
     )
 
-    with pytest.raises(TyphoonRenderError, match="missing FLIP threshold") as excinfo:
+    result = plugin.run_typhoon_case(case, opts)
+
+    assert result["status"] == "passed"
+    assert result["flip_threshold"] == 0.04
+
+
+def test_builtin_default_flip_threshold_fails_above_default(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    reference_dir = tmp_path / "refs"
+    reference_dir.mkdir()
+    (reference_dir / "case.png").write_bytes(b"not a real png")
+    usd = write_suite(
+        tmp_path,
+        extra="""
+[reference]
+dir = "../refs"
+pattern = "{stem}.png"
+""",
+    )
+    case = plugin.build_case(usd)
+    opts = options(tmp_path, dry_run=False)
+    render_output = opts.run_context.run_dir / "rendered.case.exr"
+
+    def fake_run(*args: object, **kwargs: object) -> SimpleNamespace:
+        render_output.parent.mkdir(parents=True, exist_ok=True)
+        render_output.write_bytes(b"not a real exr")
+        return SimpleNamespace(returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr(plugin.subprocess, "run", fake_run)
+    monkeypatch.setattr(
+        plugin,
+        "compare_images",
+        lambda **kwargs: SimpleNamespace(
+            flip_mean=0.041,
+            reference_image=tmp_path / "reference.exr",
+            render_image=tmp_path / "render.exr",
+            diff_exr=tmp_path / "diff.exr",
+        ),
+    )
+
+    with pytest.raises(TyphoonRenderError, match="exceeds threshold 0.040000") as excinfo:
         plugin.run_typhoon_case(case, opts)
 
     assert excinfo.value.result is not None
-    assert excinfo.value.result["status"] == "failed-missing-threshold"
+    assert excinfo.value.result["status"] == "failed-threshold"
+    assert excinfo.value.result["flip_threshold"] == 0.04
+
+
+def test_suite_default_flip_threshold_overrides_builtin_default_at_runtime(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    reference_dir = tmp_path / "refs"
+    reference_dir.mkdir()
+    (reference_dir / "case.png").write_bytes(b"not a real png")
+    usd = write_suite(
+        tmp_path,
+        extra="""
+default_flip_threshold = 0.05
+
+[reference]
+dir = "../refs"
+pattern = "{stem}.png"
+""",
+    )
+    case = plugin.build_case(usd)
+    opts = options(tmp_path, dry_run=False)
+    render_output = opts.run_context.run_dir / "rendered.case.exr"
+
+    def fake_run(*args: object, **kwargs: object) -> SimpleNamespace:
+        render_output.parent.mkdir(parents=True, exist_ok=True)
+        render_output.write_bytes(b"not a real exr")
+        return SimpleNamespace(returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr(plugin.subprocess, "run", fake_run)
+    monkeypatch.setattr(
+        plugin,
+        "compare_images",
+        lambda **kwargs: SimpleNamespace(
+            flip_mean=0.045,
+            reference_image=tmp_path / "reference.exr",
+            render_image=tmp_path / "render.exr",
+            diff_exr=tmp_path / "diff.exr",
+        ),
+    )
+
+    result = plugin.run_typhoon_case(case, opts)
+
+    assert result["status"] == "passed"
+    assert result["flip_threshold"] == 0.05
+
+
+def test_suite_threshold_table_overrides_builtin_default_for_case(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    reference_dir = tmp_path / "refs"
+    reference_dir.mkdir()
+    (reference_dir / "case.png").write_bytes(b"not a real png")
+    usd = write_suite(
+        tmp_path,
+        extra="""
+[reference]
+dir = "../refs"
+pattern = "{stem}.png"
+
+[thresholds]
+case = 0.05
+""",
+    )
+    case = plugin.build_case(usd)
+    opts = options(tmp_path, dry_run=False)
+    render_output = opts.run_context.run_dir / "rendered.case.exr"
+
+    def fake_run(*args: object, **kwargs: object) -> SimpleNamespace:
+        render_output.parent.mkdir(parents=True, exist_ok=True)
+        render_output.write_bytes(b"not a real exr")
+        return SimpleNamespace(returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr(plugin.subprocess, "run", fake_run)
+    monkeypatch.setattr(
+        plugin,
+        "compare_images",
+        lambda **kwargs: SimpleNamespace(
+            flip_mean=0.045,
+            reference_image=tmp_path / "reference.exr",
+            render_image=tmp_path / "render.exr",
+            diff_exr=tmp_path / "diff.exr",
+        ),
+    )
+
+    result = plugin.run_typhoon_case(case, opts)
+
+    assert result["status"] == "passed"
+    assert result["flip_threshold"] == 0.05
+
+
+def test_adjacent_case_config_threshold_overrides_builtin_default(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    reference_dir = tmp_path / "refs"
+    reference_dir.mkdir()
+    (reference_dir / "case.png").write_bytes(b"not a real png")
+    usd = write_suite(
+        tmp_path,
+        extra="""
+[reference]
+dir = "../refs"
+pattern = "{stem}.png"
+""",
+    )
+    usd.with_suffix(".typhoon.toml").write_text(
+        """
+[comparison]
+flip_threshold = 0.05
+""",
+        encoding="utf-8",
+    )
+    case = plugin.build_case(usd)
+    opts = options(tmp_path, dry_run=False)
+    render_output = opts.run_context.run_dir / "rendered.case.exr"
+
+    def fake_run(*args: object, **kwargs: object) -> SimpleNamespace:
+        render_output.parent.mkdir(parents=True, exist_ok=True)
+        render_output.write_bytes(b"not a real exr")
+        return SimpleNamespace(returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr(plugin.subprocess, "run", fake_run)
+    monkeypatch.setattr(
+        plugin,
+        "compare_images",
+        lambda **kwargs: SimpleNamespace(
+            flip_mean=0.045,
+            reference_image=tmp_path / "reference.exr",
+            render_image=tmp_path / "render.exr",
+            diff_exr=tmp_path / "diff.exr",
+        ),
+    )
+
+    result = plugin.run_typhoon_case(case, opts)
+
+    assert result["status"] == "passed"
+    assert result["flip_threshold"] == 0.05
 
 
 def test_strict_missing_reference_records_failed_status(
@@ -877,6 +1058,23 @@ def test_unconfigured_usdas_are_not_collected_by_default(tmp_path: Path) -> None
 
     assert not plugin.should_collect_usda(usd, tmp_path, collect_unconfigured=False)
     assert plugin.should_collect_usda(usd, tmp_path, collect_unconfigured=True)
+
+
+def test_cases_use_builtin_default_flip_threshold(tmp_path: Path) -> None:
+    usd = write_suite(tmp_path)
+
+    assert plugin.build_case(usd).flip_threshold == 0.04
+
+
+def test_suite_default_flip_threshold_overrides_builtin_default(tmp_path: Path) -> None:
+    usd = write_suite(
+        tmp_path,
+        extra="""
+default_flip_threshold = 0.125
+""",
+    )
+
+    assert plugin.build_case(usd).flip_threshold == 0.125
 
 
 def test_nested_cases_with_duplicate_stems_get_distinct_keys(tmp_path: Path) -> None:

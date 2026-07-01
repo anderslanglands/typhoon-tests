@@ -211,16 +211,13 @@ pattern = "{stem}_glsl.png"
 missing = "allow"
 ```
 
-When a reference exists, pytest computes a mean FLIP value from the floating-point image data, copies the reference image into the current run directory, and writes a browser-viewable FLIP diff EXR. The per-run report loads the copied reference image, rendered EXR, and FLIP EXR directly in the browser. If no threshold is configured, the FLIP value is reported but does not fail the test.
+When a reference exists, pytest computes a mean FLIP value from the floating-point image data, copies the reference image into the current run directory, and writes a browser-viewable FLIP diff EXR. The per-run report loads the copied reference image, rendered EXR, and FLIP EXR directly in the browser. Compared cases use a built-in mean FLIP threshold of `0.04` unless the suite or per-test config overrides it.
 
 Useful strictness options:
 
 ```bash
 # Fail if a configured reference is missing.
 pixi run pytest materialx --typhoon-require-references
-
-# Fail compared tests that do not have a FLIP threshold configured.
-pixi run pytest materialx --typhoon-require-thresholds
 
 # Temporarily use references from another directory.
 pixi run pytest materialx --typhoon-reference-dir /path/to/reference-pngs
@@ -273,7 +270,7 @@ Available config concepts:
 - `[reference].dir`: reference directory, relative to the suite directory unless absolute.
 - `[reference].pattern`: reference filename pattern using the same fields as `output_pattern`.
 - `[reference].missing`: `allow` for render-only smoke behavior or `fail` for strict suites.
-- `[comparison].default_flip_threshold`: default mean FLIP threshold for every compared case.
+- `[comparison].default_flip_threshold`: default mean FLIP threshold for every compared case. If omitted, the runner uses `0.04`.
 - `[frames]`: optional frame specs keyed by relative path, filename, or stem. A value like `"1:10"` collects frames 1 through 10, and `"1:10x2"` uses a stride of 2.
 - `[skip]`, `[xfail]`, `[thresholds]`: keyed by relative path, filename, or stem.
 
