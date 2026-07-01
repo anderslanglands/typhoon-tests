@@ -284,28 +284,76 @@ def test_package_mode_calls_installed_usdrender_with_base_flags(tmp_path: Path) 
     assert cmd[-2:] == ["--outputRoot", str(opts.run_context.run_dir)]
 
 
-def test_provider_mode_uses_openusd_pixi_task_without_duplicate_base_flags(
+@pytest.mark.parametrize("provider_path_kind", ["directory", "manifest"])
+def test_provider_mode_uses_openusd_pixi_task_with_clean_environment(
     tmp_path: Path,
+    provider_path_kind: str,
 ) -> None:
     usd = write_suite(tmp_path)
     provider = tmp_path / "openusd"
     provider.mkdir()
-    (provider / "pixi.toml").write_text("[workspace]\nname = 'openusd'\n", encoding="utf-8")
+    manifest = provider / "pixi.toml"
+    manifest.write_text("[workspace]\nname = 'openusd'\n", encoding="utf-8")
+    provider_arg = provider if provider_path_kind == "directory" else manifest
     case = plugin.build_case(usd)
-    opts = options(tmp_path, provider=provider)
+    opts = options(tmp_path, provider=provider_arg)
 
     cmd = plugin.build_render_command(case, opts, opts.run_context.run_dir)
 
-    assert cmd[:5] == [
+    assert cmd[:6] == [
         "pixi",
         "run",
         "--manifest-path",
-        str(provider / "pixi.toml"),
+        str(manifest),
+        "--clean-env",
         "usdrender",
     ]
     assert "--disableCameraLight" in cmd
     assert "--complexity" not in cmd
     assert "--renderer" not in cmd
+
+
+@pytest.mark.parametrize("provider_path_kind", ["directory", "manifest"])
+def test_provider_dry_run_reports_clean_environment_command(
+    tmp_path: Path,
+    provider_path_kind: str,
+) -> None:
+    usd = write_suite(tmp_path)
+    provider = tmp_path / "openusd"
+    provider.mkdir()
+    manifest = provider / "pixi.toml"
+    manifest.write_text("[workspace]\nname = 'openusd'\n", encoding="utf-8")
+    provider_arg = provider if provider_path_kind == "directory" else manifest
+
+    completed = run_pytest_with_plugin(
+        tmp_path,
+        str(usd),
+        "--typhoon-provider",
+        str(provider_arg),
+        "--typhoon-dry-run",
+        "-s",
+        "-q",
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    report_path = tmp_path / "_output" / "run-0001" / "typhoon-report.json"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert len(report) == 1
+    assert report[0]["key"] == "case"
+    assert report[0]["status"] == "dry-run"
+    command = report[0]["command"]
+    assert command[:6] == [
+        "pixi",
+        "run",
+        "--manifest-path",
+        str(manifest),
+        "--clean-env",
+        "usdrender",
+    ]
+    assert "--disableCameraLight" in command
+    assert "--complexity" not in command
+    assert "--renderer" not in command
+    assert plugin.format_command(command) in completed.stdout
 
 
 def test_frame_spec_parsing_supports_ranges_lists_strides_and_fractional_frames() -> None:

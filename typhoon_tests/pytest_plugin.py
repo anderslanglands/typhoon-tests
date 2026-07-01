@@ -519,7 +519,14 @@ def build_render_command(
                 "--typhoon-provider must point to an OpenUSD checkout or pixi.toml; "
                 f"missing manifest: {manifest}"
             )
-        cmd = ["pixi", "run", "--manifest-path", str(manifest), "usdrender"]
+        cmd = [
+            "pixi",
+            "run",
+            "--manifest-path",
+            str(manifest),
+            "--clean-env",
+            "usdrender",
+        ]
 
     cmd.extend(case.suite.render_args)
     cmd.extend(case.case_config.render_args)

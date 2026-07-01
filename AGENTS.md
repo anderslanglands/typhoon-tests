@@ -13,7 +13,7 @@
 - USDA render tests are collected from `.usda` files that have an ancestor `typhoon-suite.toml`. Unconfigured USDA directories require `--typhoon-collect-unconfigured`.
 - Package mode is the default: `pixi run test` calls the installed `usdrender` from the `openusd-typhoon` conda package.
 - Local source mode uses `--typhoon-provider /path/to/openusd-omniverse`; the provider path may be a checkout directory or a direct path to its `pixi.toml`.
-- In package mode, the runner calls `usdrender --complexity high --renderer Embree`. In provider mode, it calls `pixi run --manifest-path <provider>/pixi.toml usdrender` and lets the OpenUSD Pixi task provide the base renderer flags.
+- In package mode, the runner calls `usdrender --complexity high --renderer Embree`. In provider mode, it calls `pixi run --manifest-path <provider>/pixi.toml --clean-env usdrender` so inherited plugin and Python paths do not override the provider checkout while the OpenUSD Pixi task still provides the base renderer flags.
 
 ## Running Tests
 

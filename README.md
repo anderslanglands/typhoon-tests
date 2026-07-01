@@ -68,7 +68,7 @@ pixi run test-local /home/anders/code/openusd-omniverse
 pixi run pytest usdlux --typhoon-provider /home/anders/code/openusd-omniverse
 ```
 
-`--typhoon-provider` accepts either an OpenUSD checkout directory or the checkout's `pixi.toml`. When omitted, pytest calls the installed `usdrender` from the active Pixi environment.
+`--typhoon-provider` accepts either an OpenUSD checkout directory or the checkout's `pixi.toml`. Provider runs execute `pixi run --manifest-path <provider>/pixi.toml --clean-env usdrender ...` so inherited plugin and Python paths do not override the provider checkout while the provider's `usdrender` Pixi task still supplies its renderer flags. When omitted, pytest calls the installed `usdrender` from the active Pixi environment.
 
 ## Selecting Tests
 
