@@ -71,6 +71,7 @@ def Scope "materials"
             color3f inputs:diffuseColor = (1, 1, 1)
             float inputs:ior = 1
             int inputs:useSpecularWorkflow = 1
+            color3f inputs:specularColor = (0,0,0)
             token outputs:displacement
             token outputs:surface
         }
