@@ -27,6 +27,8 @@ def Scope "Render"
         int karma:global:pathtracedsamples = 64
         int ty:convergedSamplesPerPixel = 64
         int ty:maxBounces = 0
+        float ty:fireflyClampThreshold = 0.0
+        float ty:causticsClampThreshold = 0.0
         int karma:global:samplesperpixel = 9
         custom float karma:object:diffuselimit = 0
         custom float karma:object:reflectlimit = 0
