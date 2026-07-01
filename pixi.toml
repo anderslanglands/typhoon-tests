@@ -11,7 +11,7 @@ channel-priority = "disabled"
 [dependencies]
 python = "3.11.*"
 materialx = "*"
-openusd-typhoon = "*"
+openusd-typhoon = "==26.05.0beaac8"
 pytest = "*"
 
 [target.linux-64.tasks]
@@ -22,6 +22,8 @@ render-materialx-one = { args = ["usd"], cmd = "pytest {{ usd }}" }
 render-materialx-all = { cmd = "pytest materialx" }
 regenerate-html = { cmd = "python -m typhoon_tests.report_html" }
 regenerate-comparisons = { cmd = "python -m typhoon_tests.regenerate_comparisons" }
+build = { cmd = "python -m typhoon_tests.build_exr_wasm" }
+view = { cmd = "python -m http.server 8000 --directory _output" }
 compare-materialx-renders = { cmd = "python materialx/generate_comparison_html.py" }
 
 [target.linux-64.dependencies]

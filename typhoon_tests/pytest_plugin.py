@@ -7,6 +7,7 @@ import html
 import json
 import re
 import shlex
+import shutil
 import subprocess
 from typing import Any
 
@@ -23,10 +24,13 @@ from .config import (
     lookup_case_value,
     parse_frame_spec,
 )
-from .images import compare_images, write_image_preview
+from .images import compare_images
 
 
 RUN_DIR_RE = re.compile(r"^run-(\d+)$")
+
+REPORT_STATIC_DIR = Path(__file__).resolve().parent / "static"
+REPORT_ASSET_NAMES = ("typhoon-exr-viewer.js", "typhoon_exr_wasm.wasm")
 
 IGNORED_DIRS = {
     ".git",
@@ -365,8 +369,10 @@ def run_typhoon_case(case: TyphoonCase, options: TyphoonOptions) -> dict[str, An
         "command": [],
         "output_root": str(output_root),
         "render_output": None,
+        "render_image": None,
         "artifact_root": str(artifact_root),
         "reference": None,
+        "reference_image": None,
         "flip_threshold": case.flip_threshold,
         "frame": case.frame,
         "status": "pending",
@@ -433,19 +439,10 @@ def run_typhoon_case(case: TyphoonCase, options: TyphoonOptions) -> dict[str, An
             result,
         )
 
+    result["render_image"] = str(render_output)
+
     if reference is None or not reference.is_file():
         result["comparison"] = "missing-reference"
-        try:
-            result["render_png"] = str(
-                write_image_preview(
-                    image_path=render_output,
-                    artifact_dir=artifact_root,
-                    key=case.key,
-                    category="render",
-                )
-            )
-        except Exception as exc:
-            result["preview_error"] = str(exc)
         if options.require_references or case.suite.missing_references == "fail":
             result["status"] = "failed-missing-reference"
             raise TyphoonRenderError(
@@ -457,6 +454,8 @@ def run_typhoon_case(case: TyphoonCase, options: TyphoonOptions) -> dict[str, An
             )
         result["status"] = "no-ref"
         return result
+
+    result["reference_image"] = str(reference)
 
     artifact_root.mkdir(parents=True, exist_ok=True)
     try:
@@ -478,9 +477,9 @@ def run_typhoon_case(case: TyphoonCase, options: TyphoonOptions) -> dict[str, An
             "status": "passed",
             "comparison": "flip",
             "flip_mean": comparison.flip_mean,
-            "reference_png": str(comparison.reference_png),
-            "render_png": str(comparison.render_png),
-            "diff_png": str(comparison.diff_png),
+            "reference_image": str(comparison.reference_image),
+            "render_image": str(comparison.render_image),
+            "diff_exr": str(comparison.diff_exr),
         }
     )
 
@@ -496,8 +495,8 @@ def run_typhoon_case(case: TyphoonCase, options: TyphoonOptions) -> dict[str, An
         raise TyphoonRenderError(
             f"mean FLIP {comparison.flip_mean:.6f} exceeds threshold "
             f"{case.flip_threshold:.6f} for {case.key}\n"
-            f"render: {comparison.render_png}\n"
-            f"diff: {comparison.diff_png}",
+            f"render: {comparison.render_image}\n"
+            f"diff: {comparison.diff_exr}",
             result,
         )
 
@@ -587,6 +586,20 @@ def resolve_reference(case: TyphoonCase, options: TyphoonOptions) -> Path | None
     ).resolve()
 
 
+def copy_report_assets(run_dir: Path) -> list[Path]:
+    asset_dir = run_dir / "assets"
+    copied: list[Path] = []
+    for name in REPORT_ASSET_NAMES:
+        source = REPORT_STATIC_DIR / name
+        if not source.is_file():
+            continue
+        asset_dir.mkdir(parents=True, exist_ok=True)
+        destination = asset_dir / name
+        shutil.copy2(source, destination)
+        copied.append(destination)
+    return copied
+
+
 def write_run_outputs(context: RunContext, results: list[dict[str, Any]]) -> None:
     context.run_dir.mkdir(parents=True, exist_ok=True)
     report_path = context.run_dir / "typhoon-report.json"
@@ -603,6 +616,7 @@ def write_run_outputs(context: RunContext, results: list[dict[str, Any]]) -> Non
         build_html_report(results, context),
         encoding="utf-8",
     )
+    copy_report_assets(context.run_dir)
     (context.output_base / "index.html").write_text(
         build_output_index(context.output_base),
         encoding="utf-8",
@@ -767,41 +781,8 @@ def sortable_table_script() -> str:
           detail.hidden = expanded;
         });
       }
-      let activeComparisonImage = null;
-      const setComparisonImage = (image, mode) => {
-        const src = mode === "render" ? image.dataset.renderSrc : image.dataset.referenceSrc;
-        const alt = mode === "render" ? image.dataset.renderAlt : image.dataset.referenceAlt;
-        if (!src) return;
-        image.src = src;
-        image.alt = alt || "";
-        image.dataset.activeImage = mode;
-        const viewer = image.closest("[data-comparison-viewer]");
-        const label = viewer?.querySelector("[data-comparison-mode]");
-        if (label) label.textContent = mode === "render" ? "Render" : "Reference";
-      };
-      for (const viewer of document.querySelectorAll("[data-comparison-viewer]")) {
-        const image = viewer.querySelector("img[data-reference-src][data-render-src]");
-        if (!image) continue;
-        viewer.addEventListener("mouseenter", () => {
-          activeComparisonImage = image;
-        });
-        viewer.addEventListener("mouseleave", () => {
-          if (activeComparisonImage === image) activeComparisonImage = null;
-        });
-      }
-      document.addEventListener("keydown", (event) => {
-        if (!activeComparisonImage) return;
-        if (event.key === "1") {
-          event.preventDefault();
-          setComparisonImage(activeComparisonImage, "reference");
-        } else if (event.key === "2") {
-          event.preventDefault();
-          setComparisonImage(activeComparisonImage, "render");
-        }
-      });
     })();
   </script>"""
-
 
 def html_report_sort_key(row: dict[str, Any]) -> tuple[bool, float, str, str]:
     flip = row.get("flip_mean")
@@ -817,6 +798,89 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
     def esc(value: object) -> str:
         return html.escape(str(value), quote=True)
 
+    def rel_field(row: dict[str, Any], name: str) -> str:
+        value = row.get(name)
+        if not value:
+            return ""
+        return relpath(Path(str(value)), context.run_dir)
+
+    def image_artifacts(row: dict[str, Any]) -> list[tuple[str, str, str]]:
+        artifacts = []
+        for field, label, transfer in (
+            ("reference_image", "Reference", "linear"),
+            ("render_image", "Render", "linear"),
+            ("diff_exr", "FLIP", "display"),
+        ):
+            path = rel_field(row, field)
+            if path:
+                artifacts.append((path, label, transfer))
+        return artifacts
+
+    def thumbnail_markup(row: dict[str, Any], escaped_key: str) -> str:
+        artifacts = image_artifacts(row)
+        if not artifacts:
+            return ""
+        items = []
+        for path, label, transfer in artifacts:
+            items.append(
+                f'<a class="thumbnail-link" href="{esc(path)}" title="{esc(label)}">'
+                f'<canvas class="thumbnail-canvas" data-thumbnail-canvas '
+                f'data-thumbnail-src="{esc(path)}" '
+                f'data-thumbnail-transfer="{esc(transfer)}" '
+                f'aria-label="{escaped_key} {esc(label)} thumbnail"></canvas>'
+                "</a>"
+            )
+        return (
+            '<div class="thumbnail-strip" data-thumbnail-viewer>'
+            + "".join(items)
+            + '<span class="thumbnail-status" data-thumbnail-status></span>'
+            + "</div>"
+        )
+
+    def viewer_markup(row: dict[str, Any], escaped_key: str) -> str:
+        reference_src = rel_field(row, "reference_image")
+        render_src = rel_field(row, "render_image")
+        flip_src = rel_field(row, "diff_exr")
+        if not (reference_src or render_src or flip_src):
+            return '<div class="detail-empty">No EXR images.</div>'
+        initial_label = "Reference" if reference_src else "Render"
+        return (
+            f'<div class="comparison-viewer" data-exr-viewer '
+            f'data-reference-src="{esc(reference_src)}" '
+            f'data-render-src="{esc(render_src)}" '
+            f'data-flip-src="{esc(flip_src)}">'
+            '<div class="viewer-grid">'
+            '<figure class="image-panel image-panel-main">'
+            f'<figcaption><span data-comparison-mode>{initial_label}</span> '
+            '<span class="hint">(press 1 and 2 to toggle)</span></figcaption>'
+            f'<canvas data-main-canvas aria-label="{escaped_key} comparison image"></canvas>'
+            '</figure>'
+            '<figure class="image-panel image-panel-zoom">'
+            '<figcaption>16x Zoom</figcaption>'
+            f'<canvas data-zoom-canvas aria-label="{escaped_key} 16x zoom image"></canvas>'
+            '</figure>'
+            '<figure class="image-panel image-panel-flip">'
+            '<figcaption>FLIP</figcaption>'
+            f'<canvas data-flip-canvas aria-label="{escaped_key} FLIP image"></canvas>'
+            '</figure>'
+            '<section class="pixel-readout" aria-label="Pixel values">'
+            '<h2>Pixel</h2>'
+            '<div class="pixel-coordinate" data-pixel-coordinate></div>'
+            '<table>'
+            '<thead><tr><th>Image</th><th>Linear float RGB</th><th>sRGB8</th></tr></thead>'
+            '<tbody>'
+            '<tr><th>Reference</th><td data-pixel-linear="reference"></td><td data-pixel-srgb="reference"></td></tr>'
+            '<tr><th>Render</th><td data-pixel-linear="render"></td><td data-pixel-srgb="render"></td></tr>'
+            '<tr><th>Active</th><td data-pixel-linear="active"></td><td data-pixel-srgb="active"></td></tr>'
+            '<tr><th>FLIP</th><td data-pixel-linear="flip"></td><td data-pixel-srgb="flip"></td></tr>'
+            '</tbody>'
+            '</table>'
+            '<div class="exr-status" data-exr-status></div>'
+            '</section>'
+            '</div>'
+            '</div>'
+        )
+
     body_rows = []
     for index, row in enumerate(rows):
         flip = row.get("flip_mean")
@@ -824,63 +888,10 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
         status = status_label(row.get("status", ""))
         row_id = f"result-row-{index}"
         detail_id = f"result-detail-{index}"
-        reference_png = (
-            relpath(Path(str(row["reference_png"])), context.run_dir)
-            if row.get("reference_png")
-            else ""
-        )
-        render_png = (
-            relpath(Path(str(row["render_png"])), context.run_dir)
-            if row.get("render_png")
-            else ""
-        )
-        image_cells = ""
-        if row.get("comparison") == "flip":
-            image_cells = "".join(
-                f'<a href="{esc(relpath(Path(str(row[key])), context.run_dir))}">'
-                f'<img src="{esc(relpath(Path(str(row[key])), context.run_dir))}" alt="{esc(label)}"></a>'
-                for key, label in (
-                    ("reference_png", "reference"),
-                    ("render_png", "render"),
-                    ("diff_png", "flip diff"),
-                )
-                if row.get(key)
-            )
         escaped_key = esc(row.get("key", ""))
-        detail_content = '<div class="detail-empty">No comparison images.</div>'
-        if reference_png and render_png:
-            escaped_reference = esc(reference_png)
-            escaped_render = esc(render_png)
-            detail_content = (
-                '<div class="comparison-viewer" data-comparison-viewer>'
-                '<div class="comparison-mode" data-comparison-mode>Reference</div>'
-                f'<img class="comparison-toggle-image" src="{escaped_reference}" '
-                f'alt="{escaped_key} reference" '
-                f'data-reference-src="{escaped_reference}" '
-                f'data-render-src="{escaped_render}" '
-                f'data-reference-alt="{escaped_key} reference" '
-                f'data-render-alt="{escaped_key} render" '
-                'data-active-image="reference">'
-                "</div>"
-            )
-        elif render_png:
-            escaped_render = esc(render_png)
-            detail_content = (
-                '<div class="single-image-viewer">'
-                '<div class="comparison-mode">Render</div>'
-                f'<img class="detail-image" src="{escaped_render}" '
-                f'alt="{escaped_key} render">'
-                "</div>"
-            )
-        elif reference_png:
-            escaped_reference = esc(reference_png)
-            detail_content = (
-                '<div class="single-image-viewer">'
-                '<div class="comparison-mode">Reference</div>'
-                f'<img class="detail-image" src="{escaped_reference}" '
-                f'alt="{escaped_key} reference">'
-                "</div>"
-            )
+        thumbnails = thumbnail_markup(row, escaped_key)
+        detail_content = viewer_markup(row, escaped_key)
+        render_output = rel_field(row, "render_output")
         status_css = " ".join(part for part in ("status-cell", status_class(status)) if part)
         cells = [
             sortable_cell(esc(row.get("suite", "")), sort_value=row.get("suite", "")),
@@ -895,10 +906,10 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
                 sort_value="" if threshold is None else float(threshold),
             ),
             sortable_cell(
-                esc(relpath(Path(str(row.get("render_output", ""))), context.run_dir)),
-                sort_value=relpath(Path(str(row.get("render_output", ""))), context.run_dir),
+                esc(render_output),
+                sort_value=render_output,
             ),
-            sortable_cell(image_cells, sort_value="1" if image_cells else "0"),
+            sortable_cell(thumbnails, sort_value="1" if thumbnails else "0"),
         ]
         body_rows.append(
             f'<tr id="{row_id}" class="result-row" data-detail-row="{detail_id}" '
@@ -930,7 +941,7 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
   <title>Typhoon {esc(summary['run_name'])}</title>
   <style>
     body {{ margin: 0; font: 14px/1.45 system-ui, sans-serif; background: #111; color: #eee; }}
-    main {{ max-width: 1680px; margin: 0 auto; padding: 24px; }}
+    main {{ max-width: 1880px; margin: 0 auto; padding: 24px; }}
     h1 {{ margin: 0 0 16px; font-size: 24px; }}
     a {{ color: #8ec5ff; text-decoration: none; }}
     a:hover {{ text-decoration: underline; }}
@@ -949,17 +960,30 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
     .result-detail-row td {{ padding: 0 10px 18px; background: #101010; border-bottom: 1px solid #3a3a3a; }}
     .detail-panel {{ padding-top: 16px; }}
     .detail-empty {{ color: #888; }}
-    .comparison-viewer, .single-image-viewer {{ position: relative; display: inline-block; max-width: 100%; background: #050505; border: 1px solid #333; }}
-    .comparison-mode {{ position: absolute; top: 8px; left: 8px; padding: 3px 8px; border-radius: 4px; background: rgba(0, 0, 0, 0.72); color: #fff; font-size: 12px; font-weight: 700; pointer-events: none; }}
-    .comparison-toggle-image, .detail-image {{ display: block; width: auto; max-width: 100%; height: auto; margin: 0; border: 0; background: #050505; }}
+    .viewer-grid {{ display: grid; grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr) minmax(220px, 1fr) minmax(280px, 0.82fr); gap: 12px; align-items: start; }}
+    figure {{ margin: 0; min-width: 0; }}
+    figcaption {{ margin: 0 0 6px; color: #ddd; font-weight: 700; }}
+    .hint {{ color: #aaa; font-weight: 400; }}
+    canvas {{ display: block; width: 100%; height: auto; max-height: 70vh; object-fit: contain; background: #050505; border: 1px solid #333; image-rendering: pixelated; box-sizing: border-box; }}
+    .pixel-readout {{ min-width: 0; background: #181818; border: 1px solid #333; padding: 10px; box-sizing: border-box; }}
+    .pixel-readout h2 {{ margin: 0 0 6px; font-size: 14px; }}
+    .pixel-coordinate {{ min-height: 20px; margin-bottom: 8px; color: #bbb; }}
+    .pixel-readout table {{ background: transparent; table-layout: fixed; }}
+    .pixel-readout th, .pixel-readout td {{ padding: 5px 6px; border-bottom: 1px solid #303030; word-break: break-word; }}
+    .pixel-readout th:first-child {{ width: 72px; }}
+    .exr-status {{ min-height: 20px; margin-top: 8px; color: #fca5a5; }}
     td:nth-child(6) {{ word-break: break-all; color: #bbb; }}
-    td:last-child {{ min-width: 240px; }}
+    .thumbnail-strip {{ display: flex; gap: 6px; align-items: center; min-width: 252px; }}
+    .thumbnail-link {{ display: inline-flex; align-items: center; justify-content: center; width: 76px; height: 76px; background: #050505; border: 1px solid #333; box-sizing: border-box; }}
+    .thumbnail-link:hover {{ border-color: #777; }}
+    .thumbnail-canvas {{ display: block; width: auto; height: auto; max-width: 74px; max-height: 74px; border: 0; background: #050505; image-rendering: auto; }}
+    .thumbnail-status {{ color: #fca5a5; font-size: 12px; }}
     .status-cell {{ font-weight: 700; white-space: nowrap; }}
     .status-passed {{ background: #14532d; color: #dcfce7; }}
     .status-no-ref {{ background: #181818; color: #bbb; }}
     .status-failed-threshold {{ background: #7f1d1d; color: #fee2e2; }}
     .status-failed-other {{ background: #831843; color: #fce7f3; }}
-    tr.result-row td:last-child img {{ width: 76px; height: 76px; object-fit: contain; background: #050505; margin-right: 6px; border: 1px solid #333; }}
+    @media (max-width: 1100px) {{ .viewer-grid {{ grid-template-columns: 1fr; }} }}
   </style>
 </head>
 <body>
@@ -985,10 +1009,10 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
     </table>
   </main>
 {sortable_table_script()}
+  <script type="module" src="assets/typhoon-exr-viewer.js"></script>
 </body>
 </html>
 """
-
 
 def build_output_index(output_base: Path) -> str:
     summaries = read_run_summaries(output_base)

@@ -10,6 +10,7 @@ from .pytest_plugin import (
     RunContext,
     build_html_report,
     build_output_index,
+    copy_report_assets,
     summarize_results,
 )
 
@@ -66,7 +67,7 @@ def regenerate_run_html(run_dir: Path) -> list[Path]:
         encoding="utf-8",
     )
     index_path.write_text(build_html_report(results, context), encoding="utf-8")
-    return [summary_path, index_path]
+    return [summary_path, index_path, *copy_report_assets(run_dir)]
 
 
 def resolve_run_dir(output_base: Path, run: str | Path | None) -> Path:

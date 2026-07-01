@@ -1,82 +1,107 @@
 from __future__ import annotations
 
 from pathlib import Path
+import json
+import shutil
+import subprocess
 import sys
+import textwrap
 from types import SimpleNamespace
 
 import numpy as np
-from PIL import Image
+import pytest
 
-import typhoon_tests.images as images
 from typhoon_tests.images import (
     compare_images,
     linear_to_srgb,
-    preview_rgb_for_path,
-    save_png,
-    write_image_preview,
+    write_rgb_exr,
 )
 
 
-def test_exr_preview_transfer_defers_clamp_to_png_write(tmp_path) -> None:
-    linear = np.array([[[-0.25, 0.5, 4.0]]], dtype=np.float32)
+def test_write_rgb_exr_round_trips_float_pixels_with_flip_loader(tmp_path) -> None:
+    import flip_evaluator
 
-    preview = preview_rgb_for_path(Path("render.exr"), linear)
-
-    assert preview[0, 0, 0] < 0.0
-    assert preview[0, 0, 2] > 1.0
-
-    png_path = tmp_path / "preview.png"
-    save_png(png_path, preview)
-
-    pixel = np.asarray(Image.open(png_path))[0, 0]
-    expected = (
-        np.clip(linear_to_srgb(linear[0, 0]), 0.0, 1.0) * 255.0 + 0.5
-    ).astype(np.uint8)
-    np.testing.assert_array_equal(pixel, expected)
-
-
-def test_save_png_clamps_and_sanitizes_non_finite_values(tmp_path) -> None:
-    png_path = tmp_path / "nonfinite.png"
-
-    save_png(
-        png_path,
-        np.array([[[-np.inf, np.nan, np.inf]]], dtype=np.float32),
+    exr_path = tmp_path / "float-data.exr"
+    pixels = np.array(
+        [
+            [[0.0, 0.25, 1.0], [4.0, -1.0, 0.5]],
+            [[0.125, 0.5, 2.0], [8.0, 16.0, 32.0]],
+        ],
+        dtype=np.float32,
     )
 
-    pixel = np.asarray(Image.open(png_path))[0, 0]
-    np.testing.assert_array_equal(pixel, np.array([0, 0, 255], dtype=np.uint8))
+    write_rgb_exr(exr_path, pixels)
+
+    loaded = np.asarray(flip_evaluator.load(str(exr_path)), dtype=np.float32)[..., :3]
+    np.testing.assert_allclose(loaded, pixels)
 
 
-def test_write_image_preview_uses_existing_preview_transfer(tmp_path, monkeypatch) -> None:
-    render_path = tmp_path / "render.exr"
-    render_path.write_bytes(b"placeholder")
+def test_static_wasm_decoder_reads_generated_exr(tmp_path) -> None:
+    if shutil.which("node") is None:
+        pytest.skip("node is required to validate the static WASM decoder")
 
-    monkeypatch.setitem(
-        sys.modules,
-        "flip_evaluator",
-        SimpleNamespace(
-            load=lambda path: np.array([[[4.0, 0.5, -1.0]]], dtype=np.float32)
+    wasm_path = (
+        Path(__file__).resolve().parents[1]
+        / "typhoon_tests"
+        / "static"
+        / "typhoon_exr_wasm.wasm"
+    )
+    assert wasm_path.is_file()
+
+    exr_path = tmp_path / "generated.exr"
+    pixels = np.array([[[0.0, 0.25, 1.0], [4.0, -1.0, 0.5]]], dtype=np.float32)
+    write_rgb_exr(exr_path, pixels)
+
+    decoder = tmp_path / "decode.mjs"
+    decoder.write_text(
+        textwrap.dedent(
+            """
+            import fs from 'node:fs/promises';
+            const wasmBytes = await fs.readFile(process.argv[2]);
+            const exrBytes = new Uint8Array(await fs.readFile(process.argv[3]));
+            const { instance } = await WebAssembly.instantiate(wasmBytes, {});
+            const exports = instance.exports;
+            const ptr = exports.typhoon_exr_alloc(exrBytes.byteLength);
+            new Uint8Array(exports.memory.buffer, ptr, exrBytes.byteLength).set(exrBytes);
+            const ok = exports.typhoon_exr_decode(ptr, exrBytes.byteLength);
+            exports.typhoon_exr_dealloc(ptr, exrBytes.byteLength);
+            if (!ok) {
+              const errorPtr = exports.typhoon_exr_error_ptr();
+              const errorLen = exports.typhoon_exr_error_len();
+              const error = new TextDecoder().decode(new Uint8Array(exports.memory.buffer, errorPtr, errorLen));
+              throw new Error(error);
+            }
+            const pixelsPtr = exports.typhoon_exr_pixels_ptr();
+            const pixelsLen = exports.typhoon_exr_pixels_len();
+            const decoded = Array.from(new Float32Array(exports.memory.buffer, pixelsPtr, pixelsLen));
+            console.log(JSON.stringify({
+              width: exports.typhoon_exr_width(),
+              height: exports.typhoon_exr_height(),
+              pixels: decoded,
+            }));
+            """
         ),
+        encoding="utf-8",
     )
 
-    preview_path = write_image_preview(
-        image_path=render_path,
-        artifact_dir=tmp_path / "artifacts",
-        key="case",
-        category="render",
+    completed = subprocess.run(
+        ["node", str(decoder), str(wasm_path), str(exr_path)],
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
     )
 
-    assert preview_path == tmp_path / "artifacts" / "render" / "case.png"
-    pixel = np.asarray(Image.open(preview_path))[0, 0]
-    expected = (
-        np.clip(linear_to_srgb(np.array([4.0, 0.5, -1.0])), 0.0, 1.0)
-        * 255.0
-        + 0.5
-    ).astype(np.uint8)
-    np.testing.assert_array_equal(pixel, expected)
+    decoded = json.loads(completed.stdout)
+    assert decoded["width"] == 2
+    assert decoded["height"] == 1
+    np.testing.assert_allclose(
+        np.array(decoded["pixels"], dtype=np.float32).reshape(1, 2, 3),
+        pixels,
+    )
 
 
-def test_compare_images_runs_flip_on_float_data_and_writes_srgb_previews(
+def test_compare_images_runs_flip_on_float_data_and_writes_exr_diff(
     tmp_path,
     monkeypatch,
 ) -> None:
@@ -116,21 +141,13 @@ def test_compare_images_runs_flip_on_float_data_and_writes_srgb_previews(
             applyMagma=applyMagma,
             computeMeanError=computeMeanError,
         )
-        return np.array([[[0.0, 0.5, 1.0]]], dtype=np.float32), 0.25, {}
+        return np.array([[[0.0, 0.5, 1.0], [1.0, 0.0, 0.25]]], dtype=np.float32), 0.25, {}
 
     monkeypatch.setitem(
         sys.modules,
         "flip_evaluator",
         SimpleNamespace(load=load, evaluate=evaluate),
     )
-    saved_png_inputs = {}
-    original_save_png = images.save_png
-
-    def capture_save_png(path: Path, rgb: np.ndarray) -> None:
-        saved_png_inputs[path.parent.name] = np.asarray(rgb).copy()
-        original_save_png(path, rgb)
-
-    monkeypatch.setattr(images, "save_png", capture_save_png)
 
     comparison = compare_images(
         reference_path=reference_path,
@@ -154,33 +171,12 @@ def test_compare_images_runs_flip_on_float_data_and_writes_srgb_previews(
     assert captured["applyMagma"] is True
     assert captured["computeMeanError"] is True
     assert comparison.flip_mean == 0.25
-
-    assert saved_png_inputs["reference"][0, 0, 2] < 0.0
-    assert np.isneginf(saved_png_inputs["reference"][0, 1, 0])
-    assert saved_png_inputs["render"][0, 0, 0] > 1.0
-    assert np.isnan(saved_png_inputs["render"][0, 0, 2])
-    assert np.isposinf(saved_png_inputs["render"][0, 1, 0])
-
-    render_pixel = np.asarray(Image.open(comparison.render_png))[0, 0]
-    expected_render = (
-        np.nan_to_num(
-            np.clip(linear_to_srgb(np.array([4.0, 0.5, np.nan])), 0.0, 1.0),
-            nan=0.0,
-            posinf=1.0,
-            neginf=0.0,
-        )
-        * 255.0
-        + 0.5
-    ).astype(np.uint8)
-    np.testing.assert_array_equal(render_pixel, expected_render)
-
-    reference_pixel = np.asarray(Image.open(comparison.reference_png))[0, 0]
-    expected_reference = (
-        np.clip(linear_to_srgb(np.array([2.0, 0.25, 0.0])), 0.0, 1.0)
-        * 255.0
-        + 0.5
-    ).astype(np.uint8)
-    np.testing.assert_array_equal(reference_pixel, expected_reference)
+    assert comparison.reference_image == tmp_path / "artifacts" / "reference" / "case.exr"
+    assert comparison.reference_image.read_bytes() == b"placeholder"
+    assert comparison.render_image == render_path
+    assert comparison.diff_exr == tmp_path / "artifacts" / "flip" / "case.exr"
+    assert comparison.diff_exr.read_bytes().startswith(b"\x76\x2f\x31\x01")
+    assert not (tmp_path / "artifacts" / "render").exists()
 
 
 def test_near_black_hdr_comparisons_use_explicit_exposure_range(
@@ -290,7 +286,7 @@ def test_hdr_exposure_fallback_ignores_nonfinite_or_negative_inputs(
     assert captured_parameters == [None, None]
 
 
-def test_png_reference_comparisons_use_ldr_preview_inputs(tmp_path, monkeypatch) -> None:
+def test_png_reference_comparisons_use_ldr_inputs(tmp_path, monkeypatch) -> None:
     reference_path = tmp_path / "reference.png"
     render_path = tmp_path / "render.exr"
     reference_path.write_bytes(b"placeholder")
@@ -327,13 +323,15 @@ def test_png_reference_comparisons_use_ldr_preview_inputs(tmp_path, monkeypatch)
         SimpleNamespace(load=load, evaluate=evaluate),
     )
 
-    compare_images(
+    comparison = compare_images(
         reference_path=reference_path,
         render_path=render_path,
         artifact_dir=tmp_path / "artifacts",
         key="case",
     )
 
+    assert comparison.reference_image == tmp_path / "artifacts" / "reference" / "case.png"
+    assert comparison.reference_image.read_bytes() == b"placeholder"
     assert captured["dynamic_range"] == "LDR"
     assert captured["inputsRGB"] is True
     np.testing.assert_allclose(

@@ -48,19 +48,22 @@ pixi run regenerate-html --run _output/run-0003
 pixi run regenerate-html --all
 pixi run regenerate-comparisons
 pixi run regenerate-comparisons --run _output/run-0003
+pixi run build
+pixi run view
 ```
 
 ## Outputs
 
 - Every pytest render run writes into the next numbered `_output/run-NNNN` directory. The next run number is chosen by listing existing `_output/run-NNNN` directories and incrementing the highest number.
 - `_output/` is gitignored. Do not commit generated run outputs.
-- Each run directory contains EXR renders, `typhoon-report.json`, `run-summary.json`, `index.html`, preview PNGs, reference PNGs, and FLIP diff PNGs.
+- Each run directory contains EXR renders, copied reference image artifacts, FLIP diff EXRs, report viewer assets, `typhoon-report.json`, `run-summary.json`, and `index.html`.
 - `_output/index.html` is updated after each run with run summaries and timestamps.
 - `--typhoon-output-root=/path/to/output` changes the base directory that receives numbered `run-NNNN` directories.
 - `--typhoon-dry-run` prints commands without rendering, but still allocates a numbered run directory and writes report/index files.
 - `pixi run regenerate-html` regenerates the latest run HTML and top-level index from saved JSON without rerunning renders. Use `--run _output/run-0003`, `--all`, or `--output-root /path/to/output` for non-default cases.
-- The HTML regeneration task reads `typhoon-report.json`, rewrites `index.html` and `run-summary.json`, and refreshes the top-level `index.html`. It does not rerun `usdrender`, recompute FLIP, or modify rendered image artifacts.
-- `pixi run regenerate-comparisons` recomputes comparison PNGs and FLIP metrics from existing render outputs without rerunning `usdrender`. It defaults to the latest run and accepts `--run _output/run-0003`, `--all`, or `--output-root /path/to/output`.
+- The HTML regeneration task reads `typhoon-report.json`, rewrites `index.html` and `run-summary.json`, refreshes the top-level `index.html`, and copies the EXR viewer assets into the run. It does not rerun `usdrender`, recompute FLIP, or modify rendered image artifacts.
+- `pixi run regenerate-comparisons` recomputes comparison EXRs and FLIP metrics from existing render outputs without rerunning `usdrender`. It defaults to the latest run and accepts `--run _output/run-0003`, `--all`, or `--output-root /path/to/output`.
+- `pixi run build` rebuilds the browser EXR decoder from `tools/exr_wasm/` and copies it into `typhoon_tests/static/`.
 - Per-run HTML report columns are sortable and default to Mean FLIP descending. Status cells use `passed`, `no-ref`, `dry-run`, `failed-threshold`, `failed-render`, or another `failed-*` value. `passed` is green, `no-ref` uses the table background, `failed-threshold` is red, and failed statuses other than `failed-render` and `failed-threshold` are pink.
 
 Expected run layout:
@@ -71,9 +74,10 @@ _output/run-0001/index.html
 _output/run-0001/typhoon-report.json
 _output/run-0001/run-summary.json
 _output/run-0001/<rendered-products>.exr
-_output/run-0001/reference/<key>.png
-_output/run-0001/render/<key>.png
-_output/run-0001/flip/<key>.png
+_output/run-0001/reference/<key>.<ext>
+_output/run-0001/flip/<key>.exr
+_output/run-0001/assets/typhoon-exr-viewer.js
+_output/run-0001/assets/typhoon_exr_wasm.wasm
 ```
 
 ## References And Thresholds

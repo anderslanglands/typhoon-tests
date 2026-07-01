@@ -88,8 +88,10 @@ class ReportHtmlParser(HTMLParser):
         self.status_cells: list[dict[str, str]] = []
         self.rows: list[list[str]] = []
         self.detail_rows: list[dict[str, str]] = []
-        self.comparison_images: list[dict[str, str]] = []
-        self.detail_images: list[dict[str, str]] = []
+        self.exr_viewers: list[dict[str, str]] = []
+        self.viewer_canvases: list[dict[str, str]] = []
+        self.thumbnail_canvases: list[dict[str, str]] = []
+        self.module_scripts: list[str] = []
         self._button: dict[str, str] | None = None
         self._status_cell: dict[str, str] | None = None
         self._row: list[str] | None = None
@@ -114,8 +116,10 @@ class ReportHtmlParser(HTMLParser):
                     }
                 )
                 self._row = None
-            else:
+            elif "result-row" in classes:
                 self._row = []
+            else:
+                self._row = None
         if tag == "td" and self._row is not None:
             self._cell_text = ""
         if tag == "td" and "status-cell" in attr_map.get("class", "").split():
@@ -124,23 +128,36 @@ class ReportHtmlParser(HTMLParser):
                 "sort": attr_map.get("data-sort-value", ""),
                 "text": "",
             }
-        if tag == "img" and "comparison-toggle-image" in attr_map.get("class", "").split():
-            self.comparison_images.append(
+        if tag == "div" and "data-exr-viewer" in attr_map:
+            self.exr_viewers.append(
                 {
-                    "src": attr_map.get("src", ""),
                     "reference": attr_map.get("data-reference-src", ""),
                     "render": attr_map.get("data-render-src", ""),
-                    "active": attr_map.get("data-active-image", ""),
-                    "alt": attr_map.get("alt", ""),
+                    "flip": attr_map.get("data-flip-src", ""),
                 }
             )
-        if tag == "img" and "detail-image" in attr_map.get("class", "").split():
-            self.detail_images.append(
+        if tag == "canvas" and "data-thumbnail-canvas" in attr_map:
+            self.thumbnail_canvases.append(
                 {
-                    "src": attr_map.get("src", ""),
-                    "alt": attr_map.get("alt", ""),
+                    "src": attr_map.get("data-thumbnail-src", ""),
+                    "transfer": attr_map.get("data-thumbnail-transfer", ""),
+                    "label": attr_map.get("aria-label", ""),
                 }
             )
+        if tag == "canvas" and any(
+            name in attr_map
+            for name in ("data-main-canvas", "data-zoom-canvas", "data-flip-canvas")
+        ):
+            self.viewer_canvases.append(
+                {
+                    "main": str("data-main-canvas" in attr_map).lower(),
+                    "zoom": str("data-zoom-canvas" in attr_map).lower(),
+                    "flip": str("data-flip-canvas" in attr_map).lower(),
+                    "label": attr_map.get("aria-label", ""),
+                }
+            )
+        if tag == "script" and attr_map.get("type") == "module":
+            self.module_scripts.append(attr_map.get("src", ""))
 
     def handle_data(self, data: str) -> None:
         if self._button is not None:
@@ -575,6 +592,8 @@ output_pattern = "{stem}-embree.{frame:04d}.exr"
             "key": "case",
             "output_root": str(tmp_path / "_output" / "run-0001"),
             "reference": None,
+            "reference_image": None,
+            "render_image": None,
             "render_output": None,
             "run_dir": str(tmp_path / "_output" / "run-0001"),
             "run_number": 1,
@@ -631,9 +650,9 @@ pattern = "{stem}.png"
         "compare_images",
         lambda **kwargs: SimpleNamespace(
             flip_mean=0.01,
-            reference_png=tmp_path / "reference.png",
-            render_png=tmp_path / "render.png",
-            diff_png=tmp_path / "diff.png",
+            reference_image=tmp_path / "reference.exr",
+            render_image=tmp_path / "render.exr",
+            diff_exr=tmp_path / "diff.exr",
         ),
     )
 
@@ -666,17 +685,12 @@ pattern = "{stem}.png"
         return SimpleNamespace(returncode=0, stdout="", stderr="")
 
     monkeypatch.setattr(plugin.subprocess, "run", fake_run)
-    monkeypatch.setattr(
-        plugin,
-        "write_image_preview",
-        lambda **kwargs: opts.run_context.run_dir / "render" / "case.png",
-    )
-
     result = plugin.run_typhoon_case(case, opts)
 
     assert result["status"] == "no-ref"
     assert result["comparison"] == "missing-reference"
-    assert result["render_png"] == str(opts.run_context.run_dir / "render" / "case.png")
+    assert result["render_image"] == str(render_output)
+    assert "render_png" not in result
 
 
 def test_require_thresholds_fails_compared_case_without_threshold(
@@ -709,9 +723,9 @@ pattern = "{stem}.png"
         "compare_images",
         lambda **kwargs: SimpleNamespace(
             flip_mean=0.01,
-            reference_png=tmp_path / "reference.png",
-            render_png=tmp_path / "render.png",
-            diff_png=tmp_path / "diff.png",
+            reference_image=tmp_path / "reference.exr",
+            render_image=tmp_path / "render.exr",
+            diff_exr=tmp_path / "diff.exr",
         ),
     )
 
@@ -744,20 +758,13 @@ pattern = "{stem}.png"
         return SimpleNamespace(returncode=0, stdout="", stderr="")
 
     monkeypatch.setattr(plugin.subprocess, "run", fake_run)
-    monkeypatch.setattr(
-        plugin,
-        "write_image_preview",
-        lambda **kwargs: opts.run_context.run_dir / "render" / "case.png",
-    )
-
     with pytest.raises(TyphoonRenderError) as excinfo:
         plugin.run_typhoon_case(case, opts)
 
     assert excinfo.value.result is not None
     assert excinfo.value.result["status"] == "failed-missing-reference"
-    assert excinfo.value.result["render_png"] == str(
-        opts.run_context.run_dir / "render" / "case.png"
-    )
+    assert excinfo.value.result["render_image"] == str(render_output)
+    assert "render_png" not in excinfo.value.result
 
 
 def test_unconfigured_usdas_are_not_collected_by_default(tmp_path: Path) -> None:
@@ -806,6 +813,12 @@ def test_run_outputs_write_per_run_report_and_top_level_index(tmp_path: Path) ->
     assert (context.run_dir / "typhoon-report.json").is_file()
     assert (context.run_dir / "run-summary.json").is_file()
     assert (context.run_dir / "index.html").is_file()
+    assert (context.run_dir / "assets" / "typhoon-exr-viewer.js").read_bytes() == (
+        plugin.REPORT_STATIC_DIR / "typhoon-exr-viewer.js"
+    ).read_bytes()
+    assert (context.run_dir / "assets" / "typhoon_exr_wasm.wasm").read_bytes() == (
+        plugin.REPORT_STATIC_DIR / "typhoon_exr_wasm.wasm"
+    ).read_bytes()
     output_index = (context.output_base / "index.html").read_text(encoding="utf-8")
     assert "run-0007/index.html" in output_index
     assert "2026-06-30T00:00:00+00:00" in output_index
@@ -837,9 +850,9 @@ def test_html_report_styles_statuses_and_makes_columns_sortable(tmp_path: Path) 
                 "flip_mean": 0.01,
                 "flip_threshold": 0.02,
                 "render_output": str(context.run_dir / "a.exr"),
-                "reference_png": str(context.run_dir / "reference" / "a.png"),
-                "render_png": str(context.run_dir / "render" / "a.png"),
-                "diff_png": str(context.run_dir / "flip" / "a.png"),
+                "reference_image": str(context.run_dir / "reference" / "a.exr"),
+                "render_image": str(context.run_dir / "a.exr"),
+                "diff_exr": str(context.run_dir / "flip" / "a.exr"),
             },
             {
                 "suite": "sample",
@@ -849,9 +862,9 @@ def test_html_report_styles_statuses_and_makes_columns_sortable(tmp_path: Path) 
                 "flip_mean": 0.2,
                 "flip_threshold": 0.25,
                 "render_output": str(context.run_dir / "g.exr"),
-                "reference_png": str(context.run_dir / "reference" / "g.png"),
-                "render_png": str(context.run_dir / "render" / "g.png"),
-                "diff_png": str(context.run_dir / "flip" / "g.png"),
+                "reference_image": str(context.run_dir / "reference" / "g.exr"),
+                "render_image": str(context.run_dir / "g.exr"),
+                "diff_exr": str(context.run_dir / "flip" / "g.exr"),
             },
             {
                 "suite": "sample",
@@ -940,7 +953,7 @@ def test_html_report_styles_statuses_and_makes_columns_sortable(tmp_path: Path) 
     assert 'if (initialButton)' in html
 
 
-def test_html_report_rows_expand_with_hover_keyboard_image_toggle(tmp_path: Path) -> None:
+def test_html_report_rows_expand_with_exr_canvas_viewer(tmp_path: Path) -> None:
     context = run_context(tmp_path)
     html = plugin.build_html_report(
         [
@@ -952,9 +965,9 @@ def test_html_report_rows_expand_with_hover_keyboard_image_toggle(tmp_path: Path
                 "flip_mean": 0.01,
                 "flip_threshold": 0.02,
                 "render_output": str(context.run_dir / "case.exr"),
-                "reference_png": str(context.run_dir / "reference" / "case.png"),
-                "render_png": str(context.run_dir / "render" / "case.png"),
-                "diff_png": str(context.run_dir / "flip" / "case.png"),
+                "reference_image": str(context.run_dir / "reference" / "case.png"),
+                "render_image": str(context.run_dir / "case.exr"),
+                "diff_exr": str(context.run_dir / "flip" / "case.exr"),
             },
             {
                 "suite": "sample",
@@ -962,7 +975,7 @@ def test_html_report_rows_expand_with_hover_keyboard_image_toggle(tmp_path: Path
                 "status": "no-ref",
                 "comparison": "missing-reference",
                 "render_output": str(context.run_dir / "render-only.exr"),
-                "render_png": str(context.run_dir / "render" / "render-only.png"),
+                "render_image": str(context.run_dir / "render-only.exr"),
             },
         ],
         context,
@@ -974,17 +987,52 @@ def test_html_report_rows_expand_with_hover_keyboard_image_toggle(tmp_path: Path
         {"id": "result-detail-0", "hidden": "true"},
         {"id": "result-detail-1", "hidden": "true"},
     ]
-    assert parser.comparison_images == [
+    assert parser.exr_viewers == [
+        {
+            "reference": "reference/case.png",
+            "render": "case.exr",
+            "flip": "flip/case.exr",
+        },
+        {"reference": "", "render": "render-only.exr", "flip": ""},
+    ]
+    assert parser.module_scripts == ["assets/typhoon-exr-viewer.js"]
+    assert parser.thumbnail_canvases == [
         {
             "src": "reference/case.png",
-            "reference": "reference/case.png",
-            "render": "render/case.png",
-            "active": "reference",
-            "alt": "case reference",
-        }
+            "transfer": "linear",
+            "label": "case Reference thumbnail",
+        },
+        {"src": "case.exr", "transfer": "linear", "label": "case Render thumbnail"},
+        {"src": "flip/case.exr", "transfer": "display", "label": "case FLIP thumbnail"},
+        {
+            "src": "render-only.exr",
+            "transfer": "linear",
+            "label": "render-only Render thumbnail",
+        },
     ]
-    assert parser.detail_images == [
-        {"src": "render/render-only.png", "alt": "render-only render"}
+    assert [canvas["main"] for canvas in parser.viewer_canvases] == [
+        "true",
+        "false",
+        "false",
+        "true",
+        "false",
+        "false",
+    ]
+    assert [canvas["zoom"] for canvas in parser.viewer_canvases] == [
+        "false",
+        "true",
+        "false",
+        "false",
+        "true",
+        "false",
+    ]
+    assert [canvas["flip"] for canvas in parser.viewer_canvases] == [
+        "false",
+        "false",
+        "true",
+        "false",
+        "false",
+        "true",
     ]
     assert (
         '<tr id="result-row-0" class="result-row" '
@@ -992,22 +1040,39 @@ def test_html_report_rows_expand_with_hover_keyboard_image_toggle(tmp_path: Path
     ) in html
     assert '<tr id="result-detail-0" class="result-detail-row" hidden>' in html
     assert '<td colspan="7"><div class="detail-panel">' in html
+    assert '(press 1 and 2 to toggle)' in html
+    assert '<figcaption>16x Zoom</figcaption>' in html
+    assert '<figcaption>FLIP</figcaption>' in html
+    assert '<th>Linear float RGB</th><th>sRGB8</th>' in html
+    assert 'data-pixel-linear="reference"' in html
+    assert 'data-pixel-srgb="render"' in html
+    assert '<img' not in html
+    assert 'class="thumbnail-strip" data-thumbnail-viewer' in html
+    assert 'class="thumbnail-link" href="reference/case.png"' in html
+    assert 'data-thumbnail-src="flip/case.exr"' in html
     assert 'const rowGroups = () =>' in html
     assert 'if (row.classList.contains("result-detail-row")) continue;' in html
     assert 'if (group.detail) sortedRows.push(group.detail);' in html
     assert 'row.addEventListener("click", (event) =>' in html
     assert 'row.setAttribute("aria-expanded", expanded ? "false" : "true");' in html
-    assert 'const image = viewer.querySelector("img[data-reference-src][data-render-src]");' in html
-    assert 'viewer.addEventListener("mouseenter", () =>' in html
-    assert 'document.addEventListener("keydown", (event) =>' in html
-    assert 'event.key === "1"' in html
-    assert 'setComparisonImage(activeComparisonImage, "reference");' in html
-    assert 'event.key === "2"' in html
-    assert 'setComparisonImage(activeComparisonImage, "render");' in html
-    assert '<div class="single-image-viewer"><div class="comparison-mode">Render</div>' in html
-    assert 'pointer-events: none;' in html
-    assert '.comparison-toggle-image, .detail-image {' in html
-    assert 'tr.result-row td:last-child img {' in html
+    assert '.viewer-grid {' in html
+    assert '.pixel-readout {' in html
+    assert 'canvas {' in html
+
+    viewer_js = (Path(__file__).resolve().parents[1] / "typhoon_tests" / "static" / "typhoon-exr-viewer.js").read_text(
+        encoding="utf-8"
+    )
+    assert 'loadImageSource(viewer.dataset.referenceSrc, "linear")' in viewer_js
+    assert 'function decodeBrowserImage(src)' in viewer_js
+    assert 'function isExrSource(src)' in viewer_js
+    assert 'function drawThumbnail(canvas, image' in viewer_js
+    assert 'function initializeThumbnailStrip(strip)' in viewer_js
+    assert 'new IntersectionObserver' in viewer_js
+    assert 'drawZoom(zoomCanvas, state.active' in viewer_js
+    assert 'event.key === "1"' in viewer_js
+    assert 'setActiveImage(hoveredViewer, "reference");' in viewer_js
+    assert 'event.key === "2"' in viewer_js
+    assert 'setActiveImage(hoveredViewer, "render");' in viewer_js
 
 
 def test_html_report_normalizes_legacy_status_labels(tmp_path: Path) -> None:
@@ -1044,6 +1109,16 @@ def test_regenerate_html_defaults_to_latest_run(tmp_path: Path) -> None:
     written = report_html.regenerate_html(output_root=output_base)
 
     assert latest / "index.html" in written
+    viewer_asset = latest / "assets" / "typhoon-exr-viewer.js"
+    wasm_asset = latest / "assets" / "typhoon_exr_wasm.wasm"
+    assert viewer_asset in written
+    assert wasm_asset in written
+    assert viewer_asset.read_bytes() == (
+        plugin.REPORT_STATIC_DIR / "typhoon-exr-viewer.js"
+    ).read_bytes()
+    assert wasm_asset.read_bytes() == (
+        plugin.REPORT_STATIC_DIR / "typhoon_exr_wasm.wasm"
+    ).read_bytes()
     assert output_base / "index.html" in written
     assert (latest / "index.html").is_file()
     assert "latest" in (latest / "index.html").read_text(encoding="utf-8")
@@ -1099,9 +1174,8 @@ def test_regenerate_html_leaves_existing_artifacts_untouched(tmp_path: Path) -> 
     run_dir = write_report_run(output_base, 1, key="case")
     artifacts = [
         run_dir / "case.exr",
-        run_dir / "reference" / "case.png",
-        run_dir / "render" / "case.png",
-        run_dir / "flip" / "case.png",
+        run_dir / "reference" / "case.exr",
+        run_dir / "flip" / "case.exr",
     ]
     before = {}
     for index, artifact in enumerate(artifacts):
@@ -1145,6 +1219,12 @@ def test_regenerate_html_module_cli_and_pixi_task(tmp_path: Path) -> None:
     pixi = tomllib.loads((repo_root / "pixi.toml").read_text(encoding="utf-8"))
     assert pixi["target"]["linux-64"]["tasks"]["regenerate-html"] == {
         "cmd": "python -m typhoon_tests.report_html"
+    }
+    assert pixi["target"]["linux-64"]["tasks"]["build"] == {
+        "cmd": "python -m typhoon_tests.build_exr_wasm"
+    }
+    assert pixi["target"]["linux-64"]["tasks"]["view"] == {
+        "cmd": "python -m http.server 8000 --directory _output"
     }
 
 

@@ -26,12 +26,19 @@ SKIP_STATUSES = {
     "failed-missing-reference",
 }
 
-COMPARISON_KEYS = {
-    "comparison",
-    "flip_mean",
+STALE_PNG_KEYS = {
     "reference_png",
     "render_png",
     "diff_png",
+}
+
+COMPARISON_KEYS = {
+    "comparison",
+    "flip_mean",
+    "reference_image",
+    "render_image",
+    "diff_exr",
+    *STALE_PNG_KEYS,
 }
 
 
@@ -71,6 +78,9 @@ def regenerate_run_comparisons(run_dir: Path) -> tuple[int, int]:
     skipped = 0
 
     for row in results:
+        for key in STALE_PNG_KEYS:
+            row.pop(key, None)
+
         if not should_regenerate(row):
             skipped += 1
             continue
@@ -100,9 +110,9 @@ def regenerate_run_comparisons(run_dir: Path) -> tuple[int, int]:
                 "status": comparison_status(row, comparison.flip_mean),
                 "comparison": "flip",
                 "flip_mean": comparison.flip_mean,
-                "reference_png": str(comparison.reference_png),
-                "render_png": str(comparison.render_png),
-                "diff_png": str(comparison.diff_png),
+                "reference_image": str(comparison.reference_image),
+                "render_image": str(comparison.render_image),
+                "diff_exr": str(comparison.diff_exr),
             }
         )
         compared += 1
@@ -134,8 +144,8 @@ def comparison_status(row: dict[str, object], flip_mean: float) -> str:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
-            "Regenerate Typhoon comparison PNGs, FLIP metrics, JSON reports, "
-            "and HTML from existing render outputs. Does not rerender EXRs."
+            "Regenerate Typhoon comparison EXRs, FLIP metrics, JSON reports, "
+            "and HTML from existing render outputs. Does not rerender scene EXRs."
         ),
     )
     parser.add_argument(

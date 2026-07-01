@@ -40,6 +40,7 @@ def test_regenerate_comparisons_defaults_to_latest_run_and_rewrites_reports(
                     "status": "dry-run",
                     "render_output": None,
                     "reference": None,
+                    "render_png": str(latest / "render" / "dry.png"),
                     "run_number": 2,
                     "run_dir": str(latest),
                     "started_at": "2026-06-30T00:00:00+00:00",
@@ -102,9 +103,9 @@ def test_regenerate_comparisons_defaults_to_latest_run_and_rewrites_reports(
     def fake_compare_images(**kwargs):
         calls.append(kwargs)
         return SimpleNamespace(
-            reference_png=latest / "reference" / "case.png",
-            render_png=latest / "render" / "case.png",
-            diff_png=latest / "flip" / "case.png",
+            reference_image=latest / "reference" / "case.exr",
+            render_image=render,
+            diff_exr=latest / "flip" / "case.exr",
             flip_mean=0.2,
         )
 
@@ -131,10 +132,14 @@ def test_regenerate_comparisons_defaults_to_latest_run_and_rewrites_reports(
     assert report[0]["status"] == "failed-threshold"
     assert report[0]["comparison"] == "flip"
     assert report[0]["flip_mean"] == 0.2
-    assert report[0]["reference_png"] == str(latest / "reference" / "case.png")
-    assert report[0]["render_png"] == str(latest / "render" / "case.png")
-    assert report[0]["diff_png"] == str(latest / "flip" / "case.png")
+    assert report[0]["reference_image"] == str(latest / "reference" / "case.exr")
+    assert report[0]["render_image"] == str(render)
+    assert report[0]["diff_exr"] == str(latest / "flip" / "case.exr")
+    assert "reference_png" not in report[0]
+    assert "render_png" not in report[0]
+    assert "diff_png" not in report[0]
     assert report[1]["status"] == "dry-run"
+    assert "render_png" not in report[1]
     assert report[2]["status"] == "failed-missing-threshold"
     assert report[2]["comparison"] == "flip"
     assert report[3]["status"] == "failed-missing-render"

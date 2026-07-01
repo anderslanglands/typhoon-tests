@@ -56,6 +56,8 @@ pixi run pytest materialx --typhoon-dry-run -s
 Pixi convenience tasks are available for the current MaterialX suite and report maintenance:
 
 ```bash
+pixi run build
+pixi run view
 pixi run render-materialx-one materialx/open_pbr_carpaint_Car_Paint.usda
 pixi run render-materialx-all
 pixi run regenerate-html
@@ -63,6 +65,51 @@ pixi run regenerate-html --run _output/run-0003
 pixi run regenerate-html --all
 pixi run regenerate-comparisons
 pixi run regenerate-comparisons --run _output/run-0003
+```
+
+## Build, Test, And View
+
+Build the browser EXR decoder after changing `tools/exr_wasm/` or when setting up a fresh checkout:
+
+```bash
+pixi run build
+```
+
+Run the non-render Python tests:
+
+```bash
+pixi run pytest tests -q
+```
+
+Run a render suite against a local OpenUSD/Typhoon checkout:
+
+```bash
+pixi run pytest usdlux --typhoon-provider /home/anders/code/openusd-omniverse
+```
+
+Render runs write numbered directories under `_output/`. Serve `_output` over HTTP before opening reports, because the EXR/WASM viewer uses browser `fetch()`:
+
+```bash
+pixi run view
+```
+
+Then open the top-level index or a specific run:
+
+```text
+http://localhost:8000/
+http://localhost:8000/run-0009/index.html
+```
+
+Regenerate comparisons from existing rendered EXRs without rerendering scenes:
+
+```bash
+pixi run regenerate-comparisons --run _output/run-0009
+```
+
+Regenerate only the HTML reports and copied viewer assets from existing JSON:
+
+```bash
+pixi run regenerate-html --run _output/run-0009
 ```
 
 ## Output Runs
@@ -83,10 +130,11 @@ A run directory contains the renderer outputs, comparison artifacts, and report 
 _output/run-0001/index.html
 _output/run-0001/typhoon-report.json
 _output/run-0001/run-summary.json
-_output/run-0001/materialx.<key>.exr
-_output/run-0001/reference/<key>.png
-_output/run-0001/render/<key>.png
-_output/run-0001/flip/<key>.png
+_output/run-0001/<rendered-products>.exr
+_output/run-0001/reference/<key>.<ext>
+_output/run-0001/flip/<key>.exr
+_output/run-0001/assets/typhoon-exr-viewer.js
+_output/run-0001/assets/typhoon_exr_wasm.wasm
 ```
 
 The top-level run index is updated after each run:
@@ -121,9 +169,11 @@ pixi run regenerate-html --all
 pixi run regenerate-html --output-root /tmp/typhoon-output --run run-0003
 ```
 
-The `regenerate-html` task reads `typhoon-report.json`, rewrites that run's `index.html` and `run-summary.json`, then refreshes the top-level `_output/index.html`. It does not rerun `usdrender`, recompute FLIP, or modify rendered image artifacts.
+The `regenerate-html` task reads `typhoon-report.json`, rewrites that run's `index.html` and `run-summary.json`, refreshes the top-level `_output/index.html`, and copies the EXR viewer assets into the run. It does not rerun `usdrender`, recompute FLIP, or modify rendered image artifacts.
 
-To recompute comparison PNGs and FLIP metrics from existing render outputs without rerunning `usdrender`, use `pixi run regenerate-comparisons`. It defaults to the latest run and also accepts `--run`, `--all`, and `--output-root`.
+To recompute comparison EXRs and FLIP metrics from existing render outputs without rerunning `usdrender`, use `pixi run regenerate-comparisons`. It defaults to the latest run and also accepts `--run`, `--all`, and `--output-root`.
+
+The per-run report decodes EXRs in the browser with `assets/typhoon_exr_wasm.wasm`. Use `pixi run build` after changing the Rust decoder under `tools/exr_wasm/`, and view reports through an HTTP server rather than `file://`.
 
 The per-run HTML report has sortable columns and defaults to Mean FLIP descending. Status values are:
 
@@ -153,7 +203,7 @@ pattern = "{stem}_glsl.png"
 missing = "allow"
 ```
 
-When a reference exists, pytest computes a mean FLIP value and writes browser-viewable reference, render-preview, and diff PNGs into the current run directory. If no threshold is configured, the FLIP value is reported but does not fail the test.
+When a reference exists, pytest computes a mean FLIP value from the floating-point image data, copies the reference image into the current run directory, and writes a browser-viewable FLIP diff EXR. The per-run report loads the copied reference image, rendered EXR, and FLIP EXR directly in the browser. If no threshold is configured, the FLIP value is reported but does not fail the test.
 
 Useful strictness options:
 
