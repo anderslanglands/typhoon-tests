@@ -61,41 +61,47 @@ Run only the MaterialX suite:
 pixi run test-materialx
 ```
 
-Run another suite against a local OpenUSD/Typhoon checkout instead of the conda package:
+Run the usdlux suite against a local OpenUSD/Typhoon checkout instead of the conda package:
 
 ```bash
 pixi run test-local /home/anders/code/openusd-omniverse
-pixi run pytest materialx --typhoon-provider /home/anders/code/openusd-omniverse
+pixi run pytest usdlux --typhoon-provider /home/anders/code/openusd-omniverse
 ```
 
 `--typhoon-provider` accepts either an OpenUSD checkout directory or the checkout's `pixi.toml`. When omitted, pytest calls the installed `usdrender` from the active Pixi environment.
 
 ## Selecting Tests
 
-The runner uses normal pytest selection. Common workflows:
+The runner uses normal pytest selection. The examples below use `usdlux` and a local OpenUSD/Typhoon checkout; omit `--typhoon-provider` to use the packaged `openusd-typhoon` renderer.
 
 ```bash
-# List collected tests without rendering.
-pixi run pytest --collect-only -q
+# List collected usdlux tests, including frame-expanded node IDs, without rendering.
+pixi run pytest usdlux --collect-only -q
 
-# Run one USDA file.
-pixi run pytest materialx/open_pbr_carpaint_Car_Paint.usda
+# Run one USDA file. For animated cases, this runs every configured frame.
+pixi run pytest usdlux/iesLibPreview.usda --typhoon-provider /home/anders/code/openusd-omniverse
+
+# Run one specific frame by pytest node ID.
+pixi run pytest usdlux/iesLibPreview.usda::iesLibPreview__frame_0001 --typhoon-provider /home/anders/code/openusd-omniverse
+
+# Run several specific frames by pytest node ID.
+pixi run pytest usdlux/iesLibPreview.usda::iesLibPreview__frame_0001 usdlux/iesLibPreview.usda::iesLibPreview__frame_0002 --typhoon-provider /home/anders/code/openusd-omniverse
 
 # Run one suite directory.
-pixi run pytest materialx
+pixi run pytest usdlux --typhoon-provider /home/anders/code/openusd-omniverse
 
 # Filter by pytest expression against collected test names.
-pixi run pytest materialx -k carpaint
-pixi run pytest materialx -k 'open_pbr and not glass'
+pixi run pytest usdlux -k iesLibPreview --typhoon-provider /home/anders/code/openusd-omniverse
+pixi run pytest usdlux -k 'iesLibPreview and (frame_0001 or frame_0002)' --typhoon-provider /home/anders/code/openusd-omniverse
 
 # Run only USDA render tests, excluding Python unit tests.
 pixi run pytest -m typhoon_usd
 
 # Stop after the first failure.
-pixi run pytest materialx -x
+pixi run pytest usdlux -x --typhoon-provider /home/anders/code/openusd-omniverse
 
 # Print dry-run render commands to the terminal.
-pixi run pytest materialx --typhoon-dry-run -s
+pixi run pytest usdlux --typhoon-dry-run -s --typhoon-provider /home/anders/code/openusd-omniverse
 ```
 
 Pixi convenience tasks are available for the current MaterialX suite and report maintenance:
