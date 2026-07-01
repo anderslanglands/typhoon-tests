@@ -360,6 +360,47 @@ for (const row of document.querySelectorAll("tr.result-row[data-detail-row]")) {
   });
 }
 
+async function openUsdview(button) {
+  const actions = button.closest(".detail-actions");
+  const status = actions ? actions.querySelector("[data-usdview-status]") : null;
+  const payload = {
+    usd: button.dataset.usdPath || "",
+    camera: button.dataset.cameraPath || "",
+    frame: button.dataset.frame || "",
+  };
+  button.disabled = true;
+  if (status) status.textContent = "Opening usdview...";
+  try {
+    const response = await fetch("/__typhoon__/usdview", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    let body = {};
+    try {
+      body = await response.json();
+    } catch (_error) {
+      body = {};
+    }
+    if (!response.ok || body.ok !== true) {
+      throw new Error(body.error || `HTTP ${response.status}`);
+    }
+    if (status) status.textContent = "Opened in usdview";
+  } catch (error) {
+    if (status) status.textContent = `Failed to open usdview: ${error.message || error}`;
+  } finally {
+    button.disabled = false;
+  }
+}
+
+for (const button of document.querySelectorAll("[data-usdview-open]")) {
+  button.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    openUsdview(button);
+  });
+}
+
 document.addEventListener("keydown", (event) => {
   if (!hoveredViewer) return;
   if (event.key === "1") {

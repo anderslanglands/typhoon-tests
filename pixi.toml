@@ -23,7 +23,7 @@ render-materialx-all = { cmd = "pytest materialx" }
 regenerate-html = { cmd = "python -m typhoon_tests.report_html" }
 regenerate-comparisons = { cmd = "python -m typhoon_tests.regenerate_comparisons" }
 build = { cmd = "python -m typhoon_tests.build_exr_wasm" }
-view = { cmd = "python -m http.server 8000 --directory _output" }
+view = { cmd = "python -m typhoon_tests.view_server --directory _output --port 8000" }
 compare-materialx-renders = { cmd = "python materialx/generate_comparison_html.py" }
 
 [target.linux-64.dependencies]

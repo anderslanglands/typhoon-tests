@@ -22,11 +22,13 @@ Run the usdlux render suite against a local OpenUSD/Typhoon checkout:
 pixi run pytest usdlux --typhoon-provider /home/anders/code/openusd-omniverse
 ```
 
-Render runs write numbered directories under `_output/`. Serve `_output` over HTTP before opening reports, because the EXR/WASM viewer uses browser `fetch()`:
+Render runs write numbered directories under `_output/`. Start the local report server before opening reports, because the EXR/WASM viewer uses browser `fetch()` and the expanded-row usdview button needs the server endpoint:
 
 ```bash
-pixi run view
+pixi run view --typhoon-provider /home/anders/code/openusd-omniverse
 ```
+
+Without `--typhoon-provider`, the report still serves normally, but the usdview button opens the packaged `openusd-typhoon` environment instead of the local checkout.
 
 Then open the top-level index or a specific run:
 
@@ -179,7 +181,7 @@ The `regenerate-html` task reads `typhoon-report.json`, rewrites that run's `ind
 
 To recompute comparison EXRs and FLIP metrics from existing render outputs without rerunning `usdrender`, use `pixi run regenerate-comparisons`. It defaults to the latest run and also accepts `--run`, `--all`, and `--output-root`.
 
-The per-run report decodes EXRs in the browser with `assets/typhoon_exr_wasm.wasm`. Use `pixi run build` after changing the Rust decoder under `tools/exr_wasm/`, and view reports through an HTTP server rather than `file://`.
+The per-run report decodes EXRs in the browser with `assets/typhoon_exr_wasm.wasm`. Use `pixi run build` after changing the Rust decoder under `tools/exr_wasm/`, and view reports through `pixi run view` rather than `file://`. Expanded result rows include an `Open in usdview` button that launches `pixi run usdview --renderer Embree --disableCameraLight --camera <camera> --complexity high --cf <frame> <usd>` through the local view server. Pass `--typhoon-provider /path/to/openusd-omniverse` to `pixi run view` to launch usdview from a local provider checkout.
 
 The per-run HTML report has sortable columns and defaults to Mean FLIP descending. Status values are:
 

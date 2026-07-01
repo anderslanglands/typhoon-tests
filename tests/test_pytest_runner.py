@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+from functools import partial
 from html.parser import HTMLParser
+import http.client
 import json
 import os
 from pathlib import Path
 import shutil
 import subprocess
 import sys
+import threading
 import tomllib
 from types import SimpleNamespace
 
@@ -14,6 +17,7 @@ import pytest
 
 import typhoon_tests.pytest_plugin as plugin
 import typhoon_tests.report_html as report_html
+import typhoon_tests.view_server as view_server
 from typhoon_tests.pytest_plugin import RunContext, TyphoonOptions, TyphoonRenderError
 
 
@@ -91,8 +95,10 @@ class ReportHtmlParser(HTMLParser):
         self.exr_viewers: list[dict[str, str]] = []
         self.viewer_canvases: list[dict[str, str]] = []
         self.thumbnail_canvases: list[dict[str, str]] = []
+        self.usdview_buttons: list[dict[str, str]] = []
         self.module_scripts: list[str] = []
         self._button: dict[str, str] | None = None
+        self._usdview_button: dict[str, str] | None = None
         self._status_cell: dict[str, str] | None = None
         self._row: list[str] | None = None
         self._cell_text: str | None = None
@@ -104,6 +110,13 @@ class ReportHtmlParser(HTMLParser):
                 "column": attr_map["data-sort-column"],
                 "type": attr_map.get("data-sort-type", "text"),
                 "direction": attr_map.get("data-sort-direction", ""),
+                "label": "",
+            }
+        if tag == "button" and "data-usdview-open" in attr_map:
+            self._usdview_button = {
+                "usd": attr_map.get("data-usd-path", ""),
+                "camera": attr_map.get("data-camera-path", ""),
+                "frame": attr_map.get("data-frame", ""),
                 "label": "",
             }
         if tag == "tr":
@@ -162,6 +175,8 @@ class ReportHtmlParser(HTMLParser):
     def handle_data(self, data: str) -> None:
         if self._button is not None:
             self._button["label"] += data
+        if self._usdview_button is not None:
+            self._usdview_button["label"] += data
         if self._cell_text is not None:
             self._cell_text += data
         if self._status_cell is not None:
@@ -172,6 +187,10 @@ class ReportHtmlParser(HTMLParser):
             self._button["label"] = self._button["label"].strip()
             self.sort_buttons.append(self._button)
             self._button = None
+        if tag == "button" and self._usdview_button is not None:
+            self._usdview_button["label"] = self._usdview_button["label"].strip()
+            self.usdview_buttons.append(self._usdview_button)
+            self._usdview_button = None
         if tag == "td" and self._cell_text is not None and self._row is not None:
             self._row.append(self._cell_text.strip())
             self._cell_text = None
@@ -603,6 +622,41 @@ output_pattern = "{stem}-embree.{frame:04d}.exr"
     assert excinfo.value.result["render_output"] is None
 
 
+def test_pytest_dry_run_report_records_usd_camera(tmp_path: Path) -> None:
+    suite = tmp_path / "suite"
+    suite.mkdir()
+    (suite / "typhoon-suite.toml").write_text(
+        """
+[suite]
+name = "sample"
+
+[render]
+output_pattern = "{stem}.exr"
+""",
+        encoding="utf-8",
+    )
+    usd = suite / "case.usda"
+    usd.write_text(
+        '#usda 1.0\ndef Scope "Render"\n{\n    def RenderSettings "Settings"\n    {\n        rel camera = </cameras/camera1>\n    }\n}\n',
+        encoding="utf-8",
+    )
+
+    completed = run_pytest_with_plugin(
+        tmp_path,
+        str(usd),
+        "--typhoon-dry-run",
+        "-q",
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    report_path = tmp_path / "_output" / "run-0001" / "typhoon-report.json"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert len(report) == 1
+    assert report[0]["key"] == "case"
+    assert report[0]["usd"] == str(usd)
+    assert report[0]["camera"] == "/cameras/camera1"
+
+
 def test_pytest_failed_config_writes_report_output(tmp_path: Path) -> None:
     suite = tmp_path / "suite"
     suite.mkdir()
@@ -634,6 +688,7 @@ output_pattern = "{stem}-embree.{frame:04d}.exr"
     assert report == [
         {
             "artifact_root": str(tmp_path / "_output" / "run-0001"),
+            "camera": "",
             "command": [],
             "flip_threshold": None,
             "frame": None,
@@ -1003,6 +1058,12 @@ def test_html_report_styles_statuses_and_makes_columns_sortable(tmp_path: Path) 
 
 def test_html_report_rows_expand_with_exr_canvas_viewer(tmp_path: Path) -> None:
     context = run_context(tmp_path)
+    usd = tmp_path / "suite" / "case.usda"
+    usd.parent.mkdir()
+    usd.write_text(
+        '#usda 1.0\ndef Scope "Render"\n{\n    def RenderSettings "Settings"\n    {\n        rel camera = </cameras/camera1>\n    }\n}\n',
+        encoding="utf-8",
+    )
     html = plugin.build_html_report(
         [
             {
@@ -1013,6 +1074,8 @@ def test_html_report_rows_expand_with_exr_canvas_viewer(tmp_path: Path) -> None:
                 "flip_mean": 0.01,
                 "flip_threshold": 0.02,
                 "render_output": str(context.run_dir / "case.exr"),
+                "usd": str(usd),
+                "frame": 4,
                 "reference_image": str(context.run_dir / "reference" / "case.png"),
                 "render_image": str(context.run_dir / "case.exr"),
                 "diff_exr": str(context.run_dir / "flip" / "case.exr"),
@@ -1034,6 +1097,14 @@ def test_html_report_rows_expand_with_exr_canvas_viewer(tmp_path: Path) -> None:
     assert parser.detail_rows == [
         {"id": "result-detail-0", "hidden": "true"},
         {"id": "result-detail-1", "hidden": "true"},
+    ]
+    assert parser.usdview_buttons == [
+        {
+            "usd": str(usd),
+            "camera": "/cameras/camera1",
+            "frame": "4",
+            "label": "Open in usdview",
+        }
     ]
     assert parser.exr_viewers == [
         {
@@ -1105,6 +1176,8 @@ def test_html_report_rows_expand_with_exr_canvas_viewer(tmp_path: Path) -> None:
     assert 'row.setAttribute("aria-expanded", expanded ? "false" : "true");' in html
     assert '.viewer-grid {' in html
     assert '.pixel-readout {' in html
+    assert 'data-usdview-open' in html
+    assert 'Open in usdview' in html
     assert 'canvas {' in html
 
     viewer_js = (Path(__file__).resolve().parents[1] / "typhoon_tests" / "static" / "typhoon-exr-viewer.js").read_text(
@@ -1121,6 +1194,39 @@ def test_html_report_rows_expand_with_exr_canvas_viewer(tmp_path: Path) -> None:
     assert 'setActiveImage(hoveredViewer, "reference");' in viewer_js
     assert 'event.key === "2"' in viewer_js
     assert 'setActiveImage(hoveredViewer, "render");' in viewer_js
+    assert 'fetch("/__typhoon__/usdview"' in viewer_js
+    assert 'data-usdview-open' in viewer_js
+
+
+def test_html_report_usdview_button_uses_report_camera_without_reparsing_usd(
+    tmp_path: Path,
+) -> None:
+    context = run_context(tmp_path)
+    missing_usd = tmp_path / "missing" / "case.usda"
+
+    html = plugin.build_html_report(
+        [
+            {
+                "suite": "sample",
+                "key": "case",
+                "status": "dry-run",
+                "usd": str(missing_usd),
+                "camera": "/Saved/Camera",
+                "frame": 7,
+            }
+        ],
+        context,
+    )
+
+    parser = parse_report(html)
+    assert parser.usdview_buttons == [
+        {
+            "usd": str(missing_usd),
+            "camera": "/Saved/Camera",
+            "frame": "7",
+            "label": "Open in usdview",
+        }
+    ]
 
 
 def test_html_report_normalizes_legacy_status_labels(tmp_path: Path) -> None:
@@ -1272,8 +1378,205 @@ def test_regenerate_html_module_cli_and_pixi_task(tmp_path: Path) -> None:
         "cmd": "python -m typhoon_tests.build_exr_wasm"
     }
     assert pixi["target"]["linux-64"]["tasks"]["view"] == {
-        "cmd": "python -m http.server 8000 --directory _output"
+        "cmd": "python -m typhoon_tests.view_server --directory _output --port 8000"
     }
+
+
+def test_view_server_launches_usdview_command(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    usd = tmp_path / "scene.usda"
+    usd.write_text("#usda 1.0\n", encoding="utf-8")
+    popen_calls: list[tuple[list[str], dict[str, object]]] = []
+
+    def fake_popen(command: list[str], **kwargs: object) -> object:
+        popen_calls.append((command, kwargs))
+        return object()
+
+    monkeypatch.setattr(view_server.subprocess, "Popen", fake_popen)
+
+    command = view_server.launch_usdview(
+        {"usd": str(usd), "camera": "/cameras/camera1", "frame": 12},
+        project_root=tmp_path,
+    )
+
+    assert command == [
+        "pixi",
+        "run",
+        "usdview",
+        "--renderer",
+        "Embree",
+        "--disableCameraLight",
+        "--camera",
+        "/cameras/camera1",
+        "--complexity",
+        "high",
+        "--cf",
+        "12",
+        str(usd.resolve()),
+    ]
+    assert popen_calls == [
+        (
+            command,
+            {
+                "cwd": str(tmp_path.resolve()),
+                "stdout": view_server.subprocess.DEVNULL,
+                "stderr": view_server.subprocess.DEVNULL,
+                "start_new_session": True,
+            },
+        )
+    ]
+
+
+def test_view_server_launches_usdview_command_with_typhoon_provider(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    usd = tmp_path / "scene.usda"
+    usd.write_text("#usda 1.0\n", encoding="utf-8")
+    provider = tmp_path / "openusd"
+    provider.mkdir()
+    manifest = provider / "pixi.toml"
+    manifest.write_text("[workspace]\nname = 'openusd'\n", encoding="utf-8")
+    popen_calls: list[list[str]] = []
+
+    def fake_popen(command: list[str], **_kwargs: object) -> object:
+        popen_calls.append(command)
+        return object()
+
+    monkeypatch.setattr(view_server.subprocess, "Popen", fake_popen)
+
+    command = view_server.launch_usdview(
+        {"usd": str(usd), "camera": "/cameras/camera1", "frame": 12},
+        project_root=tmp_path,
+        typhoon_provider=provider,
+    )
+
+    assert command == [
+        "pixi",
+        "run",
+        "--manifest-path",
+        str(manifest),
+        "--clean-env",
+        "usdview",
+        "--renderer",
+        "Embree",
+        "--disableCameraLight",
+        "--camera",
+        "/cameras/camera1",
+        "--complexity",
+        "high",
+        "--cf",
+        "12",
+        str(usd.resolve()),
+    ]
+    assert popen_calls == [command]
+
+
+def test_view_server_endpoint_launches_and_rejects_invalid_payloads(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    usd = tmp_path / "scene.usda"
+    usd.write_text("#usda 1.0\n", encoding="utf-8")
+    popen_calls: list[list[str]] = []
+
+    def fake_popen(command: list[str], **_kwargs: object) -> object:
+        popen_calls.append(command)
+        return object()
+
+    monkeypatch.setattr(view_server.subprocess, "Popen", fake_popen)
+    provider = tmp_path / "openusd"
+    provider.mkdir()
+    manifest = provider / "pixi.toml"
+    manifest.write_text("[workspace]\nname = 'openusd'\n", encoding="utf-8")
+    handler = partial(
+        view_server.TyphoonViewHandler,
+        directory=str(tmp_path),
+    )
+    server = view_server.TyphoonViewServer(
+        ("127.0.0.1", 0),
+        handler,
+        project_root=tmp_path,
+        typhoon_provider=provider,
+    )
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+
+    def post(payload: dict[str, object]) -> tuple[int, dict[str, object]]:
+        connection = http.client.HTTPConnection(*server.server_address, timeout=5)
+        try:
+            connection.request(
+                "POST",
+                view_server.USDVIEW_ENDPOINT,
+                body=json.dumps(payload),
+                headers={"Content-Type": "application/json"},
+            )
+            response = connection.getresponse()
+            body = json.loads(response.read().decode("utf-8"))
+            return response.status, body
+        finally:
+            connection.close()
+
+    try:
+        status, body = post(
+            {"usd": str(usd), "camera": "/cameras/camera1", "frame": "12"}
+        )
+        assert status == 200
+        assert body["ok"] is True
+        assert popen_calls == [
+            [
+                "pixi",
+                "run",
+                "--manifest-path",
+                str(manifest),
+                "--clean-env",
+                "usdview",
+                "--renderer",
+                "Embree",
+                "--disableCameraLight",
+                "--camera",
+                "/cameras/camera1",
+                "--complexity",
+                "high",
+                "--cf",
+                "12",
+                str(usd.resolve()),
+            ]
+        ]
+
+        status, body = post(
+            {"usd": str(usd), "camera": "/cameras/bad\x00path", "frame": "12"}
+        )
+        assert status == 400
+        assert body["ok"] is False
+        assert popen_calls == [popen_calls[0]]
+
+        status, body = post(
+            {"usd": f"{usd}\x00", "camera": "/cameras/camera1", "frame": "12"}
+        )
+        assert status == 400
+        assert body["ok"] is False
+        assert popen_calls == [popen_calls[0]]
+
+        status, body = post(
+            {"usd": str(usd), "camera": "/cameras/camera1", "frame": "12\x00"}
+        )
+        assert status == 400
+        assert body["ok"] is False
+        assert popen_calls == [popen_calls[0]]
+
+        status, body = post(
+            {"usd": str(usd), "camera": "/cameras/camera1", "frame": "not-a-frame"}
+        )
+        assert status == 400
+        assert body["ok"] is False
+        assert popen_calls == [popen_calls[0]]
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
 
 
 def test_regenerate_html_cli_reports_errors_without_traceback(tmp_path: Path) -> None:

@@ -28,6 +28,7 @@ from .images import compare_images
 
 
 RUN_DIR_RE = re.compile(r"^run-(\d+)$")
+CAMERA_REL_RE = re.compile(r"\brel\s+camera\s*=\s*<([^>]+)>")
 
 REPORT_STATIC_DIR = Path(__file__).resolve().parent / "static"
 REPORT_ASSET_NAMES = ("typhoon-exr-viewer.js", "typhoon_exr_wasm.wasm")
@@ -366,6 +367,7 @@ def run_typhoon_case(case: TyphoonCase, options: TyphoonOptions) -> dict[str, An
         "suite": case.suite.name,
         "key": case.key,
         "usd": str(case.path),
+        "camera": discover_usd_camera(case.path),
         "command": [],
         "output_root": str(output_root),
         "render_output": None,
@@ -798,6 +800,28 @@ def html_report_sort_key(row: dict[str, Any]) -> tuple[bool, float, str, str]:
     return (False, -float(flip), str(row.get("suite")), str(row.get("key")))
 
 
+def discover_usd_camera(path: Path) -> str:
+    try:
+        text = path.read_text(encoding="utf-8", errors="ignore")
+    except OSError:
+        return ""
+    match = CAMERA_REL_RE.search(text)
+    if match is None:
+        return ""
+    camera = match.group(1).strip()
+    return camera if camera.startswith("/") else f"/{camera}"
+
+
+def format_report_frame(value: object) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, int) and not isinstance(value, bool):
+        return str(value)
+    if isinstance(value, float):
+        return str(int(value)) if value.is_integer() else f"{value:g}"
+    return str(value)
+
+
 def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str:
     summary = summarize_results(context, results)
     rows = sorted(results, key=html_report_sort_key)
@@ -842,6 +866,22 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
             + "".join(items)
             + '<span class="thumbnail-status" data-thumbnail-status></span>'
             + "</div>"
+        )
+
+    def usdview_action_markup(row: dict[str, Any]) -> str:
+        usd_path = row.get("usd")
+        if not usd_path:
+            return ""
+        camera_path = row.get("camera") or discover_usd_camera(Path(str(usd_path)))
+        frame = format_report_frame(row.get("frame"))
+        return (
+            '<div class="detail-actions">'
+            '<button type="button" class="usdview-button" data-usdview-open '
+            f'data-usd-path="{esc(usd_path)}" '
+            f'data-camera-path="{esc(camera_path)}" '
+            f'data-frame="{esc(frame)}">Open in usdview</button>'
+            '<span class="usdview-status" data-usdview-status></span>'
+            '</div>'
         )
 
     def viewer_markup(row: dict[str, Any], escaped_key: str) -> str:
@@ -897,7 +937,7 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
         detail_id = f"result-detail-{index}"
         escaped_key = esc(row.get("key", ""))
         thumbnails = thumbnail_markup(row, escaped_key)
-        detail_content = viewer_markup(row, escaped_key)
+        detail_content = usdview_action_markup(row) + viewer_markup(row, escaped_key)
         render_output = rel_field(row, "render_output")
         status_css = " ".join(part for part in ("status-cell", status_class(status)) if part)
         cells = [
@@ -966,6 +1006,11 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
     tr.result-row[aria-expanded="true"] td {{ border-bottom-color: #4a4a4a; }}
     .result-detail-row td {{ padding: 0 10px 18px; background: #101010; border-bottom: 1px solid #3a3a3a; }}
     .detail-panel {{ padding-top: 16px; }}
+    .detail-actions {{ display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }}
+    .usdview-button {{ appearance: none; border: 1px solid #4a5568; background: #243244; color: #e5f0ff; border-radius: 4px; padding: 7px 10px; font: inherit; cursor: pointer; }}
+    .usdview-button:hover {{ background: #2f4058; border-color: #6b7f99; }}
+    .usdview-button:disabled {{ opacity: 0.55; cursor: wait; }}
+    .usdview-status {{ color: #bbb; min-height: 20px; }}
     .detail-empty {{ color: #888; }}
     .viewer-grid {{ display: grid; grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr) minmax(220px, 1fr) minmax(280px, 0.82fr); gap: 12px; align-items: start; }}
     figure {{ margin: 0; min-width: 0; }}
