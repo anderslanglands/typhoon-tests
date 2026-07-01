@@ -2,7 +2,52 @@
 
 This repo contains USD render regression suites for Typhoon. Test execution is pytest-based: `.usda` files are collected as render tests, and each suite is configured by a `typhoon-suite.toml` file placed in the suite directory.
 
-## Quick Start
+## Build, Run, And View
+
+Build the browser EXR decoder after changing `tools/exr_wasm/` or when setting up a fresh checkout:
+
+```bash
+pixi run build
+```
+
+Run the non-render Python tests:
+
+```bash
+pixi run pytest tests -q
+```
+
+Run the usdlux render suite against a local OpenUSD/Typhoon checkout:
+
+```bash
+pixi run pytest usdlux --typhoon-provider /home/anders/code/openusd-omniverse
+```
+
+Render runs write numbered directories under `_output/`. Serve `_output` over HTTP before opening reports, because the EXR/WASM viewer uses browser `fetch()`:
+
+```bash
+pixi run view
+```
+
+Then open the top-level index or a specific run:
+
+```text
+http://localhost:8000/
+http://localhost:8000/run-0009/index.html
+```
+
+Regenerate comparisons from existing rendered EXRs without rerendering scenes:
+
+```bash
+pixi run regenerate-comparisons --run _output/run-0009
+```
+
+Regenerate only the HTML reports and copied viewer assets from existing JSON:
+
+```bash
+pixi run regenerate-html --run _output/run-0009
+```
+
+## Other Common Runs
 
 Run against the packaged `openusd-typhoon` conda package:
 
@@ -16,7 +61,7 @@ Run only the MaterialX suite:
 pixi run test-materialx
 ```
 
-Run against a local OpenUSD/Typhoon checkout instead of the conda package:
+Run another suite against a local OpenUSD/Typhoon checkout instead of the conda package:
 
 ```bash
 pixi run test-local /home/anders/code/openusd-omniverse
@@ -65,51 +110,6 @@ pixi run regenerate-html --run _output/run-0003
 pixi run regenerate-html --all
 pixi run regenerate-comparisons
 pixi run regenerate-comparisons --run _output/run-0003
-```
-
-## Build, Test, And View
-
-Build the browser EXR decoder after changing `tools/exr_wasm/` or when setting up a fresh checkout:
-
-```bash
-pixi run build
-```
-
-Run the non-render Python tests:
-
-```bash
-pixi run pytest tests -q
-```
-
-Run a render suite against a local OpenUSD/Typhoon checkout:
-
-```bash
-pixi run pytest usdlux --typhoon-provider /home/anders/code/openusd-omniverse
-```
-
-Render runs write numbered directories under `_output/`. Serve `_output` over HTTP before opening reports, because the EXR/WASM viewer uses browser `fetch()`:
-
-```bash
-pixi run view
-```
-
-Then open the top-level index or a specific run:
-
-```text
-http://localhost:8000/
-http://localhost:8000/run-0009/index.html
-```
-
-Regenerate comparisons from existing rendered EXRs without rerendering scenes:
-
-```bash
-pixi run regenerate-comparisons --run _output/run-0009
-```
-
-Regenerate only the HTML reports and copied viewer assets from existing JSON:
-
-```bash
-pixi run regenerate-html --run _output/run-0009
 ```
 
 ## Output Runs
