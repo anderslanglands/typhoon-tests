@@ -11,8 +11,10 @@ channel-priority = "disabled"
 [dependencies]
 python = "3.11.*"
 materialx = "*"
-openusd-typhoon = "==26.05.0beaac8"
+openusd-typhoon = "==26.05.1.a99d9b6"
 pytest = "*"
+rust = "1.96.*"
+rust-std-wasm32-unknown-unknown = "*"
 
 [target.linux-64.tasks]
 test = { cmd = "pytest" }
