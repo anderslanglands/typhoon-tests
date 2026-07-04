@@ -23,11 +23,19 @@ def Scope "Looks"
         token outputs:mtlx:surface.connect = </Looks/brushed_metal_anisotropy/open_pbr_surface_surfaceshader.outputs:out>
         token outputs:surface.connect = </Looks/brushed_metal_anisotropy/open_pbr_surface_surfaceshader.outputs:out>
 
+        def Shader "world_tangent"
+        {
+            uniform token info:id = "ND_tangent_vector3"
+            string inputs:space = "world"
+            float3 outputs:out
+        }
+
         def Shader "open_pbr_surface_surfaceshader"
         {
             uniform token info:id = "ND_open_pbr_surface_surfaceshader"
             color3f inputs:base_color = (0.912, 0.914, 0.92)
             float inputs:base_metalness = 1
+            float3 inputs:geometry_tangent.connect = </Looks/brushed_metal_anisotropy/world_tangent.outputs:out>
             color3f inputs:specular_color = (0.97, 0.979, 0.988)
             float inputs:specular_roughness = 0.2
             float inputs:specular_roughness_anisotropy = 0.9

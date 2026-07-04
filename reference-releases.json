@@ -1,14 +1,14 @@
 {
   "groups": {
     "material-fidelity/surfaces/open_pbr_surface": {
-      "archive": "material-fidelity--surfaces--open_pbr_surface--0a56f408d418.zip",
-      "archive_sha256": "385b498beb31b795f3692c5dd5a5fe5b71154aeb7acc87cec1aa0eb8998ac747",
-      "archive_size": 41198770,
+      "archive": "material-fidelity--surfaces--open_pbr_surface--edda70e684dc.zip",
+      "archive_sha256": "885a08a078ce90070579e0b7435109489fce9e88a1260ecf82a22455a55c7d40",
+      "archive_size": 43454168,
       "files": [
         {
-          "path": "material-fidelity/reference/surfaces/open_pbr_surface/brushed_metal_anisotropy_materialx-osl.png",
-          "sha256": "3557b265c1d69294d2437c7c3ed1922117ac89dc6ff085eceb5691510b99ceaf",
-          "size": 518599
+          "path": "material-fidelity/reference/surfaces/open_pbr_surface/brushed_metal_anisotropy.exr",
+          "sha256": "d56a0c5be8b8d6151eb018153f6ef034dd57f0b730d551cefa467db91584eef6",
+          "size": 2774025
         },
         {
           "path": "material-fidelity/reference/surfaces/open_pbr_surface/coat_color_variation_materialx-osl.png",
@@ -396,7 +396,7 @@
           "size": 410969
         }
       ],
-      "release": "reference-data-20260704T193531Z-718a993d-94587f17"
+      "release": "reference-data-20260704T195726Z-d76b90fa-20e36b92"
     },
     "materialx": {
       "archive": "materialx--4e54f0e02666.zip",
