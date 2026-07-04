@@ -1,0 +1,43 @@
+[workspace]
+name = "typhoon-tests"
+platforms = ["linux-64", "win-64"]
+channels = [
+  "https://conda.anaconda.org/anderslanglands/label/test",
+  "https://conda.anaconda.org/anderslanglands",
+  "conda-forge",
+]
+channel-priority = "disabled"
+
+[dependencies]
+python = "3.11.*"
+materialx = "*"
+openusd-typhoon = "==26.05.1.a99d9b6"
+pytest = "*"
+rust = "1.96.*"
+rust-std-wasm32-unknown-unknown = "*"
+
+[tasks]
+download-references = { cmd = "python -m typhoon_tests.reference_archives download" }
+update-references = { cmd = "python -m typhoon_tests.reference_archives update" }
+
+[target.linux-64.tasks]
+test = { cmd = "pytest" }
+test-local = { args = ["provider"], cmd = "pytest --typhoon-provider {{ provider }}" }
+test-materialx = { cmd = "pytest materialx" }
+test-material-fidelity = { cmd = "pytest material-fidelity" }
+render-materialx-one = { args = ["usd"], cmd = "pytest {{ usd }}" }
+render-materialx-all = { cmd = "pytest materialx" }
+render-material-fidelity-one = { args = ["usd"], cmd = "pytest {{ usd }}" }
+render-material-fidelity-all = { cmd = "pytest material-fidelity" }
+regenerate-html = { cmd = "python -m typhoon_tests.report_html" }
+regenerate-comparisons = { cmd = "python -m typhoon_tests.regenerate_comparisons" }
+build = { cmd = "python -m typhoon_tests.build_exr_wasm" }
+view = { cmd = "python -m typhoon_tests.view_server --directory _output --port 8000" }
+compare-materialx-renders = { cmd = "python materialx/generate_comparison_html.py" }
+
+[target.linux-64.dependencies]
+numpy = ">=2.4.6,<3"
+pillow = ">=12.2.0,<13"
+
+[target.linux-64.pypi-dependencies]
+flip-evaluator = "==1.7"

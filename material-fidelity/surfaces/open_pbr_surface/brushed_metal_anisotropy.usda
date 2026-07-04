@@ -1,0 +1,58 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "brushed_metal_anisotropy" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/surfaces/open_pbr_surface/brushed_metal_anisotropy/brushed_metal_anisotropy.mtlx"
+                string sourceMaterial = "Aluminum_Brushed"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/brushed_metal_anisotropy/open_pbr_surface_surfaceshader.outputs:out>
+        token outputs:surface.connect = </Looks/brushed_metal_anisotropy/open_pbr_surface_surfaceshader.outputs:out>
+
+        def Shader "open_pbr_surface_surfaceshader"
+        {
+            uniform token info:id = "ND_open_pbr_surface_surfaceshader"
+            color3f inputs:base_color = (0.912, 0.914, 0.92)
+            float inputs:base_metalness = 1
+            color3f inputs:specular_color = (0.97, 0.979, 0.988)
+            float inputs:specular_roughness = 0.2
+            float inputs:specular_roughness_anisotropy = 0.9
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/brushed_metal_anisotropy>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/surfaces/open_pbr_surface/brushed_metal_anisotropy.exr"
+        }
+    }
+}

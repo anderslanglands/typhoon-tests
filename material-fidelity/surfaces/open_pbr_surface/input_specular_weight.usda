@@ -1,0 +1,54 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "input_specular_weight" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/surfaces/open_pbr_surface/input_specular_weight/input_specular_weight.mtlx"
+                string sourceMaterial = "input_specular_weight"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/input_specular_weight/open_pbr_surface_surfaceshader.outputs:out>
+        token outputs:surface.connect = </Looks/input_specular_weight/open_pbr_surface_surfaceshader.outputs:out>
+
+        def Shader "open_pbr_surface_surfaceshader"
+        {
+            uniform token info:id = "ND_open_pbr_surface_surfaceshader"
+            float inputs:specular_weight = 0.2
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/input_specular_weight>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/surfaces/open_pbr_surface/input_specular_weight.exr"
+        }
+    }
+}

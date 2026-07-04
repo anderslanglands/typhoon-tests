@@ -1,0 +1,39 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 0.01
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./_assets/render_512.usda@,
+        @./_assets/materials.usda@,
+        @./_assets/camera.usda@,
+        @./_assets/floor_plane.usda@
+    ]
+    upAxis = "Y"
+)
+
+over "Render"
+{
+    over "Product"
+    {
+        token productName = "disk-light-power.exr"
+    }
+}
+
+over "World"
+{
+    def DiskLight "DiskLight" (
+        prepend apiSchemas = ["ShapingAPI", "PhotometricAreaLightAPI"]
+    )
+    {
+        float3[] extent = [(-50, -50, -0), (50, 50, 0)]
+        float inputs:intensity = 60000
+        float inputs:radius = 10
+        float inputs:shaping:cone:angle = 180
+        float photometric:power = 10
+        double3 xformOp:rotateXYZ = (-90, 0, 0)
+        double3 xformOp:scale = (1, 1, 1)
+        double3 xformOp:translate = (0, 200, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
+    }
+}

@@ -1,0 +1,38 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 0.01
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @./_assets/render_512.usda@,
+        @./_assets/materials.usda@,
+        @./_assets/camera.usda@,
+        @./_assets/floor_plane.usda@
+    ]
+    upAxis = "Y"
+)
+
+over "Render"
+{
+    over "Product"
+    {
+        token productName = "distant-light-illuminance.exr"
+    }
+}
+
+over "World"
+{
+    def DistantLight "DistantLight" (
+        prepend apiSchemas = ["ShapingAPI", "PhotometricDistantLightAPI"]
+    )
+    {
+        float inputs:angle = 1
+        float inputs:intensity = 3000
+        float inputs:shaping:cone:angle = 180
+        float photometric:illuminance = 1
+        double3 xformOp:rotateXYZ = (-90, 0, 0)
+        double3 xformOp:scale = (1, 1, 1)
+        double3 xformOp:translate = (0, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
+    }
+}

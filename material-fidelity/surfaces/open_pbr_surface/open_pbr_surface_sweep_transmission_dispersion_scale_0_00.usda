@@ -1,0 +1,68 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "open_pbr_surface_sweep_transmission_dispersion_scale_0_00" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/surfaces/open_pbr_surface/open_pbr_surface_sweep_transmission_dispersion_scale_0_00/open_pbr_surface_sweep_transmission_dispersion_scale_0_00.mtlx"
+                string sourceMaterial = "open_pbr_surface_sweep_transmission_dispersion_scale_0_00"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/open_pbr_surface_sweep_transmission_dispersion_scale_0_00/SR_open_pbr_surface_sweep_transmission_dispersion_scale_0_00.outputs:out>
+        token outputs:surface.connect = </Looks/open_pbr_surface_sweep_transmission_dispersion_scale_0_00/SR_open_pbr_surface_sweep_transmission_dispersion_scale_0_00.outputs:out>
+
+        def Shader "SR_open_pbr_surface_sweep_transmission_dispersion_scale_0_00"
+        {
+            uniform token info:id = "ND_open_pbr_surface_surfaceshader"
+            color3f inputs:base_color = (0.3, 0.03, 0.06)
+            float inputs:base_metalness = 0
+            float inputs:base_weight = 1
+            float inputs:coat_weight = 0
+            float inputs:fuzz_weight = 0
+            float inputs:geometry_opacity = 1
+            float inputs:specular_roughness = 0.04
+            float inputs:specular_weight = 1
+            float inputs:thin_film_thickness = 0
+            float inputs:thin_film_weight = 0
+            color3f inputs:transmission_color = (0.95, 0.98, 1)
+            float inputs:transmission_depth = 0.8
+            float inputs:transmission_dispersion_abbe_number = 20
+            float inputs:transmission_dispersion_scale = 0
+            float inputs:transmission_weight = 1
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/open_pbr_surface_sweep_transmission_dispersion_scale_0_00>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/surfaces/open_pbr_surface/open_pbr_surface_sweep_transmission_dispersion_scale_0_00.exr"
+        }
+    }
+}

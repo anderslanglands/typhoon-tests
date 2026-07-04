@@ -1,0 +1,13 @@
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["."]
+norecursedirs = [
+  ".git",
+  ".pixi",
+  "__pycache__",
+  "_output",
+  "assets",
+  "comparison",
+  "renders",
+  "reference",
+]

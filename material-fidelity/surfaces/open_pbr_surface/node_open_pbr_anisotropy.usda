@@ -1,0 +1,127 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "node_open_pbr_anisotropy" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/surfaces/open_pbr_surface/node_open_pbr_anisotropy/material.mtlx"
+                string sourceMaterial = "node_open_pbr_anisotropy"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/node_open_pbr_anisotropy/SR_open_pbr_anisotropy.outputs:out>
+        token outputs:surface.connect = </Looks/node_open_pbr_anisotropy/SR_open_pbr_anisotropy.outputs:out>
+
+        def Shader "uv0"
+        {
+            uniform token info:id = "ND_texcoord_vector2"
+            float2 outputs:out
+        }
+
+        def Shader "uv_split"
+        {
+            uniform token info:id = "ND_separate2_vector2"
+            float2 inputs:in.connect = </Looks/node_open_pbr_anisotropy/uv0.outputs:out>
+            float outputs:outx
+            float outputs:outy
+        }
+
+        def Shader "brush_freq_u"
+        {
+            uniform token info:id = "ND_multiply_float"
+            float inputs:in1.connect = </Looks/node_open_pbr_anisotropy/uv_split.outputs:outx>
+            float inputs:in2 = 420
+            float outputs:out
+        }
+
+        def Shader "brush_wave"
+        {
+            uniform token info:id = "ND_sin_float"
+            float inputs:in.connect = </Looks/node_open_pbr_anisotropy/brush_freq_u.outputs:out>
+            float outputs:out
+        }
+
+        def Shader "brush_wave_abs"
+        {
+            uniform token info:id = "ND_absval_float"
+            float inputs:in.connect = </Looks/node_open_pbr_anisotropy/brush_wave.outputs:out>
+            float outputs:out
+        }
+
+        def Shader "roughness_span"
+        {
+            uniform token info:id = "ND_multiply_float"
+            float inputs:in1.connect = </Looks/node_open_pbr_anisotropy/brush_wave_abs.outputs:out>
+            float inputs:in2 = 0.22
+            float outputs:out
+        }
+
+        def Shader "roughness_brushed"
+        {
+            uniform token info:id = "ND_add_float"
+            float inputs:in1 = 0.07
+            float inputs:in2.connect = </Looks/node_open_pbr_anisotropy/roughness_span.outputs:out>
+            float outputs:out
+        }
+
+        def Shader "aniso_mod"
+        {
+            uniform token info:id = "ND_multiply_float"
+            float inputs:in1.connect = </Looks/node_open_pbr_anisotropy/brush_wave_abs.outputs:out>
+            float inputs:in2 = 0.18
+            float outputs:out
+        }
+
+        def Shader "anisotropy_brushed"
+        {
+            uniform token info:id = "ND_subtract_float"
+            float inputs:in1 = 0.95
+            float inputs:in2.connect = </Looks/node_open_pbr_anisotropy/aniso_mod.outputs:out>
+            float outputs:out
+        }
+
+        def Shader "SR_open_pbr_anisotropy"
+        {
+            uniform token info:id = "ND_open_pbr_surface_surfaceshader"
+            color3f inputs:base_color = (0.955, 0.637, 0.538)
+            float inputs:base_metalness = 1
+            color3f inputs:specular_color = (1, 0.88, 0.8)
+            float inputs:specular_roughness.connect = </Looks/node_open_pbr_anisotropy/roughness_brushed.outputs:out>
+            float inputs:specular_roughness_anisotropy.connect = </Looks/node_open_pbr_anisotropy/anisotropy_brushed.outputs:out>
+            float inputs:specular_weight = 1
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/node_open_pbr_anisotropy>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/surfaces/open_pbr_surface/node_open_pbr_anisotropy.exr"
+        }
+    }
+}

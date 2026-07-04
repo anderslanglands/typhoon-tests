@@ -1,0 +1,81 @@
+#usda 1.0
+(
+    defaultPrim = "standard_shader_ball_scene"
+    endTimeCode = 3
+    framesPerSecond = 24
+    metersPerUnit = 0.01
+    renderSettingsPrimPath = "/Render/RenderSettings"
+    startTimeCode = 3
+    subLayers = [
+        @assets/full_assets/StandardShaderBall/standard_shader_ball_scene.usda@
+    ]
+    timeCodesPerSecond = 24
+    upAxis = "Y"
+)
+
+over "standard_shader_ball_scene" (
+    variants = {
+        string example_material = "mtlx_glass"
+    }
+)
+{
+    over "materials" (
+        variants = {
+            string material_model = "OpenPBRSurface"
+        }
+    )
+    {
+        over "examples" (
+            variants = {
+                string material_model = ""
+            }
+        )
+        {
+            def Scope "mtlx"
+            {
+                def Material "glass"
+                {
+                    token outputs:mtlx:surface.connect = </standard_shader_ball_scene/materials/examples/mtlx/glass/open_pbr_surface.outputs:out>
+
+                    def Shader "open_pbr_surface"
+                    {
+                        uniform token info:id = "ND_open_pbr_surface_surfaceshader"
+                        float inputs:base_weight = 0
+                        float inputs:specular_roughness = 0.01625
+                        float inputs:specular_ior = 1.54107
+                        float inputs:transmission_weight = 1
+                        color3f inputs:transmission_color = (0.942, 1, 0.9884)
+                        token outputs:out
+                    }
+                }
+            }
+        }
+    }
+}
+
+def Scope "Render" {
+
+    def RenderSettings "RenderSettings" (
+        prepend apiSchemas = ["TyphoonRenderSettingsAPI"]
+    )
+    {
+        int ty:convergedSamplesPerPixel = 1
+        rel camera = </standard_shader_ball_scene/camera>
+        rel products = [</Render/RenderProduct>]
+    }
+
+    def RenderProduct "RenderProduct"
+    {
+        rel camera = </standard_shader_ball_scene/camera>
+        rel orderedVars = [</Render/RenderProduct/Color>]
+        token productType = "raster"
+        token productName = "shaderball.mtlx_glass.exr"
+
+        def RenderVar "Color"
+        {
+            token dataType = "color4f"
+            string sourceName = "color"
+            token sourceType = "raw"
+        }
+    }
+}

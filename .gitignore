@@ -1,0 +1,10 @@
+materialx/renders/
+materialx/comparison/
+_output/
+__pycache__/
+*.py[cod]
+tools/exr_wasm/target/
+
+# Test references are hydrated from GitHub release archives.
+reference/
+.typhoon-reference-state.json

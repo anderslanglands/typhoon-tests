@@ -1,0 +1,13 @@
+[suite]
+name = "material-fidelity"
+
+[render]
+args = ["--disableCameraLight"]
+output_pattern = "material-fidelity/{path}.exr"
+
+[reference]
+dir = "reference"
+pattern = "{path}_materialx-osl.png"
+missing = "fail"
+
+[comparison]
