@@ -1415,7 +1415,8 @@ def test_html_report_styles_statuses_and_makes_columns_sortable(tmp_path: Path) 
     assert 'th button[data-sort-direction="asc"]::after { content: " \\2191"; }' in html
     assert 'th button[data-sort-direction="desc"]::after { content: " \\2193"; }' in html
     assert 'setSortDirection(button, direction);' in html
-    assert 'if (initialButton)' in html
+    assert 'if (activeButton)' in html
+    assert 'const restoredSort = restoredSorts.get' in html
 
 
 def test_html_report_groups_nested_sections_and_legacy_root_cases(tmp_path: Path) -> None:
@@ -1471,7 +1472,15 @@ def test_html_report_groups_nested_sections_and_legacy_root_cases(tmp_path: Path
     assert "data-section-path=\"sample/Surfaces/&lt;Unsafe&gt;\"" in html
     assert "<span class=\"section-name\">&lt;Unsafe&gt;</span>" in html
     assert "3 tests | 1 failed | max FLIP 0.200" in html
-    assert html.count("<table data-sortable-table>") == 3
+    assert html.count("<table data-sortable-table data-sort-table-key=") == 3
+    assert (
+        'data-sort-table-key="[&quot;sample&quot;,&quot;Surfaces&quot;,'
+        '&quot;Open PBR&quot;]"'
+    ) in html
+    assert (
+        'data-section-id="[&quot;sample&quot;,&quot;Surfaces&quot;,'
+        '&quot;Open PBR&quot;]"'
+    ) in html
     assert html.count("data-select-all") == 1
     assert len(parser.rows) == 3
     assert all(len(row) == 6 for row in parser.rows)
@@ -1576,7 +1585,9 @@ def test_html_report_rows_expand_with_exr_canvas_viewer(tmp_path: Path) -> None:
     ]
     assert (
         '<tr id="result-row-0" class="result-row" '
-        'data-detail-row="result-detail-0" aria-expanded="false">'
+        'data-detail-row="result-detail-0" '
+        'data-case-id="[&quot;sample&quot;,&quot;case&quot;]" '
+        'aria-expanded="false">'
     ) in html
     assert '<tr id="result-detail-0" class="result-detail-row" hidden>' in html
     assert '<td colspan="6"><div class="detail-panel">' in html
@@ -1606,6 +1617,8 @@ def test_html_report_rows_expand_with_exr_canvas_viewer(tmp_path: Path) -> None:
     assert 'data-result-select' in html
     assert 'data-update-threshold' in html
     assert 'data-update-reference' in html
+    assert 'data-row-update-threshold' in html
+    assert 'data-row-update-reference' in html
     assert 'Update threshold' in html
     assert 'Update reference' in html
     assert 'canvas {' in html
@@ -1645,9 +1658,18 @@ def test_nested_report_tables_sort_independently_with_detail_rows(tmp_path: Path
         pytest.skip("node is required to validate report table sorting")
 
     script = tmp_path / "report-sort-test.mjs"
+    viewer_js = (
+        Path(__file__).resolve().parents[1]
+        / "typhoon_tests"
+        / "static"
+        / "typhoon-exr-viewer.js"
+    )
+    viewer_module = tmp_path / "typhoon-exr-viewer.mjs"
+    viewer_module.write_text(viewer_js.read_text(encoding="utf-8"), encoding="utf-8")
     sortable_js = plugin.sortable_table_script().removeprefix("  <script>\n").removesuffix("</script>")
     script.write_text(
         """
+        import { pathToFileURL } from "node:url";
         const details = new Map();
         function makeRow(id, value, detailId = "", isDetail = false) {
           const row = {
@@ -1677,6 +1699,7 @@ def test_nested_report_tables_sort_independently_with_detail_rows(tmp_path: Path
             addEventListener() {},
           };
           return {
+            dataset: { sortTableKey: name },
             tBodies: [tbody],
             querySelectorAll: () => [button],
             querySelector: () => button,
@@ -1684,7 +1707,55 @@ def test_nested_report_tables_sort_independently_with_detail_rows(tmp_path: Path
         }
         const tables = [makeTable("first", 1, 3), makeTable("second", 2, 4)];
         const rootStyle = {};
+        let restoredScroll = null;
+        let viewerInitializedAtScroll = false;
+        const restoredDetail = { hidden: true };
+        details.set("restored-detail", restoredDetail);
+        const restoredRow = {
+          dataset: { caseId: "expanded-case", detailRow: "restored-detail" },
+          expanded: "false",
+          addEventListener() {},
+          getAttribute() { return this.expanded; },
+          setAttribute(_name, value) { this.expanded = value; },
+        };
+        const collapsedSection = {
+          dataset: { sectionId: '["suite/with/slash"]' }, open: true,
+        };
+        const nestedSection = {
+          dataset: { sectionId: '["suite","with","slash"]' }, open: false,
+        };
+        const restoredViewer = {
+          dataset: {},
+          querySelector() { return null; },
+        };
         const topNav = { getBoundingClientRect: () => ({ bottom: 91 }) };
+        const storage = {
+          getItem() {
+            return JSON.stringify({
+              sorts: [{ key: "first", column: 0, direction: "asc" }],
+              expanded: ["expanded-case"],
+              selected: [],
+              sections: {
+                '["suite/with/slash"]': false,
+                '["suite","with","slash"]': true,
+              },
+              scrollX: 0,
+              scrollY: 321,
+            });
+          },
+          removeItem() {},
+        };
+        globalThis.window = {
+          location: { pathname: "/run-0001/index.html" },
+          addEventListener() {},
+          requestAnimationFrame(callback) { callback(); },
+          scrollTo(x, y) {
+            viewerInitializedAtScroll = restoredViewer.dataset.exrInitialized === "true";
+            restoredScroll = [x, y];
+          },
+          setTimeout(callback) { callback(); },
+          sessionStorage: storage,
+        };
         globalThis.ResizeObserver = class {
           constructor(callback) { this.callback = callback; }
           observe() { this.callback(); }
@@ -1696,26 +1767,41 @@ def test_nested_report_tables_sort_independently_with_detail_rows(tmp_path: Path
           querySelector(selector) {
             return selector === ".top-nav" ? topNav : null;
           },
-          querySelectorAll(selector) {
-            if (selector === "table[data-sortable-table]") return tables;
-            if (selector === "tr.result-row[data-detail-row]") return [];
-            return [];
-          },
-          getElementById(id) { return details.get(id) || null; },
-        };
-        """
-        + sortable_js
-        + """
-        console.log(JSON.stringify({
+              querySelectorAll(selector) {
+                if (selector === "table[data-sortable-table]") return tables;
+                if (selector === "tr.result-row[data-detail-row]") return [restoredRow];
+                if (selector === "details[data-section-id]") {
+                  return [collapsedSection, nestedSection];
+                }
+                if (selector === "tr.result-detail-row:not([hidden]) [data-exr-viewer]") {
+                  return [restoredViewer];
+                }
+                return [];
+              },
+              getElementById(id) { return details.get(id) || null; },
+              addEventListener() {},
+              baseURI: "https://example.test/run-0001/index.html",
+            };
+            """
+            + sortable_js
+            + """
+            await import(pathToFileURL(process.argv[2]).href);
+            await new Promise((resolve) => setTimeout(resolve, 0));
+            console.log(JSON.stringify({
           rows: tables.map((table) => table.tBodies[0].rows.map((row) => row.id)),
-          stickyTop: rootStyle["--report-sticky-top"],
-        }));
+              stickyTop: rootStyle["--report-sticky-top"],
+              restoredScroll,
+              viewerInitializedAtScroll,
+              expanded: restoredRow.expanded,
+              detailHidden: restoredDetail.hidden,
+              sectionOpen: [collapsedSection.open, nestedSection.open],
+            }));
         """,
         encoding="utf-8",
     )
 
     completed = subprocess.run(
-        ["node", str(script)],
+        ["node", str(script), str(viewer_module)],
         check=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -1724,10 +1810,15 @@ def test_nested_report_tables_sort_independently_with_detail_rows(tmp_path: Path
 
     assert json.loads(completed.stdout) == {
         "rows": [
-            ["first-high", "first-high-detail", "first-low", "first-low-detail"],
+            ["first-low", "first-low-detail", "first-high", "first-high-detail"],
             ["second-high", "second-high-detail", "second-low", "second-low-detail"],
         ],
         "stickyTop": "99px",
+        "restoredScroll": [0, 321],
+        "viewerInitializedAtScroll": True,
+        "expanded": "true",
+        "detailHidden": False,
+        "sectionOpen": [False, True],
     }
 
 
@@ -1754,6 +1845,8 @@ def test_report_select_all_controls_rows_across_section_tables(tmp_path: Path) -
         }
         const selectAll = control();
         const actions = control();
+        const thresholdButton = control();
+        const referenceButton = control();
         const rows = [control(), control(), control()];
         globalThis.window = { setTimeout };
         globalThis.document = {
@@ -1767,6 +1860,8 @@ def test_report_select_all_controls_rows_across_section_tables(tmp_path: Path) -
           querySelector(selector) {
             if (selector === "[data-select-all]") return selectAll;
             if (selector === "[data-selection-actions]") return actions;
+            if (selector === "[data-update-threshold]") return thresholdButton;
+            if (selector === "[data-update-reference]") return referenceButton;
             return null;
           },
           querySelectorAll(selector) {
@@ -1785,6 +1880,8 @@ def test_report_select_all_controls_rows_across_section_tables(tmp_path: Path) -
           actionsHidden: actions.hidden,
           selectAllChecked: selectAll.checked,
           selectAllIndeterminate: selectAll.indeterminate,
+          thresholdLabel: thresholdButton.textContent,
+          referenceLabel: referenceButton.textContent,
         }));
         """,
         encoding="utf-8",
@@ -1803,6 +1900,196 @@ def test_report_select_all_controls_rows_across_section_tables(tmp_path: Path) -
         "actionsHidden": False,
         "selectAllChecked": True,
         "selectAllIndeterminate": False,
+        "thresholdLabel": "Update threshold (3)",
+        "referenceLabel": "Update reference (3)",
+    }
+
+
+def test_report_row_action_targets_only_its_row_and_preserves_ui_state(
+    tmp_path: Path,
+) -> None:
+    if shutil.which("node") is None:
+        pytest.skip("node is required to validate report row actions")
+
+    viewer_js = (
+        Path(__file__).resolve().parents[1]
+        / "typhoon_tests"
+        / "static"
+        / "typhoon-exr-viewer.js"
+    )
+    viewer_module = tmp_path / "typhoon-exr-viewer.mjs"
+    viewer_module.write_text(viewer_js.read_text(encoding="utf-8"), encoding="utf-8")
+    script = tmp_path / "report-row-action-test.mjs"
+    script.write_text(
+        """
+        import { pathToFileURL } from "node:url";
+        function control(dataset, checked = false) {
+          return {
+            dataset,
+            checked,
+            disabled: false,
+            handlers: {},
+            addEventListener(name, handler) { this.handlers[name] = handler; },
+          };
+        }
+        const selectedControl = control({
+          caseId: "selected-case", suite: "sample", key: "selected",
+          usdPath: "/selected.usda", referencePath: "/selected.png",
+          renderPath: "/selected.exr", flipMean: "0.4",
+        }, true);
+        const rowControl = control({
+          caseId: "target-case", suite: "sample", key: "target",
+          usdPath: "/target.usda", referencePath: "/target.png",
+          renderPath: "/target.exr", flipMean: "0.2",
+        });
+        const detailStatus = { textContent: "" };
+        const detailActions = {
+          querySelector(selector) {
+            return selector === "[data-detail-action-status]" ? detailStatus : null;
+          },
+        };
+        const resultRow = {
+          querySelector(selector) {
+            return selector === "[data-result-select]" ? rowControl : null;
+          },
+        };
+        const detailRow = { previousElementSibling: resultRow };
+        function rowButton() {
+          const button = control({});
+          button.closest = (selector) => {
+            if (selector === "tr.result-detail-row") return detailRow;
+            if (selector === ".detail-actions") return detailActions;
+            return null;
+          };
+          return button;
+        }
+        const thresholdRowButton = rowButton();
+        const referenceRowButton = rowButton();
+        const sortButton = {
+          dataset: { sortColumn: "2", sortDirection: "desc" },
+        };
+        const table = {
+          dataset: { sortTableKey: "sample/surfaces" },
+          querySelector: () => sortButton,
+        };
+        const expandedRow = { dataset: { caseId: "target-case" } };
+        let storedState = null;
+        const requests = [];
+        let reloadCount = 0;
+        let storageBlocked = false;
+        const storage = {
+          setItem(_key, value) { storedState = JSON.parse(value); },
+        };
+        globalThis.fetch = async (endpoint, options) => {
+          requests.push({ endpoint, body: JSON.parse(options.body) });
+          return { ok: true, status: 200, async json() { return { ok: true, updated: 1 }; } };
+        };
+        globalThis.window = {
+          location: {
+            pathname: "/run-0001/index.html",
+            href: "https://example.test/run-0001/index.html",
+            reload() { reloadCount += 1; },
+          },
+          scrollX: 7,
+          scrollY: 413,
+          setTimeout(callback) { callback(); },
+        };
+        Object.defineProperty(window, "sessionStorage", {
+          get() {
+            if (storageBlocked) throw new DOMException("blocked", "SecurityError");
+            return storage;
+          },
+        });
+        globalThis.document = {
+          baseURI: "https://example.test/run-0001/index.html",
+          querySelector() { return null; },
+          querySelectorAll(selector) {
+            if (selector === "[data-row-update-threshold]") return [thresholdRowButton];
+            if (selector === "[data-row-update-reference]") return [referenceRowButton];
+            if (selector === "[data-result-select]") return [selectedControl, rowControl];
+            if (selector === "[data-result-select]:checked") return [selectedControl];
+            if (selector === "table[data-sortable-table]") return [table];
+            if (selector === 'tr.result-row[aria-expanded="true"]') return [expandedRow];
+            return [];
+          },
+          getElementById() { return null; },
+          addEventListener() {},
+        };
+        await import(pathToFileURL(process.argv[2]).href);
+        thresholdRowButton.handlers.click({ preventDefault() {}, stopPropagation() {} });
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        storageBlocked = true;
+        referenceRowButton.handlers.click({ preventDefault() {}, stopPropagation() {} });
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        console.log(JSON.stringify({
+          requests,
+          storedState,
+          status: detailStatus.textContent,
+          reloadCount,
+        }));
+        """,
+        encoding="utf-8",
+    )
+
+    completed = subprocess.run(
+        ["node", str(script), str(viewer_module)],
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+
+    assert json.loads(completed.stdout) == {
+        "requests": [
+            {
+                "endpoint": "/__typhoon__/thresholds",
+                "body": {
+                    "run": "/run-0001/",
+                    "rows": [
+                        {
+                            "suite": "sample",
+                            "key": "target",
+                            "usd": "/target.usda",
+                            "reference": "/target.png",
+                            "render": "/target.exr",
+                            "flipMean": "0.2",
+                        }
+                    ],
+                },
+            },
+            {
+                "endpoint": "/__typhoon__/references",
+                "body": {
+                    "run": "/run-0001/",
+                    "rows": [
+                        {
+                            "suite": "sample",
+                            "key": "target",
+                            "usd": "/target.usda",
+                            "reference": "/target.png",
+                            "render": "/target.exr",
+                            "flipMean": "0.2",
+                        }
+                    ],
+                },
+            },
+        ],
+        "storedState": {
+            "sorts": [
+                {
+                    "key": "sample/surfaces",
+                    "column": 2,
+                    "direction": "desc",
+                }
+            ],
+            "expanded": ["target-case"],
+            "selected": ["selected-case"],
+            "sections": {},
+            "scrollX": 7,
+            "scrollY": 413,
+        },
+        "status": "Updated 1 row; reloading...",
+        "reloadCount": 2,
     }
 
 

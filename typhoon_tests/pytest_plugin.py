@@ -890,6 +890,24 @@ def sortable_header(
 def sortable_table_script() -> str:
     return """  <script>
     (() => {
+      const reportStateKey = typeof window !== "undefined" && window.location
+        ? `typhoon-report-ui:${window.location.pathname}`
+        : "";
+      let restoredState = null;
+      if (reportStateKey) {
+        try {
+          const storage = window.sessionStorage;
+          restoredState = JSON.parse(storage.getItem(reportStateKey) || "null");
+          storage.removeItem(reportStateKey);
+        } catch (_error) {
+          restoredState = null;
+        }
+      }
+      const restoredSorts = new Map(
+        Array.isArray(restoredState?.sorts)
+          ? restoredState.sorts.map((item) => [item.key, item])
+          : []
+      );
       const topNav = typeof document.querySelector === "function"
         ? document.querySelector(".top-nav")
         : null;
@@ -914,8 +932,17 @@ def sortable_table_script() -> str:
         if (!tbody) continue;
         const buttons = table.querySelectorAll("th button[data-sort-column]");
         const initialButton = table.querySelector("th button[data-sort-direction]");
-        let activeColumn = initialButton ? Number(initialButton.dataset.sortColumn) : -1;
-        let activeDirection = initialButton?.dataset.sortDirection === "desc" ? -1 : 1;
+        const restoredSort = restoredSorts.get(table.dataset?.sortTableKey || "");
+        const restoredButton = restoredSort
+          ? Array.from(buttons).find(
+              (button) => Number(button.dataset.sortColumn) === Number(restoredSort.column)
+            )
+          : null;
+        const activeButton = restoredButton || initialButton;
+        let activeColumn = activeButton ? Number(activeButton.dataset.sortColumn) : -1;
+        let activeDirection = restoredButton
+          ? (restoredSort.direction === "desc" ? -1 : 1)
+          : (initialButton?.dataset.sortDirection === "desc" ? -1 : 1);
         const readValue = (row, column, type) => {
           const cell = row.cells[column];
           if (!cell) return "";
@@ -959,10 +986,11 @@ def sortable_table_script() -> str:
           }
           tbody.append(...sortedRows);
         };
-        if (initialButton) {
+        if (activeButton) {
+          setSortDirection(activeButton, activeDirection);
           sortRows(
             activeColumn,
-            initialButton.dataset.sortType || "text",
+            activeButton.dataset.sortType || "text",
             activeDirection,
           );
         }
@@ -979,6 +1007,12 @@ def sortable_table_script() -> str:
         }
       }
       for (const row of document.querySelectorAll("tr.result-row[data-detail-row]")) {
+        if (Array.isArray(restoredState?.expanded)
+            && restoredState.expanded.includes(row.dataset.caseId || "")) {
+          const detail = document.getElementById(row.dataset.detailRow);
+          row.setAttribute("aria-expanded", "true");
+          if (detail) detail.hidden = false;
+        }
         row.addEventListener("click", (event) => {
           if (event.target.closest("a, button, input, select, textarea")) return;
           const detail = document.getElementById(row.dataset.detailRow);
@@ -987,6 +1021,22 @@ def sortable_table_script() -> str:
           row.setAttribute("aria-expanded", expanded ? "false" : "true");
           detail.hidden = expanded;
         });
+      }
+      if (Array.isArray(restoredState?.selected)) {
+        for (const checkbox of document.querySelectorAll("[data-result-select]")) {
+          checkbox.checked = restoredState.selected.includes(checkbox.dataset.caseId || "");
+        }
+      }
+      if (restoredState?.sections && typeof restoredState.sections === "object") {
+        for (const section of document.querySelectorAll("details[data-section-id]")) {
+          const sectionId = section.dataset.sectionId || "";
+          if (Object.hasOwn(restoredState.sections, sectionId)) {
+            section.open = restoredState.sections[sectionId] === true;
+          }
+        }
+      }
+      if (restoredState && typeof window !== "undefined") {
+        window.__typhoonRestoredReportState = restoredState;
       }
     })();
   </script>"""
@@ -1043,7 +1093,9 @@ def build_report_sections(
             parts.append(f"max FLIP {max(flip_values):.3f}")
         return " | ".join(parts)
 
-    def table_markup(rows: list[tuple[dict[str, Any], str]]) -> str:
+    def table_markup(
+        rows: list[tuple[dict[str, Any], str]], path: tuple[str, ...]
+    ) -> str:
         nonlocal table_count
         table_headers = headers
         if table_count:
@@ -1053,8 +1105,11 @@ def build_report_sections(
             )
         table_count += 1
         body = "".join(markup for _row, markup in rows)
+        table_key = html.escape(
+            json.dumps(path, separators=(",", ":")), quote=True
+        )
         return (
-            "<table data-sortable-table>"
+            f'<table data-sortable-table data-sort-table-key="{table_key}">'
             f"<thead><tr>{table_headers}</tr></thead>"
             f"<tbody>{body}</tbody>"
             "</table>"
@@ -1065,7 +1120,10 @@ def build_report_sections(
     ) -> str:
         escaped_name = html.escape(name, quote=True)
         escaped_path = html.escape("/".join(path), quote=True)
-        direct_table = table_markup(node["rows"]) if node["rows"] else ""
+        escaped_section_id = html.escape(
+            json.dumps(path, separators=(",", ":")), quote=True
+        )
+        direct_table = table_markup(node["rows"], path) if node["rows"] else ""
         children = "".join(
             section_markup(child_name, child, depth + 1, (*path, child_name))
             for child_name, child in sorted(node["children"].items())
@@ -1073,6 +1131,7 @@ def build_report_sections(
         section_class = "result-suite" if depth == 0 else "result-section"
         return (
             f"<details class=\"{section_class}\" data-section-path=\"{escaped_path}\" "
+            f"data-section-id=\"{escaped_section_id}\" "
             f"data-section-depth=\"{depth}\" "
             f"style=\"--section-offset: {depth * 44}px; "
             f"--table-header-offset: {(depth + 1) * 44}px; "
@@ -1252,13 +1311,19 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
             f'data-usd-path="{esc(usd_path)}" '
             f'data-camera-path="{esc(camera_path)}" '
             f'data-frame="{esc(frame)}">Open in usdview</button>'
-            '<span class="usdview-status" data-usdview-status></span>'
+            '<button type="button" class="report-action-button" '
+            'data-row-update-threshold>Update threshold</button>'
+            '<button type="button" class="report-action-button" '
+            'data-row-update-reference>Update reference</button>'
+            '<span class="usdview-status" data-detail-action-status></span>'
             '</div>'
         )
 
     def selection_cell(row: dict[str, Any]) -> str:
+        case_id = report_case_id(row)
         return (
             '<input type="checkbox" data-result-select '
+            f'data-case-id="{esc(case_id)}" '
             f'data-suite="{esc(row.get("suite") or "")}" '
             f'data-key="{esc(row.get("key") or "")}" '
             f'data-usd-path="{esc(row.get("usd") or "")}" '
@@ -1321,6 +1386,7 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
         row_id = f"result-row-{index}"
         detail_id = f"result-detail-{index}"
         escaped_key = esc(row.get("key", ""))
+        escaped_case_id = esc(report_case_id(row))
         thumbnails = thumbnail_markup(row, escaped_key)
         detail_content = usdview_action_markup(row) + viewer_markup(row, escaped_key)
         render_output = rel_field(row, "render_output") or rel_field(row, "render_image")
@@ -1347,6 +1413,7 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
             (
                 row,
                 f'<tr id="{row_id}" class="result-row" data-detail-row="{detail_id}" '
+                f'data-case-id="{escaped_case_id}" '
                 f'aria-expanded="false">'
                 + "".join(cells)
                 + "</tr>"

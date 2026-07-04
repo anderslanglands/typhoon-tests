@@ -553,15 +553,20 @@ function initializeRunComparisonControls() {
 }
 
 
+export function reportRowFromControl(control) {
+  return {
+    suite: control.dataset.suite || "",
+    key: control.dataset.key || "",
+    usd: control.dataset.usdPath || "",
+    reference: control.dataset.referencePath || "",
+    render: control.dataset.renderPath || "",
+    flipMean: control.dataset.flipMean || "",
+  };
+}
+
 function selectedReportRows() {
-  return Array.from(document.querySelectorAll("[data-result-select]:checked")).map((checkbox) => ({
-    suite: checkbox.dataset.suite || "",
-    key: checkbox.dataset.key || "",
-    usd: checkbox.dataset.usdPath || "",
-    reference: checkbox.dataset.referencePath || "",
-    render: checkbox.dataset.renderPath || "",
-    flipMean: checkbox.dataset.flipMean || "",
-  }));
+  return Array.from(document.querySelectorAll("[data-result-select]:checked"))
+    .map(reportRowFromControl);
 }
 
 function currentRunPath() {
@@ -573,11 +578,63 @@ function setReportActionStatus(message) {
   if (status) status.textContent = message || "";
 }
 
+function setActionStatus(status, message) {
+  if (status) {
+    status.textContent = message || "";
+  } else {
+    setReportActionStatus(message);
+  }
+}
+
+function reportUiStateKey() {
+  return `typhoon-report-ui:${window.location.pathname}`;
+}
+
+export function captureReportUiState() {
+  const sorts = [];
+  for (const table of document.querySelectorAll("table[data-sortable-table]")) {
+    const button = table.querySelector("th button[data-sort-direction]");
+    if (!button) continue;
+    sorts.push({
+      key: table.dataset.sortTableKey || "",
+      column: Number(button.dataset.sortColumn),
+      direction: button.dataset.sortDirection === "desc" ? "desc" : "asc",
+    });
+  }
+  const expanded = Array.from(
+    document.querySelectorAll('tr.result-row[aria-expanded="true"]')
+  ).map((row) => row.dataset.caseId || "").filter(Boolean);
+  const selected = Array.from(
+    document.querySelectorAll("[data-result-select]:checked")
+  ).map((checkbox) => checkbox.dataset.caseId || "").filter(Boolean);
+  const sections = {};
+  for (const section of document.querySelectorAll("details[data-section-id]")) {
+    sections[section.dataset.sectionId || ""] = section.open === true;
+  }
+  try {
+    const storage = window.sessionStorage;
+    storage.setItem(reportUiStateKey(), JSON.stringify({
+      sorts,
+      expanded,
+      selected,
+      sections,
+      scrollX: window.scrollX || 0,
+      scrollY: window.scrollY || 0,
+    }));
+  } catch (_error) {
+    // Reloading still works when browser storage is unavailable.
+  }
+}
+
 function updateSelectionControls() {
   const checkboxes = Array.from(document.querySelectorAll("[data-result-select]"));
   const selected = checkboxes.filter((checkbox) => checkbox.checked);
   const actions = document.querySelector("[data-selection-actions]");
   if (actions) actions.hidden = selected.length === 0;
+  const thresholdButton = document.querySelector("[data-update-threshold]");
+  if (thresholdButton) thresholdButton.textContent = `Update threshold (${selected.length})`;
+  const referenceButton = document.querySelector("[data-update-reference]");
+  if (referenceButton) referenceButton.textContent = `Update reference (${selected.length})`;
   const selectAll = document.querySelector("[data-select-all]");
   if (selectAll) {
     selectAll.checked = checkboxes.length > 0 && selected.length === checkboxes.length;
@@ -586,11 +643,16 @@ function updateSelectionControls() {
   if (selected.length === 0) setReportActionStatus("");
 }
 
-async function runReportAction(endpoint, button, actionLabel) {
-  const rows = selectedReportRows();
+async function runReportAction(
+  endpoint,
+  button,
+  actionLabel,
+  rows = selectedReportRows(),
+  status = null,
+) {
   if (!rows.length) return;
   button.disabled = true;
-  setReportActionStatus(`${actionLabel}...`);
+  setActionStatus(status, `${actionLabel}...`);
   try {
     const response = await fetch(endpoint, {
       method: "POST",
@@ -607,10 +669,14 @@ async function runReportAction(endpoint, button, actionLabel) {
       throw new Error(body.error || `HTTP ${response.status}`);
     }
     const count = body.updated ?? rows.length;
-    setReportActionStatus(`Updated ${count} row${count === 1 ? "" : "s"}; reloading...`);
+    captureReportUiState();
+    setActionStatus(
+      status,
+      `Updated ${count} row${count === 1 ? "" : "s"}; reloading...`,
+    );
     window.setTimeout(() => window.location.reload(), 250);
   } catch (error) {
-    setReportActionStatus(`Failed: ${error.message || error}`);
+    setActionStatus(status, `Failed: ${error.message || error}`);
     button.disabled = false;
   }
 }
@@ -644,6 +710,37 @@ function initializeSelectionControls() {
       runReportAction("/__typhoon__/references", referenceButton, "Updating references");
     });
   }
+  const initializeRowAction = (selector, endpoint, actionLabel) => {
+    for (const button of document.querySelectorAll(selector)) {
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const detail = button.closest("tr.result-detail-row");
+        const resultRow = detail?.previousElementSibling;
+        const control = resultRow?.querySelector("[data-result-select]");
+        if (!control) return;
+        const status = button.closest(".detail-actions")
+          ?.querySelector("[data-detail-action-status]");
+        runReportAction(
+          endpoint,
+          button,
+          actionLabel,
+          [reportRowFromControl(control)],
+          status,
+        );
+      });
+    }
+  };
+  initializeRowAction(
+    "[data-row-update-threshold]",
+    "/__typhoon__/thresholds",
+    "Updating threshold",
+  );
+  initializeRowAction(
+    "[data-row-update-reference]",
+    "/__typhoon__/references",
+    "Updating reference",
+  );
   updateSelectionControls();
 }
 
@@ -672,7 +769,7 @@ for (const row of document.querySelectorAll("tr.result-row[data-detail-row]")) {
 
 async function openUsdview(button) {
   const actions = button.closest(".detail-actions");
-  const status = actions ? actions.querySelector("[data-usdview-status]") : null;
+  const status = actions ? actions.querySelector("[data-detail-action-status]") : null;
   const payload = {
     usd: button.dataset.usdPath || "",
     camera: button.dataset.cameraPath || "",
@@ -711,6 +808,30 @@ for (const button of document.querySelectorAll("[data-usdview-open]")) {
   });
 }
 
+async function restoreReportViewport() {
+  const state = window.__typhoonRestoredReportState;
+  if (!state) return;
+  const viewers = Array.from(
+    document.querySelectorAll(
+      "tr.result-detail-row:not([hidden]) [data-exr-viewer]"
+    )
+  );
+  await Promise.all(viewers.map((viewer) => initializeViewer(viewer)));
+  const nextFrame = () => new Promise((resolve) => {
+    if (typeof window.requestAnimationFrame === "function") {
+      window.requestAnimationFrame(resolve);
+    } else {
+      window.setTimeout(resolve, 0);
+    }
+  });
+  await nextFrame();
+  await nextFrame();
+  if (typeof window.scrollTo === "function") {
+    window.scrollTo(Number(state.scrollX) || 0, Number(state.scrollY) || 0);
+  }
+  delete window.__typhoonRestoredReportState;
+}
+
 document.addEventListener("keydown", (event) => {
   if (!hoveredViewer) return;
   if (event.key === "1") {
@@ -727,6 +848,7 @@ document.addEventListener("keydown", (event) => {
 
 initializeRunComparisonControls();
 initializeSelectionControls();
+restoreReportViewport();
 
 const thumbnailStrips = Array.from(document.querySelectorAll("[data-thumbnail-viewer]"));
 if ("IntersectionObserver" in window) {
