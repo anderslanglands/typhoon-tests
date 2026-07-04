@@ -1,9 +1,9 @@
 {
   "groups": {
     "material-fidelity/surfaces/open_pbr_surface": {
-      "archive": "material-fidelity--surfaces--open_pbr_surface--70b7f6d61a43.zip",
-      "archive_sha256": "c9fd5f5c0f74f1b279698ea66b7cd7b89876d2537cb77b6b2666fb6e9a5acc25",
-      "archive_size": 95395639,
+      "archive": "material-fidelity--surfaces--open_pbr_surface--35a7e5a696ae.zip",
+      "archive_sha256": "054f666d26b0eb47b0bec4a7e34328153039f3c881958f25ae0450ec6398eb67",
+      "archive_size": 113422033,
       "files": [
         {
           "path": "material-fidelity/reference/surfaces/open_pbr_surface/brushed_metal_anisotropy.exr",
@@ -96,9 +96,9 @@
           "size": 501964
         },
         {
-          "path": "material-fidelity/reference/surfaces/open_pbr_surface/input_base_weight_materialx-osl.png",
-          "sha256": "c97f2d80ff73b78377e7117fea57b5f5b722b91c4da75029252c1e981b74ff1e",
-          "size": 525813
+          "path": "material-fidelity/reference/surfaces/open_pbr_surface/input_base_weight.exr",
+          "sha256": "e00102e8e2f5e3d2735bfc9855062457ab45c1c048d8d5df11b34e8a50e8885b",
+          "size": 2774085
         },
         {
           "path": "material-fidelity/reference/surfaces/open_pbr_surface/input_coat_darkening.exr",
@@ -111,14 +111,14 @@
           "size": 2773126
         },
         {
-          "path": "material-fidelity/reference/surfaces/open_pbr_surface/input_fuzz_sheenlike_materialx-osl.png",
-          "sha256": "bd2c4feec348e09d77901164e517a4216d135e3cdc3e7e0bbe90164646472625",
-          "size": 524581
+          "path": "material-fidelity/reference/surfaces/open_pbr_surface/input_fuzz_sheenlike.exr",
+          "sha256": "9f0cb87297ae08779a18c2543674f14fdf2c7f6a882c087fa40aaab92fa7486d",
+          "size": 2774173
         },
         {
-          "path": "material-fidelity/reference/surfaces/open_pbr_surface/input_specular_weight_materialx-osl.png",
-          "sha256": "a791bf2622575de183463e8b1909e26472e8535e58210bec02994349bcdb49bb",
-          "size": 449501
+          "path": "material-fidelity/reference/surfaces/open_pbr_surface/input_specular_weight.exr",
+          "sha256": "7b3b12e09884554e50bef4433a8eeb251665df35187c358c96750274d3632ba1",
+          "size": 2774437
         },
         {
           "path": "material-fidelity/reference/surfaces/open_pbr_surface/input_subsurface_radius_materialx-osl.png",
@@ -221,29 +221,29 @@
           "size": 2773732
         },
         {
-          "path": "material-fidelity/reference/surfaces/open_pbr_surface/open_pbr_surface_sweep_fuzz_roughness_0_00_materialx-osl.png",
-          "sha256": "6845841fcb9a68cd7224c026634de264f814932ab6362af9253d6ad750731ca8",
-          "size": 531683
+          "path": "material-fidelity/reference/surfaces/open_pbr_surface/open_pbr_surface_sweep_fuzz_roughness_0_00.exr",
+          "sha256": "2abbbd79979c9bdec91b0e1133b6d49ce00cda459043a78f999660ab28c61cf7",
+          "size": 2773628
         },
         {
-          "path": "material-fidelity/reference/surfaces/open_pbr_surface/open_pbr_surface_sweep_fuzz_roughness_0_25_materialx-osl.png",
-          "sha256": "c2c17646c1d42a439449207e6e4a23cd201f1a0cedd1f842a03d3a182841b564",
-          "size": 532948
+          "path": "material-fidelity/reference/surfaces/open_pbr_surface/open_pbr_surface_sweep_fuzz_roughness_0_25.exr",
+          "sha256": "72b30b4839fb82b6c6795a469dfbd89ab230f91044f0bbdf3b03cefcc269443b",
+          "size": 2773593
         },
         {
-          "path": "material-fidelity/reference/surfaces/open_pbr_surface/open_pbr_surface_sweep_fuzz_roughness_0_50_materialx-osl.png",
-          "sha256": "5466b91cb0526f6aa6cd5551ae68ded820bc8e8cd2f62c7897fdd00456f468c9",
-          "size": 533178
+          "path": "material-fidelity/reference/surfaces/open_pbr_surface/open_pbr_surface_sweep_fuzz_roughness_0_50.exr",
+          "sha256": "176954dff491a50fe47ceafee6c56bcee0ebfd0aea2acbd1d558553a39f6d0c7",
+          "size": 2774183
         },
         {
-          "path": "material-fidelity/reference/surfaces/open_pbr_surface/open_pbr_surface_sweep_fuzz_roughness_0_75_materialx-osl.png",
-          "sha256": "c89684cbda06e1963d0dde576d2cbbf53859c15fd7302b188f03423684e24cae",
-          "size": 533496
+          "path": "material-fidelity/reference/surfaces/open_pbr_surface/open_pbr_surface_sweep_fuzz_roughness_0_75.exr",
+          "sha256": "e46f9d549fc31edd25e462486a0ab00bac8a68fa262f1fa5d5863c9ac618c6a0",
+          "size": 2773291
         },
         {
-          "path": "material-fidelity/reference/surfaces/open_pbr_surface/open_pbr_surface_sweep_fuzz_roughness_1_00_materialx-osl.png",
-          "sha256": "57dd89d8c5b308f2211b09f071dbafdbd75e5e24f7993ed4699304237473461e",
-          "size": 533372
+          "path": "material-fidelity/reference/surfaces/open_pbr_surface/open_pbr_surface_sweep_fuzz_roughness_1_00.exr",
+          "sha256": "512c7e942f03610f17e01dd978433ff505baac544329016e301d11f0d8509bda",
+          "size": 2773800
         },
         {
           "path": "material-fidelity/reference/surfaces/open_pbr_surface/open_pbr_surface_sweep_fuzz_weight_0_00_materialx-osl.png",
@@ -396,7 +396,7 @@
           "size": 410969
         }
       ],
-      "release": "reference-data-20260704T212324Z-ef4c9f0a-dc5e916d"
+      "release": "reference-data-20260704T225341Z-4b2ed1c2-9ab4a988"
     },
     "materialx": {
       "archive": "materialx--4e54f0e02666.zip",
