@@ -2096,72 +2096,72 @@
       "release": "reference-data-20260705T191248Z-4aaab91e-73b82164"
     },
     "material-fidelity/nodes/pbr": {
-      "archive": "material-fidelity--nodes--pbr--a4659579df3f.zip",
-      "archive_sha256": "4755f17042d89c085bcf5ff81b2fd9bd4f5ba7abb48d37bb0eb428dcaa52611a",
-      "archive_size": 5530738,
+      "archive": "material-fidelity--nodes--pbr--d3f2b8b5b97a.zip",
+      "archive_sha256": "a26c6cf9f62c382d2f20bf0d950c7f4fdd1f641e62225f0a6daab18f5afcdc30",
+      "archive_size": 33272800,
       "files": [
         {
-          "path": "material-fidelity/reference/nodes/pbr/artistic_ior_aluminium_materialx-osl.png",
-          "sha256": "a8dade73ed4c63b9052be69e0b67b6c41438b5b21c995aac89f6e35d0e4f9a5d",
-          "size": 487393
+          "path": "material-fidelity/reference/nodes/pbr/artistic_ior.exr",
+          "sha256": "b18568a69f6c38ff559fdc04b0fb6d9c469bfc6936b03c7f501a0dd5349a96a3",
+          "size": 2773847
         },
         {
-          "path": "material-fidelity/reference/nodes/pbr/artistic_ior_copper_materialx-osl.png",
-          "sha256": "bd348a69cc5006d83767eddd88a6db5a8d5dd4726854c598ca2bc42f211702ea",
-          "size": 474571
+          "path": "material-fidelity/reference/nodes/pbr/artistic_ior_aluminium.exr",
+          "sha256": "e9b1b29784dae3d69f1bf1b70427792d2aa6ac4a2147518c96259c69c2293b11",
+          "size": 2772360
         },
         {
-          "path": "material-fidelity/reference/nodes/pbr/artistic_ior_diag_green_only_materialx-osl.png",
-          "sha256": "d6fea319e9b479b75fe07e4190ef5c187ac7c0a087ae240393d132d8edba81e5",
-          "size": 482153
+          "path": "material-fidelity/reference/nodes/pbr/artistic_ior_copper.exr",
+          "sha256": "c8f78d8792d0fb358d4ba05ad6da8fee3449e5b4db44affc59a927df2ca011bb",
+          "size": 2773030
         },
         {
-          "path": "material-fidelity/reference/nodes/pbr/artistic_ior_diag_high_reflectivity_materialx-osl.png",
-          "sha256": "b21b2ee03a39a4dda93efb164e77ef5da16af14f8858cc7b2b9186f6a51048e4",
-          "size": 307072
+          "path": "material-fidelity/reference/nodes/pbr/artistic_ior_diag_green_only.exr",
+          "sha256": "420ffc644cdcbfaadc0d7bc3043e0fbb6efa9704dbf7f706f1b3e065f11de761",
+          "size": 2773424
         },
         {
-          "path": "material-fidelity/reference/nodes/pbr/artistic_ior_diag_low_reflectivity_materialx-osl.png",
-          "sha256": "e062bde329d649b9662921f312278021d17a51bc573c65bac0e3888b20404ce8",
-          "size": 496023
+          "path": "material-fidelity/reference/nodes/pbr/artistic_ior_diag_high_reflectivity.exr",
+          "sha256": "808404ffe247e39a2e822562a47f96b329ebc4df39cee2da4aed938726790487",
+          "size": 2775025
         },
         {
-          "path": "material-fidelity/reference/nodes/pbr/artistic_ior_diag_red_red_edge_materialx-osl.png",
-          "sha256": "e2e4b21a924ca20a6830fb279f798e35fac5e49a46e7d66aba293e26f1f98192",
-          "size": 495610
+          "path": "material-fidelity/reference/nodes/pbr/artistic_ior_diag_low_reflectivity.exr",
+          "sha256": "6135ed0976d3070a699783512646ef905012632f9b42f2dc50d5c8f9bf970d57",
+          "size": 2772135
         },
         {
-          "path": "material-fidelity/reference/nodes/pbr/artistic_ior_diag_red_white_edge_materialx-osl.png",
-          "sha256": "afd72908880dd11d3b78768e32090fa97356780eb5ffc556098d6ee85afdcf05",
-          "size": 489480
+          "path": "material-fidelity/reference/nodes/pbr/artistic_ior_diag_red_red_edge.exr",
+          "sha256": "a50a659a4c2d6dbbf44b70bfd7b0d1aed2d9b770bade083bbb71d2a4b6c28b71",
+          "size": 2773109
         },
         {
-          "path": "material-fidelity/reference/nodes/pbr/artistic_ior_diag_unobtainium_materialx-osl.png",
-          "sha256": "1f9d887095715ffc0978f85d2d06c9edd32e408bff658d38d33d9fa01101917b",
-          "size": 490931
+          "path": "material-fidelity/reference/nodes/pbr/artistic_ior_diag_red_white_edge.exr",
+          "sha256": "65511be53c347d27d5546683c083768c9499b1e39750cef2c17f9dec4bc41e38",
+          "size": 2773531
         },
         {
-          "path": "material-fidelity/reference/nodes/pbr/artistic_ior_gold_materialx-osl.png",
-          "sha256": "4372f1dad849487961072aa73e9a89837d66b0b1baae68567f0933ef76d96ab4",
-          "size": 491471
+          "path": "material-fidelity/reference/nodes/pbr/artistic_ior_diag_unobtainium.exr",
+          "sha256": "b2a5362c819b1a0287b01556f775e95e97fd921c169a7818a6db89f6d4907629",
+          "size": 2773223
         },
         {
-          "path": "material-fidelity/reference/nodes/pbr/artistic_ior_materialx-osl.png",
-          "sha256": "be510ddd320657b762aac499c2a974f5abf7d5535066e8d34d71a825cd3c4fcf",
-          "size": 469491
+          "path": "material-fidelity/reference/nodes/pbr/artistic_ior_gold.exr",
+          "sha256": "419ac850223b9a7e8827c3acd152a92e22b0d24f37b8a4b42de7a29f7adaef2c",
+          "size": 2772313
         },
         {
-          "path": "material-fidelity/reference/nodes/pbr/artistic_ior_silver_materialx-osl.png",
-          "sha256": "47ba8822c4f2ff484cc06705ba4437d95aa81d4bbfd70a863c8276dff5968e4b",
-          "size": 440428
+          "path": "material-fidelity/reference/nodes/pbr/artistic_ior_silver.exr",
+          "sha256": "f6089364bfbcb7c7f2b215508519b92f4809b81bb3f87c6d058c7f9b40b58964",
+          "size": 2771204
         },
         {
-          "path": "material-fidelity/reference/nodes/pbr/blackbody_materialx-osl.png",
-          "sha256": "336ff5b95d3de6161a62ebbe6ce80f9783fc541855055c0cf7d8560e3ae7527b",
-          "size": 403265
+          "path": "material-fidelity/reference/nodes/pbr/blackbody.exr",
+          "sha256": "36d7d6b4fd332ae795900fc034191934a1a4d5aa86bddc286f78683f588a1e0c",
+          "size": 2767085
         }
       ],
-      "release": "reference-data-20260705T025545Z-272cd207-a1eabdf9"
+      "release": "reference-data-20260705T192256Z-18af9443-137646a8"
     },
     "material-fidelity/nodes/procedurals": {
       "archive": "material-fidelity--nodes--procedurals--045a96508dce.zip",
