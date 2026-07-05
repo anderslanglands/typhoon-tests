@@ -877,9 +877,9 @@
       "release": "reference-data-20260705T063325Z-2ac63e9f-4fb56078"
     },
     "material-fidelity/nodes/math": {
-      "archive": "material-fidelity--nodes--math--880d3accbaf2.zip",
-      "archive_sha256": "f71eeddad45654bd3632bef048deccf33c2dd0bb1ea1db1f610da01787be10ab",
-      "archive_size": 64930791,
+      "archive": "material-fidelity--nodes--math--2324112a321c.zip",
+      "archive_sha256": "ddb0e5e64258bf2b830f840b1cd184cb024c7843b5420c004689f8ae9dce38c6",
+      "archive_size": 69465040,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/math/absval_materialx-osl.png",
@@ -977,9 +977,9 @@
           "size": 490354
         },
         {
-          "path": "material-fidelity/reference/nodes/math/convert_invalid_implicit_integer_to_boolean_materialx-osl.png",
-          "sha256": "70a960393a3471c2d5dc2a34f9092779cd9bf3722b21b1d6afd0bd1d947821bb",
-          "size": 509034
+          "path": "material-fidelity/reference/nodes/math/convert_invalid_implicit_integer_to_boolean.exr",
+          "sha256": "79b855c7239a01515a0e7f7d9a0f3e687983ba6e27673cca1339fc1a75ab8f2d",
+          "size": 2772857
         },
         {
           "path": "material-fidelity/reference/nodes/math/convert_invalid_implicit_integer_to_color3_materialx-osl.png",
@@ -1102,9 +1102,9 @@
           "size": 517238
         },
         {
-          "path": "material-fidelity/reference/nodes/math/matrix33_creatematrix_materialx-osl.png",
-          "sha256": "7553ec25035fb7e6450dfb542f873afae09c040ad4921b38e91e80b8079f3e76",
-          "size": 503075
+          "path": "material-fidelity/reference/nodes/math/matrix33_creatematrix.exr",
+          "sha256": "e9b0fa8f27e959e334390c5caa3657c7bfd2232e97c6ef76f566ea17281714a6",
+          "size": 2773557
         },
         {
           "path": "material-fidelity/reference/nodes/math/matrix33_determinant_materialx-osl.png",
@@ -1537,7 +1537,7 @@
           "size": 518215
         }
       ],
-      "release": "reference-data-20260705T025545Z-272cd207-a1eabdf9"
+      "release": "reference-data-20260705T074921Z-0db784c2-d56c72c7"
     },
     "material-fidelity/nodes/noise": {
       "archive": "material-fidelity--nodes--noise--3b7d82e2cba8.zip",
