@@ -1,9 +1,9 @@
 {
   "groups": {
     "material-fidelity/surfaces/open_pbr_surface": {
-      "archive": "material-fidelity--surfaces--open_pbr_surface--b48023e45a4d.zip",
-      "archive_sha256": "086af5f6f81a009938c4a9a32d7f10d12675e275304aa9797e93c5382cdfab8e",
-      "archive_size": 124638377,
+      "archive": "material-fidelity--surfaces--open_pbr_surface--2f6c27066b7f.zip",
+      "archive_sha256": "ae12f00cbaffcc265d8c4f601f9fd35562de24ea1cc3a0cc5ab8c663214cf070",
+      "archive_size": 126407384,
       "files": [
         {
           "path": "material-fidelity/reference/surfaces/open_pbr_surface/brushed_metal_anisotropy.exr",
@@ -26,9 +26,9 @@
           "size": 2774256
         },
         {
-          "path": "material-fidelity/reference/surfaces/open_pbr_surface/feature_emission_materialx-osl.png",
-          "sha256": "3fd3f5887def19166d8021e0e95c6d40628b737c794bbafe196a0f1027262362",
-          "size": 511851
+          "path": "material-fidelity/reference/surfaces/open_pbr_surface/feature_emission.exr",
+          "sha256": "3d0dabeaca0c2c49be14df9c281e58e28aaecc0ba7a4872760c92c8a18c72409",
+          "size": 2772813
         },
         {
           "path": "material-fidelity/reference/surfaces/open_pbr_surface/feature_fuzz.exr",
@@ -391,7 +391,7 @@
           "size": 410969
         }
       ],
-      "release": "reference-data-20260704T231211Z-9e226fc4-5c39ecaa"
+      "release": "reference-data-20260705T001302Z-2643e54a-4f6bb9d2"
     },
     "materialx": {
       "archive": "materialx--4e54f0e02666.zip",
