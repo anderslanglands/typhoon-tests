@@ -122,247 +122,247 @@
       "release": "reference-data-20260705T050001Z-161b428f-4458e48b"
     },
     "material-fidelity/nodes/channel": {
-      "archive": "material-fidelity--nodes--channel--16f6c603b9ef.zip",
-      "archive_sha256": "df7d5d7d6083d31e50e67d2cef499dca9dcaed42657e763967ce01518ed037b5",
-      "archive_size": 23357322,
+      "archive": "material-fidelity--nodes--channel--5279d636c119.zip",
+      "archive_sha256": "550eb2a5c32cecc969da000967030d6c823b1f1b38277070153aa6d8b1ebe693",
+      "archive_size": 130380025,
       "files": [
         {
-          "path": "material-fidelity/reference/nodes/channel/combine2_materialx-osl.png",
-          "sha256": "828dc9fe4941cde96ec729bc7d8ac83b7e94520b7e34b17bbfab43e3bf232fcb",
-          "size": 525723
+          "path": "material-fidelity/reference/nodes/channel/combine2.exr",
+          "sha256": "b7bb91ebc5c1d8b9587cc94f0a68adf64e8d3cbb2bff10d483a9587027c4956e",
+          "size": 2773738
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/combine3_materialx-osl.png",
-          "sha256": "21e414d806cf5087d96e0485a32b2b04efc740de8dfaa2a2b3934d85d1d43a71",
-          "size": 499203
+          "path": "material-fidelity/reference/nodes/channel/combine3.exr",
+          "sha256": "195f7ecf112c1224d67f19934c979f84d2dbaed09c76d1c2632f2ca37b665ad2",
+          "size": 2773968
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/combine4_materialx-osl.png",
-          "sha256": "687361435b98eb9da9fd1af76685f15462a6e05baf68fffd8862b5d13f57fcdf",
-          "size": 518893
+          "path": "material-fidelity/reference/nodes/channel/combine4.exr",
+          "sha256": "5f8cb0b4dcc0fac05364b700e904f5e0e56079031c1fd554a6e9e9893fe1d53f",
+          "size": 2774185
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_boolean_to_color3_materialx-osl.png",
-          "sha256": "b9c2961a5eb657d9670806765dee41b9ab75b29145db73768ab9f4fd7db769f2",
-          "size": 447326
+          "path": "material-fidelity/reference/nodes/channel/convert.exr",
+          "sha256": "3a5ff074bc93610ed6b1321edd11312e5e6a356ced01ad98c0c49db10cf39d5e",
+          "size": 2773888
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_boolean_to_color4_materialx-osl.png",
-          "sha256": "b9c2961a5eb657d9670806765dee41b9ab75b29145db73768ab9f4fd7db769f2",
-          "size": 447326
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_boolean_to_color3.exr",
+          "sha256": "c61bdb5de4c9aad3b100b351de1a43848b3537fe3f40c6931e996a06a3a7cf53",
+          "size": 2773658
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_boolean_to_float_materialx-osl.png",
-          "sha256": "1045bffe6fe943977fea80d0a24e1fd2ad0eb0be48aefb0ef2ae956d76c12c93",
-          "size": 510699
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_boolean_to_color4.exr",
+          "sha256": "4ae9a6e5d9e5a3d7ded68625c988efd9cfb797ea5d69cfefa797314e0aa8b084",
+          "size": 2774195
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_boolean_to_integer_materialx-osl.png",
-          "sha256": "1045bffe6fe943977fea80d0a24e1fd2ad0eb0be48aefb0ef2ae956d76c12c93",
-          "size": 510699
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_boolean_to_float.exr",
+          "sha256": "7d9a625eedc58f05b8e18a8538c023fbca9bef74cbf2c75dce965bdcd9f19856",
+          "size": 2773783
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_boolean_to_vector2_materialx-osl.png",
-          "sha256": "18a41a9f5fca03a69d2bc8dbce21f1eb9b63fcd260909f97017bd909e9082712",
-          "size": 474358
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_boolean_to_integer.exr",
+          "sha256": "19377a1635bb660f50e74de34000abb8e93e519dee55ec27e67bafc38f3aee22",
+          "size": 2774226
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_boolean_to_vector3_materialx-osl.png",
-          "sha256": "b9c2961a5eb657d9670806765dee41b9ab75b29145db73768ab9f4fd7db769f2",
-          "size": 447326
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_boolean_to_vector2.exr",
+          "sha256": "5e5ee6692850fcb394b15ae29e059170776963585022086de9f72b5c150ba0e0",
+          "size": 2774196
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_boolean_to_vector4_materialx-osl.png",
-          "sha256": "b9c2961a5eb657d9670806765dee41b9ab75b29145db73768ab9f4fd7db769f2",
-          "size": 447326
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_boolean_to_vector3.exr",
+          "sha256": "e3d78aeb685369d976f55acfb0f16d16ad8b35e07972a665fd56f5e3cb63f7df",
+          "size": 2774056
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_color3_to_color4_materialx-osl.png",
-          "sha256": "2bafb3fbf234584ab72489b5380eb1773426c54f84f090ce0823f3f8d3791a66",
-          "size": 516730
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_boolean_to_vector4.exr",
+          "sha256": "0b89c7f6b5f4ed5ca4104d99309077c8cfce6de15aa225df76ccf129e291005e",
+          "size": 2774176
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_color3_to_vector2_materialx-osl.png",
-          "sha256": "b8fce8e37befd86ad2b1381cf909d28e4dabc5cd69af8717849aa004f416b367",
-          "size": 518494
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_color3_to_color4.exr",
+          "sha256": "15eb1162f5acaf443dda4526fb7cebd78e6f5dcb264ec4bc979cadebdb1dbd22",
+          "size": 2773240
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_color3_to_vector3_materialx-osl.png",
-          "sha256": "2bafb3fbf234584ab72489b5380eb1773426c54f84f090ce0823f3f8d3791a66",
-          "size": 516730
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_color3_to_vector2.exr",
+          "sha256": "9c8752193ea9305b03188984aa0ca7933c9b4f113bd94bebd7378bd645624cde",
+          "size": 2773958
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_color3_to_vector4_materialx-osl.png",
-          "sha256": "2bafb3fbf234584ab72489b5380eb1773426c54f84f090ce0823f3f8d3791a66",
-          "size": 516730
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_color3_to_vector3.exr",
+          "sha256": "8d36b0d60cc5c372f2e816837c085c5063a72b6af59ff845ff4dcde166d36868",
+          "size": 2773609
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_color4_to_color3_materialx-osl.png",
-          "sha256": "2bafb3fbf234584ab72489b5380eb1773426c54f84f090ce0823f3f8d3791a66",
-          "size": 516730
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_color3_to_vector4.exr",
+          "sha256": "1044ddc5e06965ad3cd3a4ab32a99f6ccb23be4d2feec32d4e662ec81c8d95e2",
+          "size": 2773568
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_color4_to_vector2_materialx-osl.png",
-          "sha256": "b8fce8e37befd86ad2b1381cf909d28e4dabc5cd69af8717849aa004f416b367",
-          "size": 518494
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_color4_to_color3.exr",
+          "sha256": "a025c3a575b9810c8c1b46adb40e43879b364bd493c0f0379316404d1d37430d",
+          "size": 2772930
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_color4_to_vector3_materialx-osl.png",
-          "sha256": "2bafb3fbf234584ab72489b5380eb1773426c54f84f090ce0823f3f8d3791a66",
-          "size": 516730
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_color4_to_vector2.exr",
+          "sha256": "6900875282511e39ac038505be812a57b3e39e673d25ed0b37dce11fc314a756",
+          "size": 2772663
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_color4_to_vector4_materialx-osl.png",
-          "sha256": "2bafb3fbf234584ab72489b5380eb1773426c54f84f090ce0823f3f8d3791a66",
-          "size": 516730
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_color4_to_vector3.exr",
+          "sha256": "221be2da10d8c2cadebae1d7b60c518994824b460affc65d3db8f2982f29a7c5",
+          "size": 2773617
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_float_to_color3_materialx-osl.png",
-          "sha256": "1a16b8e0996ccb3cb58928ab40dd272c1d6350aa412615028b9374d93f6cf254",
-          "size": 490354
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_color4_to_vector4.exr",
+          "sha256": "c738896675908125f83934ed1239405544b03fdb022deac695614d9f7ee03632",
+          "size": 2773632
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_float_to_color4_materialx-osl.png",
-          "sha256": "1a16b8e0996ccb3cb58928ab40dd272c1d6350aa412615028b9374d93f6cf254",
-          "size": 490354
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_float_to_color3.exr",
+          "sha256": "2482c922bf7c13f077f612fd62f66d35a03fc5b54eb99dcdb5d4ae7e200b40bf",
+          "size": 2773568
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_float_to_vector2_materialx-osl.png",
-          "sha256": "2f20a726860d4067bde3ef8149ffec0e566ca802fc30857d6b1a200a3125eb74",
-          "size": 498527
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_float_to_color4.exr",
+          "sha256": "7131f98bd79925610b0ad5f452ae08300d5f9209ae3ca963e95f95f8ef2f993f",
+          "size": 2773393
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_float_to_vector3_materialx-osl.png",
-          "sha256": "1a16b8e0996ccb3cb58928ab40dd272c1d6350aa412615028b9374d93f6cf254",
-          "size": 490354
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_float_to_vector2.exr",
+          "sha256": "3efbc8652414f738802614f071e878210fbafe85905595fda4e0fc97a3003c2e",
+          "size": 2774006
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_float_to_vector4_materialx-osl.png",
-          "sha256": "1a16b8e0996ccb3cb58928ab40dd272c1d6350aa412615028b9374d93f6cf254",
-          "size": 490354
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_float_to_vector3.exr",
+          "sha256": "647954073330099ffc4a341d91bcef7f032e7408f0d43faae876c46ceca06ec5",
+          "size": 2773741
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_integer_to_boolean_materialx-osl.png",
-          "sha256": "1045bffe6fe943977fea80d0a24e1fd2ad0eb0be48aefb0ef2ae956d76c12c93",
-          "size": 510699
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_float_to_vector4.exr",
+          "sha256": "5b93e02e3dd3b8563b7b573a4c68952b8b3ac4b2a2f8cbd2dd7ace2510f48b6d",
+          "size": 2773685
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_integer_to_color3_materialx-osl.png",
-          "sha256": "519226570ebbec1f2ea21395e6e3004aa0de9b1d32a1e41986682b6e9f8b44a3",
-          "size": 424584
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_integer_to_boolean.exr",
+          "sha256": "02ce24ea85bc462264f0bdaf537941393aed33b2cc21557630fd18bfef4ac38b",
+          "size": 2773436
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_integer_to_color4_materialx-osl.png",
-          "sha256": "519226570ebbec1f2ea21395e6e3004aa0de9b1d32a1e41986682b6e9f8b44a3",
-          "size": 424584
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_integer_to_color3.exr",
+          "sha256": "f719c6edb51c343653eed9f5cd6ecd31242004170e2ae2f6f4516624bb9e15b5",
+          "size": 2775241
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_integer_to_float_materialx-osl.png",
-          "sha256": "70a960393a3471c2d5dc2a34f9092779cd9bf3722b21b1d6afd0bd1d947821bb",
-          "size": 509034
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_integer_to_color4.exr",
+          "sha256": "560154a03a6e7aa04492353760888c96d83206ed08e18d3cc3b206b2d31c4f0a",
+          "size": 2774010
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_integer_to_vector2_materialx-osl.png",
-          "sha256": "c2ceb8f7b958863215c0dccaaeac1c7fbf9eb0eec056264bb2a73da3e7d123c1",
-          "size": 466318
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_integer_to_float.exr",
+          "sha256": "03c0229e903ae0430ce0130642e1e79338943cb37a2029b50f3ef25172d4bc61",
+          "size": 2774124
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_integer_to_vector3_materialx-osl.png",
-          "sha256": "519226570ebbec1f2ea21395e6e3004aa0de9b1d32a1e41986682b6e9f8b44a3",
-          "size": 424584
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_integer_to_vector2.exr",
+          "sha256": "1ecc30475900c09fffde85f6c16f7586ff4288e822f4a52eb8e295f6b97d634c",
+          "size": 2775105
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_integer_to_vector4_materialx-osl.png",
-          "sha256": "519226570ebbec1f2ea21395e6e3004aa0de9b1d32a1e41986682b6e9f8b44a3",
-          "size": 424584
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_integer_to_vector3.exr",
+          "sha256": "1f98648c8860828672965f0da5f6572a08745001c0f59c63c0067dc275e0e2b9",
+          "size": 2774855
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_vector2_to_color3_materialx-osl.png",
-          "sha256": "b8fce8e37befd86ad2b1381cf909d28e4dabc5cd69af8717849aa004f416b367",
-          "size": 518494
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_integer_to_vector4.exr",
+          "sha256": "c936f73ffe6b8490703962557a1e8cea5acafc81f5f9c37f55a772cb923a47fa",
+          "size": 2774523
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_vector2_to_color4_materialx-osl.png",
-          "sha256": "b8fce8e37befd86ad2b1381cf909d28e4dabc5cd69af8717849aa004f416b367",
-          "size": 518494
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_vector2_to_color3.exr",
+          "sha256": "20504b1471826e4e69848ffc18265b1e207cc2977eb55b1e72e5c89b005d11c7",
+          "size": 2773876
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_vector2_to_vector3_materialx-osl.png",
-          "sha256": "b8fce8e37befd86ad2b1381cf909d28e4dabc5cd69af8717849aa004f416b367",
-          "size": 518494
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_vector2_to_color4.exr",
+          "sha256": "4b1d5f01a4898b928f6e4c81b64d130c915a279f4ea6ec658dbc975989e009e1",
+          "size": 2773340
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_vector2_to_vector4_materialx-osl.png",
-          "sha256": "b8fce8e37befd86ad2b1381cf909d28e4dabc5cd69af8717849aa004f416b367",
-          "size": 518494
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_vector2_to_vector3.exr",
+          "sha256": "85dea6b4936f5942f62ae72d899af3254aba80d138e14c2fc9cfd181f7e1759e",
+          "size": 2773596
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_vector3_to_color3_materialx-osl.png",
-          "sha256": "2bafb3fbf234584ab72489b5380eb1773426c54f84f090ce0823f3f8d3791a66",
-          "size": 516730
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_vector2_to_vector4.exr",
+          "sha256": "e6c2d11590a4231702fd41cfff04ebfc60a887ff26cad22383767172283175f6",
+          "size": 2774148
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_vector3_to_color4_materialx-osl.png",
-          "sha256": "2bafb3fbf234584ab72489b5380eb1773426c54f84f090ce0823f3f8d3791a66",
-          "size": 516730
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_vector3_to_color3.exr",
+          "sha256": "f9f09b80d3984cbcea3d42db0b18d1d20dcc68178ae9e2e6631434e214ac6b82",
+          "size": 2774078
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_vector3_to_vector2_materialx-osl.png",
-          "sha256": "b8fce8e37befd86ad2b1381cf909d28e4dabc5cd69af8717849aa004f416b367",
-          "size": 518494
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_vector3_to_color4.exr",
+          "sha256": "4e2b0263cc043ac4fe1160c5eb69b1e4ca8fb888fa50ad3c04a41533dfe57f92",
+          "size": 2773340
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_vector3_to_vector4_materialx-osl.png",
-          "sha256": "2bafb3fbf234584ab72489b5380eb1773426c54f84f090ce0823f3f8d3791a66",
-          "size": 516730
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_vector3_to_vector2.exr",
+          "sha256": "ab279f25b84bb3e34b19228a7ec01fec6edf84f5f90919c3160481edc0de92ce",
+          "size": 2774646
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_vector4_to_color3_materialx-osl.png",
-          "sha256": "2bafb3fbf234584ab72489b5380eb1773426c54f84f090ce0823f3f8d3791a66",
-          "size": 516730
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_vector3_to_vector4.exr",
+          "sha256": "d6d9fc27849b6022927613f5e2cdabe50c7e201a816c2e4ac862b4d8f8db46dd",
+          "size": 2774088
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_vector4_to_color4_materialx-osl.png",
-          "sha256": "2bafb3fbf234584ab72489b5380eb1773426c54f84f090ce0823f3f8d3791a66",
-          "size": 516730
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_vector4_to_color3.exr",
+          "sha256": "8b7dc4abe3c13455365f5348af1c85f27d842e598cf9dd11bdc735003a2c158e",
+          "size": 2773586
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_vector4_to_vector2_materialx-osl.png",
-          "sha256": "b8fce8e37befd86ad2b1381cf909d28e4dabc5cd69af8717849aa004f416b367",
-          "size": 518494
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_vector4_to_color4.exr",
+          "sha256": "5041024b387e360072e8f63e71dcfcca9afd77124d9cdf659da1e7e4beeee514",
+          "size": 2773415
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_explicit_vector4_to_vector3_materialx-osl.png",
-          "sha256": "2bafb3fbf234584ab72489b5380eb1773426c54f84f090ce0823f3f8d3791a66",
-          "size": 516730
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_vector4_to_vector2.exr",
+          "sha256": "c46463417256824c922757b8f5bcd3f122858060bc3af94f89366ddcfd551130",
+          "size": 2773464
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/convert_materialx-osl.png",
-          "sha256": "92907613c5d60c433fd8e62f8c6f7b514fdf2e8aeedb3e0a64770a89c38ffe7a",
-          "size": 474911
+          "path": "material-fidelity/reference/nodes/channel/convert_explicit_vector4_to_vector3.exr",
+          "sha256": "47855d85bdb5b622d53e43403be9f70c637e0512e767fe7a2b181327a81d986d",
+          "size": 2772396
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/extract_materialx-osl.png",
-          "sha256": "496e0536906940eab08dcc9eafeb542343f0eec29b12d7eccb4efa6c431cb17a",
-          "size": 512117
+          "path": "material-fidelity/reference/nodes/channel/extract.exr",
+          "sha256": "fafb5dd6498dd705483ec973a6a3fc3a8ecde55181ca29db4ec7318a31373902",
+          "size": 2772973
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/separate2_materialx-osl.png",
-          "sha256": "496e0536906940eab08dcc9eafeb542343f0eec29b12d7eccb4efa6c431cb17a",
-          "size": 512117
+          "path": "material-fidelity/reference/nodes/channel/separate2.exr",
+          "sha256": "abee35976dd5aa9b3a01a5366bf392d9c1255f1996d1a8d694237c04d03d59d3",
+          "size": 2773592
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/separate3_materialx-osl.png",
-          "sha256": "496e0536906940eab08dcc9eafeb542343f0eec29b12d7eccb4efa6c431cb17a",
-          "size": 512117
+          "path": "material-fidelity/reference/nodes/channel/separate3.exr",
+          "sha256": "5ce2c2664a814fb31697f7956da81bbedfe13951b80e4a908ba2ec099375a633",
+          "size": 2773815
         },
         {
-          "path": "material-fidelity/reference/nodes/channel/separate4_materialx-osl.png",
-          "sha256": "496e0536906940eab08dcc9eafeb542343f0eec29b12d7eccb4efa6c431cb17a",
-          "size": 512117
+          "path": "material-fidelity/reference/nodes/channel/separate4.exr",
+          "sha256": "e941daf0e4d26a7845c57be12a4a7329ee9e5da6cb35def6005b1cb31e7caf0d",
+          "size": 2773993
         }
       ],
-      "release": "reference-data-20260705T025545Z-272cd207-a1eabdf9"
+      "release": "reference-data-20260705T051318Z-e5f8a72f-3dfa2d63"
     },
     "material-fidelity/nodes/compositing": {
       "archive": "material-fidelity--nodes--compositing--bf8ccf796a51.zip",
