@@ -2586,92 +2586,92 @@
       "release": "reference-data-20260705T212936Z-2b185213-dd69be72"
     },
     "material-fidelity/showcase/standard_surface": {
-      "archive": "material-fidelity--showcase--standard_surface--88903ad21616.zip",
-      "archive_sha256": "8d9d1d28867a87c8572843a1ea9ef04e301bb276b6f7d406138d61d5eadb17e3",
-      "archive_size": 8299583,
+      "archive": "material-fidelity--showcase--standard_surface--50b74a7c116b.zip",
+      "archive_sha256": "01ae42cfcad6b5cdd0b88cebde209668c9d9102fe6d1eabdaee1b6eec7526750",
+      "archive_size": 44391693,
       "files": [
         {
-          "path": "material-fidelity/reference/showcase/standard_surface/brick_procedural_materialx-osl.png",
-          "sha256": "c76b005d9a42723da9df7209121cb4e74cbb54f2359756bc2e49d763d89527bf",
-          "size": 525858
+          "path": "material-fidelity/reference/showcase/standard_surface/brick_procedural.exr",
+          "sha256": "8f396fa1e6d45c8da80213ff291ee570ce47245676e3b93bae618c72b89cc837",
+          "size": 2774446
         },
         {
-          "path": "material-fidelity/reference/showcase/standard_surface/carpaint_materialx-osl.png",
-          "sha256": "14254f2b2558c35a3c1bc18f03bd7ce767ba33a3da605baa2127f436cc27300f",
-          "size": 531417
+          "path": "material-fidelity/reference/showcase/standard_surface/carpaint.exr",
+          "sha256": "fed7848a627c2fd307a1ae46591c6e21e0d9c74093f4409adb0c292094919e3f",
+          "size": 2773841
         },
         {
-          "path": "material-fidelity/reference/showcase/standard_surface/chrome_materialx-osl.png",
-          "sha256": "2c209e237d189615c26e68e2e27f63a9a745005c687a4d48a7940a0e80e1ed56",
-          "size": 484230
+          "path": "material-fidelity/reference/showcase/standard_surface/chrome.exr",
+          "sha256": "4d443a8f5601904cd81b4fff1843c4e781726b5a77a6251f92aaab81b0739b3a",
+          "size": 2774841
         },
         {
-          "path": "material-fidelity/reference/showcase/standard_surface/copper_materialx-osl.png",
-          "sha256": "993da9341ee839030e3ce87047054107c8daf929113f69a7372205f2724885e0",
-          "size": 526528
+          "path": "material-fidelity/reference/showcase/standard_surface/copper.exr",
+          "sha256": "85729f34e4431dae646d4d99bf0b8e62c5e6e393bfeffd4ff7dee98afd9d2b2d",
+          "size": 2774050
         },
         {
-          "path": "material-fidelity/reference/showcase/standard_surface/glass_materialx-osl.png",
-          "sha256": "884cb18fd7ce7785f5d494cfe71b560f348e1f777d9bb656f0b0c93c46c205cd",
-          "size": 541875
+          "path": "material-fidelity/reference/showcase/standard_surface/glass.exr",
+          "sha256": "bf858fe1b8066ed49d98238956f221e053e42ee74a3cf706c12f2b4009cd839c",
+          "size": 2775128
         },
         {
-          "path": "material-fidelity/reference/showcase/standard_surface/glass_tinted_materialx-osl.png",
-          "sha256": "0e78be75ee00bc597451b77891953fb19514c70dc2fb6b76b9df0633c5c60a96",
-          "size": 554289
+          "path": "material-fidelity/reference/showcase/standard_surface/glass_tinted.exr",
+          "sha256": "fc3af7bc507a1a6da776776e58fba938808c86ab6e02059ab285bdb1b9293938",
+          "size": 2775722
         },
         {
-          "path": "material-fidelity/reference/showcase/standard_surface/gold_materialx-osl.png",
-          "sha256": "f1ada8c23f9f69fc39f7075c13503b2a5424323f716790b35f2ee67dbcd72598",
-          "size": 486240
+          "path": "material-fidelity/reference/showcase/standard_surface/gold.exr",
+          "sha256": "3a2c94cbea12303e98a5e5ece2e80ff0270a7d3db1e2695b619baf46e0a673bc",
+          "size": 2774795
         },
         {
-          "path": "material-fidelity/reference/showcase/standard_surface/marble_solid_materialx-osl.png",
-          "sha256": "ddc3310eed07323268b073d902a5a17b37f0bb49aad6c69fb2391e2584c17c24",
-          "size": 498640
+          "path": "material-fidelity/reference/showcase/standard_surface/marble_solid.exr",
+          "sha256": "82b5d92c7db7a49faa6fc61f0d004dc41fe5f8a20652c464744759e1841ad61c",
+          "size": 2774198
         },
         {
-          "path": "material-fidelity/reference/showcase/standard_surface/metal_brushed_materialx-osl.png",
-          "sha256": "0acd8601d1c73a38800bbba4f230629ca828d11635ffd5d5be23ccb3398e7726",
-          "size": 522595
+          "path": "material-fidelity/reference/showcase/standard_surface/metal_brushed.exr",
+          "sha256": "797d65f9b70c26b178ce763414e751398c748d7b00e52e4a8854cc3ab7b559c2",
+          "size": 2774428
         },
         {
-          "path": "material-fidelity/reference/showcase/standard_surface/onyx_hextiled_materialx-osl.png",
-          "sha256": "551abc43ed785929e9b137dc1dd5276f9ab37850080ce07b0a959a1feedb0f18",
-          "size": 531439
+          "path": "material-fidelity/reference/showcase/standard_surface/onyx_hextiled.exr",
+          "sha256": "7ae8bbc2d835e7676e442acde99f4a8d24d3302b7358b5975f1788f93bf7d25a",
+          "size": 2774745
         },
         {
-          "path": "material-fidelity/reference/showcase/standard_surface/onyx_hextiled_no_scale_materialx-osl.png",
-          "sha256": "551abc43ed785929e9b137dc1dd5276f9ab37850080ce07b0a959a1feedb0f18",
-          "size": 531439
+          "path": "material-fidelity/reference/showcase/standard_surface/onyx_hextiled_no_scale.exr",
+          "sha256": "7ae8bbc2d835e7676e442acde99f4a8d24d3302b7358b5975f1788f93bf7d25a",
+          "size": 2774745
         },
         {
-          "path": "material-fidelity/reference/showcase/standard_surface/plastic_materialx-osl.png",
-          "sha256": "65f4c0e823a41d8873c06e32c9969eb4c68c41bf7c0213ae390e45f713d0c8c9",
-          "size": 520883
+          "path": "material-fidelity/reference/showcase/standard_surface/plastic.exr",
+          "sha256": "93aa1aaaeedfc2a67cbe26447333164afcda5ffdff4bef3eae3455ae5281f423",
+          "size": 2773366
         },
         {
-          "path": "material-fidelity/reference/showcase/standard_surface/sheen_materialx-osl.png",
-          "sha256": "122974f05f6a262cd7b2c913b3a28805b7c54564acb3cb6daa25f3ed4dbc0cc3",
-          "size": 524536
+          "path": "material-fidelity/reference/showcase/standard_surface/sheen.exr",
+          "sha256": "e15871de67dbdf9a5db0c88dc1d65927a943fc4eb54804c29cb17a749423921a",
+          "size": 2773312
         },
         {
-          "path": "material-fidelity/reference/showcase/standard_surface/velvet_materialx-osl.png",
-          "sha256": "ed8346e103db3267778b334cc51e6f161b15cdc08ded7c2797b0496ebc14bc76",
-          "size": 498672
+          "path": "material-fidelity/reference/showcase/standard_surface/velvet.exr",
+          "sha256": "d0c5324a96037890491769bae9609cbfefdbcb139548610f8eadfd2dd0b1bf44",
+          "size": 2773314
         },
         {
-          "path": "material-fidelity/reference/showcase/standard_surface/wood_grain_materialx-osl.png",
-          "sha256": "073be852bf972e46fe4581b1a617e150e71eba76c3dfc9eb0b0de889ffbb1088",
-          "size": 508545
+          "path": "material-fidelity/reference/showcase/standard_surface/wood_grain.exr",
+          "sha256": "e3915b732b202d238993112ce40e74fdb44af401ec53aeb4d702a0b4f244f3c3",
+          "size": 2773679
         },
         {
-          "path": "material-fidelity/reference/showcase/standard_surface/wood_tiled_materialx-osl.png",
-          "sha256": "073be852bf972e46fe4581b1a617e150e71eba76c3dfc9eb0b0de889ffbb1088",
-          "size": 508545
+          "path": "material-fidelity/reference/showcase/standard_surface/wood_tiled.exr",
+          "sha256": "e3915b732b202d238993112ce40e74fdb44af401ec53aeb4d702a0b4f244f3c3",
+          "size": 2773679
         }
       ],
-      "release": "reference-data-20260705T025545Z-272cd207-a1eabdf9"
+      "release": "reference-data-20260705T215321Z-fa2fc145-f04ef4c4"
     },
     "material-fidelity/surfaces/gltf_pbr": {
       "archive": "material-fidelity--surfaces--gltf_pbr--08b52e13c59f.zip",

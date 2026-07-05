@@ -23,6 +23,13 @@ def Scope "Looks"
         token outputs:mtlx:surface.connect = </Looks/metal_brushed/SR_metal_brushed.outputs:out>
         token outputs:surface.connect = </Looks/metal_brushed/SR_metal_brushed.outputs:out>
 
+        def Shader "world_tangent"
+        {
+            uniform token info:id = "ND_tangent_vector3"
+            string inputs:space = "world"
+            float3 outputs:out
+        }
+
         def Shader "SR_metal_brushed"
         {
             uniform token info:id = "ND_standard_surface_surfaceshader"
@@ -35,6 +42,7 @@ def Scope "Looks"
             float inputs:specular_IOR = 1.52
             float inputs:specular_rotation = 0
             float inputs:specular_roughness = 0.25
+            float3 inputs:tangent.connect = </Looks/metal_brushed/world_tangent.outputs:out>
             token outputs:out
         }
     }
