@@ -104,22 +104,22 @@
       "release": "reference-data-20260705T044512Z-9dd3ce17-2968a45e"
     },
     "material-fidelity/nodes/application": {
-      "archive": "material-fidelity--nodes--application--e8cb3ce9b633.zip",
-      "archive_sha256": "2d28c594d06c5f88fb0085e5cc43a3576344d94d7bda4809bc7ed145a456893f",
-      "archive_size": 1036878,
+      "archive": "material-fidelity--nodes--application--5270f8c15041.zip",
+      "archive_sha256": "f6a6b011ea9f9b5635f7e5dce89ee85b92109040350fa157a46270096285f835",
+      "archive_size": 5547309,
       "files": [
         {
-          "path": "material-fidelity/reference/nodes/application/frame_materialx-osl.png",
-          "sha256": "253f07aacf2e1fe516082285dc535553da1d738a35fa2f7374406a9b5af907d7",
-          "size": 518215
+          "path": "material-fidelity/reference/nodes/application/frame.exr",
+          "sha256": "debfbdb3a455a5f9b34af88d510aa4cfd84c7a3f3c4cb0b61a9f4160e3d0eb86",
+          "size": 2773321
         },
         {
-          "path": "material-fidelity/reference/nodes/application/time_materialx-osl.png",
-          "sha256": "253f07aacf2e1fe516082285dc535553da1d738a35fa2f7374406a9b5af907d7",
-          "size": 518215
+          "path": "material-fidelity/reference/nodes/application/time.exr",
+          "sha256": "d9d8da0de59041624f2840cf219c5054d7215b8170f8d479827ab598f20f270d",
+          "size": 2773596
         }
       ],
-      "release": "reference-data-20260705T025545Z-272cd207-a1eabdf9"
+      "release": "reference-data-20260705T050001Z-161b428f-4458e48b"
     },
     "material-fidelity/nodes/channel": {
       "archive": "material-fidelity--nodes--channel--16f6c603b9ef.zip",
