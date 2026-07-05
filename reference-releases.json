@@ -365,57 +365,57 @@
       "release": "reference-data-20260705T051318Z-e5f8a72f-3dfa2d63"
     },
     "material-fidelity/nodes/compositing": {
-      "archive": "material-fidelity--nodes--compositing--bf8ccf796a51.zip",
-      "archive_sha256": "64e94da2667148085eed30a71182932d33e712fd7090c3acec6848adf67f3d07",
-      "archive_size": 4614646,
+      "archive": "material-fidelity--nodes--compositing--7003c5d2aed2.zip",
+      "archive_sha256": "b4f054f8fce8059eed26839ee6fc2c7f7f0d8fb732a04fe2a77a96c8f75cd717",
+      "archive_size": 24964736,
       "files": [
         {
-          "path": "material-fidelity/reference/nodes/compositing/burn_materialx-osl.png",
-          "sha256": "c2d18d6b7fec470fd9f7e8e2e345547a03b1b37abfad124ebbabfc670273d417",
-          "size": 529845
+          "path": "material-fidelity/reference/nodes/compositing/burn.exr",
+          "sha256": "3e3349c1cd860b85d27cb95c65f6ee8bcc228db34745cb8f35602ab6c2bcd1c6",
+          "size": 2774069
         },
         {
-          "path": "material-fidelity/reference/nodes/compositing/difference_materialx-osl.png",
-          "sha256": "b876773ec4b9e0b6c829d42265f0c244b7a70d9b7454b6067f0cf583cf23b8d3",
-          "size": 521133
+          "path": "material-fidelity/reference/nodes/compositing/difference.exr",
+          "sha256": "8eb5ea06ff1e2ac13da21c5a4e1a119ad2fa392893ab3bbf5a4a86a3be6fbd1a",
+          "size": 2773181
         },
         {
-          "path": "material-fidelity/reference/nodes/compositing/dodge_materialx-osl.png",
-          "sha256": "06103260ea37022c94775acce7f8d2ff15beccdc4754b095f14409859982da89",
-          "size": 482518
+          "path": "material-fidelity/reference/nodes/compositing/dodge.exr",
+          "sha256": "395ec6e342b167b4de403df132d6169f64a11bd5e06e36c8f1affd2661d5feed",
+          "size": 2774391
         },
         {
-          "path": "material-fidelity/reference/nodes/compositing/minus_materialx-osl.png",
-          "sha256": "9806e050ab5b64322e1de97b6a1a07250e924b677dd6efc5ff06236eed634172",
-          "size": 525247
+          "path": "material-fidelity/reference/nodes/compositing/minus.exr",
+          "sha256": "1277860a503980b9b41a008186d1e74a24c946403ec06a8ec807c6a914653d4e",
+          "size": 2773846
         },
         {
-          "path": "material-fidelity/reference/nodes/compositing/mix_degenerate_unclamped_mix_factor_materialx-osl.png",
-          "sha256": "fe4cf7140b7f94912015d6294730c95553ecfb87d371c551e73106362ef2387b",
-          "size": 497485
+          "path": "material-fidelity/reference/nodes/compositing/mix.exr",
+          "sha256": "4d11bea3574f48f56ccc615ee5c331fe497593276ef819b008cace0e4e0454dd",
+          "size": 2773211
         },
         {
-          "path": "material-fidelity/reference/nodes/compositing/mix_materialx-osl.png",
-          "sha256": "f2d407f8b1395706e8afe2c65d1de7a1548ac6aa4eab28d4aa26fc37b33f1ae2",
-          "size": 521160
+          "path": "material-fidelity/reference/nodes/compositing/mix_degenerate_unclamped_mix_factor.exr",
+          "sha256": "6fab958e946407f23f87ea3c5fe4edac0ded93a9847ee4dbdbfaacfdc5ae0e7a",
+          "size": 2774125
         },
         {
-          "path": "material-fidelity/reference/nodes/compositing/overlay_materialx-osl.png",
-          "sha256": "4aafd75d6c86b0fef2054134edb9567f9201ee7be520a817e35cfae696d0cb98",
-          "size": 522602
+          "path": "material-fidelity/reference/nodes/compositing/overlay.exr",
+          "sha256": "c74a31b9af8e286ddd4be492757282c1cddfec58aa6f9461216c593eb0dd1097",
+          "size": 2773768
         },
         {
-          "path": "material-fidelity/reference/nodes/compositing/screen_materialx-osl.png",
-          "sha256": "429a767641d27df7a9d63e04e30b97a7fbfaff088dc01d157ff8927d2b411d98",
-          "size": 500513
+          "path": "material-fidelity/reference/nodes/compositing/screen.exr",
+          "sha256": "824918d3aa4836c8571bb246f9baa932fbdd23582375852f0a70ec4d3dfbf120",
+          "size": 2772894
         },
         {
-          "path": "material-fidelity/reference/nodes/compositing/unpremult_materialx-osl.png",
-          "sha256": "496e0536906940eab08dcc9eafeb542343f0eec29b12d7eccb4efa6c431cb17a",
-          "size": 512117
+          "path": "material-fidelity/reference/nodes/compositing/unpremult.exr",
+          "sha256": "c744fce47f619c8c120ffc870d13e0d9c5977d748073f807390b5e149ea499d3",
+          "size": 2773477
         }
       ],
-      "release": "reference-data-20260705T025545Z-272cd207-a1eabdf9"
+      "release": "reference-data-20260705T051520Z-a8b24c60-096fd865"
     },
     "material-fidelity/nodes/conditional": {
       "archive": "material-fidelity--nodes--conditional--661729ac21e9.zip",
