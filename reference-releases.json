@@ -56,11 +56,6 @@
           "size": 347536
         },
         {
-          "path": "material-fidelity/reference/surfaces/open_pbr_surface/feature_geometry_tangent_materialx-osl.png",
-          "sha256": "f6628303e09ce87bf9b397b708ce81281cec49f76032ad91903f851fc83333ae",
-          "size": 491659
-        },
-        {
           "path": "material-fidelity/reference/surfaces/open_pbr_surface/feature_opacity.exr",
           "sha256": "b17a09f60865b559b906961d0ac35e60f6387987f3ca0c48a4b06814c3bb818b",
           "size": 2773908
