@@ -19,6 +19,7 @@ rust-std-wasm32-unknown-unknown = "*"
 [tasks]
 download-references = { cmd = "python -m typhoon_tests.reference_archives download" }
 update-references = { cmd = "python -m typhoon_tests.reference_archives update" }
+generate-material-fidelity = { cmd = "python material-fidelity/generate_suite.py" }
 
 [target.linux-64.tasks]
 test = { cmd = "pytest" }
