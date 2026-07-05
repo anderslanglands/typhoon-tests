@@ -52,14 +52,55 @@ def Scope "Looks"
                 float3 outputs:out
             }
 
+            def Shader "n_world"
+            {
+                uniform token info:id = "ND_normal_vector3"
+                string inputs:space = "world"
+                float3 outputs:out
+            }
+
+            def Shader "t_world"
+            {
+                uniform token info:id = "ND_tangent_vector3"
+                int inputs:index = 0
+                string inputs:space = "world"
+                float3 outputs:out
+            }
+
+            def Shader "b_world"
+            {
+                uniform token info:id = "ND_bitangent_vector3"
+                int inputs:index = 0
+                string inputs:space = "world"
+                float3 outputs:out
+            }
+
+            def Shader "t_rot45"
+            {
+                uniform token info:id = "ND_rotate3d_vector3"
+                float inputs:amount = 45
+                float3 inputs:axis.connect = </Looks/normalmap_custom_frame_rot45/NG_normalmap_custom_frame_rot45/n_world.outputs:out>
+                float3 inputs:in.connect = </Looks/normalmap_custom_frame_rot45/NG_normalmap_custom_frame_rot45/t_world.outputs:out>
+                float3 outputs:out
+            }
+
+            def Shader "b_rot45"
+            {
+                uniform token info:id = "ND_rotate3d_vector3"
+                float inputs:amount = 45
+                float3 inputs:axis.connect = </Looks/normalmap_custom_frame_rot45/NG_normalmap_custom_frame_rot45/n_world.outputs:out>
+                float3 inputs:in.connect = </Looks/normalmap_custom_frame_rot45/NG_normalmap_custom_frame_rot45/b_world.outputs:out>
+                float3 outputs:out
+            }
+
             def Shader "node_under_test"
             {
                 uniform token info:id = "ND_normalmap_vector2"
-                float3 inputs:bitangent = (-0.7071068, 0.7071068, 0)
+                float3 inputs:bitangent.connect = </Looks/normalmap_custom_frame_rot45/NG_normalmap_custom_frame_rot45/b_rot45.outputs:out>
                 float3 inputs:in.connect = </Looks/normalmap_custom_frame_rot45/NG_normalmap_custom_frame_rot45/normal_image.outputs:out>
-                float3 inputs:normal = (0, 0, 1)
+                float3 inputs:normal.connect = </Looks/normalmap_custom_frame_rot45/NG_normalmap_custom_frame_rot45/n_world.outputs:out>
                 float2 inputs:scale = (1, -1)
-                float3 inputs:tangent = (0.7071068, 0.7071068, 0)
+                float3 inputs:tangent.connect = </Looks/normalmap_custom_frame_rot45/NG_normalmap_custom_frame_rot45/t_rot45.outputs:out>
                 float3 outputs:out
             }
 

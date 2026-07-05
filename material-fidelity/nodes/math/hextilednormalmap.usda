@@ -212,10 +212,26 @@ def Scope "Looks"
                 float outputs:out
             }
 
+            def Shader "t_world"
+            {
+                uniform token info:id = "ND_tangent_vector3"
+                int inputs:index = 0
+                string inputs:space = "world"
+                float3 outputs:out
+            }
+
+            def Shader "b_world"
+            {
+                uniform token info:id = "ND_bitangent_vector3"
+                int inputs:index = 0
+                string inputs:space = "world"
+                float3 outputs:out
+            }
+
             def Shader "node_under_test"
             {
                 uniform token info:id = "ND_hextilednormalmap_vector3"
-                float3 inputs:bitangent = (1, 0, 0)
+                float3 inputs:bitangent.connect = </Looks/hextilednormalmap/NG_hextilednormalmap/b_world.outputs:out>
                 float3 inputs:default.connect = </Looks/hextilednormalmap/NG_hextilednormalmap/uv_vec3.outputs:out>
                 float inputs:falloff.connect = </Looks/hextilednormalmap/NG_hextilednormalmap/uv_mix.outputs:out>
                 asset inputs:file = @../../_assets/Materials/showcase/standard_surface/brick_procedural/textures/brick_normal.jpg@ (
@@ -230,7 +246,7 @@ def Scope "Looks"
                 float inputs:scale.connect = </Looks/hextilednormalmap/NG_hextilednormalmap/uv_mix.outputs:out>
                 float2 inputs:scalerange.connect = </Looks/hextilednormalmap/NG_hextilednormalmap/uv_scale.outputs:out>
                 float inputs:strength.connect = </Looks/hextilednormalmap/NG_hextilednormalmap/uv_mix.outputs:out>
-                float3 inputs:tangent = (1, 0, 0)
+                float3 inputs:tangent.connect = </Looks/hextilednormalmap/NG_hextilednormalmap/t_world.outputs:out>
                 float2 inputs:texcoord.connect = </Looks/hextilednormalmap/NG_hextilednormalmap/uv0.outputs:out>
                 float2 inputs:tiling.connect = </Looks/hextilednormalmap/NG_hextilednormalmap/uv0.outputs:out>
                 float3 outputs:out
