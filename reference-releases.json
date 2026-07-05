@@ -2538,52 +2538,52 @@
       "release": "reference-data-20260705T210347Z-5baf1663-c13a9062"
     },
     "material-fidelity/showcase/open_pbr_surface": {
-      "archive": "material-fidelity--showcase--open_pbr_surface--7a730dedaa01.zip",
-      "archive_sha256": "82fe3f9ce19edd5cec00684a09779dbc75c06e59495ac918859437706e4ead9c",
-      "archive_size": 3884356,
+      "archive": "material-fidelity--showcase--open_pbr_surface--409d4e594beb.zip",
+      "archive_sha256": "b38cb1fe23dd3166471f3fa9c2d4edae0b1c36d3875afe5ef3ca56f623fa25b4",
+      "archive_size": 22197618,
       "files": [
         {
-          "path": "material-fidelity/reference/showcase/open_pbr_surface/carpaint_materialx-osl.png",
-          "sha256": "b162fa785a622b2abb63ccdcf306e8c142836138d673aedcd023263c820171b2",
-          "size": 523454
+          "path": "material-fidelity/reference/showcase/open_pbr_surface/carpaint.exr",
+          "sha256": "a5a40b42f5e78fbd47d9a77aac1fcf159c19ccee647c7d120f782c1a6e3bb389",
+          "size": 2773769
         },
         {
-          "path": "material-fidelity/reference/showcase/open_pbr_surface/glass_materialx-osl.png",
-          "sha256": "59b8f20c4c98d135521fff1cb7aaa6ed5a3191ed5d2cb3beee510887c14b5cab",
-          "size": 541880
+          "path": "material-fidelity/reference/showcase/open_pbr_surface/glass.exr",
+          "sha256": "cd809c9a91c7bd78b4b0294551c5686878b9736db1fcfb97e2e528e08822f578",
+          "size": 2776114
         },
         {
-          "path": "material-fidelity/reference/showcase/open_pbr_surface/honey_materialx-osl.png",
-          "sha256": "9e74290e93cb0f4e86313006e4d564d1a3beb3c89fd3b35605b54013050a778e",
-          "size": 542120
+          "path": "material-fidelity/reference/showcase/open_pbr_surface/honey.exr",
+          "sha256": "3d3eb195da8f2d61e7072ba04d66a5edfa91b55336cdebbd4b0e896e6587a9b9",
+          "size": 2774039
         },
         {
-          "path": "material-fidelity/reference/showcase/open_pbr_surface/ketchup_materialx-osl.png",
-          "sha256": "dfdcc2da2b5469c704e872c84492449e640de6d0b88168e0de862ca6e1f196ab",
-          "size": 494282
+          "path": "material-fidelity/reference/showcase/open_pbr_surface/ketchup.exr",
+          "sha256": "9a68befc30ca424277e6c50e8c8af0c9ca2addc415320d8f91644da0c6ff1fb2",
+          "size": 2776163
         },
         {
-          "path": "material-fidelity/reference/showcase/open_pbr_surface/lightbulb_materialx-osl.png",
-          "sha256": "a4eb4cbb6e030a05cdf9537a9d60b73c2681c5c32cabc72ded836c5dabb0d25c",
-          "size": 305748
+          "path": "material-fidelity/reference/showcase/open_pbr_surface/lightbulb.exr",
+          "sha256": "6e4209d02040f1b9855dd13dbcb8aefa278522d64a33a2a2c1756290c1e810e6",
+          "size": 2771457
         },
         {
-          "path": "material-fidelity/reference/showcase/open_pbr_surface/pearl_materialx-osl.png",
-          "sha256": "d3531bbc917187dea6488de4f651465ed79ee077c4603601a8696948675b1f50",
-          "size": 525898
+          "path": "material-fidelity/reference/showcase/open_pbr_surface/pearl.exr",
+          "sha256": "cb7b5be4bd66b009cc51d7668ca70f5e5a59a4539c4ced82144608f0d71c1943",
+          "size": 2774659
         },
         {
-          "path": "material-fidelity/reference/showcase/open_pbr_surface/soapbubble_materialx-osl.png",
-          "sha256": "cc62b61f98875234ffbc7c339a137044f241183ced66dee1703cd0f7ffdcc94b",
-          "size": 433984
+          "path": "material-fidelity/reference/showcase/open_pbr_surface/soapbubble.exr",
+          "sha256": "3b27a2b738a081ea1691075bb4b3e764219d9ef2e4e403f74a550679b0b80171",
+          "size": 2776399
         },
         {
-          "path": "material-fidelity/reference/showcase/open_pbr_surface/velvet_materialx-osl.png",
-          "sha256": "cf0b07f63623fd67f79a22932d50c250c6de6f8e19c6bf2e5fe231f3176aed68",
-          "size": 515098
+          "path": "material-fidelity/reference/showcase/open_pbr_surface/velvet.exr",
+          "sha256": "ca9a83fd68ec1fa47fbbd5603caa8547c22d6e63102fb5d858a1acab8aaaaf03",
+          "size": 2773350
         }
       ],
-      "release": "reference-data-20260705T025545Z-272cd207-a1eabdf9"
+      "release": "reference-data-20260705T212936Z-2b185213-dd69be72"
     },
     "material-fidelity/showcase/standard_surface": {
       "archive": "material-fidelity--showcase--standard_surface--88903ad21616.zip",

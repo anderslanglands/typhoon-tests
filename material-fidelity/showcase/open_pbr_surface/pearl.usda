@@ -33,7 +33,7 @@ def Scope "Looks"
             float inputs:specular_ior = 1.5
             float inputs:specular_roughness = 0.35
             color3f inputs:subsurface_color = (0.8, 0.75, 0.7)
-            color3f inputs:subsurface_radius_scale = (0.3, 0.5, 0.3)
+            color3f inputs:subsurface_radius_scale = (0.003, 0.005, 0.003)
             float inputs:subsurface_weight = 1
             float inputs:thin_film_ior = 2
             float inputs:thin_film_thickness = 0.42
