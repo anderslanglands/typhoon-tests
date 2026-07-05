@@ -1,8 +1,10 @@
 #usda 1.0
 (
     defaultPrim = "World"
+    endTimeCode = 7.25
     metersPerUnit = 1
     renderSettingsPrimPath = "/Render/Settings"
+    startTimeCode = 7.25
     subLayers = [
         @../../_assets/base.usda@
     ]
@@ -218,10 +220,18 @@ def Scope "Looks"
                 float outputs:out
             }
 
+            def Shader "expected_frame_delta"
+            {
+                uniform token info:id = "ND_subtract_float"
+                float inputs:in1.connect = </Looks/frame/NG_frame/node_under_test.outputs:out>
+                float inputs:in2 = 7.25
+                float outputs:out
+            }
+
             def Shader "factor_abs"
             {
                 uniform token info:id = "ND_absval_float"
-                float inputs:in.connect = </Looks/frame/NG_frame/node_under_test.outputs:out>
+                float inputs:in.connect = </Looks/frame/NG_frame/expected_frame_delta.outputs:out>
                 float outputs:out
             }
 
