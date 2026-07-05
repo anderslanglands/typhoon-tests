@@ -849,32 +849,32 @@
       "release": "reference-data-20260705T062906Z-7ff8452f-854483a2"
     },
     "material-fidelity/nodes/logical": {
-      "archive": "material-fidelity--nodes--logical--f96b847a2909.zip",
-      "archive_sha256": "6ef73a3d5f39cb1b7acb57e16479c9cd7d2d4807f93b5040e8f031d265d9789b",
-      "archive_size": 2016535,
+      "archive": "material-fidelity--nodes--logical--12c2617ee13f.zip",
+      "archive_sha256": "adaa0b49e9aa63844abb581caeb543435eff381ccd98a05404d0630708d249c7",
+      "archive_size": 11098299,
       "files": [
         {
-          "path": "material-fidelity/reference/nodes/logical/logic_and_materialx-osl.png",
-          "sha256": "1814ea26395c1c7fb8a20f5944c0c0f629cc4573ccfb3e9480ad8e137f652efb",
-          "size": 520529
+          "path": "material-fidelity/reference/nodes/logical/logic_and.exr",
+          "sha256": "4876c9672b88281da3c97f7881affc6785e9b30918f2558afc2dd91a3a2bd64e",
+          "size": 2774449
         },
         {
-          "path": "material-fidelity/reference/nodes/logical/logic_not_materialx-osl.png",
-          "sha256": "3ef69bee5d61350f1da13e99439b1d55564536b950b07c67fcdf2a9224050fb1",
-          "size": 485812
+          "path": "material-fidelity/reference/nodes/logical/logic_not.exr",
+          "sha256": "c82159f811a65e75394d61b859f79b87967a22c52a8eaa784894ba9be99b3c78",
+          "size": 2773887
         },
         {
-          "path": "material-fidelity/reference/nodes/logical/logic_or_materialx-osl.png",
-          "sha256": "f459d53b71d1956172cf7f0beef8c6c3d29997769244cd2dd6c40da06e978cea",
-          "size": 502873
+          "path": "material-fidelity/reference/nodes/logical/logic_or.exr",
+          "sha256": "8270e10f203c9d00b39c3cb9d42cf23e60418ad6ec85a1874f83d5b36898670f",
+          "size": 2774680
         },
         {
-          "path": "material-fidelity/reference/nodes/logical/logic_xor_materialx-osl.png",
-          "sha256": "6b5f11ddc04b0abee99a3f0ae0ee98da341bbbc52877573474b4e4ecaf434574",
-          "size": 506445
+          "path": "material-fidelity/reference/nodes/logical/logic_xor.exr",
+          "sha256": "0c3069fb13805fda8845868c2f2af46bfbf2bf5fba2e9a06bc2bb1b7aac00300",
+          "size": 2774519
         }
       ],
-      "release": "reference-data-20260705T025545Z-272cd207-a1eabdf9"
+      "release": "reference-data-20260705T063325Z-2ac63e9f-4fb56078"
     },
     "material-fidelity/nodes/math": {
       "archive": "material-fidelity--nodes--math--880d3accbaf2.zip",
