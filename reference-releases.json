@@ -2164,9 +2164,9 @@
       "release": "reference-data-20260705T192256Z-18af9443-137646a8"
     },
     "material-fidelity/nodes/procedurals": {
-      "archive": "material-fidelity--nodes--procedurals--045a96508dce.zip",
-      "archive_sha256": "064864cb3332ba3479fba26fe3ec0d42b2077963bcab59d63c040eebaa2c8acf",
-      "archive_size": 10245762,
+      "archive": "material-fidelity--nodes--procedurals--aafd16bae384.zip",
+      "archive_sha256": "fbfa47ba9d240a22fce958d5392c46bc085bcc664927b5b0dbd565bb5e6fb607",
+      "archive_size": 23844496,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/procedurals/constant_materialx-osl.png",
@@ -2184,9 +2184,9 @@
           "size": 517257
         },
         {
-          "path": "material-fidelity/reference/nodes/procedurals/ramp_degenerate_inverted_endpoints_out_of_range_texcoord_materialx-osl.png",
-          "sha256": "ca34614077bfadb655eaefe5fea83417591f48c680c7780a593d25809216a5e8",
-          "size": 495554
+          "path": "material-fidelity/reference/nodes/procedurals/ramp_degenerate_inverted_endpoints_out_of_range_texcoord.exr",
+          "sha256": "97c410511c7e80f9fb1f2649ba83aa783ad772f4dcef6c7160730d7c087c9314",
+          "size": 2773678
         },
         {
           "path": "material-fidelity/reference/nodes/procedurals/ramp_gradient_materialx-osl.png",
@@ -2214,19 +2214,19 @@
           "size": 517257
         },
         {
-          "path": "material-fidelity/reference/nodes/procedurals/ramptb_compare_default_vs_inverted_materialx-osl.png",
-          "sha256": "91d9c05737d945a376ecd3f0a3fe9c60b735ecee10254aa5b7872ecddfa2e902",
-          "size": 519263
+          "path": "material-fidelity/reference/nodes/procedurals/ramptb_compare_default_vs_inverted.exr",
+          "sha256": "4595609036aa81684b011106d893c67d22fdc2589d264a5922a26675e2c1f543",
+          "size": 2774364
         },
         {
-          "path": "material-fidelity/reference/nodes/procedurals/ramptb_compare_out_of_range_clamp_materialx-osl.png",
-          "sha256": "241754cb134945ac0d8ab6cf4b8f03be3def490e3a05f82454ac0de6909d4680",
-          "size": 519126
+          "path": "material-fidelity/reference/nodes/procedurals/ramptb_compare_out_of_range_clamp.exr",
+          "sha256": "04467fa686876416a060a2f3f5c1b0eea23206d01e3397b5187cff044cb2ec68",
+          "size": 2773698
         },
         {
-          "path": "material-fidelity/reference/nodes/procedurals/ramptb_compare_texcoord_axis_materialx-osl.png",
-          "sha256": "e8a12093019de9db40430c785378aa75675b1a156363542c715d72c0b3469bff",
-          "size": 518828
+          "path": "material-fidelity/reference/nodes/procedurals/ramptb_compare_texcoord_axis.exr",
+          "sha256": "6e565a7e76233f49db037b219c02dab34c7cc5b687298904b05e40672390d73e",
+          "size": 2773443
         },
         {
           "path": "material-fidelity/reference/nodes/procedurals/ramptb_equal_endpoints_constant_materialx-osl.png",
@@ -2254,14 +2254,14 @@
           "size": 517257
         },
         {
-          "path": "material-fidelity/reference/nodes/procedurals/splittb_compare_center_shift_materialx-osl.png",
-          "sha256": "93b079560d7d5d544d41a8ea0a7b9caba612af7ebc04f5dbd9486d71221e9c09",
-          "size": 486653
+          "path": "material-fidelity/reference/nodes/procedurals/splittb_compare_center_shift.exr",
+          "sha256": "5d71a3f35c40e6e3e0ca0ba0d4d61dfacf07e44766c1455144fa425f37758665",
+          "size": 2773539
         },
         {
-          "path": "material-fidelity/reference/nodes/procedurals/splittb_compare_default_vs_inverted_materialx-osl.png",
-          "sha256": "fe1d45fc73c49402ed4007490465840e9c3d8561f5e20a35cd666d0f032b83d1",
-          "size": 505038
+          "path": "material-fidelity/reference/nodes/procedurals/splittb_compare_default_vs_inverted.exr",
+          "sha256": "fc86a9a01f04b1936e07ee68256e29d98bbd5bd29a5ae90cff4aa9b2635d8fc0",
+          "size": 2774642
         },
         {
           "path": "material-fidelity/reference/nodes/procedurals/splittb_materialx-osl.png",
@@ -2269,7 +2269,7 @@
           "size": 517257
         }
       ],
-      "release": "reference-data-20260705T025545Z-272cd207-a1eabdf9"
+      "release": "reference-data-20260705T193152Z-4baf568b-6d3f8f27"
     },
     "material-fidelity/nodes/textures": {
       "archive": "material-fidelity--nodes--textures--4b03a6067439.zip",
