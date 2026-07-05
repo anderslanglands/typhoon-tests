@@ -2078,22 +2078,22 @@
       "release": "reference-data-20260705T191033Z-aad881d6-d0cc643c"
     },
     "material-fidelity/nodes/patterns": {
-      "archive": "material-fidelity--nodes--patterns--a8fb858fb96a.zip",
-      "archive_sha256": "028d7ba7bb2c3ce995e479704093d8edc15476690a9755d6dd32379d14ab6911",
-      "archive_size": 990776,
+      "archive": "material-fidelity--nodes--patterns--4e584991d769.zip",
+      "archive_sha256": "c8db3ddd42ef2f62875b7e3cf44578d575a2b4ed43c5fa28a729c45b910eba76",
+      "archive_size": 5548204,
       "files": [
         {
-          "path": "material-fidelity/reference/nodes/patterns/checkerboard_materialx-osl.png",
-          "sha256": "a7f4b63e8bd8e9f5740698dc927b46c5da5dcd4c31500f6df8a44a23c5b18c0b",
-          "size": 472107
+          "path": "material-fidelity/reference/nodes/patterns/checkerboard.exr",
+          "sha256": "8e3180d54e80c020a4b132715cc3cbbfe71ffc441cd392a75149e691a509db0a",
+          "size": 2775125
         },
         {
-          "path": "material-fidelity/reference/nodes/patterns/circle_materialx-osl.png",
-          "sha256": "253f07aacf2e1fe516082285dc535553da1d738a35fa2f7374406a9b5af907d7",
-          "size": 518215
+          "path": "material-fidelity/reference/nodes/patterns/circle.exr",
+          "sha256": "31371db19680f7c847031bf26061c14bfa3723e38102a72138011269170250c6",
+          "size": 2772681
         }
       ],
-      "release": "reference-data-20260705T025545Z-272cd207-a1eabdf9"
+      "release": "reference-data-20260705T191248Z-4aaab91e-73b82164"
     },
     "material-fidelity/nodes/pbr": {
       "archive": "material-fidelity--nodes--pbr--a4659579df3f.zip",
