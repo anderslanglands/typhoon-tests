@@ -26,7 +26,7 @@ def Scope "Looks"
         def Shader "SR_open_pbr_surface_sweep_thin_film_thickness_0_25"
         {
             uniform token info:id = "ND_open_pbr_surface_surfaceshader"
-            color3f inputs:base_color = (0.02, 0.02, 0.02)
+            color3f inputs:base_color = (0, 0, 0)
             float inputs:base_metalness = 0
             float inputs:base_weight = 1
             float inputs:coat_weight = 0

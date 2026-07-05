@@ -1,9 +1,9 @@
 {
   "groups": {
     "material-fidelity/surfaces/open_pbr_surface": {
-      "archive": "material-fidelity--surfaces--open_pbr_surface--02f49b214cca.zip",
-      "archive_sha256": "4a95ba426b6a5cc179c7a5ce48e2cf252b2a92ee005aca2cf7203bd4d90c9442",
-      "archive_size": 128681194,
+      "archive": "material-fidelity--surfaces--open_pbr_surface--abbbafb287b8.zip",
+      "archive_sha256": "2d5e8bd0179835b0e9a71b920ed1b8be7dd37ec2f4b757c684456d38b3767e9f",
+      "archive_size": 140130027,
       "files": [
         {
           "path": "material-fidelity/reference/surfaces/open_pbr_surface/brushed_metal_anisotropy.exr",
@@ -72,8 +72,8 @@
         },
         {
           "path": "material-fidelity/reference/surfaces/open_pbr_surface/feature_thin_film.exr",
-          "sha256": "c7897c7facf8894ad4d6e5440123f24801d3be34e42902adf3a33484084fb4e1",
-          "size": 2774962
+          "sha256": "46b069eaea2d7ace563a5fe0dcdccc2a4184d42fd96ba71deda844bb56653e81",
+          "size": 2774653
         },
         {
           "path": "material-fidelity/reference/surfaces/open_pbr_surface/feature_transmission_materialx-osl.png",
@@ -316,29 +316,29 @@
           "size": 2773290
         },
         {
-          "path": "material-fidelity/reference/surfaces/open_pbr_surface/open_pbr_surface_sweep_thin_film_thickness_0_00_materialx-osl.png",
-          "sha256": "c3876a2e175cd5fc22fabe898dd4449789e3dcf02a9cfdfa7525d36840d266bc",
-          "size": 485263
+          "path": "material-fidelity/reference/surfaces/open_pbr_surface/open_pbr_surface_sweep_thin_film_thickness_0_00.exr",
+          "sha256": "682c8997c72ff9fbc4595b9dbed01d45bbf442a03f5754d16d6838f9074a6cd7",
+          "size": 2775482
         },
         {
-          "path": "material-fidelity/reference/surfaces/open_pbr_surface/open_pbr_surface_sweep_thin_film_thickness_0_25_materialx-osl.png",
-          "sha256": "c3876a2e175cd5fc22fabe898dd4449789e3dcf02a9cfdfa7525d36840d266bc",
-          "size": 485263
+          "path": "material-fidelity/reference/surfaces/open_pbr_surface/open_pbr_surface_sweep_thin_film_thickness_0_25.exr",
+          "sha256": "dc1db123dd97b6bab3fabd8e5c96561f132547120339eb0a8a9cacc027b8aecf",
+          "size": 2775250
         },
         {
-          "path": "material-fidelity/reference/surfaces/open_pbr_surface/open_pbr_surface_sweep_thin_film_thickness_0_50_materialx-osl.png",
-          "sha256": "c3876a2e175cd5fc22fabe898dd4449789e3dcf02a9cfdfa7525d36840d266bc",
-          "size": 485263
+          "path": "material-fidelity/reference/surfaces/open_pbr_surface/open_pbr_surface_sweep_thin_film_thickness_0_50.exr",
+          "sha256": "ea929958c6a607f0379c2850815aff946eabebc5e3a95c86dc288a92ca00fe39",
+          "size": 2774493
         },
         {
-          "path": "material-fidelity/reference/surfaces/open_pbr_surface/open_pbr_surface_sweep_thin_film_thickness_0_75_materialx-osl.png",
-          "sha256": "c3876a2e175cd5fc22fabe898dd4449789e3dcf02a9cfdfa7525d36840d266bc",
-          "size": 485263
+          "path": "material-fidelity/reference/surfaces/open_pbr_surface/open_pbr_surface_sweep_thin_film_thickness_0_75.exr",
+          "sha256": "3c4eddb0146a7f0bf3a98e027a65ce06f1fc8f94f5bf642d4eedec17f1ad3a95",
+          "size": 2775278
         },
         {
-          "path": "material-fidelity/reference/surfaces/open_pbr_surface/open_pbr_surface_sweep_thin_film_thickness_1_00_materialx-osl.png",
-          "sha256": "c3876a2e175cd5fc22fabe898dd4449789e3dcf02a9cfdfa7525d36840d266bc",
-          "size": 485263
+          "path": "material-fidelity/reference/surfaces/open_pbr_surface/open_pbr_surface_sweep_thin_film_thickness_1_00.exr",
+          "sha256": "457982f62f880284f17a61e2788947427beab5a55824c6ae9c027e834bfb6070",
+          "size": 2775094
         },
         {
           "path": "material-fidelity/reference/surfaces/open_pbr_surface/open_pbr_surface_sweep_transmission_dispersion_scale_0_00_materialx-osl.png",
@@ -391,7 +391,7 @@
           "size": 410969
         }
       ],
-      "release": "reference-data-20260705T002219Z-1521a9ef-cf53a362"
+      "release": "reference-data-20260705T003608Z-70aa011c-0217471e"
     },
     "materialx": {
       "archive": "materialx--4e54f0e02666.zip",
