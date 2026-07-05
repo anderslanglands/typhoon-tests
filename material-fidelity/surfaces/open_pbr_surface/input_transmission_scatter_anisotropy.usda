@@ -26,6 +26,7 @@ def Scope "Looks"
         def Shader "open_pbr_surface_surfaceshader"
         {
             uniform token info:id = "ND_open_pbr_surface_surfaceshader"
+            float inputs:transmission_depth = 0.3
             color3f inputs:transmission_scatter = (0.4, 0.2, 0.1)
             float inputs:transmission_scatter_anisotropy = 0.85
             float inputs:transmission_weight = 1
