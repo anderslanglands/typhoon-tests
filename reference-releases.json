@@ -2272,39 +2272,39 @@
       "release": "reference-data-20260705T193152Z-4baf568b-6d3f8f27"
     },
     "material-fidelity/nodes/textures": {
-      "archive": "material-fidelity--nodes--textures--df8a7603d543.zip",
-      "archive_sha256": "b52922c7cf78079ad9fae52a3889421eee8c48a2cea2cc0be760ce070c0ad97e",
-      "archive_size": 65615947,
+      "archive": "material-fidelity--nodes--textures--941b863a2c7d.zip",
+      "archive_sha256": "3ada4d1892d0bdb064193626cfa9c6d4b2aca35498c5d43433ecbe7fb18ee10b",
+      "archive_size": 79197098,
       "files": [
         {
-          "path": "material-fidelity/reference/nodes/textures/gltf_normalmap_defaults_materialx-osl.png",
-          "sha256": "8e8f7c18cb7e6320ee8d86750bb5b370ffb766487bb205f3b579f3c00ebe35fe",
-          "size": 510439
+          "path": "material-fidelity/reference/nodes/textures/gltf_normalmap_defaults.exr",
+          "sha256": "a43da6c94a34ed64b9ca5e2f82f979611e5b34c8c49d7e4c9b53050bb10d99bb",
+          "size": 2774065
         },
         {
-          "path": "material-fidelity/reference/nodes/textures/gltf_normalmap_isolate_operationorder_zero_materialx-osl.png",
-          "sha256": "352f790df1a93b455a642bd260f19002b11f1c0081174fd4eb5e17ff6932b377",
-          "size": 510736
+          "path": "material-fidelity/reference/nodes/textures/gltf_normalmap_isolate_operationorder_zero.exr",
+          "sha256": "3c0acb1ab3448012b824180f47143abee648eeca8050c8e890e69badf8ea368b",
+          "size": 2773353
         },
         {
-          "path": "material-fidelity/reference/nodes/textures/gltf_normalmap_isolate_rotate_dynamic_materialx-osl.png",
-          "sha256": "2dbc60782094eb664ee6ebcbd8f77a9b48b4c33e356195bb3aa6531a0074c5ae",
-          "size": 509865
+          "path": "material-fidelity/reference/nodes/textures/gltf_normalmap_isolate_rotate_dynamic.exr",
+          "sha256": "56fcb5b31cdc4a8d0ecded423b46a29719b592ae3fd8c90893ebb1b50d5ba382",
+          "size": 2773872
         },
         {
-          "path": "material-fidelity/reference/nodes/textures/gltf_normalmap_isolate_rotate_offset_procedural_materialx-osl.png",
-          "sha256": "7772d48182e7ec426683cb1481515bd9ff6801c967b8a2d281a04993eec9e698",
-          "size": 509895
+          "path": "material-fidelity/reference/nodes/textures/gltf_normalmap_isolate_rotate_offset_procedural.exr",
+          "sha256": "4947297ad9a046327868a2e379292c63adfafebe139f2a42b7c8b4771b4497e1",
+          "size": 2773992
         },
         {
-          "path": "material-fidelity/reference/nodes/textures/gltf_normalmap_isolate_scale_float_materialx-osl.png",
-          "sha256": "0e98e6f63f04466027d3de9736fd24178690365033eddc473a3eb799e44610d4",
-          "size": 511088
+          "path": "material-fidelity/reference/nodes/textures/gltf_normalmap_isolate_scale_float.exr",
+          "sha256": "b9ec7502db9a6b11026fe6f2f4d472e655fb5de53d0dfcc4446d02ef326352f6",
+          "size": 2773957
         },
         {
-          "path": "material-fidelity/reference/nodes/textures/gltf_normalmap_transform_materialx-osl.png",
-          "sha256": "83d6e3b1596149d5cafed504c07101c8961e179b0de37aebddac6820009ccdf8",
-          "size": 509826
+          "path": "material-fidelity/reference/nodes/textures/gltf_normalmap_transform.exr",
+          "sha256": "ffe991ad47b7bd5650576bf13ee211f83b51f3b99237a1c9cd4af5073072ef7d",
+          "size": 2773929
         },
         {
           "path": "material-fidelity/reference/nodes/textures/hextiledimage.exr",
@@ -2502,7 +2502,7 @@
           "size": 2774581
         }
       ],
-      "release": "reference-data-20260705T201612Z-bb724c77-c6a1f4e7"
+      "release": "reference-data-20260705T202509Z-4f5b2b63-02f99e7d"
     },
     "material-fidelity/showcase/gltf_pbr": {
       "archive": "material-fidelity--showcase--gltf_pbr--58411b309b89.zip",
