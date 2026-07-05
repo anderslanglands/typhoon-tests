@@ -1540,542 +1540,542 @@
       "release": "reference-data-20260705T093206Z-229844d0-425dee65"
     },
     "material-fidelity/nodes/noise": {
-      "archive": "material-fidelity--nodes--noise--3b7d82e2cba8.zip",
-      "archive_sha256": "f0a9b048cc51d39106a79dbe2b77a6f3aef8ec2853406e2c9702ee1f22b62afa",
-      "archive_size": 56030277,
+      "archive": "material-fidelity--nodes--noise--096f845f9ef1.zip",
+      "archive_sha256": "ff917ad7fb039b300a1b86367f3b5eda5b0c2bcb939d90e1940b349bd6d6d860",
+      "archive_size": 294106484,
       "files": [
         {
-          "path": "material-fidelity/reference/nodes/noise/cellnoise2d_defaults_materialx-osl.png",
-          "sha256": "33e3e80c5e1d54d67ac5f401bfda7087c45d9fb63d81510732a38e92a5782666",
-          "size": 525135
+          "path": "material-fidelity/reference/nodes/noise/cellnoise2d.exr",
+          "sha256": "b3cc0eaeb251416756a51d7ee3fc69c78d93e43fccb9684f8b365612c87dc890",
+          "size": 2774839
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/cellnoise2d_freq24_materialx-osl.png",
-          "sha256": "94b8e50ccf091437fd466dbd2e59a1a8da4c0280632cb1016c0ffc2e4fd90960",
-          "size": 504455
+          "path": "material-fidelity/reference/nodes/noise/cellnoise2d_defaults.exr",
+          "sha256": "b0ba74da91e6e2eeb8d4a3c964729be4c59c47a7174f92fb9703698bca4cadcf",
+          "size": 2774247
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/cellnoise2d_large_coords_materialx-osl.png",
-          "sha256": "897adf9f801489e5a5323b8db8eaf2e2f80c2ee64e0cddb44c2e7bf8923825a1",
-          "size": 530306
+          "path": "material-fidelity/reference/nodes/noise/cellnoise2d_freq24.exr",
+          "sha256": "faadd8f1925c41f89dc4d5c653c40fc262f536f214bffc48cd0fc09d862493c6",
+          "size": 2774268
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/cellnoise2d_materialx-osl.png",
-          "sha256": "e05b8035f0a5aae498b196d461472256f14bcd08e995a4c4334d194723f12665",
-          "size": 528259
+          "path": "material-fidelity/reference/nodes/noise/cellnoise2d_large_coords.exr",
+          "sha256": "9f2fd6dd8f163c3cd5c1f0287e8d0f60f8803d1a21ad2dfe6e5c592f35b52a0b",
+          "size": 2774284
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/cellnoise2d_omit_texcoord_materialx-osl.png",
-          "sha256": "33e3e80c5e1d54d67ac5f401bfda7087c45d9fb63d81510732a38e92a5782666",
-          "size": 525135
+          "path": "material-fidelity/reference/nodes/noise/cellnoise2d_omit_texcoord.exr",
+          "sha256": "31959085d9217ddb64da3958e5e788b7e2d4c6b2b4528df4f9771ab330cda8d3",
+          "size": 2774370
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/cellnoise3d_defaults_materialx-osl.png",
-          "sha256": "3ed1c7a0bbd50e9e96f41086cd0ad42f56f4b9ada1680087276de855bdeaa848",
-          "size": 530137
+          "path": "material-fidelity/reference/nodes/noise/cellnoise3d.exr",
+          "sha256": "3716f0a506094fdb03249dc4db27fa294772ffa92b64915d1db37ef03a81b12f",
+          "size": 2774132
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/cellnoise3d_freq2_materialx-osl.png",
-          "sha256": "fd79ded6e46de0024813613b4f5cfabb99979490046d35ccfc615256789a6672",
-          "size": 498563
+          "path": "material-fidelity/reference/nodes/noise/cellnoise3d_defaults.exr",
+          "sha256": "c106f58a830ccd7264dfb804c4f24fa4febf86b95696654cc01221d373f0fb0b",
+          "size": 2774358
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/cellnoise3d_large_coords_materialx-osl.png",
-          "sha256": "11c73691de0f0b68f78fd7d961fbadc9ade16ea61f8de3448089d489b6687eb5",
-          "size": 533405
+          "path": "material-fidelity/reference/nodes/noise/cellnoise3d_freq2.exr",
+          "sha256": "a68340f30f39d1201d633a326f1a9a42ffd372f0ad70c1932f7e2303480a4b6d",
+          "size": 2773666
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/cellnoise3d_materialx-osl.png",
-          "sha256": "b3bb1a41725b4586d74eb0f2c3019672f4d4175b2c2fbe6218e8ca65441cd798",
-          "size": 531516
+          "path": "material-fidelity/reference/nodes/noise/cellnoise3d_large_coords.exr",
+          "sha256": "33c6e61f657bbbe4a2b6689cf82621300660bf3f61850fda7e0869ee7a101fad",
+          "size": 2773741
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/cellnoise3d_omit_position_materialx-osl.png",
-          "sha256": "3ed1c7a0bbd50e9e96f41086cd0ad42f56f4b9ada1680087276de855bdeaa848",
-          "size": 530137
+          "path": "material-fidelity/reference/nodes/noise/cellnoise3d_omit_position.exr",
+          "sha256": "a831b69bc8053dc6e7fcec40ed5001ef55e27ca5353fd767667634c943a1eacf",
+          "size": 2774101
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/fractal2d_color_materialx-osl.png",
-          "sha256": "14e9cd0d8de4dc1f1606d3ad6ad17af0c8d48d7c853d9371cc779b3e19ac30e6",
-          "size": 528876
+          "path": "material-fidelity/reference/nodes/noise/fractal2d.exr",
+          "sha256": "65421b28cccd0d789f40cdb2155b22a86e00448b8d96681635c55fa549e736a8",
+          "size": 2774391
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/fractal2d_defaults_materialx-osl.png",
-          "sha256": "00be1433a0bde3b258fcdd27e35928358006b57e8544158875738d9cf429e48d",
-          "size": 537177
+          "path": "material-fidelity/reference/nodes/noise/fractal2d_color.exr",
+          "sha256": "546849c6e7e507bad85e86e7068fde67ec244182bca156d090980232c789be91",
+          "size": 2773902
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/fractal2d_large_coords_materialx-osl.png",
-          "sha256": "44ef255e10b0a7e506bbda51d83189dbe6927494b06e0a51cd3b2c055e0fc02c",
-          "size": 531428
+          "path": "material-fidelity/reference/nodes/noise/fractal2d_defaults.exr",
+          "sha256": "83b4afa569a8145f3b604c80a6a2de8a3a37b25f1024938221cb62cb68febe87",
+          "size": 2774697
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/fractal2d_materialx-osl.png",
-          "sha256": "717fbba1ec54ab1f8bbd87a57ff95b9270fb392b547f01d6fca9eae0663d5331",
-          "size": 532124
+          "path": "material-fidelity/reference/nodes/noise/fractal2d_large_coords.exr",
+          "sha256": "ebe6554cd12e86c81ee51e002faff2d9abbedda6def0d64de166722740fc31f4",
+          "size": 2774024
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/fractal2d_octaves1_materialx-osl.png",
-          "sha256": "d1c4a34175bd2b54f90a801f87829edc84ad2f9967420e629b4d3613f732045f",
-          "size": 532958
+          "path": "material-fidelity/reference/nodes/noise/fractal2d_octaves1.exr",
+          "sha256": "89ad430410fbd1bcbc41b461449c17039c10cd1e51cab48384fae937ae2f7626",
+          "size": 2774127
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/fractal2d_omit_amplitude_materialx-osl.png",
-          "sha256": "d7138a28f900ded1eb4b93efc56f4953b6ffe70f8f20bcf85baf7ac27e3b8153",
-          "size": 535279
+          "path": "material-fidelity/reference/nodes/noise/fractal2d_omit_amplitude.exr",
+          "sha256": "32602099250096000d4329ee5972825d2b0062ea2516bf2923570ea8b096f3e5",
+          "size": 2774847
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/fractal2d_omit_diminish_materialx-osl.png",
-          "sha256": "d265e80076c09db4b70b95ff86e1e86eecf61702203e4a215e7095944182b27c",
-          "size": 531953
+          "path": "material-fidelity/reference/nodes/noise/fractal2d_omit_diminish.exr",
+          "sha256": "ffb7e9e6980cf0972dd06818ea873b2b97195e3da31e8236c1f34094a7d3bf5d",
+          "size": 2773946
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/fractal2d_omit_lacunarity_materialx-osl.png",
-          "sha256": "0c62bc35a5b5862eb212bcc34d8446379b9618f52415cdf8d4bf2d61f2e155c5",
-          "size": 532766
+          "path": "material-fidelity/reference/nodes/noise/fractal2d_omit_lacunarity.exr",
+          "sha256": "4e48050f7fdd551b88c1b363adddaf77e6fba3c6ef1423d55d3086fc8b625aab",
+          "size": 2774694
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/fractal2d_omit_octaves_materialx-osl.png",
-          "sha256": "d81e0f9f8592daed3a7117a7315e53e53ec457698e1633e26299cf4ffde1cc6c",
-          "size": 531685
+          "path": "material-fidelity/reference/nodes/noise/fractal2d_omit_octaves.exr",
+          "sha256": "fbacadd5ff2d21adaff8adb6a91d9a0fd791963d3235284f845cd1c50866bd83",
+          "size": 2774481
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/fractal2d_omit_texcoord_materialx-osl.png",
-          "sha256": "edbd4258866da03c2b5f0ff88e0bf96464bac03b1dba65de09d3458b4169331d",
-          "size": 536742
+          "path": "material-fidelity/reference/nodes/noise/fractal2d_omit_texcoord.exr",
+          "sha256": "590d8745948134b7210c6dabde6c9f326a5610bf1c8ba4790f7c86c4bb044432",
+          "size": 2774360
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/fractal3d_color_materialx-osl.png",
-          "sha256": "8d6ae1afcbcd4c170c1cb276b1a2e5d4bbd2f233df3d787319e244c5c6246fc0",
-          "size": 532362
+          "path": "material-fidelity/reference/nodes/noise/fractal3d.exr",
+          "sha256": "ef1f6fd3f294544933c92501e2617d30e09067490c331068812402e4dd2ebfe6",
+          "size": 2774830
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/fractal3d_defaults_materialx-osl.png",
-          "sha256": "7cd3b8282deeca44bb92287993a9e19a95511f1d973d7863ae0c9e2a41b36027",
-          "size": 532462
+          "path": "material-fidelity/reference/nodes/noise/fractal3d_color.exr",
+          "sha256": "d1b0eb3cc1d1f9e1b0856eb8b13a899a0eabb07ff1f9889524cb4107bd8fc298",
+          "size": 2773829
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/fractal3d_large_coords_materialx-osl.png",
-          "sha256": "8bc544d5db33ce8f507cc5f36b79746ed0fca09a1ec8b0fc6cb446c6320d82d3",
-          "size": 533338
+          "path": "material-fidelity/reference/nodes/noise/fractal3d_defaults.exr",
+          "sha256": "53a8362585ca89e3faf420e18874cecf743ba925312f23f20ff5b4420e80af17",
+          "size": 2773941
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/fractal3d_materialx-osl.png",
-          "sha256": "4c482427977f12da5f8e058bf79b9fbc6def945c28253a828e059a3c281793db",
-          "size": 535902
+          "path": "material-fidelity/reference/nodes/noise/fractal3d_large_coords.exr",
+          "sha256": "bce78b6154b590b1fc0041b911fafae9b6a9ee8b236a133c7969474e3fadfe38",
+          "size": 2774332
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/fractal3d_octaves1_materialx-osl.png",
-          "sha256": "42fba13bcfeca7b606d1488701ad27661484cfc499c3facc453c719a3d1fe222",
-          "size": 532701
+          "path": "material-fidelity/reference/nodes/noise/fractal3d_octaves1.exr",
+          "sha256": "79a65648ea0fc9021012f8529d57445bff3d3f9778b087d6d9733b7e86541350",
+          "size": 2774241
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/fractal3d_omit_amplitude_materialx-osl.png",
-          "sha256": "6627ab13f6cc23bfa87fd3a5dba66546efc51382314cb13b3faf61f3102dea77",
-          "size": 535369
+          "path": "material-fidelity/reference/nodes/noise/fractal3d_omit_amplitude.exr",
+          "sha256": "a9c80d67a1778a10cb5cad150bc7af0c10eab82e4bfa702db4a72d907853399c",
+          "size": 2774985
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/fractal3d_omit_diminish_materialx-osl.png",
-          "sha256": "1ab63ef36f5306bdb9d4b1b77d40bd7e02c7bd1633ebea9d3fe778f12c337a72",
-          "size": 535108
+          "path": "material-fidelity/reference/nodes/noise/fractal3d_omit_diminish.exr",
+          "sha256": "74ac44767c64cfd11a467a6a5d637b70ed7d8396ea169b8a3d2c24aa8c2e2a1e",
+          "size": 2774585
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/fractal3d_omit_lacunarity_materialx-osl.png",
-          "sha256": "8bb68befd375fb0995ea23db866275b9c55778b0415a7ad55af25dd67f7319e4",
-          "size": 535489
+          "path": "material-fidelity/reference/nodes/noise/fractal3d_omit_lacunarity.exr",
+          "sha256": "949c7956c3afec5fb993446b913343000931b61b2bf50ebfe1e3b4edb6710789",
+          "size": 2774866
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/fractal3d_omit_octaves_materialx-osl.png",
-          "sha256": "2d5946f097ed174c9e76f916065fa4c32373699522133354d05a1f7ae855523d",
-          "size": 534554
+          "path": "material-fidelity/reference/nodes/noise/fractal3d_omit_octaves.exr",
+          "sha256": "f930d91a82f0220c1c6dddc2fa6878447af0bfe33cf2a8d5a62be63143a90667",
+          "size": 2773974
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/fractal3d_omit_position_materialx-osl.png",
-          "sha256": "c03823bd8f873c6e13b665ced76d0d0ab3a66dffe5c6ef979013e9578fae3454",
-          "size": 531563
+          "path": "material-fidelity/reference/nodes/noise/fractal3d_omit_position.exr",
+          "sha256": "2266cd4b5ecd348f18c075585603df638183532f51ba2ed6983b092a3eac3eeb",
+          "size": 2774068
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/noise2d_color_materialx-osl.png",
-          "sha256": "e779696e9c23ef98c4f65aecf0ad63cb6cbf067d5df05fbf2368a3a06d7ff50c",
-          "size": 526964
+          "path": "material-fidelity/reference/nodes/noise/noise2d.exr",
+          "sha256": "1f8a47039d08f0ea763071715d10d3b63028bc32892fbbb730bf7e88592cdc23",
+          "size": 2774172
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/noise2d_defaults_materialx-osl.png",
-          "sha256": "998c0a9cc1c139f2240aaf1aa471fe4ca9953fbecf6fd675e473f1adf4f1a130",
-          "size": 534055
+          "path": "material-fidelity/reference/nodes/noise/noise2d_color.exr",
+          "sha256": "d1fb355676055a941b318998787781b6695753b703598331785ddafdf94b1eb0",
+          "size": 2773328
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/noise2d_large_coords_materialx-osl.png",
-          "sha256": "56e9deb5a55cf26b5cdb29d3354d180dc4f2b0281e679e952b4fbb074da47701",
-          "size": 533180
+          "path": "material-fidelity/reference/nodes/noise/noise2d_defaults.exr",
+          "sha256": "d0615de53bfb0af04230c0b55de33b2702792885fa627601ed0494fc69618266",
+          "size": 2774218
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/noise2d_materialx-osl.png",
-          "sha256": "23339b23b35871d986a335b16aa8158be1025cf50a9ed091ff7baadbc637aade",
-          "size": 532622
+          "path": "material-fidelity/reference/nodes/noise/noise2d_large_coords.exr",
+          "sha256": "01498f11bc8fef49382e850d96cf321d7d0bf6f43781e1ef35572b035c0c2771",
+          "size": 2775303
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/noise2d_omit_amplitude_materialx-osl.png",
-          "sha256": "0f7108cca233e8cbf230c119c6083df1fc3b1d73d05a04db90d4fcb559ca282c",
-          "size": 535019
+          "path": "material-fidelity/reference/nodes/noise/noise2d_omit_amplitude.exr",
+          "sha256": "b5d62d3fe090f61a37121af76b82ac4874703e02c1ae764355a7368eddb166cb",
+          "size": 2775223
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/noise2d_omit_pivot_materialx-osl.png",
-          "sha256": "dbc02ddab6e346557a5e497c05bb0003e25ac1613751c19a09c75a0c4e9177c8",
-          "size": 531032
+          "path": "material-fidelity/reference/nodes/noise/noise2d_omit_pivot.exr",
+          "sha256": "1de893bbfac5f487d3a576b8cc9e4b5783b7ed8be7be813a32c8634fcc71b7d9",
+          "size": 2773815
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/noise2d_omit_texcoord_materialx-osl.png",
-          "sha256": "c7b14356a14506fcbc170af9f4fc4330b21de1e24ae650ac5072e535873f016d",
-          "size": 531944
+          "path": "material-fidelity/reference/nodes/noise/noise2d_omit_texcoord.exr",
+          "sha256": "0a3c1a489d5894558e3ca27b8c05b518f973493f9867b7cf5af5d3410e4e6046",
+          "size": 2774484
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/noise3d_color_materialx-osl.png",
-          "sha256": "055813c5d0d13f09a3207bd261569ee853a906abdaaeee54e942f6a2a11b3341",
-          "size": 529838
+          "path": "material-fidelity/reference/nodes/noise/noise3d.exr",
+          "sha256": "a4cc867663cbb87035530f5d13f78d486db41d61698752dc030315bfeef7689f",
+          "size": 2774405
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/noise3d_defaults_materialx-osl.png",
-          "sha256": "5f27e5c001fd899f5a2b1a1de9ec604718e28b41060ebae662e45a2df47c338f",
-          "size": 530580
+          "path": "material-fidelity/reference/nodes/noise/noise3d_color.exr",
+          "sha256": "14f317450793785cdfbc3182e409d0d7280bd1fcc85d2fd5f86a76b8fefc34df",
+          "size": 2773346
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/noise3d_large_coords_materialx-osl.png",
-          "sha256": "7f7141916dedd7a3acf4268775aac18dc26290af65650972aa8def075c040bf7",
-          "size": 531002
+          "path": "material-fidelity/reference/nodes/noise/noise3d_defaults.exr",
+          "sha256": "0fe32f9d137de37af1091a5dfa6d144b8d7fa3253c56c2ff9257df0ca3f7bb0f",
+          "size": 2774659
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/noise3d_materialx-osl.png",
-          "sha256": "a8afbc2e6ed4bd52f158a95f8bc51eafce125d64ab2738ed4a6dd50c443f9ce7",
-          "size": 531408
+          "path": "material-fidelity/reference/nodes/noise/noise3d_large_coords.exr",
+          "sha256": "54ddc78712128c290db2a4ad6a531a512b03a87889145132b174bf42c39b35c4",
+          "size": 2774211
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/noise3d_omit_amplitude_materialx-osl.png",
-          "sha256": "3c1956670af66fb68df34a04ad57373ed882744bdffe295a86dd589a87c3a7bb",
-          "size": 531497
+          "path": "material-fidelity/reference/nodes/noise/noise3d_omit_amplitude.exr",
+          "sha256": "b764bc6f76f91ee876d88c9a52af82c651f5b9870f4839501f2606c89416cd6a",
+          "size": 2773873
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/noise3d_omit_pivot_materialx-osl.png",
-          "sha256": "d79d70b6a4d820c5a0b496db4e660a4b7a6b6a0f81136ed0757f8e12dcb382aa",
-          "size": 531550
+          "path": "material-fidelity/reference/nodes/noise/noise3d_omit_pivot.exr",
+          "sha256": "60d3697ac871fa64a5eec4215957a63f5b2d41086ab46e0c3c992329c3125569",
+          "size": 2774072
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/noise3d_omit_position_materialx-osl.png",
-          "sha256": "ad7c1dd14b7a25e7a81a34d4cb4e8c329cdcea312c8017eb4e9ba7ade0e136de",
-          "size": 529538
+          "path": "material-fidelity/reference/nodes/noise/noise3d_omit_position.exr",
+          "sha256": "559f6524e597beb8bd1bee6ba489d957e845566b65d7e363e555ea68917826e5",
+          "size": 2774078
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_defaults_materialx-osl.png",
-          "sha256": "02c33ddad3e83035aae47db0357f88e4ba32c66c65785ee3404da254a6778b2a",
-          "size": 524542
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d.exr",
+          "sha256": "8325e69006a77f0f46fb7280a0b150cb79d94c5dcef54b7dd2b8c99f9869567d",
+          "size": 2773936
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_large_coords_materialx-osl.png",
-          "sha256": "e95e9d37e51f4dadcdda24e4f53b2f77c28c4bc73c94beb25377a5234599d3aa",
-          "size": 529124
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_defaults.exr",
+          "sha256": "a44fb4d88c4dc594c8e569beface575ee5e630115c1c0538559dd2242d945e9c",
+          "size": 2774933
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_materialx-osl.png",
-          "sha256": "66f000de11360d0016200ff901b95e6dc8cd58b57864600f7d641d11ff932547",
-          "size": 528756
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_large_coords.exr",
+          "sha256": "df846290132444376e555b4fff8af398f081ce3a668c9707b16cfa86f1b06cb5",
+          "size": 2774292
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_omit_clampoutput_materialx-osl.png",
-          "sha256": "66f000de11360d0016200ff901b95e6dc8cd58b57864600f7d641d11ff932547",
-          "size": 528756
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_omit_clampoutput.exr",
+          "sha256": "64b27ebf29b75af79207e8a16f7939e5a3f04faa80ddb0a7a47a2ceba5aff9e4",
+          "size": 2774681
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_omit_diminish_materialx-osl.png",
-          "sha256": "66f000de11360d0016200ff901b95e6dc8cd58b57864600f7d641d11ff932547",
-          "size": 528756
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_omit_diminish.exr",
+          "sha256": "9dac961a7ad30efd5da27d6b50834d3ad91fd1d9596afae77d061658a71a7985",
+          "size": 2774237
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_omit_freq_materialx-osl.png",
-          "sha256": "cb60cc80d3ba1389fb58c915fce385e6523f1a4db036c15e10530dd251afc6a7",
-          "size": 529227
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_omit_freq.exr",
+          "sha256": "e6d6e9f7230e62f4d7fb45b18c77f17f9888eb1fa25acdd1a8dbec080ebaf495",
+          "size": 2774744
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_omit_jitter_materialx-osl.png",
-          "sha256": "3db4ef2220e32d340d516458948494ae14ee96ab2de25fcdc1a4b7725d17f30d",
-          "size": 528677
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_omit_jitter.exr",
+          "sha256": "f777004d29c28dfb076ff98e6d2af7201d0a2d75358c235933801fd1f0016c77",
+          "size": 2774700
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_omit_lacunarity_materialx-osl.png",
-          "sha256": "66f000de11360d0016200ff901b95e6dc8cd58b57864600f7d641d11ff932547",
-          "size": 528756
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_omit_lacunarity.exr",
+          "sha256": "17185f6d56469e74d9edbbbccd888200f2964111b1f630acd1a0570057aff29d",
+          "size": 2773754
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_omit_octaves_materialx-osl.png",
-          "sha256": "66f000de11360d0016200ff901b95e6dc8cd58b57864600f7d641d11ff932547",
-          "size": 528756
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_omit_octaves.exr",
+          "sha256": "20ca7e9bbf84e0bd386b603d92c2428ba6f236768fcc5bdec7782fce75ca4b38",
+          "size": 2774529
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_omit_offset_materialx-osl.png",
-          "sha256": "c07fcb13bbb661113963ca4195f340de98c59b0acc43baa5fa6fc957ef8d5d88",
-          "size": 528479
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_omit_offset.exr",
+          "sha256": "ab3d24467dc7cc62baec24f3160c485e65d8fbad808c6d7719dcd3f4c234e96d",
+          "size": 2773818
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_omit_outmax_materialx-osl.png",
-          "sha256": "0cf9b858860627b3f445f7b9554e84ff144d7befcb894f55d7a15d6aad4a71f9",
-          "size": 528414
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_omit_outmax.exr",
+          "sha256": "2c03da924018af8d5b47a7b41358982ad4dcb8980f5386c1290eceb1945242af",
+          "size": 2774330
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_omit_outmin_materialx-osl.png",
-          "sha256": "6038e7dc6c797be8738a017c090f847515f6ff2e0de7310ebdd8f429620647ec",
-          "size": 525537
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_omit_outmin.exr",
+          "sha256": "a734e2bdaa68b05077a4fb70b53a92c30a11aef5bd963b7b674add216a62b29d",
+          "size": 2774562
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_omit_style_materialx-osl.png",
-          "sha256": "66f000de11360d0016200ff901b95e6dc8cd58b57864600f7d641d11ff932547",
-          "size": 528756
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_omit_style.exr",
+          "sha256": "cdd2c3d156d9dd391d3ff443d5f7282f3253ade5905230ebc7333e850490c13d",
+          "size": 2774792
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_omit_texcoord_materialx-osl.png",
-          "sha256": "2cb4d2a1ccaaef2411ebf4d0e0111c5775f9c5a3af344a77a7feb096a4cf7e7e",
-          "size": 529541
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_omit_texcoord.exr",
+          "sha256": "cf28597ed1664a2bf0d5b20e9663bfc1852101951f6951c909369ac566766847",
+          "size": 2774238
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_omit_type_materialx-osl.png",
-          "sha256": "e4fa992e6d44b107ebb295e8b5afe46d67bd786f8ef58fd1343984550f8e8870",
-          "size": 528971
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_omit_type.exr",
+          "sha256": "dda59fda543b2b469e3a461a1b199442b54de95b5ae255f085b3e7818779c35a",
+          "size": 2774124
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_style0_materialx-osl.png",
-          "sha256": "acec0fb0f81d88309f1e62db36ed394c43f47f438a80831c3e4a741cba683d70",
-          "size": 530111
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_style0.exr",
+          "sha256": "f78ff44a0eda685b432bd56c4163582352ed1e453e65744d3acca0b206767574",
+          "size": 2774868
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_style1_materialx-osl.png",
-          "sha256": "a8dd301120c493f706fd3efe790329c11241744963884afe1a6948f50f3059a1",
-          "size": 529225
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_style1.exr",
+          "sha256": "1a574c9bc571cbe0c04b867db2dd0d6ff18ce3220968e689a5868a00229a742d",
+          "size": 2774039
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_type0_materialx-osl.png",
-          "sha256": "e4fa992e6d44b107ebb295e8b5afe46d67bd786f8ef58fd1343984550f8e8870",
-          "size": 528971
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_type0.exr",
+          "sha256": "67dcd42bbcba953a1a814ec6ff275c24fd597dc1bcbd38d3947b2f6c3313e42f",
+          "size": 2774739
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_type1_materialx-osl.png",
-          "sha256": "66f000de11360d0016200ff901b95e6dc8cd58b57864600f7d641d11ff932547",
-          "size": 528756
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_type1.exr",
+          "sha256": "9d9852ec0ed5336a774247fd86e6c5345210ce4e6f4b2637c6c6755081bc82c5",
+          "size": 2774637
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_type2_materialx-osl.png",
-          "sha256": "acec0fb0f81d88309f1e62db36ed394c43f47f438a80831c3e4a741cba683d70",
-          "size": 530111
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_type2.exr",
+          "sha256": "cb69a45e54fdf59aa28a25c3023978127c25d59559a0e793dcaf03990522f8d3",
+          "size": 2774562
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_type3_materialx-osl.png",
-          "sha256": "130d60789e40abf1e5b3f419dd116a6eb62f46d9ef0b16ed0f7b4df42f246061",
-          "size": 531976
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise2d_type3.exr",
+          "sha256": "e013c86fd9798310c8f5f28b86c34b55f1f7ace3655edb7d215c68ef66806bc2",
+          "size": 2775810
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_defaults_materialx-osl.png",
-          "sha256": "26a1c1207b0e4c130b179ef1095b6e2c826cbae2e9f05c84fc1b0cc92331f597",
-          "size": 521862
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d.exr",
+          "sha256": "711b5ef1f94043a05de59099fe92e5d8911fd630e00773a64b06550ce67a601f",
+          "size": 2774694
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_large_coords_materialx-osl.png",
-          "sha256": "eb96c2a85994dd28d96f993e53a262ca250e508557c8c6d67b315a4399f269a1",
-          "size": 532724
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_defaults.exr",
+          "sha256": "f4f94087fafbc357ac2e3b92775a938537a1f02cef53c7c7326a802853933b32",
+          "size": 2774167
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_materialx-osl.png",
-          "sha256": "c06ef545ee9c65e0e1416c8cc16830e27cf17d2c0f16bd6e2523c92529a15c2b",
-          "size": 532717
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_large_coords.exr",
+          "sha256": "ee7f214d8ede1e0ca2aae6ce91bc3664dd404068d175e78f38c99a5a28dab000",
+          "size": 2774434
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_omit_clampoutput_materialx-osl.png",
-          "sha256": "c06ef545ee9c65e0e1416c8cc16830e27cf17d2c0f16bd6e2523c92529a15c2b",
-          "size": 532717
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_omit_clampoutput.exr",
+          "sha256": "7d435645feb0796047a691449fc9376d9ef2f140fe32a028bbdfc11faec87310",
+          "size": 2774107
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_omit_diminish_materialx-osl.png",
-          "sha256": "c06ef545ee9c65e0e1416c8cc16830e27cf17d2c0f16bd6e2523c92529a15c2b",
-          "size": 532717
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_omit_diminish.exr",
+          "sha256": "e8c91e9ec6e4adb5a5e39a600406b5cc36596573f4a458a6ee12e41a8e667269",
+          "size": 2774201
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_omit_freq_materialx-osl.png",
-          "sha256": "74aee0a0314cd696cb0b0ac02632e3babcec85600657a21b68afb1d5b6b7ae7c",
-          "size": 533464
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_omit_freq.exr",
+          "sha256": "da73ab0188afea6064eb792d63c1732be2464f98c8d53f16b6ccfbe1741f38a9",
+          "size": 2774248
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_omit_jitter_materialx-osl.png",
-          "sha256": "4bb60be5801a1fa0f964080f4d282046a508f18ae52595b5a84ada756fbe3a73",
-          "size": 533307
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_omit_jitter.exr",
+          "sha256": "47b15f5315c0e6b4745d88e42fade17289b186bac3f344bb327f7b8ade11f0fa",
+          "size": 2773344
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_omit_lacunarity_materialx-osl.png",
-          "sha256": "c06ef545ee9c65e0e1416c8cc16830e27cf17d2c0f16bd6e2523c92529a15c2b",
-          "size": 532717
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_omit_lacunarity.exr",
+          "sha256": "a845c288a61554733bd8383c3e93ff51f9dc6572090207f63810a98c9e7db3ec",
+          "size": 2774416
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_omit_octaves_materialx-osl.png",
-          "sha256": "c06ef545ee9c65e0e1416c8cc16830e27cf17d2c0f16bd6e2523c92529a15c2b",
-          "size": 532717
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_omit_octaves.exr",
+          "sha256": "1bc41ef69465cb84177a08e71f5e6e2391604e1d9b542b9d9c5db2d26a39c69b",
+          "size": 2774183
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_omit_offset_materialx-osl.png",
-          "sha256": "d95bc0e842af96b6b91f43bafb7b6413d402bd880cfa766470d71e6dc45a67c0",
-          "size": 532771
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_omit_offset.exr",
+          "sha256": "b00c0b083f49b65efb85078e6bb3741aef6de896ded68f9946080bb6fe0e1950",
+          "size": 2774270
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_omit_outmax_materialx-osl.png",
-          "sha256": "1c5afcc33dca3d9a3204e260690ad94768f00ba2e3e237243688e346ed6b9357",
-          "size": 531343
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_omit_outmax.exr",
+          "sha256": "c08b38ce991f9505527e181a9bd8d4bfef5aca205d3607c43fda926969d0910e",
+          "size": 2774343
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_omit_outmin_materialx-osl.png",
-          "sha256": "68c088c2e8ba6d6257a4f6f34c1eca6f238feba5e15097b8f7247bffbf1e7cef",
-          "size": 528543
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_omit_outmin.exr",
+          "sha256": "ce31087190ff9d33ab0dbc7143cb3f1d843ccda8a2ba62fa44fb7d2b504a0eaf",
+          "size": 2774562
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_omit_position_materialx-osl.png",
-          "sha256": "891285fa814f4bbca82341d4c9265541c5fbe95783429e4ad99e6ed7aadbc9f8",
-          "size": 532761
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_omit_position.exr",
+          "sha256": "bb8cbd7e98183b764f7a122b463d6ce3237466858cb93be6ec3ecaee9895f8dc",
+          "size": 2774556
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_omit_style_materialx-osl.png",
-          "sha256": "c06ef545ee9c65e0e1416c8cc16830e27cf17d2c0f16bd6e2523c92529a15c2b",
-          "size": 532717
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_omit_style.exr",
+          "sha256": "1eb096ce80a2b201487bdeb57bfd8287a0c99884968053ddde0d211ad131c237",
+          "size": 2774148
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_omit_type_materialx-osl.png",
-          "sha256": "64fb49d59ac49eab727e26e8fc8bf14f6c5947b3d29488143341d09301febe92",
-          "size": 536831
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_omit_type.exr",
+          "sha256": "6b162a843dd661a558e6d68d7cfb4d8cff97a1e4ba9258ad39fe2215b20a79d3",
+          "size": 2774290
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_style0_materialx-osl.png",
-          "sha256": "11dcec659a9e11454e970a1e627f87fb4d3705da3a8c1ef969338dcfe134e726",
-          "size": 536959
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_style0.exr",
+          "sha256": "d6e0540f31cd48e6f8fee13979c9d7535ab61950b9947fca7466d60dcb16be6a",
+          "size": 2774933
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_style1_materialx-osl.png",
-          "sha256": "62f847f65d2f4dfe07856c142da6d92f54e838f638b861de485cc88007b9249d",
-          "size": 534232
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_style1.exr",
+          "sha256": "0a244803e691966514e9a99ab66a1ffd29121a1b7c67afd6066800d079a1676f",
+          "size": 2774621
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_type0_materialx-osl.png",
-          "sha256": "64fb49d59ac49eab727e26e8fc8bf14f6c5947b3d29488143341d09301febe92",
-          "size": 536831
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_type0.exr",
+          "sha256": "ed77b9b92bb6f0a1bc34e061cbeecddc3ae88d52f25df837bdc1423ac973999d",
+          "size": 2774765
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_type1_materialx-osl.png",
-          "sha256": "c06ef545ee9c65e0e1416c8cc16830e27cf17d2c0f16bd6e2523c92529a15c2b",
-          "size": 532717
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_type1.exr",
+          "sha256": "c11899ae881d871ed83cb3f1e7d54b5f1f5f3e42141c0ecc9a9cc79aa19f648f",
+          "size": 2774538
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_type2_materialx-osl.png",
-          "sha256": "11dcec659a9e11454e970a1e627f87fb4d3705da3a8c1ef969338dcfe134e726",
-          "size": 536959
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_type2.exr",
+          "sha256": "12f88cee63de0c7992b37811512f0cf16ab8d1fe9f58869964e878ae3c89f158",
+          "size": 2774407
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_type3_materialx-osl.png",
-          "sha256": "78a07816e49e192d39afd060ad1c39dfe9739b727de81a992bae4b2c4dc37994",
-          "size": 533445
+          "path": "material-fidelity/reference/nodes/noise/unifiednoise3d_type3.exr",
+          "sha256": "1b75ace55c98817a8c648d1966017babf32ce3445518d9e9c43663898fc9777e",
+          "size": 2776128
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/worleynoise2d_defaults_materialx-osl.png",
-          "sha256": "44a9f56a20d5e25b980ec933c8a83a487eaead41e6d3cccce3ad7b24c85ba502",
-          "size": 522870
+          "path": "material-fidelity/reference/nodes/noise/worleynoise2d.exr",
+          "sha256": "0c40feea22993a48294c7dade3967b186b01749b4c4f81085d6b61feb62afd6f",
+          "size": 2774295
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/worleynoise2d_large_coords_materialx-osl.png",
-          "sha256": "256d55f196be8fe0af406bbf6fff653277ee9e18fc7a978108909eb88ffdddfd",
-          "size": 513881
+          "path": "material-fidelity/reference/nodes/noise/worleynoise2d_defaults.exr",
+          "sha256": "2c802d00c349e302a08a36b69f1935f57dd4984417dc8663dfdaa539296bc5d1",
+          "size": 2773843
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/worleynoise2d_materialx-osl.png",
-          "sha256": "e59800c075fc799e8401bfeee3526fadf50723808c76449026fb6b366dda862a",
-          "size": 510393
+          "path": "material-fidelity/reference/nodes/noise/worleynoise2d_large_coords.exr",
+          "sha256": "a842ce941d672de53cf2c58687d6fe472c962b376244465a4fda8237baf5b0b8",
+          "size": 2773728
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/worleynoise2d_omit_jitter_materialx-osl.png",
-          "sha256": "cf90c720a0bcf2b34a2acc729c62bb059e144ae388edc144f04978bc52ea859e",
-          "size": 510715
+          "path": "material-fidelity/reference/nodes/noise/worleynoise2d_omit_jitter.exr",
+          "sha256": "d0e73b3d8feccc54eb89905bc357a1edc066a90c0333421338a124ae9bd84d3a",
+          "size": 2775193
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/worleynoise2d_omit_style_materialx-osl.png",
-          "sha256": "4a8a454117d8977b90d78dc25ca1ff9672b68f014a5c51dfe969918c63ad90d3",
-          "size": 516320
+          "path": "material-fidelity/reference/nodes/noise/worleynoise2d_omit_style.exr",
+          "sha256": "57e657f20cb5c29c89d2e0efa43a0b0816e103fabe077f6b88d6c1c2d2ccf0e8",
+          "size": 2774070
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/worleynoise2d_omit_texcoord_materialx-osl.png",
-          "sha256": "97ee6d0048356923ae1a15b91a59aac275f748507f3a60b224e926c347a8e53a",
-          "size": 503560
+          "path": "material-fidelity/reference/nodes/noise/worleynoise2d_omit_texcoord.exr",
+          "sha256": "2557a5c54160530ed9a148509405ef009d21c7df4f1dd5c71f3cba334b4da66e",
+          "size": 2774100
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/worleynoise2d_style_distance_materialx-osl.png",
-          "sha256": "4a8a454117d8977b90d78dc25ca1ff9672b68f014a5c51dfe969918c63ad90d3",
-          "size": 516320
+          "path": "material-fidelity/reference/nodes/noise/worleynoise2d_style_distance.exr",
+          "sha256": "add5eccdca0580d380d446e8bc34ef75c54b0d51467ba7ab05716087176111b4",
+          "size": 2774529
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/worleynoise2d_style_solid_materialx-osl.png",
-          "sha256": "e59800c075fc799e8401bfeee3526fadf50723808c76449026fb6b366dda862a",
-          "size": 510393
+          "path": "material-fidelity/reference/nodes/noise/worleynoise2d_style_solid.exr",
+          "sha256": "fc8c59c95abc5d7a87a559475c46759f57ed112112df6f21efe7d8a49cc4a214",
+          "size": 2775126
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/worleynoise2d_vector2_materialx-osl.png",
-          "sha256": "6a689c3561db4c68b8111d98050a384cb2f91256d98609d047cb48309cf9a757",
-          "size": 524417
+          "path": "material-fidelity/reference/nodes/noise/worleynoise2d_vector2.exr",
+          "sha256": "734442bb1e127e2c5b70ea64ae26c630b3496acc46b763643d014926b82532b8",
+          "size": 2774674
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/worleynoise2d_vector3_materialx-osl.png",
-          "sha256": "f4f596b57a805ece253edaf08b9860600e8b6a0fe86974e8becd126d7216a84c",
-          "size": 516996
+          "path": "material-fidelity/reference/nodes/noise/worleynoise2d_vector3.exr",
+          "sha256": "619370e063be7ea56b72a62be2cf27cbce9414b94ce061ccacef1411deb11ee1",
+          "size": 2773572
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/worleynoise3d_defaults_materialx-osl.png",
-          "sha256": "6e51cc74fc942eb0072b393ef558961652c8ca46cef5933617aaeaa06f9f8897",
-          "size": 521348
+          "path": "material-fidelity/reference/nodes/noise/worleynoise3d.exr",
+          "sha256": "c42d7d91e4a350e10321fe3dc1e7e842c0320b8e6d2c5fcdbd26b28698f7504e",
+          "size": 2774356
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/worleynoise3d_large_coords_materialx-osl.png",
-          "sha256": "8c2354f1bfda9f71f58aafe941c5cb0249fd0c0befe05080d9774226451d73e4",
-          "size": 523051
+          "path": "material-fidelity/reference/nodes/noise/worleynoise3d_defaults.exr",
+          "sha256": "7eaf4f21666dd9b9c337781b743a55f573d02a2d5b3416e6eed9ec2291a99e93",
+          "size": 2774629
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/worleynoise3d_materialx-osl.png",
-          "sha256": "e8985f13cf07e7e84b68a1fd674b5c2d751fd0cb9c2845fc88f3b041657f7e6f",
-          "size": 522799
+          "path": "material-fidelity/reference/nodes/noise/worleynoise3d_large_coords.exr",
+          "sha256": "817240728f4f1955eabc8bf94cbf9add440e41f1cd672238d8fe69e99d508ca8",
+          "size": 2774194
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/worleynoise3d_omit_jitter_materialx-osl.png",
-          "sha256": "966e44e90da205dd0ee4283e7cf0972db72234ba0afd61fc88ece9d74a244b26",
-          "size": 522501
+          "path": "material-fidelity/reference/nodes/noise/worleynoise3d_omit_jitter.exr",
+          "sha256": "63e0eb94b20e072e625374bedb72dd2a5704e3c79f88fc78ac1383bd931fcf74",
+          "size": 2774849
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/worleynoise3d_omit_position_materialx-osl.png",
-          "sha256": "310d9b3cdd46ca151043ef8fdfe2a0f00a265d3b78f0302882fb85c0839b7991",
-          "size": 521165
+          "path": "material-fidelity/reference/nodes/noise/worleynoise3d_omit_position.exr",
+          "sha256": "010dc9eac16b3ea3bce962e7f8191b66fcbb1f15a32856d690edd93034851ab8",
+          "size": 2774644
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/worleynoise3d_omit_style_materialx-osl.png",
-          "sha256": "f39ccbdaad9659758ff468da0a8f2103ffcb93c4be87917258b72f8b07a257a7",
-          "size": 520672
+          "path": "material-fidelity/reference/nodes/noise/worleynoise3d_omit_style.exr",
+          "sha256": "17ee3567c01424d6db8041e36c3202b8e140c14b4f227f7e7707939325460f0e",
+          "size": 2774911
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/worleynoise3d_style_distance_materialx-osl.png",
-          "sha256": "f39ccbdaad9659758ff468da0a8f2103ffcb93c4be87917258b72f8b07a257a7",
-          "size": 520672
+          "path": "material-fidelity/reference/nodes/noise/worleynoise3d_style_distance.exr",
+          "sha256": "71f4769b3d631892e46601582be6153ee6967e390fb960c087beeb85d8a92332",
+          "size": 2774605
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/worleynoise3d_style_solid_materialx-osl.png",
-          "sha256": "e8985f13cf07e7e84b68a1fd674b5c2d751fd0cb9c2845fc88f3b041657f7e6f",
-          "size": 522799
+          "path": "material-fidelity/reference/nodes/noise/worleynoise3d_style_solid.exr",
+          "sha256": "7269aa074ec4b27e3c7decf0240ffe9542d8dd0276516b7ecca79f2420cfce3f",
+          "size": 2774451
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/worleynoise3d_vector2_materialx-osl.png",
-          "sha256": "a50ac6bd5f84a8d7a2d487eeb0d84844291df911cff143ea67ba886a6fe9cb7d",
-          "size": 523587
+          "path": "material-fidelity/reference/nodes/noise/worleynoise3d_vector2.exr",
+          "sha256": "7d8f23244e72f416b7719e8b42d54b87857c8c2975590a24f92ff3e4d167d8eb",
+          "size": 2774891
         },
         {
-          "path": "material-fidelity/reference/nodes/noise/worleynoise3d_vector3_materialx-osl.png",
-          "sha256": "1a40f8b2054b5cf4f083416c33344a6d6123851af17e8e795cde4ecd9d00bf0a",
-          "size": 518472
+          "path": "material-fidelity/reference/nodes/noise/worleynoise3d_vector3.exr",
+          "sha256": "1f3c083ccc197623a6662a382e2deb7d60ce59c388ccfdf0ee39564c1a22265c",
+          "size": 2773815
         }
       ],
-      "release": "reference-data-20260705T025545Z-272cd207-a1eabdf9"
+      "release": "reference-data-20260705T191033Z-aad881d6-d0cc643c"
     },
     "material-fidelity/nodes/patterns": {
       "archive": "material-fidelity--nodes--patterns--a8fb858fb96a.zip",
