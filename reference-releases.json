@@ -456,397 +456,397 @@
       "release": "reference-data-20260705T051643Z-9c318642-df9d6eb8"
     },
     "material-fidelity/nodes/geometric": {
-      "archive": "material-fidelity--nodes--geometric--2fcacff291c2.zip",
-      "archive_sha256": "dc3fbf5e3dc139475fdf09cf2f0b42adb6283ff0b084c8e7f378078c1e3027aa",
-      "archive_size": 38265909,
+      "archive": "material-fidelity--nodes--geometric--5ea6a036b846.zip",
+      "archive_sha256": "388a6b16a2687babd7bc8b7b1d7e4157ab2a9fe710d6b4f0601c0f02233368c9",
+      "archive_size": 208902314,
       "files": [
         {
-          "path": "material-fidelity/reference/nodes/geometric/binormal_default_materialx-osl.png",
-          "sha256": "eb0334a1fa8381a091aa880b02ff80bb4dc550a86d48350a69aaae7640dfd828",
-          "size": 513847
+          "path": "material-fidelity/reference/nodes/geometric/binormal_default.exr",
+          "sha256": "1f60c2b4001ac46cef4e79e9b79bf7e1ee47ef583f6931005795e3c3a6f81a00",
+          "size": 2773769
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/binormal_model_axis_x_materialx-osl.png",
-          "sha256": "4594a967d93d6f5624af53dad6907a33a03cb881703faa24689434d53aa798cc",
-          "size": 530019
+          "path": "material-fidelity/reference/nodes/geometric/binormal_model.exr",
+          "sha256": "01dec8736777f7eef33c229038c53997a75467c740706e8cd96e4a4110647577",
+          "size": 2773399
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/binormal_model_axis_y_materialx-osl.png",
-          "sha256": "6277322a60564bb153604a9fa09f4b8ab26ea743d5f9a6f0778beaf607ce6967",
-          "size": 510408
+          "path": "material-fidelity/reference/nodes/geometric/binormal_model_axis_x.exr",
+          "sha256": "d8dd6ce1b5e79ae6aec7984b9f11aace50149be5c2ddd882c8ed73aec308dfee",
+          "size": 2773532
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/binormal_model_axis_z_materialx-osl.png",
-          "sha256": "bf929d63454fc8e1b6d9420d866911f3643d8e6f9488ae48071103c813c7957b",
-          "size": 525743
+          "path": "material-fidelity/reference/nodes/geometric/binormal_model_axis_y.exr",
+          "sha256": "0b0a0810b7d3cdbc1d8950952c5849ed8e5539e67e2cb28c4b5df9ef9fb039c0",
+          "size": 2774578
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/binormal_model_materialx-osl.png",
-          "sha256": "eb0334a1fa8381a091aa880b02ff80bb4dc550a86d48350a69aaae7640dfd828",
-          "size": 513847
+          "path": "material-fidelity/reference/nodes/geometric/binormal_model_axis_z.exr",
+          "sha256": "124574cb6210336669cb23254168c96ab1c09cdeed857d321030915238768a36",
+          "size": 2773482
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/binormal_object_axis_x_materialx-osl.png",
-          "sha256": "4594a967d93d6f5624af53dad6907a33a03cb881703faa24689434d53aa798cc",
-          "size": 530019
+          "path": "material-fidelity/reference/nodes/geometric/binormal_object.exr",
+          "sha256": "34d8f6f873104738466a3bc8c841bddc97dc92090890e2dfc12169bea728db58",
+          "size": 2773499
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/binormal_object_axis_y_materialx-osl.png",
-          "sha256": "6277322a60564bb153604a9fa09f4b8ab26ea743d5f9a6f0778beaf607ce6967",
-          "size": 510408
+          "path": "material-fidelity/reference/nodes/geometric/binormal_object_axis_x.exr",
+          "sha256": "41eb0c0d5272da6299a652760af8bc8f6683cb01dbcf7eac50075bba30d2c30d",
+          "size": 2774607
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/binormal_object_axis_z_materialx-osl.png",
-          "sha256": "bf929d63454fc8e1b6d9420d866911f3643d8e6f9488ae48071103c813c7957b",
-          "size": 525743
+          "path": "material-fidelity/reference/nodes/geometric/binormal_object_axis_y.exr",
+          "sha256": "a52f1c152fba8d3c5e8f085d0de353c47a78887906c8213a6db11c0d18d19b59",
+          "size": 2774275
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/binormal_object_materialx-osl.png",
-          "sha256": "eb0334a1fa8381a091aa880b02ff80bb4dc550a86d48350a69aaae7640dfd828",
-          "size": 513847
+          "path": "material-fidelity/reference/nodes/geometric/binormal_object_axis_z.exr",
+          "sha256": "3cae3b11bf57d70a4683341533b1a0191aa92c02638c4d22957d0fa1cf1332a9",
+          "size": 2773307
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/binormal_world_axis_x_materialx-osl.png",
-          "sha256": "4594a967d93d6f5624af53dad6907a33a03cb881703faa24689434d53aa798cc",
-          "size": 530019
+          "path": "material-fidelity/reference/nodes/geometric/binormal_world.exr",
+          "sha256": "a1c786705b6b0105d4e339eb894f91646e4341f6a33115bd36a7f3aab0fc0617",
+          "size": 2773204
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/binormal_world_axis_y_materialx-osl.png",
-          "sha256": "6277322a60564bb153604a9fa09f4b8ab26ea743d5f9a6f0778beaf607ce6967",
-          "size": 510408
+          "path": "material-fidelity/reference/nodes/geometric/binormal_world_axis_x.exr",
+          "sha256": "0cdd994ba91369d194b4748c6a95f727ebd39f5f57341aafa8554b3990b7fb17",
+          "size": 2774080
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/binormal_world_axis_z_materialx-osl.png",
-          "sha256": "bf929d63454fc8e1b6d9420d866911f3643d8e6f9488ae48071103c813c7957b",
-          "size": 525743
+          "path": "material-fidelity/reference/nodes/geometric/binormal_world_axis_y.exr",
+          "sha256": "ff395c6b12f49f31218f91b96f589df3665b2be72ee25852e19da1bd17c7fc2e",
+          "size": 2774271
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/binormal_world_materialx-osl.png",
-          "sha256": "eb0334a1fa8381a091aa880b02ff80bb4dc550a86d48350a69aaae7640dfd828",
-          "size": 513847
+          "path": "material-fidelity/reference/nodes/geometric/binormal_world_axis_z.exr",
+          "sha256": "9eaed540797b933d1d2a35a95e9f18b0131c0d02ddb2661a6ac85b6e510517d0",
+          "size": 2773838
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/bump_materialx-osl.png",
-          "sha256": "003a4df4f962701706c9dbfd122171cc9ef0ad7df7ce03c43b91c67a79a29a7e",
-          "size": 526593
+          "path": "material-fidelity/reference/nodes/geometric/bump.exr",
+          "sha256": "f7b9009534b5440a135bd40697e5d4fb808bcb12da5ced6b69f17c7df1515074",
+          "size": 2773032
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/normal_default_materialx-osl.png",
-          "sha256": "4c2d907e9506b85d9e81b46cb982b9a0455e3acf72fed0f68ae588d0ae621bf9",
-          "size": 504564
+          "path": "material-fidelity/reference/nodes/geometric/normal_default.exr",
+          "sha256": "88cb246810740a78ce1f79e3160e4f101a72305a84f43c94556ec1edbfacf852",
+          "size": 2773510
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/normal_model_axis_x_materialx-osl.png",
-          "sha256": "9013cead0bbe7caf43477eb84abf65c659294541c0882fa6aea12fad98430441",
-          "size": 528933
+          "path": "material-fidelity/reference/nodes/geometric/normal_model.exr",
+          "sha256": "6097d16696aee7e5212264d6ae914c053690eedcfb406f8fb278d4f1f695da06",
+          "size": 2772970
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/normal_model_axis_y_materialx-osl.png",
-          "sha256": "5ff6e03ef0775bd499c7cf451a1fd3a056704433684997e61ed97d55ed242f98",
-          "size": 527360
+          "path": "material-fidelity/reference/nodes/geometric/normal_model_axis_x.exr",
+          "sha256": "98777436add45cd6ae63b44f6dc9eadf3076efaac17fc0663aaecd0bee38a9f9",
+          "size": 2774178
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/normal_model_axis_z_materialx-osl.png",
-          "sha256": "288720b4e349a61e9875d8b0c3cf2a0180e296edb379fae64dc3695713be070e",
-          "size": 505064
+          "path": "material-fidelity/reference/nodes/geometric/normal_model_axis_y.exr",
+          "sha256": "a5dc9d5d9666787c7e73bc379e172eebc40c17c9a119c1bd3239d464016e9cc0",
+          "size": 2773838
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/normal_model_materialx-osl.png",
-          "sha256": "4c2d907e9506b85d9e81b46cb982b9a0455e3acf72fed0f68ae588d0ae621bf9",
-          "size": 504564
+          "path": "material-fidelity/reference/nodes/geometric/normal_model_axis_z.exr",
+          "sha256": "fab2abe87635bb73007c661a088ebefc4d97704d2df64aed8ec2e6ab4b9274e5",
+          "size": 2773930
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/normal_object_axis_x_materialx-osl.png",
-          "sha256": "9013cead0bbe7caf43477eb84abf65c659294541c0882fa6aea12fad98430441",
-          "size": 528933
+          "path": "material-fidelity/reference/nodes/geometric/normal_object.exr",
+          "sha256": "e692cc39af5ac363cd8967e87c4615a7c05f23d4a1cb1e8a17efb53ab996b77a",
+          "size": 2773836
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/normal_object_axis_y_materialx-osl.png",
-          "sha256": "5ff6e03ef0775bd499c7cf451a1fd3a056704433684997e61ed97d55ed242f98",
-          "size": 527360
+          "path": "material-fidelity/reference/nodes/geometric/normal_object_axis_x.exr",
+          "sha256": "e3dfd9bb980866676f98869690eb2db0036a0a4b4947a659a0ffb6fd05c854cf",
+          "size": 2773939
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/normal_object_axis_z_materialx-osl.png",
-          "sha256": "288720b4e349a61e9875d8b0c3cf2a0180e296edb379fae64dc3695713be070e",
-          "size": 505064
+          "path": "material-fidelity/reference/nodes/geometric/normal_object_axis_y.exr",
+          "sha256": "3e94b6a140242693c4b1fa5c7a00fbe126f7c73cc96794f5b67edbe7a8faf356",
+          "size": 2774150
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/normal_object_materialx-osl.png",
-          "sha256": "4c2d907e9506b85d9e81b46cb982b9a0455e3acf72fed0f68ae588d0ae621bf9",
-          "size": 504564
+          "path": "material-fidelity/reference/nodes/geometric/normal_object_axis_z.exr",
+          "sha256": "03a6050de9a181035e9d577d7419afcfbca18e7abd6f077fa6f6a935c292e4c5",
+          "size": 2773910
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/normal_space_model_materialx-osl.png",
-          "sha256": "11bed6a331c848b7066235e8fc653f3e3cd498ba7bc61864035c3c47a2ece9de",
-          "size": 512734
+          "path": "material-fidelity/reference/nodes/geometric/normal_space_model.exr",
+          "sha256": "43457c6b0e38acfea5055c12dc3093a81b4e9a55625bdd32d44e37c97538e644",
+          "size": 2773956
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/normal_space_object_materialx-osl.png",
-          "sha256": "11bed6a331c848b7066235e8fc653f3e3cd498ba7bc61864035c3c47a2ece9de",
-          "size": 512734
+          "path": "material-fidelity/reference/nodes/geometric/normal_space_object.exr",
+          "sha256": "ae71efa769780d6280b7c2ca71e95ef2692caf1c3e850928dff859c39e81a5c7",
+          "size": 2774021
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/normal_space_world_materialx-osl.png",
-          "sha256": "fbe7f67ce11bfff82db20b9dbc31cd136205d8119cd3b4b9167b6830248c4fd9",
-          "size": 510718
+          "path": "material-fidelity/reference/nodes/geometric/normal_space_world.exr",
+          "sha256": "74f4d12fc8e018db58a3348e56b0d62f1321d2d30403a87d7a5af8e3da9b7628",
+          "size": 2773967
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/normal_world_axis_x_materialx-osl.png",
-          "sha256": "cbee2c2e6c07e9c3ee50e52d1337d078f9a0de211c44ce34dd189cb40aa83d86",
-          "size": 529641
+          "path": "material-fidelity/reference/nodes/geometric/normal_world.exr",
+          "sha256": "9f9994a5f274f4e81db86433df96a8ec3b154a60535dfba45c58eb4bf27a8f59",
+          "size": 2772802
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/normal_world_axis_y_materialx-osl.png",
-          "sha256": "03d9d4a2a34e52cfb6b2471930596fc315dd7ef3be86f847452b226579651f25",
-          "size": 526973
+          "path": "material-fidelity/reference/nodes/geometric/normal_world_axis_x.exr",
+          "sha256": "c760433ea1d1932063b7951133448a6a0e7a4c4bd190b984dfaa2f4bc1c68c2b",
+          "size": 2774174
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/normal_world_axis_z_materialx-osl.png",
-          "sha256": "d0e2e81da8a97c7ab859e3a7713dd72eff7be3232016db88a8d4f26fba9253f2",
-          "size": 508695
+          "path": "material-fidelity/reference/nodes/geometric/normal_world_axis_y.exr",
+          "sha256": "4b0cb92aa062409fe97b0c0fac8e713ce298a1d3eaae2c72d447cf9aaaa80b64",
+          "size": 2774012
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/normal_world_materialx-osl.png",
-          "sha256": "ed6f6c536d0498d932371586513c1c4c017682d493fdf01dedee3dfe0cf36da7",
-          "size": 505823
+          "path": "material-fidelity/reference/nodes/geometric/normal_world_axis_z.exr",
+          "sha256": "4da4b25170b927892c525443ed056eb6d7bab4c124e257e07c6b10c6b263b28c",
+          "size": 2773825
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/position_default_materialx-osl.png",
-          "sha256": "c87d037907d92c92fb6b59b6adf01bac4db17388fd163455721791d2cee0309e",
-          "size": 521965
+          "path": "material-fidelity/reference/nodes/geometric/position_default.exr",
+          "sha256": "c0037da25029e3b38df166ffe42f97c2fa47bbb805872285dc57daf8ee2d33c0",
+          "size": 2773506
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/position_model_axis_x_materialx-osl.png",
-          "sha256": "863fd1a5c2c1a18a96eecd30347f7603403b4eb53a2846ca4ea5654f05e1f195",
-          "size": 537164
+          "path": "material-fidelity/reference/nodes/geometric/position_model.exr",
+          "sha256": "313bc93b22ad31eadeef68909cae8136b68eee56f0227c628fd7b9669b29ee54",
+          "size": 2773756
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/position_model_axis_y_materialx-osl.png",
-          "sha256": "b02bb0c0726957e048d5208432249ccbb45e3842d207e4a5705440ef9d325711",
-          "size": 524682
+          "path": "material-fidelity/reference/nodes/geometric/position_model_axis_x.exr",
+          "sha256": "50e8671b7dd2b064494535d9aeeba1a86149de022ebbd86ab6631b104368f7aa",
+          "size": 2774559
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/position_model_axis_z_materialx-osl.png",
-          "sha256": "1298968498ac6385bceff916fdec481e6e664cf126b14da5eefe21920273ce42",
-          "size": 528506
+          "path": "material-fidelity/reference/nodes/geometric/position_model_axis_y.exr",
+          "sha256": "72475421840c7c006b86b3f41bd1cc7fa637f5cc1684effefe7a82c1661fabe7",
+          "size": 2773734
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/position_model_materialx-osl.png",
-          "sha256": "c87d037907d92c92fb6b59b6adf01bac4db17388fd163455721791d2cee0309e",
-          "size": 521965
+          "path": "material-fidelity/reference/nodes/geometric/position_model_axis_z.exr",
+          "sha256": "d5aefda6f67e89f3c70155df1b3059762654cd0ac1f406b09c894bbd02b2d205",
+          "size": 2773938
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/position_object_axis_x_materialx-osl.png",
-          "sha256": "863fd1a5c2c1a18a96eecd30347f7603403b4eb53a2846ca4ea5654f05e1f195",
-          "size": 537164
+          "path": "material-fidelity/reference/nodes/geometric/position_object.exr",
+          "sha256": "22df7521ea869a47036cdcb1dddf14f2cfb830a6031501cb5efbe104b84efe8e",
+          "size": 2773572
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/position_object_axis_y_materialx-osl.png",
-          "sha256": "b02bb0c0726957e048d5208432249ccbb45e3842d207e4a5705440ef9d325711",
-          "size": 524682
+          "path": "material-fidelity/reference/nodes/geometric/position_object_axis_x.exr",
+          "sha256": "a6ac9ea9025ae4e8b576feedd8f38143b6271dab3571dd8d475a64b5fe1e95bb",
+          "size": 2773834
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/position_object_axis_z_materialx-osl.png",
-          "sha256": "1298968498ac6385bceff916fdec481e6e664cf126b14da5eefe21920273ce42",
-          "size": 528506
+          "path": "material-fidelity/reference/nodes/geometric/position_object_axis_y.exr",
+          "sha256": "2fed248c22b9543fd76037fe170a0bd0c0ce7c66680321009ad6c56dfab6c847",
+          "size": 2774004
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/position_object_materialx-osl.png",
-          "sha256": "c87d037907d92c92fb6b59b6adf01bac4db17388fd163455721791d2cee0309e",
-          "size": 521965
+          "path": "material-fidelity/reference/nodes/geometric/position_object_axis_z.exr",
+          "sha256": "58f9be0fd7b4428eb23de203ce7981775c924f7b3ec68f5ac347a9e8f6cc5d8e",
+          "size": 2774038
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/position_world_axis_x_materialx-osl.png",
-          "sha256": "f21041b523e6c079a3f89a8761ab3e0df78e7aec5ff8f917e23218c1844bbceb",
-          "size": 536607
+          "path": "material-fidelity/reference/nodes/geometric/position_world.exr",
+          "sha256": "42575ffb0a60cfe06adeca7b819c9c4b1a089367157df309702fc9aa903866b0",
+          "size": 2773664
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/position_world_axis_y_materialx-osl.png",
-          "sha256": "747cadeec4241295f512a63d8172b4293a29c34eee9604c77a8c695cc280964f",
-          "size": 532589
+          "path": "material-fidelity/reference/nodes/geometric/position_world_axis_x.exr",
+          "sha256": "50fa02d3a47dd886afa40fa1c3efa6151b5f68753639e226401bcdd2e31b5074",
+          "size": 2773521
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/position_world_axis_z_materialx-osl.png",
-          "sha256": "05c280fc5c8afc95a1296ba9b21493a15f2c608745bd87ae3dfb2706dea1a5eb",
-          "size": 526692
+          "path": "material-fidelity/reference/nodes/geometric/position_world_axis_y.exr",
+          "sha256": "ac7885e8f292fdf88fe4537863c98b03c5aad20e6bb3ddb789fc59fa7e01f61b",
+          "size": 2774680
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/position_world_materialx-osl.png",
-          "sha256": "510fdcbb678e89192fc8dd2730dcf46ea55c007af0006d391f8546d54136bb0b",
-          "size": 526654
+          "path": "material-fidelity/reference/nodes/geometric/position_world_axis_z.exr",
+          "sha256": "e8f340c9e59a3fe5cfa7b3e94cdce4cbdf1b12028437ec8e5ee98e1903b83def",
+          "size": 2774172
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/tangent_default_materialx-osl.png",
-          "sha256": "f10155061e0c76f46030f640ddd2dc51bd58420b480ba15583337cdd69f06b2c",
-          "size": 530829
+          "path": "material-fidelity/reference/nodes/geometric/tangent_default.exr",
+          "sha256": "1337b9220e96b6ce82ec81880173db9784d1d8e236f2aadb9cd9db9fa89e334e",
+          "size": 2773573
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/tangent_model_axis_x_materialx-osl.png",
-          "sha256": "0f126115353f55fc5a5d2f94bd50882fe295a45a72554a50f1a6527880654345",
-          "size": 505661
+          "path": "material-fidelity/reference/nodes/geometric/tangent_model.exr",
+          "sha256": "e8b5327b025d85fe6ab02f63c012c4937fa5c834f9c15fbf0a22de8945fc9b8f",
+          "size": 2773081
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/tangent_model_axis_y_materialx-osl.png",
-          "sha256": "f4e9dc19aa027244c67f8dac14271f77d20718d52e5bcecaec7aca83976433d0",
-          "size": 530194
+          "path": "material-fidelity/reference/nodes/geometric/tangent_model_axis_x.exr",
+          "sha256": "0f14d481b060ad7b0bc1a2a87efcd36ee34a622d988cce00391b71fc7aac5230",
+          "size": 2773950
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/tangent_model_axis_z_materialx-osl.png",
-          "sha256": "c00911803fd7fc6208dc66b87ca8a9dffc8449655bc52708b39a458d83430145",
-          "size": 527297
+          "path": "material-fidelity/reference/nodes/geometric/tangent_model_axis_y.exr",
+          "sha256": "e1948340876b6fe2170e8266bfddc486d0bbb5b256e4b5fc057f36a21ea0e00c",
+          "size": 2773010
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/tangent_model_materialx-osl.png",
-          "sha256": "f10155061e0c76f46030f640ddd2dc51bd58420b480ba15583337cdd69f06b2c",
-          "size": 530829
+          "path": "material-fidelity/reference/nodes/geometric/tangent_model_axis_z.exr",
+          "sha256": "59196611b769d92bcee49d0e29d6799898d1e0f0f22a9d4d3181d6d17de2dbc2",
+          "size": 2773830
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/tangent_object_axis_x_materialx-osl.png",
-          "sha256": "0f126115353f55fc5a5d2f94bd50882fe295a45a72554a50f1a6527880654345",
-          "size": 505661
+          "path": "material-fidelity/reference/nodes/geometric/tangent_object.exr",
+          "sha256": "21ef5ee280b31fa259e95973d6f6602bf2dd3eddb5fe54a389f4a76b1ec3744e",
+          "size": 2773522
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/tangent_object_axis_y_materialx-osl.png",
-          "sha256": "f4e9dc19aa027244c67f8dac14271f77d20718d52e5bcecaec7aca83976433d0",
-          "size": 530194
+          "path": "material-fidelity/reference/nodes/geometric/tangent_object_axis_x.exr",
+          "sha256": "732a2767cadce258ff57ca7115df06e6393975c3bfca5bcfcd3171dc931e2b18",
+          "size": 2774626
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/tangent_object_axis_z_materialx-osl.png",
-          "sha256": "c00911803fd7fc6208dc66b87ca8a9dffc8449655bc52708b39a458d83430145",
-          "size": 527297
+          "path": "material-fidelity/reference/nodes/geometric/tangent_object_axis_y.exr",
+          "sha256": "70f354f6b2381794851093adee2cc61f2d827b65d66481ce30f270dd49d05a36",
+          "size": 2773514
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/tangent_object_materialx-osl.png",
-          "sha256": "f10155061e0c76f46030f640ddd2dc51bd58420b480ba15583337cdd69f06b2c",
-          "size": 530829
+          "path": "material-fidelity/reference/nodes/geometric/tangent_object_axis_z.exr",
+          "sha256": "aa8e9205658768f3bb0c3eb583901b3f4aa794914f96b9f5f0f966307bd20254",
+          "size": 2773781
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/tangent_world_axis_x_materialx-osl.png",
-          "sha256": "0f126115353f55fc5a5d2f94bd50882fe295a45a72554a50f1a6527880654345",
-          "size": 505661
+          "path": "material-fidelity/reference/nodes/geometric/tangent_world.exr",
+          "sha256": "5e1d6a5c1b9a35eaf9dda005a7019a83129459d504347c107f092562cf91f13c",
+          "size": 2774152
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/tangent_world_axis_y_materialx-osl.png",
-          "sha256": "f4e9dc19aa027244c67f8dac14271f77d20718d52e5bcecaec7aca83976433d0",
-          "size": 530194
+          "path": "material-fidelity/reference/nodes/geometric/tangent_world_axis_x.exr",
+          "sha256": "99988dd8250e20f5b87dc6279d44510b900a453c237b1724a670627a8607aca5",
+          "size": 2774151
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/tangent_world_axis_z_materialx-osl.png",
-          "sha256": "c00911803fd7fc6208dc66b87ca8a9dffc8449655bc52708b39a458d83430145",
-          "size": 527297
+          "path": "material-fidelity/reference/nodes/geometric/tangent_world_axis_y.exr",
+          "sha256": "bb30fa443f19709e758561c77cdb79bc3dee0028447fbd589fcce7a6c51f0c2e",
+          "size": 2773905
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/tangent_world_materialx-osl.png",
-          "sha256": "f10155061e0c76f46030f640ddd2dc51bd58420b480ba15583337cdd69f06b2c",
-          "size": 530829
+          "path": "material-fidelity/reference/nodes/geometric/tangent_world_axis_z.exr",
+          "sha256": "68c5ca81e7368e2224b0eb5baa0f9f62e3efd5254af489191f86024e6f9b7968",
+          "size": 2773053
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/texcoord_materialx-osl.png",
-          "sha256": "1fa4152792c6420991d62bf68e212096548c80ac26362537669b95dd26652691",
-          "size": 517238
+          "path": "material-fidelity/reference/nodes/geometric/texcoord.exr",
+          "sha256": "69df5a536eff50025fbb6360f2a76cba4a1bbb7e12df7a5402c367cea0c64914",
+          "size": 2774090
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/uv2_default_materialx-osl.png",
-          "sha256": "b8fce8e37befd86ad2b1381cf909d28e4dabc5cd69af8717849aa004f416b367",
-          "size": 518494
+          "path": "material-fidelity/reference/nodes/geometric/uv2_default.exr",
+          "sha256": "c8595cd52d13953d07890566a5d98af06b8816901aa82f95c42035edbb831203",
+          "size": 2774643
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/uv2_texcoord_u_materialx-osl.png",
-          "sha256": "12dc67e56ffc1ae1541c8a61ad37d0f0a1793d0f35dbb3b3aa967a16a41a8de0",
-          "size": 518202
+          "path": "material-fidelity/reference/nodes/geometric/uv2_texcoord_u.exr",
+          "sha256": "9cc09319746b95a39a4f86c9ea06209e3c66d3ebec54b74f4c8fd498a8b25f63",
+          "size": 2773951
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/uv2_texcoord_v_materialx-osl.png",
-          "sha256": "25e18f4f38c1c0f0ccf6bf7bd4fb227f8370f41bbfcdc23993831d9f8c387044",
-          "size": 528228
+          "path": "material-fidelity/reference/nodes/geometric/uv2_texcoord_v.exr",
+          "sha256": "e690a9342bfb3e934d3d2c33625cca16a9282e1647108c549b1f77a18077daa6",
+          "size": 2773421
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/uv_debug_common_color_materialx-osl.png",
-          "sha256": "69a75a2adbd0b73b65fa210546c18d469f639cc0e9c509f5c16363f5b88d6bb6",
-          "size": 366966
+          "path": "material-fidelity/reference/nodes/geometric/uv_debug_common_color.exr",
+          "sha256": "083a7759fc286dbfbfad96cd40e7be3baf2e8461d5ca9ebc0dbe7165780f94ea",
+          "size": 2768777
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/uv_debug_common_mix_materialx-osl.png",
-          "sha256": "b73363ac20df9a4b8be5a6e6628c313ded7ae37e27af75b423b86fcbe82e5061",
-          "size": 364382
+          "path": "material-fidelity/reference/nodes/geometric/uv_debug_common_mix.exr",
+          "sha256": "570592423b017ddb7c6e58d9d1b98b780ee19f2923b513734a76b1b45db43254",
+          "size": 2767144
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/uv_debug_fract_sum_materialx-osl.png",
-          "sha256": "f3052328e1ad14a5cf659f99855dccd1443fdedbf3f2e21a2bfc497af0c2cc13",
-          "size": 340643
+          "path": "material-fidelity/reference/nodes/geometric/uv_debug_fract_sum.exr",
+          "sha256": "394d0c9cc599cf1cc87f0ca779a2558bf0afac0944a543b1b5fcc084892f6918",
+          "size": 2189186
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/uv_debug_separate2_const_x_materialx-osl.png",
-          "sha256": "c2edbc0b96079b6361f639b502110be843e5cfa74356e7469ee603bdae5c28eb",
-          "size": 310747
+          "path": "material-fidelity/reference/nodes/geometric/uv_debug_separate2_const_x.exr",
+          "sha256": "c41d10920544a2c6c1192184b661c928163c9564ba3d616936deda6f42091b48",
+          "size": 1896957
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/uv_debug_separate2_const_y_materialx-osl.png",
-          "sha256": "43560231cd6f9835925e77031f6e3f203ee749d25f514900a8f08e4b3d091fe5",
-          "size": 310728
+          "path": "material-fidelity/reference/nodes/geometric/uv_debug_separate2_const_y.exr",
+          "sha256": "eb701ffab2848e835a59d0eb41369822bb7d2fb0b71572b8095acdbecfc8082a",
+          "size": 1896424
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/uv_debug_separate2_rgb_materialx-osl.png",
-          "sha256": "a7c6aff0a697697e4c269cf9c1cb37730dd4cf7b118377cec8b2efcba8a313a7",
-          "size": 346972
+          "path": "material-fidelity/reference/nodes/geometric/uv_debug_separate2_rgb.exr",
+          "sha256": "d502c3c3fde31f1e9f78f91dfb81658df1ece5f714c135563ff1c5f7c25d1e4d",
+          "size": 2479257
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/uv_debug_sum_half_materialx-osl.png",
-          "sha256": "57d90eefc14e81069a08e9e58cd71fecc7bd61426fffb906299a578f6225f645",
-          "size": 333372
+          "path": "material-fidelity/reference/nodes/geometric/uv_debug_sum_half.exr",
+          "sha256": "0ed4a9e4a8d3967d07ea25c8a4477d6bc6179f8bb6a86db7651b1d18b8c2020f",
+          "size": 2188111
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/uv_debug_texcoord_rgb_materialx-osl.png",
-          "sha256": "332460f448ece95c889d9464ae41de57050b31066f2b1e9c7804ea070a2cecd6",
-          "size": 347133
+          "path": "material-fidelity/reference/nodes/geometric/uv_debug_texcoord_rgb.exr",
+          "sha256": "eb79306be00749353a8cecf9f3f25bd14ed7986e02c4352545543b8b32701e1d",
+          "size": 2479534
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/uv_debug_texcoord_s_materialx-osl.png",
-          "sha256": "274790bedcde64055c0af16af1f5f26259d1e95c38bbb5562ccada277a849afe",
-          "size": 330622
+          "path": "material-fidelity/reference/nodes/geometric/uv_debug_texcoord_s.exr",
+          "sha256": "8a70038a8a4cfe8932129eb277b8f882fb6fabdc7b3270d420ea00ea171a12d8",
+          "size": 2188858
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/uv_debug_texcoord_t_materialx-osl.png",
-          "sha256": "57d3782ee5f37e06d3f25b149670bd299bdac3cb3d228b44fc58f7f3da890971",
-          "size": 334118
+          "path": "material-fidelity/reference/nodes/geometric/uv_debug_texcoord_t.exr",
+          "sha256": "e4772888243320edfe81fe917a75ea4449e2ba0afef8fbb4a2813f66e32187c1",
+          "size": 2186771
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/uv_default_materialx-osl.png",
-          "sha256": "b8fce8e37befd86ad2b1381cf909d28e4dabc5cd69af8717849aa004f416b367",
-          "size": 518494
+          "path": "material-fidelity/reference/nodes/geometric/uv_default.exr",
+          "sha256": "be5e4558598765087d356e9d7326f118f9f313455d4c813cd1b4c2cc67351dfd",
+          "size": 2773027
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/uv_texcoord_u_materialx-osl.png",
-          "sha256": "12dc67e56ffc1ae1541c8a61ad37d0f0a1793d0f35dbb3b3aa967a16a41a8de0",
-          "size": 518202
+          "path": "material-fidelity/reference/nodes/geometric/uv_texcoord_u.exr",
+          "sha256": "632d6be19bd10450871dda4709158b637798c44aad901a4a310e1447fdeb8d46",
+          "size": 2773341
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/uv_texcoord_v_materialx-osl.png",
-          "sha256": "25e18f4f38c1c0f0ccf6bf7bd4fb227f8370f41bbfcdc23993831d9f8c387044",
-          "size": 528228
+          "path": "material-fidelity/reference/nodes/geometric/uv_texcoord_v.exr",
+          "sha256": "a2bc42ab3253d7baaf57c7f9260489584efd524e5e178fe3110e84f34caa3515",
+          "size": 2774110
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/viewdirection_materialx-osl.png",
-          "sha256": "8bf066eb2c11a4c930925666a1d6094ecffe8da36aadd36af88b8eef3efeed82",
-          "size": 502158
+          "path": "material-fidelity/reference/nodes/geometric/viewdirection.exr",
+          "sha256": "af9ee79baf0a440613292dd9006281f8fe109b0ddb9c7a9dd515670c97ff64b9",
+          "size": 2773263
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/viewdirection_space_model_materialx-osl.png",
-          "sha256": "04a45b8e224c5911b3fafecd9c03fe3015810f492d7f64a6d3457bd9732ae7b2",
-          "size": 502233
+          "path": "material-fidelity/reference/nodes/geometric/viewdirection_space_model.exr",
+          "sha256": "5dab16cb0197512d80d32b283ab8522670a4fcf16030f566276cc6670a134046",
+          "size": 2774150
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/viewdirection_space_object_materialx-osl.png",
-          "sha256": "04a45b8e224c5911b3fafecd9c03fe3015810f492d7f64a6d3457bd9732ae7b2",
-          "size": 502233
+          "path": "material-fidelity/reference/nodes/geometric/viewdirection_space_object.exr",
+          "sha256": "a7f5bc026898a0d0f1f06684b1b150bf29e2a7571172acb49fa2826f0585b2e2",
+          "size": 2773859
         },
         {
-          "path": "material-fidelity/reference/nodes/geometric/viewdirection_space_world_materialx-osl.png",
-          "sha256": "8bf066eb2c11a4c930925666a1d6094ecffe8da36aadd36af88b8eef3efeed82",
-          "size": 502158
+          "path": "material-fidelity/reference/nodes/geometric/viewdirection_space_world.exr",
+          "sha256": "b61d55d3d3d271d8ec581882f55daebb10ef429061792dcbb5843eab7236249e",
+          "size": 2774349
         }
       ],
-      "release": "reference-data-20260705T025545Z-272cd207-a1eabdf9"
+      "release": "reference-data-20260705T062906Z-7ff8452f-854483a2"
     },
     "material-fidelity/nodes/logical": {
       "archive": "material-fidelity--nodes--logical--f96b847a2909.zip",
