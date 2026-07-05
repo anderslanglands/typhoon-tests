@@ -2272,9 +2272,9 @@
       "release": "reference-data-20260705T193152Z-4baf568b-6d3f8f27"
     },
     "material-fidelity/nodes/textures": {
-      "archive": "material-fidelity--nodes--textures--4b03a6067439.zip",
-      "archive_sha256": "ca942adc3bdf0a3de7a05cfd960d99b3ad39225a4998f1af3bc2e94957100e42",
-      "archive_size": 22071038,
+      "archive": "material-fidelity--nodes--textures--df8a7603d543.zip",
+      "archive_sha256": "b52922c7cf78079ad9fae52a3889421eee8c48a2cea2cc0be760ce070c0ad97e",
+      "archive_size": 65615947,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/textures/gltf_normalmap_defaults_materialx-osl.png",
@@ -2307,6 +2307,11 @@
           "size": 509826
         },
         {
+          "path": "material-fidelity/reference/nodes/textures/hextiledimage.exr",
+          "sha256": "63fa7fa51fa9cb0def259ba6a2dd9b71fc4f9ffe0e51b4aa1cd9810b999898ee",
+          "size": 2773355
+        },
+        {
           "path": "material-fidelity/reference/nodes/textures/hextiledimage_defaults_materialx-osl.png",
           "sha256": "58fe13669169ceca8435a8e7a2a9795a7aea6e177f1a9e156e47ee295210388e",
           "size": 500235
@@ -2325,11 +2330,6 @@
           "path": "material-fidelity/reference/nodes/textures/hextiledimage_lumacoeffs_rec709_materialx-osl.png",
           "sha256": "17ead448dbb6ecdf76ee94b0371aafa459588a299072505034452eb531bf6ce6",
           "size": 500231
-        },
-        {
-          "path": "material-fidelity/reference/nodes/textures/hextiledimage_materialx-osl.png",
-          "sha256": "f8bfaa84eeb2efd2387776bfd6cf1b8877f61662d78bcfd04c4197d76f8f3d8d",
-          "size": 501513
         },
         {
           "path": "material-fidelity/reference/nodes/textures/hextiledimage_offset_materialx-osl.png",
@@ -2362,9 +2362,9 @@
           "size": 493760
         },
         {
-          "path": "material-fidelity/reference/nodes/textures/hextiledimage_probe_identity_materialx-osl.png",
-          "sha256": "4f97ced6d6105751b06310562caf181a898c732d7bdca123983d5fe7701e7da9",
-          "size": 476218
+          "path": "material-fidelity/reference/nodes/textures/hextiledimage_probe_identity.exr",
+          "sha256": "69892fac8fdf983367a833558610336f26372a30f2274e351736a8b0e4327ad0",
+          "size": 2774199
         },
         {
           "path": "material-fidelity/reference/nodes/textures/hextiledimage_probe_luma_weights_materialx-osl.png",
@@ -2372,9 +2372,9 @@
           "size": 479905
         },
         {
-          "path": "material-fidelity/reference/nodes/textures/hextiledimage_probe_offset_constant_materialx-osl.png",
-          "sha256": "5263dbc13d14c41c8916280ed2af34de69b57a15e15187fb54648d00e51af12c",
-          "size": 495239
+          "path": "material-fidelity/reference/nodes/textures/hextiledimage_probe_offset_constant.exr",
+          "sha256": "0725ba2e23b9da6e3fa470b34b8a8d5aa432fe210aae6df127aa68c0a813b880",
+          "size": 2774337
         },
         {
           "path": "material-fidelity/reference/nodes/textures/hextiledimage_probe_rotation_constant_materialx-osl.png",
@@ -2387,9 +2387,9 @@
           "size": 495195
         },
         {
-          "path": "material-fidelity/reference/nodes/textures/hextiledimage_probe_tiling_materialx-osl.png",
-          "sha256": "9318cda6ace14fa106da9d8109292d790320cb16b1a08b25f143b40b0e3037a1",
-          "size": 488692
+          "path": "material-fidelity/reference/nodes/textures/hextiledimage_probe_tiling.exr",
+          "sha256": "e8b4217cabe71874b94c2ff4fb2f79b3713b6ce92a0bc17d53ca16d3588cb4a2",
+          "size": 2775022
         },
         {
           "path": "material-fidelity/reference/nodes/textures/hextiledimage_rotation_materialx-osl.png",
@@ -2422,44 +2422,49 @@
           "size": 492397
         },
         {
-          "path": "material-fidelity/reference/nodes/textures/image_addressmode_clamp_materialx-osl.png",
-          "sha256": "efe507fd727fe1af67ded455a9d41087b74dcb833fd1c4eccf42123f23009c0c",
-          "size": 471871
+          "path": "material-fidelity/reference/nodes/textures/image.exr",
+          "sha256": "4844469f173b2d4e69bd24bf50831093c5046f170b3fb7a4396c46c01d0aa1fa",
+          "size": 2773729
         },
         {
-          "path": "material-fidelity/reference/nodes/textures/image_addressmode_constant_materialx-osl.png",
-          "sha256": "38f7848a340453c2ab51c69bd3ad2054896fb56caaf7e3978dab414ce708fe33",
-          "size": 471769
+          "path": "material-fidelity/reference/nodes/textures/image_addressmode_clamp.exr",
+          "sha256": "9ef762fc2f3d3e935967d2c2a70010ae1a77cab9040b06a2e253a1df79ce76d1",
+          "size": 2773363
         },
         {
-          "path": "material-fidelity/reference/nodes/textures/image_addressmode_mirror_materialx-osl.png",
-          "sha256": "427408c323845db477541e374dbb1dbecfba5030086aa111dee6ce5c26134fa1",
-          "size": 496102
+          "path": "material-fidelity/reference/nodes/textures/image_addressmode_constant.exr",
+          "sha256": "09d3a4cb8402c18668b59f5107d6d543af4904f951f0d521d92f9386658a39d6",
+          "size": 2774028
         },
         {
-          "path": "material-fidelity/reference/nodes/textures/image_addressmode_periodic_materialx-osl.png",
-          "sha256": "ff738085e360ca7e6340ded059257b72e8765818d93a59c20186ad80884974c2",
-          "size": 494140
+          "path": "material-fidelity/reference/nodes/textures/image_addressmode_mirror.exr",
+          "sha256": "6a1c42b451b90467aaed0302e4ddc75d5d462f964ba7b245a95829848a7befbd",
+          "size": 2774294
         },
         {
-          "path": "material-fidelity/reference/nodes/textures/image_format_bmp_materialx-osl.png",
-          "sha256": "a7ff6c905b9a9464945afae3e662cea0623c69d9d0fd7c3e15d182483805d68d",
-          "size": 475403
+          "path": "material-fidelity/reference/nodes/textures/image_addressmode_periodic.exr",
+          "sha256": "4ca658c6f355d87828edffc16857d6d1f886e533fe57be61f9b2d77565bf1aec",
+          "size": 2773971
         },
         {
-          "path": "material-fidelity/reference/nodes/textures/image_format_gif_materialx-osl.png",
-          "sha256": "89c92f292640e4adfe76cba48743181cf3fd3fb3df690a5eacac8b8bcfa54fce",
-          "size": 475550
+          "path": "material-fidelity/reference/nodes/textures/image_format_bmp.exr",
+          "sha256": "e681f89c2777d83484a962d08b55814655afa2cc96bd39d854733c7d404addcd",
+          "size": 2775016
         },
         {
-          "path": "material-fidelity/reference/nodes/textures/image_format_jpg_materialx-osl.png",
-          "sha256": "8645e15d94391490a12e32f59552cbb5fcdac5732e0839a518eb4241a56bed4e",
-          "size": 475536
+          "path": "material-fidelity/reference/nodes/textures/image_format_gif.exr",
+          "sha256": "5dbe093354d9e0edc50ec392574ce47b1c1d7640d3d4de3369a93af8fadf0196",
+          "size": 2774687
         },
         {
-          "path": "material-fidelity/reference/nodes/textures/image_format_png_materialx-osl.png",
-          "sha256": "a7ff6c905b9a9464945afae3e662cea0623c69d9d0fd7c3e15d182483805d68d",
-          "size": 475403
+          "path": "material-fidelity/reference/nodes/textures/image_format_jpg.exr",
+          "sha256": "e62e9feb2b004a06c03fb3c9c2c9fb4cc8890f7cfd647975b9f574fa5061ffc5",
+          "size": 2773747
+        },
+        {
+          "path": "material-fidelity/reference/nodes/textures/image_format_png.exr",
+          "sha256": "fdf62775d2262920fb1cd66d26b3ce9794109835b02e617465dc4f5ae075540e",
+          "size": 2774926
         },
         {
           "path": "material-fidelity/reference/nodes/textures/image_format_svg_materialx-osl.png",
@@ -2467,42 +2472,37 @@
           "size": 468785
         },
         {
-          "path": "material-fidelity/reference/nodes/textures/image_format_webp_materialx-osl.png",
-          "sha256": "1f92b4bc935831233576c4482ee681de83376335de81c21b423c6d8eb822b320",
-          "size": 474782
+          "path": "material-fidelity/reference/nodes/textures/image_format_webp.exr",
+          "sha256": "c0565cd9da7b6b7a2cdc90554afc18b32d6829f26310ee9385dbb816d6677b30",
+          "size": 2773804
         },
         {
-          "path": "material-fidelity/reference/nodes/textures/image_materialx-osl.png",
-          "sha256": "c420ad8bc8ce65776742682f6c3df042682db6af04797e1435fdb37eea7908d1",
-          "size": 490463
+          "path": "material-fidelity/reference/nodes/textures/image_place2d_identity_probe.exr",
+          "sha256": "280fdb4fc23cf87f39a05cd75d0c59249d8494cafa831fa42346f83cf955ae36",
+          "size": 2775004
         },
         {
-          "path": "material-fidelity/reference/nodes/textures/image_place2d_identity_probe_materialx-osl.png",
-          "sha256": "6b3adcfa7d7b44174a52cb84523f7ed84edc88cb40c5a7645d12e2b90cdd8692",
-          "size": 478753
+          "path": "material-fidelity/reference/nodes/textures/image_probe_identity.exr",
+          "sha256": "7c4717ca5ade3d7c106e262136b19326e33e581a521efa3fcce42cd8fed71264",
+          "size": 2774495
         },
         {
-          "path": "material-fidelity/reference/nodes/textures/image_probe_identity_materialx-osl.png",
-          "sha256": "1e626dad0f47af7407217b0f5b2c10fccd6f72a2b3f9d3d60b57b300e3a43053",
-          "size": 475533
+          "path": "material-fidelity/reference/nodes/textures/image_texcoord_direct_probe.exr",
+          "sha256": "4cda125f2de2b19529fa0b92d8c9478b9eb01addf1e247f4c34155f31120a9f2",
+          "size": 2774568
         },
         {
-          "path": "material-fidelity/reference/nodes/textures/image_texcoord_direct_probe_materialx-osl.png",
-          "sha256": "6b3adcfa7d7b44174a52cb84523f7ed84edc88cb40c5a7645d12e2b90cdd8692",
-          "size": 478753
+          "path": "material-fidelity/reference/nodes/textures/tiledimage.exr",
+          "sha256": "e4f3a1275b37acf33c715d8e61302b15821183bf486e849d8e7b93446b500349",
+          "size": 2774072
         },
         {
-          "path": "material-fidelity/reference/nodes/textures/tiledimage_materialx-osl.png",
-          "sha256": "d830f3355a5b5a76ff27fb8ae73b625fd42c79cbdc5a662b92bc340528e66005",
-          "size": 482200
-        },
-        {
-          "path": "material-fidelity/reference/nodes/textures/tiledimage_probe_tiling_materialx-osl.png",
-          "sha256": "7e2b03dd01bcae8d96cfddda83f5a291d33ef2540ce3d31b7a12941058c5f27c",
-          "size": 487837
+          "path": "material-fidelity/reference/nodes/textures/tiledimage_probe_tiling.exr",
+          "sha256": "47dadec29413aa6cd642ff6fcfdeb7198b4e43597a6ff3d6f7257ad11093f484",
+          "size": 2774581
         }
       ],
-      "release": "reference-data-20260705T025545Z-272cd207-a1eabdf9"
+      "release": "reference-data-20260705T201612Z-bb724c77-c6a1f4e7"
     },
     "material-fidelity/showcase/gltf_pbr": {
       "archive": "material-fidelity--showcase--gltf_pbr--58411b309b89.zip",
