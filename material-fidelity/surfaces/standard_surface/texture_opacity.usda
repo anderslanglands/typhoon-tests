@@ -1,0 +1,77 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "texture_opacity" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/surfaces/standard_surface/texture_opacity/texture_opacity.mtlx"
+                string sourceMaterial = "mat_texture_opacity_test"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/texture_opacity/surface_shader1.outputs:out>
+        token outputs:surface.connect = </Looks/texture_opacity/surface_shader1.outputs:out>
+
+        def Shader "surface_shader1"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color = (0.2, 0.6, 0.8)
+            float inputs:metalness = 0
+            color3f inputs:opacity.connect = </Looks/texture_opacity/convert_1.outputs:out>
+            float inputs:specular_roughness = 0.2
+            token outputs:out
+        }
+
+        def NodeGraph "opacity_texture_graph"
+        {
+            float outputs:out.connect = </Looks/texture_opacity/opacity_texture_graph/opacity_texture.outputs:out>
+
+            def Shader "opacity_texture"
+            {
+                uniform token info:id = "ND_image_float"
+                float inputs:default = 1
+                asset inputs:file = @../../_assets/Materials/surfaces/standard_surface/texture_opacity/textures/grid.png@
+                float outputs:out
+            }
+        }
+
+        def Shader "convert_1"
+        {
+            uniform token info:id = "ND_convert_float_color3"
+            float inputs:in.connect = </Looks/texture_opacity/opacity_texture_graph.outputs:out>
+            color3f outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/texture_opacity>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/surfaces/standard_surface/texture_opacity.exr"
+        }
+    }
+}

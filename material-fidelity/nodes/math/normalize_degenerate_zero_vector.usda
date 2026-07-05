@@ -1,0 +1,89 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "normalize_degenerate_zero_vector" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/normalize_degenerate_zero_vector/normalize_degenerate_zero_vector.mtlx"
+                string sourceMaterial = "M_normalize_degenerate_zero_vector"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/normalize_degenerate_zero_vector/SR_normalize_degenerate_zero_vector.outputs:out>
+        token outputs:surface.connect = </Looks/normalize_degenerate_zero_vector/SR_normalize_degenerate_zero_vector.outputs:out>
+
+        def Shader "SR_normalize_degenerate_zero_vector"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/normalize_degenerate_zero_vector/NG_normalize_degenerate_zero_vector.outputs:out_base_color>
+            float inputs:specular = 0.5
+            float inputs:specular_roughness = 0.45
+            token outputs:out
+        }
+
+        def NodeGraph "NG_normalize_degenerate_zero_vector"
+        {
+            color3f outputs:out_base_color.connect = </Looks/normalize_degenerate_zero_vector/NG_normalize_degenerate_zero_vector/convert_1.outputs:out>
+
+            def Shader "zero_vector"
+            {
+                uniform token info:id = "ND_constant_vector3"
+                float3 inputs:value = (0, 0, 0)
+                float3 outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_normalize_vector3"
+                float3 inputs:in.connect = </Looks/normalize_degenerate_zero_vector/NG_normalize_degenerate_zero_vector/zero_vector.outputs:out>
+                float3 outputs:out
+            }
+
+            def Shader "magnitude"
+            {
+                uniform token info:id = "ND_absval_vector3"
+                float3 inputs:in.connect = </Looks/normalize_degenerate_zero_vector/NG_normalize_degenerate_zero_vector/node_under_test.outputs:out>
+                float3 outputs:out
+            }
+
+            def Shader "convert_1"
+            {
+                uniform token info:id = "ND_convert_vector3_color3"
+                float3 inputs:in.connect = </Looks/normalize_degenerate_zero_vector/NG_normalize_degenerate_zero_vector/magnitude.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/normalize_degenerate_zero_vector>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/normalize_degenerate_zero_vector.exr"
+        }
+    }
+}

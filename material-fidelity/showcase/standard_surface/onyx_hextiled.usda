@@ -1,0 +1,109 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "onyx_hextiled" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/showcase/standard_surface/onyx_hextiled/onyx_hextiled.mtlx"
+                string sourceMaterial = "M_OnyxHextiled"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/onyx_hextiled/N_StandardSurface.outputs:out>
+        token outputs:surface.connect = </Looks/onyx_hextiled/N_StandardSurface.outputs:out>
+
+        def Shader "N_StandardSurface"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/onyx_hextiled/NG_OnyxHextiled.outputs:out_color>
+            float inputs:specular_roughness.connect = </Looks/onyx_hextiled/NG_OnyxHextiled.outputs:out_roughness>
+            token outputs:out
+        }
+
+        def NodeGraph "NG_OnyxHextiled"
+        {
+            float inputs:falloff = 0.75
+            float inputs:offset = 1
+            float inputs:rotation = 1
+            float inputs:scale = 1
+            float inputs:tiling = 4
+            color3f outputs:out_color.connect = </Looks/onyx_hextiled/NG_OnyxHextiled/image_color.outputs:out>
+            float outputs:out_roughness.connect = </Looks/onyx_hextiled/NG_OnyxHextiled/image_roughness_float.outputs:out>
+
+            def Shader "tiling_vector2"
+            {
+                uniform token info:id = "ND_convert_float_vector2"
+                float inputs:in.connect = </Looks/onyx_hextiled/NG_OnyxHextiled.inputs:tiling>
+                float2 outputs:out
+            }
+
+            def Shader "image_color"
+            {
+                uniform token info:id = "ND_hextiledimage_color3"
+                float inputs:falloff.connect = </Looks/onyx_hextiled/NG_OnyxHextiled.inputs:falloff>
+                asset inputs:file = @../../_assets/Materials/showcase/standard_surface/onyx_hextiled/textures/onyx_color.jpg@ (
+                    colorSpace = "srgb_texture"
+                )
+                float inputs:offset.connect = </Looks/onyx_hextiled/NG_OnyxHextiled.inputs:offset>
+                float inputs:rotation.connect = </Looks/onyx_hextiled/NG_OnyxHextiled.inputs:rotation>
+                float inputs:scale.connect = </Looks/onyx_hextiled/NG_OnyxHextiled.inputs:scale>
+                float2 inputs:tiling.connect = </Looks/onyx_hextiled/NG_OnyxHextiled/tiling_vector2.outputs:out>
+                color3f outputs:out
+            }
+
+            def Shader "image_roughness"
+            {
+                uniform token info:id = "ND_hextiledimage_color3"
+                float inputs:falloff.connect = </Looks/onyx_hextiled/NG_OnyxHextiled.inputs:falloff>
+                asset inputs:file = @../../_assets/Materials/showcase/standard_surface/onyx_hextiled/textures/onyx_roughness.jpg@ (
+                    colorSpace = "none"
+                )
+                float inputs:offset.connect = </Looks/onyx_hextiled/NG_OnyxHextiled.inputs:offset>
+                float inputs:rotation.connect = </Looks/onyx_hextiled/NG_OnyxHextiled.inputs:rotation>
+                float inputs:scale.connect = </Looks/onyx_hextiled/NG_OnyxHextiled.inputs:scale>
+                float2 inputs:tiling.connect = </Looks/onyx_hextiled/NG_OnyxHextiled/tiling_vector2.outputs:out>
+                color3f outputs:out
+            }
+
+            def Shader "image_roughness_float"
+            {
+                uniform token info:id = "ND_extract_color3"
+                color3f inputs:in.connect = </Looks/onyx_hextiled/NG_OnyxHextiled/image_roughness.outputs:out>
+                int inputs:index = 0
+                float outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/onyx_hextiled>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/showcase/standard_surface/onyx_hextiled.exr"
+        }
+    }
+}

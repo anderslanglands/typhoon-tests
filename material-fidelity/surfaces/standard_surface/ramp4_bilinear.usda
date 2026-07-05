@@ -1,0 +1,77 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "ramp4_bilinear" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/surfaces/standard_surface/ramp4_bilinear/ramp4_bilinear.mtlx"
+                string sourceMaterial = "M_ramp4_bilinear_test"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/ramp4_bilinear/SR_ramp4_bilinear_test.outputs:out>
+        token outputs:surface.connect = </Looks/ramp4_bilinear/SR_ramp4_bilinear_test.outputs:out>
+
+        def Shader "SR_ramp4_bilinear_test"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/ramp4_bilinear/NG_ramp4_bilinear_test.outputs:out_color>
+            float inputs:specular_roughness = 0.5
+            token outputs:out
+        }
+
+        def NodeGraph "NG_ramp4_bilinear_test"
+        {
+            color3f outputs:out_color.connect = </Looks/ramp4_bilinear/NG_ramp4_bilinear_test/bilinear_ramp.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "bilinear_ramp"
+            {
+                uniform token info:id = "ND_ramp4_color3"
+                float2 inputs:texcoord.connect = </Looks/ramp4_bilinear/NG_ramp4_bilinear_test/uv0.outputs:out>
+                color3f inputs:valuebl = (0, 0, 1)
+                color3f inputs:valuebr = (1, 1, 0)
+                color3f inputs:valuetl = (1, 0, 0)
+                color3f inputs:valuetr = (0, 1, 0)
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/ramp4_bilinear>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/surfaces/standard_surface/ramp4_bilinear.exr"
+        }
+    }
+}

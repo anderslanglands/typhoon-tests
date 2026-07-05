@@ -1,0 +1,127 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "splittb_compare_default_vs_inverted" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/splittb_compare_default_vs_inverted/splittb_compare_default_vs_inverted.mtlx"
+                string sourceMaterial = "M_splittb_compare_default_vs_inverted"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/splittb_compare_default_vs_inverted/SR_splittb_compare_default_vs_inverted.outputs:out>
+        token outputs:surface.connect = </Looks/splittb_compare_default_vs_inverted/SR_splittb_compare_default_vs_inverted.outputs:out>
+
+        def Shader "SR_splittb_compare_default_vs_inverted"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/splittb_compare_default_vs_inverted/NG_splittb_compare_default_vs_inverted.outputs:out_base_color>
+            float inputs:specular = 0.5
+            float inputs:specular_roughness = 0.45
+            token outputs:out
+        }
+
+        def NodeGraph "NG_splittb_compare_default_vs_inverted"
+        {
+            color3f outputs:out_base_color.connect = </Looks/splittb_compare_default_vs_inverted/NG_splittb_compare_default_vs_inverted/debug_color.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "splittb_default"
+            {
+                uniform token info:id = "ND_splittb_float"
+                float inputs:center = 0.5
+                float2 inputs:texcoord.connect = </Looks/splittb_compare_default_vs_inverted/NG_splittb_compare_default_vs_inverted/uv0.outputs:out>
+                float inputs:valueb = 0
+                float inputs:valuet = 1
+                float outputs:out
+            }
+
+            def Shader "splittb_inverted"
+            {
+                uniform token info:id = "ND_splittb_float"
+                float inputs:center = 0.5
+                float2 inputs:texcoord.connect = </Looks/splittb_compare_default_vs_inverted/NG_splittb_compare_default_vs_inverted/uv0.outputs:out>
+                float inputs:valueb = 1
+                float inputs:valuet = 0
+                float outputs:out
+            }
+
+            def Shader "inverted_to_default"
+            {
+                uniform token info:id = "ND_subtract_float"
+                float inputs:in1 = 1
+                float inputs:in2.connect = </Looks/splittb_compare_default_vs_inverted/NG_splittb_compare_default_vs_inverted/splittb_inverted.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "delta_raw"
+            {
+                uniform token info:id = "ND_subtract_float"
+                float inputs:in1.connect = </Looks/splittb_compare_default_vs_inverted/NG_splittb_compare_default_vs_inverted/splittb_default.outputs:out>
+                float inputs:in2.connect = </Looks/splittb_compare_default_vs_inverted/NG_splittb_compare_default_vs_inverted/inverted_to_default.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "delta"
+            {
+                uniform token info:id = "ND_absval_float"
+                float inputs:in.connect = </Looks/splittb_compare_default_vs_inverted/NG_splittb_compare_default_vs_inverted/delta_raw.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "delta_amplified"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/splittb_compare_default_vs_inverted/NG_splittb_compare_default_vs_inverted/delta.outputs:out>
+                float inputs:in2 = 8
+                float outputs:out
+            }
+
+            def Shader "debug_color"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/splittb_compare_default_vs_inverted/NG_splittb_compare_default_vs_inverted/splittb_default.outputs:out>
+                float inputs:in2.connect = </Looks/splittb_compare_default_vs_inverted/NG_splittb_compare_default_vs_inverted/splittb_inverted.outputs:out>
+                float inputs:in3.connect = </Looks/splittb_compare_default_vs_inverted/NG_splittb_compare_default_vs_inverted/delta_amplified.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/splittb_compare_default_vs_inverted>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/procedurals/splittb_compare_default_vs_inverted.exr"
+        }
+    }
+}

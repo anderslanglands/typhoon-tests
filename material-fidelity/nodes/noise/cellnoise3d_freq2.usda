@@ -1,0 +1,89 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "cellnoise3d_freq2" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/cellnoise3d_freq2/cellnoise3d_freq2.mtlx"
+                string sourceMaterial = "M_cellnoise3d_freq2"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/cellnoise3d_freq2/SR_cellnoise3d_freq2.outputs:out>
+        token outputs:surface.connect = </Looks/cellnoise3d_freq2/SR_cellnoise3d_freq2.outputs:out>
+
+        def Shader "SR_cellnoise3d_freq2"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/cellnoise3d_freq2/NG_cellnoise3d_freq2.outputs:out_base_color>
+            token outputs:out
+        }
+
+        def NodeGraph "NG_cellnoise3d_freq2"
+        {
+            color3f outputs:out_base_color.connect = </Looks/cellnoise3d_freq2/NG_cellnoise3d_freq2/base_color.outputs:out>
+
+            def Shader "pos0"
+            {
+                uniform token info:id = "ND_position_vector3"
+                float3 outputs:out
+            }
+
+            def Shader "pos_scaled"
+            {
+                uniform token info:id = "ND_multiply_vector3"
+                float3 inputs:in1.connect = </Looks/cellnoise3d_freq2/NG_cellnoise3d_freq2/pos0.outputs:out>
+                float3 inputs:in2 = (2, 2, 2)
+                float3 outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_cellnoise3d_float"
+                float3 inputs:position.connect = </Looks/cellnoise3d_freq2/NG_cellnoise3d_freq2/pos_scaled.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "base_color"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/cellnoise3d_freq2/NG_cellnoise3d_freq2/node_under_test.outputs:out>
+                float inputs:in2.connect = </Looks/cellnoise3d_freq2/NG_cellnoise3d_freq2/node_under_test.outputs:out>
+                float inputs:in3.connect = </Looks/cellnoise3d_freq2/NG_cellnoise3d_freq2/node_under_test.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/cellnoise3d_freq2>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/noise/cellnoise3d_freq2.exr"
+        }
+    }
+}

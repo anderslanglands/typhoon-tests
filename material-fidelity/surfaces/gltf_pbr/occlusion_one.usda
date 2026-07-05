@@ -1,0 +1,57 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "occlusion_one" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/surfaces/gltf_pbr/occlusion_one/occlusion_one.mtlx"
+                string sourceMaterial = "M_occlusion_one"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/occlusion_one/surface_shader1.outputs:out>
+        token outputs:surface.connect = </Looks/occlusion_one/surface_shader1.outputs:out>
+
+        def Shader "surface_shader1"
+        {
+            uniform token info:id = "ND_gltf_pbr_surfaceshader"
+            color3f inputs:base_color = (1, 0.45, 0.1)
+            float inputs:metallic = 1
+            float inputs:occlusion = 1
+            float inputs:roughness = 0.25
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/occlusion_one>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/surfaces/gltf_pbr/occlusion_one.exr"
+        }
+    }
+}

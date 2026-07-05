@@ -1,0 +1,124 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "artistic_ior_aluminium" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/artistic_ior_aluminium/artistic_ior_aluminium.mtlx"
+                string sourceMaterial = "M_artistic_ior_aluminium"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/artistic_ior_aluminium/SR_artistic_ior_aluminium.outputs:out>
+        token outputs:surface.connect = </Looks/artistic_ior_aluminium/SR_artistic_ior_aluminium.outputs:out>
+
+        def Shader "SR_artistic_ior_aluminium"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/artistic_ior_aluminium/NG_artistic_ior_aluminium.outputs:out_base_color>
+            float inputs:emission = 0.35
+            color3f inputs:emission_color.connect = </Looks/artistic_ior_aluminium/NG_artistic_ior_aluminium.outputs:out_emission_color>
+            float inputs:specular = 0.25
+            float inputs:specular_roughness = 0.25
+            token outputs:out
+        }
+
+        def NodeGraph "NG_artistic_ior_aluminium"
+        {
+            color3f outputs:out_base_color.connect = </Looks/artistic_ior_aluminium/NG_artistic_ior_aluminium/display_color.outputs:out>
+            color3f outputs:out_emission_color.connect = </Looks/artistic_ior_aluminium/NG_artistic_ior_aluminium/extinction_display.outputs:out>
+
+            def Shader "reflectivity"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1 = 0.913
+                float inputs:in2 = 0.922
+                float inputs:in3 = 0.924
+                color3f outputs:out
+            }
+
+            def Shader "edge_tint"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1 = 0.974
+                float inputs:in2 = 0.979
+                float inputs:in3 = 0.998
+                color3f outputs:out
+            }
+
+            def Shader "artistic_ior_values"
+            {
+                uniform token info:id = "ND_artistic_ior"
+                color3f inputs:edge_color.connect = </Looks/artistic_ior_aluminium/NG_artistic_ior_aluminium/edge_tint.outputs:out>
+                color3f inputs:reflectivity.connect = </Looks/artistic_ior_aluminium/NG_artistic_ior_aluminium/reflectivity.outputs:out>
+                color3f outputs:extinction
+                color3f outputs:ior
+            }
+
+            def Shader "ior_display"
+            {
+                uniform token info:id = "ND_range_color3"
+                color3f inputs:gamma = (1, 1, 1)
+                color3f inputs:in.connect = </Looks/artistic_ior_aluminium/NG_artistic_ior_aluminium/artistic_ior_values.outputs:ior>
+                color3f inputs:inhigh = (5, 5, 5)
+                color3f inputs:inlow = (1, 1, 1)
+                color3f inputs:outhigh = (1, 1, 1)
+                color3f inputs:outlow = (0, 0, 0)
+                color3f outputs:out
+            }
+
+            def Shader "extinction_display"
+            {
+                uniform token info:id = "ND_range_color3"
+                color3f inputs:gamma = (1, 1, 1)
+                color3f inputs:in.connect = </Looks/artistic_ior_aluminium/NG_artistic_ior_aluminium/artistic_ior_values.outputs:extinction>
+                color3f inputs:inhigh = (8, 8, 8)
+                color3f inputs:inlow = (0, 0, 0)
+                color3f inputs:outhigh = (1, 1, 1)
+                color3f inputs:outlow = (0, 0, 0)
+                color3f outputs:out
+            }
+
+            def Shader "display_color"
+            {
+                uniform token info:id = "ND_mix_color3"
+                color3f inputs:bg.connect = </Looks/artistic_ior_aluminium/NG_artistic_ior_aluminium/ior_display.outputs:out>
+                color3f inputs:fg.connect = </Looks/artistic_ior_aluminium/NG_artistic_ior_aluminium/extinction_display.outputs:out>
+                float inputs:mix = 0.35
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/artistic_ior_aluminium>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/pbr/artistic_ior_aluminium.exr"
+        }
+    }
+}

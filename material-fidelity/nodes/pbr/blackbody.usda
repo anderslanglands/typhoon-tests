@@ -1,0 +1,104 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "blackbody" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/blackbody/blackbody.mtlx"
+                string sourceMaterial = "M_blackbody"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/blackbody/SR_blackbody.outputs:out>
+        token outputs:surface.connect = </Looks/blackbody/SR_blackbody.outputs:out>
+
+        def Shader "SR_blackbody"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color = (0.03, 0.03, 0.03)
+            float inputs:emission = 1
+            color3f inputs:emission_color.connect = </Looks/blackbody/NG_blackbody.outputs:out_emission_color>
+            float inputs:specular = 0.1
+            float inputs:specular_roughness = 0.6
+            token outputs:out
+        }
+
+        def NodeGraph "NG_blackbody"
+        {
+            color3f outputs:out_emission_color.connect = </Looks/blackbody/NG_blackbody/node_under_test.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "uv_split"
+            {
+                uniform token info:id = "ND_separate2_vector2"
+                float2 inputs:in.connect = </Looks/blackbody/NG_blackbody/uv0.outputs:out>
+                float outputs:outx
+                float outputs:outy
+            }
+
+            def Shader "temperature_low_or_mid"
+            {
+                uniform token info:id = "ND_ifgreatereq_float"
+                float inputs:in1 = 4500
+                float inputs:in2 = 1900
+                float inputs:value1.connect = </Looks/blackbody/NG_blackbody/uv_split.outputs:outx>
+                float inputs:value2 = 0.333
+                float outputs:out
+            }
+
+            def Shader "temperature_selection"
+            {
+                uniform token info:id = "ND_ifgreatereq_float"
+                float inputs:in1 = 9000
+                float inputs:in2.connect = </Looks/blackbody/NG_blackbody/temperature_low_or_mid.outputs:out>
+                float inputs:value1.connect = </Looks/blackbody/NG_blackbody/uv_split.outputs:outx>
+                float inputs:value2 = 0.666
+                float outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_blackbody"
+                float inputs:temperature.connect = </Looks/blackbody/NG_blackbody/temperature_selection.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/blackbody>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/pbr/blackbody.exr"
+        }
+    }
+}

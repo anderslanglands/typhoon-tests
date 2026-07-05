@@ -1,0 +1,114 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "remap_degenerate" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/remap_degenerate/remap_degenerate.mtlx"
+                string sourceMaterial = "M_remap_degenerate"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/remap_degenerate/SR_remap_degenerate.outputs:out>
+        token outputs:surface.connect = </Looks/remap_degenerate/SR_remap_degenerate.outputs:out>
+
+        def Shader "SR_remap_degenerate"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/remap_degenerate/NG_remap_degenerate.outputs:out_base_color>
+            float inputs:specular = 0.5
+            float inputs:specular_roughness = 0.45
+            token outputs:out
+        }
+
+        def NodeGraph "NG_remap_degenerate"
+        {
+            color3f outputs:out_base_color.connect = </Looks/remap_degenerate/NG_remap_degenerate/debug_color.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "uv_split"
+            {
+                uniform token info:id = "ND_separate2_vector2"
+                float2 inputs:in.connect = </Looks/remap_degenerate/NG_remap_degenerate/uv0.outputs:out>
+                float outputs:outx
+                float outputs:outy
+            }
+
+            def Shader "centered_u"
+            {
+                uniform token info:id = "ND_subtract_float"
+                float inputs:in1.connect = </Looks/remap_degenerate/NG_remap_degenerate/uv_split.outputs:outx>
+                float inputs:in2 = 0.5
+                float outputs:out
+            }
+
+            def Shader "remap_forward"
+            {
+                uniform token info:id = "ND_remap_float"
+                float inputs:in.connect = </Looks/remap_degenerate/NG_remap_degenerate/centered_u.outputs:out>
+                float inputs:inhigh = 0
+                float inputs:inlow = 0
+                float inputs:outhigh = 1
+                float inputs:outlow = 0
+                float outputs:out
+            }
+
+            def Shader "remap_reverse"
+            {
+                uniform token info:id = "ND_remap_float"
+                float inputs:in.connect = </Looks/remap_degenerate/NG_remap_degenerate/centered_u.outputs:out>
+                float inputs:inhigh = 0
+                float inputs:inlow = 0
+                float inputs:outhigh = 0
+                float inputs:outlow = 1
+                float outputs:out
+            }
+
+            def Shader "debug_color"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/remap_degenerate/NG_remap_degenerate/remap_forward.outputs:out>
+                float inputs:in2.connect = </Looks/remap_degenerate/NG_remap_degenerate/remap_reverse.outputs:out>
+                float inputs:in3 = 0.5
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/remap_degenerate>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/adjustment/remap_degenerate.exr"
+        }
+    }
+}

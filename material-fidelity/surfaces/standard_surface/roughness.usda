@@ -1,0 +1,68 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "roughness" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/surfaces/standard_surface/roughness/roughness.mtlx"
+                string sourceMaterial = "mat_roughness_test"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/roughness/surface_shader1.outputs:out>
+        token outputs:surface.connect = </Looks/roughness/surface_shader1.outputs:out>
+
+        def Shader "surface_shader1"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color = (0.8, 0.8, 0.8)
+            float inputs:specular_roughness.connect = </Looks/roughness/roughness_map.outputs:out>
+            token outputs:out
+        }
+
+        def NodeGraph "roughness_map"
+        {
+            float outputs:out.connect = </Looks/roughness/roughness_map/roughness_image.outputs:out>
+
+            def Shader "roughness_image"
+            {
+                uniform token info:id = "ND_image_float"
+                float inputs:default = 0.5
+                asset inputs:file = @../../_assets/Materials/surfaces/standard_surface/roughness/textures/grid.png@
+                float outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/roughness>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/surfaces/standard_surface/roughness.exr"
+        }
+    }
+}

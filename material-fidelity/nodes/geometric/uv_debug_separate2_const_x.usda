@@ -1,0 +1,87 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "uv_debug_separate2_const_x" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/uv_debug_separate2_const_x/uv_debug_separate2_const_x.mtlx"
+                string sourceMaterial = "M_uv_debug_separate2_const_x"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/uv_debug_separate2_const_x/SR_uv_debug_separate2_const_x.outputs:out>
+        token outputs:surface.connect = </Looks/uv_debug_separate2_const_x/SR_uv_debug_separate2_const_x.outputs:out>
+
+        def Shader "SR_uv_debug_separate2_const_x"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color = (0, 0, 0)
+            float inputs:emission = 1
+            color3f inputs:emission_color.connect = </Looks/uv_debug_separate2_const_x/NG_uv_debug_separate2_const_x.outputs:out_base_color>
+            float inputs:specular = 0
+            float inputs:specular_roughness = 0.45
+            token outputs:out
+        }
+
+        def NodeGraph "NG_uv_debug_separate2_const_x"
+        {
+            color3f outputs:out_base_color.connect = </Looks/uv_debug_separate2_const_x/NG_uv_debug_separate2_const_x/x_grayscale.outputs:out>
+
+            def Shader "const_uv"
+            {
+                uniform token info:id = "ND_constant_vector2"
+                float2 inputs:value = (0.2, 0.8)
+                float2 outputs:out
+            }
+
+            def Shader "uv_split"
+            {
+                uniform token info:id = "ND_separate2_vector2"
+                float2 inputs:in.connect = </Looks/uv_debug_separate2_const_x/NG_uv_debug_separate2_const_x/const_uv.outputs:out>
+                float outputs:outx
+                float outputs:outy
+            }
+
+            def Shader "x_grayscale"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/uv_debug_separate2_const_x/NG_uv_debug_separate2_const_x/uv_split.outputs:outx>
+                float inputs:in2.connect = </Looks/uv_debug_separate2_const_x/NG_uv_debug_separate2_const_x/uv_split.outputs:outx>
+                float inputs:in3.connect = </Looks/uv_debug_separate2_const_x/NG_uv_debug_separate2_const_x/uv_split.outputs:outx>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/uv_debug_separate2_const_x>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/geometric/uv_debug_separate2_const_x.exr"
+        }
+    }
+}

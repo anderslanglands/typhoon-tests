@@ -1,0 +1,108 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "gltf_normalmap_transform" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/gltf_normalmap_transform/gltf_normalmap_transform.mtlx"
+                string sourceMaterial = "M_gltf_normalmap_transform"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/gltf_normalmap_transform/SR_gltf_normalmap_transform.outputs:out>
+        token outputs:surface.connect = </Looks/gltf_normalmap_transform/SR_gltf_normalmap_transform.outputs:out>
+
+        def Shader "SR_gltf_normalmap_transform"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/gltf_normalmap_transform/NG_gltf_normalmap_transform.outputs:out_base_color>
+            float inputs:specular = 0.5
+            float inputs:specular_roughness = 0.45
+            token outputs:out
+        }
+
+        def NodeGraph "NG_gltf_normalmap_transform"
+        {
+            color3f outputs:out_base_color.connect = </Looks/gltf_normalmap_transform/NG_gltf_normalmap_transform/final_color.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_gltf_normalmap_vector3_1_0"
+                asset inputs:file = @../../_assets/Materials/showcase/standard_surface/brick_procedural/textures/brick_normal.jpg@ (
+                    colorSpace = "none"
+                )
+                string inputs:filtertype = "linear"
+                float2 inputs:offset = (0.15, 0.1)
+                int inputs:operationorder = 1
+                float2 inputs:pivot = (0.5, 0.5)
+                float inputs:rotate = 45
+                float2 inputs:scale = (1.5, 0.75)
+                float2 inputs:texcoord.connect = </Looks/gltf_normalmap_transform/NG_gltf_normalmap_transform/uv0.outputs:out>
+                string inputs:uaddressmode = "periodic"
+                string inputs:vaddressmode = "periodic"
+                float3 outputs:out
+            }
+
+            def Shader "normal_half"
+            {
+                uniform token info:id = "ND_multiply_vector3"
+                float3 inputs:in1.connect = </Looks/gltf_normalmap_transform/NG_gltf_normalmap_transform/node_under_test.outputs:out>
+                float3 inputs:in2 = (0.5, 0.5, 0.5)
+                float3 outputs:out
+            }
+
+            def Shader "normal_01"
+            {
+                uniform token info:id = "ND_add_vector3"
+                float3 inputs:in1.connect = </Looks/gltf_normalmap_transform/NG_gltf_normalmap_transform/normal_half.outputs:out>
+                float3 inputs:in2 = (0.5, 0.5, 0.5)
+                float3 outputs:out
+            }
+
+            def Shader "final_color"
+            {
+                uniform token info:id = "ND_convert_vector3_color3"
+                float3 inputs:in.connect = </Looks/gltf_normalmap_transform/NG_gltf_normalmap_transform/normal_01.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/gltf_normalmap_transform>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/textures/gltf_normalmap_transform.exr"
+        }
+    }
+}

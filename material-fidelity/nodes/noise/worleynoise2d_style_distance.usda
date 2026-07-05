@@ -1,0 +1,147 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "worleynoise2d_style_distance" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/worleynoise2d_style_distance/worleynoise2d_style_distance.mtlx"
+                string sourceMaterial = "M_worleynoise2d_style_distance"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/worleynoise2d_style_distance/SR_worleynoise2d_style_distance.outputs:out>
+        token outputs:surface.connect = </Looks/worleynoise2d_style_distance/SR_worleynoise2d_style_distance.outputs:out>
+
+        def Shader "SR_worleynoise2d_style_distance"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/worleynoise2d_style_distance/NG_worleynoise2d_style_distance.outputs:out_base_color>
+            token outputs:out
+        }
+
+        def NodeGraph "NG_worleynoise2d_style_distance"
+        {
+            color3f outputs:out_base_color.connect = </Looks/worleynoise2d_style_distance/NG_worleynoise2d_style_distance/base_color.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "uv_scale"
+            {
+                uniform token info:id = "ND_combine2_vector2"
+                float inputs:in1 = 24
+                float inputs:in2 = 24
+                float2 outputs:out
+            }
+
+            def Shader "uv_scaled"
+            {
+                uniform token info:id = "ND_multiply_vector2"
+                float2 inputs:in1.connect = </Looks/worleynoise2d_style_distance/NG_worleynoise2d_style_distance/uv0.outputs:out>
+                float2 inputs:in2.connect = </Looks/worleynoise2d_style_distance/NG_worleynoise2d_style_distance/uv_scale.outputs:out>
+                float2 outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_worleynoise2d_float"
+                float inputs:jitter = 0.65
+                int inputs:style = 0
+                float2 inputs:texcoord.connect = </Looks/worleynoise2d_style_distance/NG_worleynoise2d_style_distance/uv_scaled.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "noise_01"
+            {
+                uniform token info:id = "ND_range_float"
+                bool inputs:doclamp = 1
+                float inputs:in.connect = </Looks/worleynoise2d_style_distance/NG_worleynoise2d_style_distance/node_under_test.outputs:out>
+                float inputs:inhigh = 1
+                float inputs:inlow = -1
+                float inputs:outhigh = 1
+                float inputs:outlow = 0
+                float outputs:out
+            }
+
+            def Shader "tint_r"
+            {
+                uniform token info:id = "ND_range_float"
+                bool inputs:doclamp = 1
+                float inputs:in.connect = </Looks/worleynoise2d_style_distance/NG_worleynoise2d_style_distance/noise_01.outputs:out>
+                float inputs:inhigh = 1
+                float inputs:inlow = 0
+                float inputs:outhigh = 1
+                float inputs:outlow = 0
+                float outputs:out
+            }
+
+            def Shader "tint_g"
+            {
+                uniform token info:id = "ND_range_float"
+                bool inputs:doclamp = 1
+                float inputs:in.connect = </Looks/worleynoise2d_style_distance/NG_worleynoise2d_style_distance/noise_01.outputs:out>
+                float inputs:inhigh = 1
+                float inputs:inlow = 0
+                float inputs:outhigh = 0.8
+                float inputs:outlow = 0
+                float outputs:out
+            }
+
+            def Shader "tint_b"
+            {
+                uniform token info:id = "ND_range_float"
+                bool inputs:doclamp = 1
+                float inputs:in.connect = </Looks/worleynoise2d_style_distance/NG_worleynoise2d_style_distance/noise_01.outputs:out>
+                float inputs:inhigh = 1
+                float inputs:inlow = 0
+                float inputs:outhigh = 0
+                float inputs:outlow = 0
+                float outputs:out
+            }
+
+            def Shader "base_color"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/worleynoise2d_style_distance/NG_worleynoise2d_style_distance/tint_r.outputs:out>
+                float inputs:in2.connect = </Looks/worleynoise2d_style_distance/NG_worleynoise2d_style_distance/tint_g.outputs:out>
+                float inputs:in3.connect = </Looks/worleynoise2d_style_distance/NG_worleynoise2d_style_distance/tint_b.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/worleynoise2d_style_distance>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/noise/worleynoise2d_style_distance.exr"
+        }
+    }
+}

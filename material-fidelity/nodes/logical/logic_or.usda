@@ -1,0 +1,206 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "logic_or" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/logic_or/logic_or.mtlx"
+                string sourceMaterial = "M_logic_or"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/logic_or/SR_logic_or.outputs:out>
+        token outputs:surface.connect = </Looks/logic_or/SR_logic_or.outputs:out>
+
+        def Shader "SR_logic_or"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/logic_or/NG_logic_or.outputs:out_base_color>
+            float inputs:specular = 0.5
+            float inputs:specular_roughness = 0.45
+            token outputs:out
+        }
+
+        def NodeGraph "NG_logic_or"
+        {
+            color3f outputs:out_base_color.connect = </Looks/logic_or/NG_logic_or/final_color.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "checker_a_uv"
+            {
+                uniform token info:id = "ND_multiply_vector2"
+                float2 inputs:in1.connect = </Looks/logic_or/NG_logic_or/uv0.outputs:out>
+                float2 inputs:in2 = (2, 2)
+                float2 outputs:out
+            }
+
+            def Shader "checker_b_scaled"
+            {
+                uniform token info:id = "ND_multiply_vector2"
+                float2 inputs:in1.connect = </Looks/logic_or/NG_logic_or/uv0.outputs:out>
+                float2 inputs:in2 = (2, 2)
+                float2 outputs:out
+            }
+
+            def Shader "checker_b_uv"
+            {
+                uniform token info:id = "ND_add_vector2"
+                float2 inputs:in1.connect = </Looks/logic_or/NG_logic_or/checker_b_scaled.outputs:out>
+                float2 inputs:in2 = (0.5, 0.5)
+                float2 outputs:out
+            }
+
+            def Shader "checker_a"
+            {
+                uniform token info:id = "ND_checkerboard_color3"
+                color3f inputs:color1 = (0, 0, 0)
+                color3f inputs:color2 = (1, 1, 1)
+                float2 inputs:texcoord.connect = </Looks/logic_or/NG_logic_or/checker_a_uv.outputs:out>
+                color3f outputs:out
+            }
+
+            def Shader "checker_b"
+            {
+                uniform token info:id = "ND_checkerboard_color3"
+                color3f inputs:color1 = (0, 0, 0)
+                color3f inputs:color2 = (1, 1, 1)
+                float2 inputs:texcoord.connect = </Looks/logic_or/NG_logic_or/checker_b_uv.outputs:out>
+                color3f outputs:out
+            }
+
+            def Shader "checker_a_channels"
+            {
+                uniform token info:id = "ND_separate3_color3"
+                color3f inputs:in.connect = </Looks/logic_or/NG_logic_or/checker_a.outputs:out>
+                float outputs:outb
+                float outputs:outg
+                float outputs:outr
+            }
+
+            def Shader "checker_b_channels"
+            {
+                uniform token info:id = "ND_separate3_color3"
+                color3f inputs:in.connect = </Looks/logic_or/NG_logic_or/checker_b.outputs:out>
+                float outputs:outb
+                float outputs:outg
+                float outputs:outr
+            }
+
+            def Shader "checker_a_bool"
+            {
+                uniform token info:id = "ND_ifgreater_boolean"
+                float inputs:value1.connect = </Looks/logic_or/NG_logic_or/checker_a_channels.outputs:outr>
+                float inputs:value2 = 0.5
+                bool outputs:out
+            }
+
+            def Shader "checker_b_bool"
+            {
+                uniform token info:id = "ND_ifgreater_boolean"
+                float inputs:value1.connect = </Looks/logic_or/NG_logic_or/checker_b_channels.outputs:outr>
+                float inputs:value2 = 0.5
+                bool outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_logical_or"
+                bool inputs:in1.connect = </Looks/logic_or/NG_logic_or/checker_a_bool.outputs:out>
+                bool inputs:in2.connect = </Looks/logic_or/NG_logic_or/checker_b_bool.outputs:out>
+                bool outputs:out
+            }
+
+            def Shader "checker_a_mask"
+            {
+                uniform token info:id = "ND_ifequal_floatB"
+                float inputs:in1 = 1
+                float inputs:in2 = 0
+                bool inputs:value1.connect = </Looks/logic_or/NG_logic_or/checker_a_bool.outputs:out>
+                bool inputs:value2 = 1
+                float outputs:out
+            }
+
+            def Shader "checker_b_mask"
+            {
+                uniform token info:id = "ND_ifequal_floatB"
+                float inputs:in1 = 1
+                float inputs:in2 = 0
+                bool inputs:value1.connect = </Looks/logic_or/NG_logic_or/checker_b_bool.outputs:out>
+                bool inputs:value2 = 1
+                float outputs:out
+            }
+
+            def Shader "result_mask"
+            {
+                uniform token info:id = "ND_ifequal_floatB"
+                float inputs:in1 = 1
+                float inputs:in2 = 0
+                bool inputs:value1.connect = </Looks/logic_or/NG_logic_or/node_under_test.outputs:out>
+                bool inputs:value2 = 1
+                float outputs:out
+            }
+
+            def Shader "input_preview"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/logic_or/NG_logic_or/checker_a_mask.outputs:out>
+                float inputs:in2 = 0.08
+                float inputs:in3.connect = </Looks/logic_or/NG_logic_or/checker_b_mask.outputs:out>
+                color3f outputs:out
+            }
+
+            def Shader "result_color"
+            {
+                uniform token info:id = "ND_constant_color3"
+                color3f inputs:value = (1, 0.85, 0)
+                color3f outputs:out
+            }
+
+            def Shader "final_color"
+            {
+                uniform token info:id = "ND_mix_color3"
+                color3f inputs:bg.connect = </Looks/logic_or/NG_logic_or/input_preview.outputs:out>
+                color3f inputs:fg.connect = </Looks/logic_or/NG_logic_or/result_color.outputs:out>
+                float inputs:mix.connect = </Looks/logic_or/NG_logic_or/result_mask.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/logic_or>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/logical/logic_or.exr"
+        }
+    }
+}

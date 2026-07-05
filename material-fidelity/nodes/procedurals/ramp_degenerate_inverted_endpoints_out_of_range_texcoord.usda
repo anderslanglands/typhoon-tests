@@ -1,0 +1,142 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "ramp_degenerate_inverted_endpoints_out_of_range_texcoord" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/ramp_degenerate_inverted_endpoints_out_of_range_texcoord/ramp_degenerate_inverted_endpoints_out_of_range_texcoord.mtlx"
+                string sourceMaterial = "M_ramp_degenerate_inverted_endpoints_out_of_range_texcoord"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/ramp_degenerate_inverted_endpoints_out_of_range_texcoord/SR_ramp_degenerate_inverted_endpoints_out_of_range_texcoord.outputs:out>
+        token outputs:surface.connect = </Looks/ramp_degenerate_inverted_endpoints_out_of_range_texcoord/SR_ramp_degenerate_inverted_endpoints_out_of_range_texcoord.outputs:out>
+
+        def Shader "SR_ramp_degenerate_inverted_endpoints_out_of_range_texcoord"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/ramp_degenerate_inverted_endpoints_out_of_range_texcoord/NG_ramp_degenerate_inverted_endpoints_out_of_range_texcoord.outputs:out_base_color>
+            float inputs:specular = 0.5
+            float inputs:specular_roughness = 0.45
+            token outputs:out
+        }
+
+        def NodeGraph "NG_ramp_degenerate_inverted_endpoints_out_of_range_texcoord"
+        {
+            color3f outputs:out_base_color.connect = </Looks/ramp_degenerate_inverted_endpoints_out_of_range_texcoord/NG_ramp_degenerate_inverted_endpoints_out_of_range_texcoord/debug_color.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "uv_split"
+            {
+                uniform token info:id = "ND_separate2_vector2"
+                float2 inputs:in.connect = </Looks/ramp_degenerate_inverted_endpoints_out_of_range_texcoord/NG_ramp_degenerate_inverted_endpoints_out_of_range_texcoord/uv0.outputs:out>
+                float outputs:outx
+                float outputs:outy
+            }
+
+            def Shader "u_scaled"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/ramp_degenerate_inverted_endpoints_out_of_range_texcoord/NG_ramp_degenerate_inverted_endpoints_out_of_range_texcoord/uv_split.outputs:outx>
+                float inputs:in2 = 2
+                float outputs:out
+            }
+
+            def Shader "v_scaled"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/ramp_degenerate_inverted_endpoints_out_of_range_texcoord/NG_ramp_degenerate_inverted_endpoints_out_of_range_texcoord/uv_split.outputs:outy>
+                float inputs:in2 = 2
+                float outputs:out
+            }
+
+            def Shader "u_out_of_range"
+            {
+                uniform token info:id = "ND_subtract_float"
+                float inputs:in1.connect = </Looks/ramp_degenerate_inverted_endpoints_out_of_range_texcoord/NG_ramp_degenerate_inverted_endpoints_out_of_range_texcoord/u_scaled.outputs:out>
+                float inputs:in2 = 0.5
+                float outputs:out
+            }
+
+            def Shader "v_out_of_range"
+            {
+                uniform token info:id = "ND_subtract_float"
+                float inputs:in1.connect = </Looks/ramp_degenerate_inverted_endpoints_out_of_range_texcoord/NG_ramp_degenerate_inverted_endpoints_out_of_range_texcoord/v_scaled.outputs:out>
+                float inputs:in2 = 0.5
+                float outputs:out
+            }
+
+            def Shader "uv_out_of_range"
+            {
+                uniform token info:id = "ND_combine2_vector2"
+                float inputs:in1.connect = </Looks/ramp_degenerate_inverted_endpoints_out_of_range_texcoord/NG_ramp_degenerate_inverted_endpoints_out_of_range_texcoord/u_out_of_range.outputs:out>
+                float inputs:in2.connect = </Looks/ramp_degenerate_inverted_endpoints_out_of_range_texcoord/NG_ramp_degenerate_inverted_endpoints_out_of_range_texcoord/v_out_of_range.outputs:out>
+                float2 outputs:out
+            }
+
+            def Shader "ramplr_inverted"
+            {
+                uniform token info:id = "ND_ramplr_float"
+                float2 inputs:texcoord.connect = </Looks/ramp_degenerate_inverted_endpoints_out_of_range_texcoord/NG_ramp_degenerate_inverted_endpoints_out_of_range_texcoord/uv_out_of_range.outputs:out>
+                float inputs:valuel = 1
+                float inputs:valuer = 0
+                float outputs:out
+            }
+
+            def Shader "ramptb_inverted"
+            {
+                uniform token info:id = "ND_ramptb_float"
+                float2 inputs:texcoord.connect = </Looks/ramp_degenerate_inverted_endpoints_out_of_range_texcoord/NG_ramp_degenerate_inverted_endpoints_out_of_range_texcoord/uv_out_of_range.outputs:out>
+                float inputs:valueb = 1
+                float inputs:valuet = 0
+                float outputs:out
+            }
+
+            def Shader "debug_color"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/ramp_degenerate_inverted_endpoints_out_of_range_texcoord/NG_ramp_degenerate_inverted_endpoints_out_of_range_texcoord/ramplr_inverted.outputs:out>
+                float inputs:in2.connect = </Looks/ramp_degenerate_inverted_endpoints_out_of_range_texcoord/NG_ramp_degenerate_inverted_endpoints_out_of_range_texcoord/ramptb_inverted.outputs:out>
+                float inputs:in3.connect = </Looks/ramp_degenerate_inverted_endpoints_out_of_range_texcoord/NG_ramp_degenerate_inverted_endpoints_out_of_range_texcoord/uv_split.outputs:outx>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/ramp_degenerate_inverted_endpoints_out_of_range_texcoord>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/procedurals/ramp_degenerate_inverted_endpoints_out_of_range_texcoord.exr"
+        }
+    }
+}

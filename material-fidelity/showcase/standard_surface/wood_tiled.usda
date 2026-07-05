@@ -1,0 +1,85 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "wood_tiled" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/showcase/standard_surface/wood_tiled/wood_tiled.mtlx"
+                string sourceMaterial = "Tiled_Wood"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/wood_tiled/SR_wood1.outputs:out>
+        token outputs:surface.connect = </Looks/wood_tiled/SR_wood1.outputs:out>
+
+        def Shader "SR_wood1"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            float inputs:base = 1
+            color3f inputs:base_color.connect = </Looks/wood_tiled/NG_wood1.outputs:out_color>
+            float inputs:coat = 0.1
+            float inputs:coat_anisotropy = 0.5
+            float inputs:coat_roughness = 0.2
+            float inputs:specular = 0.4
+            float inputs:specular_anisotropy = 0.5
+            float inputs:specular_roughness.connect = </Looks/wood_tiled/NG_wood1.outputs:out_roughness>
+            token outputs:out
+        }
+
+        def NodeGraph "NG_wood1"
+        {
+            color3f outputs:out_color.connect = </Looks/wood_tiled/NG_wood1/image_color.outputs:out>
+            float outputs:out_roughness.connect = </Looks/wood_tiled/NG_wood1/image_roughness.outputs:out>
+
+            def Shader "image_color"
+            {
+                uniform token info:id = "ND_tiledimage_color3"
+                asset inputs:file = @../../_assets/Materials/showcase/standard_surface/wood_tiled/textures/wood_color.jpg@ (
+                    colorSpace = "srgb_texture"
+                )
+                float2 inputs:uvtiling = (4, 4)
+                color3f outputs:out
+            }
+
+            def Shader "image_roughness"
+            {
+                uniform token info:id = "ND_tiledimage_float"
+                asset inputs:file = @../../_assets/Materials/showcase/standard_surface/wood_tiled/textures/wood_roughness.jpg@
+                float2 inputs:uvtiling = (4, 4)
+                float outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/wood_tiled>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/showcase/standard_surface/wood_tiled.exr"
+        }
+    }
+}

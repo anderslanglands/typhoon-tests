@@ -1,0 +1,113 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "ln_degenerate_nonpositive_input" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/ln_degenerate_nonpositive_input/ln_degenerate_nonpositive_input.mtlx"
+                string sourceMaterial = "M_ln_degenerate_nonpositive_input"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/ln_degenerate_nonpositive_input/SR_ln_degenerate_nonpositive_input.outputs:out>
+        token outputs:surface.connect = </Looks/ln_degenerate_nonpositive_input/SR_ln_degenerate_nonpositive_input.outputs:out>
+
+        def Shader "SR_ln_degenerate_nonpositive_input"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/ln_degenerate_nonpositive_input/NG_ln_degenerate_nonpositive_input.outputs:out_base_color>
+            float inputs:specular = 0.5
+            float inputs:specular_roughness = 0.45
+            token outputs:out
+        }
+
+        def NodeGraph "NG_ln_degenerate_nonpositive_input"
+        {
+            color3f outputs:out_base_color.connect = </Looks/ln_degenerate_nonpositive_input/NG_ln_degenerate_nonpositive_input/debug_color.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "uv_split"
+            {
+                uniform token info:id = "ND_separate2_vector2"
+                float2 inputs:in.connect = </Looks/ln_degenerate_nonpositive_input/NG_ln_degenerate_nonpositive_input/uv0.outputs:out>
+                float outputs:outx
+                float outputs:outy
+            }
+
+            def Shader "nonpositive_input"
+            {
+                uniform token info:id = "ND_subtract_float"
+                float inputs:in1.connect = </Looks/ln_degenerate_nonpositive_input/NG_ln_degenerate_nonpositive_input/uv_split.outputs:outx>
+                float inputs:in2 = 0.5
+                float outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_ln_float"
+                float inputs:in.connect = </Looks/ln_degenerate_nonpositive_input/NG_ln_degenerate_nonpositive_input/nonpositive_input.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "magnitude"
+            {
+                uniform token info:id = "ND_absval_float"
+                float inputs:in.connect = </Looks/ln_degenerate_nonpositive_input/NG_ln_degenerate_nonpositive_input/node_under_test.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "wrapped"
+            {
+                uniform token info:id = "ND_fract_float"
+                float inputs:in.connect = </Looks/ln_degenerate_nonpositive_input/NG_ln_degenerate_nonpositive_input/magnitude.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "debug_color"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/ln_degenerate_nonpositive_input/NG_ln_degenerate_nonpositive_input/wrapped.outputs:out>
+                float inputs:in2.connect = </Looks/ln_degenerate_nonpositive_input/NG_ln_degenerate_nonpositive_input/uv_split.outputs:outx>
+                float inputs:in3.connect = </Looks/ln_degenerate_nonpositive_input/NG_ln_degenerate_nonpositive_input/uv_split.outputs:outy>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/ln_degenerate_nonpositive_input>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/ln_degenerate_nonpositive_input.exr"
+        }
+    }
+}

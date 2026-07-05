@@ -1,0 +1,76 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "graph_base_color_image_mask" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/surfaces/standard_surface/graph_base_color_image_mask/graph_base_color_image_mask.mtlx"
+                string sourceMaterial = "graph_base_color_image_mask"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/graph_base_color_image_mask/N_StandardSurface.outputs:out>
+        token outputs:surface.connect = </Looks/graph_base_color_image_mask/N_StandardSurface.outputs:out>
+
+        def Shader "N_StandardSurface"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/graph_base_color_image_mask/NG_Preview.outputs:base_color_output>
+            float inputs:specular_roughness = 0.28
+            token outputs:out
+        }
+
+        def NodeGraph "NG_Preview"
+        {
+            color3f outputs:base_color_output.connect = </Looks/graph_base_color_image_mask/NG_Preview/node_mix_8.outputs:out>
+
+            def Shader "mask_tex"
+            {
+                uniform token info:id = "ND_image_float"
+                asset inputs:file = @../../_assets/Materials/surfaces/standard_surface/graph_base_color_image_mask/textures/mask.png@
+                float outputs:out
+            }
+
+            def Shader "node_mix_8"
+            {
+                uniform token info:id = "ND_mix_color3"
+                color3f inputs:bg = (0.1, 0.08, 0.06)
+                color3f inputs:fg = (0.8, 0.2, 0.08)
+                float inputs:mix.connect = </Looks/graph_base_color_image_mask/NG_Preview/mask_tex.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/graph_base_color_image_mask>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/surfaces/standard_surface/graph_base_color_image_mask.exr"
+        }
+    }
+}

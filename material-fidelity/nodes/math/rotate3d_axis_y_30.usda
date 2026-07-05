@@ -1,0 +1,135 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "rotate3d_axis_y_30" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/rotate3d_axis_y_30/material.mtlx"
+                string sourceMaterial = "M_rotate3d_axis_y_30"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/rotate3d_axis_y_30/SR_rotate3d_axis_y_30.outputs:out>
+        token outputs:surface.connect = </Looks/rotate3d_axis_y_30/SR_rotate3d_axis_y_30.outputs:out>
+
+        def Shader "SR_rotate3d_axis_y_30"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/rotate3d_axis_y_30/NG_rotate3d_axis_y_30.outputs:out>
+            float inputs:specular_roughness = 0.4
+            token outputs:out
+        }
+
+        def NodeGraph "NG_rotate3d_axis_y_30"
+        {
+            color3f outputs:out.connect = </Looks/rotate3d_axis_y_30/NG_rotate3d_axis_y_30/base_image.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "uv0_x"
+            {
+                uniform token info:id = "ND_extract_vector2"
+                float2 inputs:in.connect = </Looks/rotate3d_axis_y_30/NG_rotate3d_axis_y_30/uv0.outputs:out>
+                int inputs:index = 0
+                float outputs:out
+            }
+
+            def Shader "uv0_y"
+            {
+                uniform token info:id = "ND_extract_vector2"
+                float2 inputs:in.connect = </Looks/rotate3d_axis_y_30/NG_rotate3d_axis_y_30/uv0.outputs:out>
+                int inputs:index = 1
+                float outputs:out
+            }
+
+            def Shader "uv3"
+            {
+                uniform token info:id = "ND_combine3_vector3"
+                float inputs:in1.connect = </Looks/rotate3d_axis_y_30/NG_rotate3d_axis_y_30/uv0_x.outputs:out>
+                float inputs:in2.connect = </Looks/rotate3d_axis_y_30/NG_rotate3d_axis_y_30/uv0_y.outputs:out>
+                float inputs:in3 = 0
+                float3 outputs:out
+            }
+
+            def Shader "uv_rot"
+            {
+                uniform token info:id = "ND_rotate3d_vector3"
+                float inputs:amount = 30
+                float3 inputs:axis = (0, 1, 0)
+                float3 inputs:in.connect = </Looks/rotate3d_axis_y_30/NG_rotate3d_axis_y_30/uv3.outputs:out>
+                float3 outputs:out
+            }
+
+            def Shader "uv_final_x"
+            {
+                uniform token info:id = "ND_extract_vector3"
+                float3 inputs:in.connect = </Looks/rotate3d_axis_y_30/NG_rotate3d_axis_y_30/uv_rot.outputs:out>
+                int inputs:index = 0
+                float outputs:out
+            }
+
+            def Shader "uv_final_y"
+            {
+                uniform token info:id = "ND_extract_vector3"
+                float3 inputs:in.connect = </Looks/rotate3d_axis_y_30/NG_rotate3d_axis_y_30/uv_rot.outputs:out>
+                int inputs:index = 1
+                float outputs:out
+            }
+
+            def Shader "uv_transform"
+            {
+                uniform token info:id = "ND_combine2_vector2"
+                float inputs:in1.connect = </Looks/rotate3d_axis_y_30/NG_rotate3d_axis_y_30/uv_final_x.outputs:out>
+                float inputs:in2.connect = </Looks/rotate3d_axis_y_30/NG_rotate3d_axis_y_30/uv_final_y.outputs:out>
+                float2 outputs:out
+            }
+
+            def Shader "base_image"
+            {
+                uniform token info:id = "ND_image_color3"
+                color3f inputs:default = (1, 0, 1)
+                asset inputs:file = @../../_assets/Materials/nodes/image_format_png/textures/texture.png@ (
+                    colorSpace = "srgb_texture"
+                )
+                float2 inputs:texcoord.connect = </Looks/rotate3d_axis_y_30/NG_rotate3d_axis_y_30/uv_transform.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/rotate3d_axis_y_30>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/rotate3d_axis_y_30.exr"
+        }
+    }
+}

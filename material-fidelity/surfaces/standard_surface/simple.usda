@@ -1,0 +1,68 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "simple" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/surfaces/standard_surface/simple/simple.mtlx"
+                string sourceMaterial = "M_Simple"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/simple/SR_Simple.outputs:out>
+        token outputs:surface.connect = </Looks/simple/SR_Simple.outputs:out>
+
+        def Shader "SR_Simple"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/simple/NG_Simple.outputs:base_color_out>
+            float inputs:metalness = 0.1
+            float inputs:specular_roughness = 0.32
+            token outputs:out
+        }
+
+        def NodeGraph "NG_Simple"
+        {
+            color3f outputs:base_color_out.connect = </Looks/simple/NG_Simple/base_tex.outputs:out>
+
+            def Shader "base_tex"
+            {
+                uniform token info:id = "ND_image_color3"
+                asset inputs:file = @../../_assets/Materials/surfaces/standard_surface/simple/textures/swatch.png@
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/simple>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/surfaces/standard_surface/simple.exr"
+        }
+    }
+}

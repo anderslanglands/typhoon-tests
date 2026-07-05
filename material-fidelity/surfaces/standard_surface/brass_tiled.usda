@@ -1,0 +1,85 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "brass_tiled" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/surfaces/standard_surface/brass_tiled/brass_tiled.mtlx"
+                string sourceMaterial = "Tiled_Brass"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/brass_tiled/SR_brass1.outputs:out>
+        token outputs:surface.connect = </Looks/brass_tiled/SR_brass1.outputs:out>
+
+        def Shader "SR_brass1"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            float inputs:base = 1
+            color3f inputs:base_color = (1, 1, 1)
+            float inputs:coat = 1
+            color3f inputs:coat_color.connect = </Looks/brass_tiled/NG_brass1.outputs:out_color>
+            float inputs:coat_roughness.connect = </Looks/brass_tiled/NG_brass1.outputs:out_roughness>
+            float inputs:metalness = 1
+            float inputs:specular = 0
+            float inputs:specular_roughness.connect = </Looks/brass_tiled/NG_brass1.outputs:out_roughness>
+            token outputs:out
+        }
+
+        def NodeGraph "NG_brass1"
+        {
+            color3f outputs:out_color.connect = </Looks/brass_tiled/NG_brass1/image_color.outputs:out>
+            float outputs:out_roughness.connect = </Looks/brass_tiled/NG_brass1/image_roughness.outputs:out>
+
+            def Shader "image_color"
+            {
+                uniform token info:id = "ND_tiledimage_color3"
+                asset inputs:file = @../../_assets/Materials/surfaces/standard_surface/brass_tiled/textures/brass_color.jpg@ (
+                    colorSpace = "srgb_texture"
+                )
+                float2 inputs:uvtiling = (1, 1)
+                color3f outputs:out
+            }
+
+            def Shader "image_roughness"
+            {
+                uniform token info:id = "ND_tiledimage_float"
+                asset inputs:file = @../../_assets/Materials/surfaces/standard_surface/brass_tiled/textures/brass_roughness.jpg@
+                float2 inputs:uvtiling = (1, 1)
+                float outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/brass_tiled>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/surfaces/standard_surface/brass_tiled.exr"
+        }
+    }
+}

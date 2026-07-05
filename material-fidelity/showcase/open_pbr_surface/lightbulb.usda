@@ -1,0 +1,55 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "lightbulb" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/showcase/open_pbr_surface/lightbulb/lightbulb.mtlx"
+                string sourceMaterial = "Light_Bulb"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/lightbulb/open_pbr_surface_surfaceshader.outputs:out>
+        token outputs:surface.connect = </Looks/lightbulb/open_pbr_surface_surfaceshader.outputs:out>
+
+        def Shader "open_pbr_surface_surfaceshader"
+        {
+            uniform token info:id = "ND_open_pbr_surface_surfaceshader"
+            color3f inputs:emission_color = (1, 0.415, 0.099)
+            float inputs:emission_luminance = 10000
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/lightbulb>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/showcase/open_pbr_surface/lightbulb.exr"
+        }
+    }
+}

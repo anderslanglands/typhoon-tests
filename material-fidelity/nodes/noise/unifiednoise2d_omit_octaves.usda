@@ -1,0 +1,155 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "unifiednoise2d_omit_octaves" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/unifiednoise2d_omit_octaves/unifiednoise2d_omit_octaves.mtlx"
+                string sourceMaterial = "M_unifiednoise2d_omit_octaves"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/unifiednoise2d_omit_octaves/SR_unifiednoise2d_omit_octaves.outputs:out>
+        token outputs:surface.connect = </Looks/unifiednoise2d_omit_octaves/SR_unifiednoise2d_omit_octaves.outputs:out>
+
+        def Shader "SR_unifiednoise2d_omit_octaves"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/unifiednoise2d_omit_octaves/NG_unifiednoise2d_omit_octaves.outputs:out_base_color>
+            token outputs:out
+        }
+
+        def NodeGraph "NG_unifiednoise2d_omit_octaves"
+        {
+            color3f outputs:out_base_color.connect = </Looks/unifiednoise2d_omit_octaves/NG_unifiednoise2d_omit_octaves/base_color.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "uv_scale"
+            {
+                uniform token info:id = "ND_combine2_vector2"
+                float inputs:in1 = 24
+                float inputs:in2 = 24
+                float2 outputs:out
+            }
+
+            def Shader "uv_scaled"
+            {
+                uniform token info:id = "ND_multiply_vector2"
+                float2 inputs:in1.connect = </Looks/unifiednoise2d_omit_octaves/NG_unifiednoise2d_omit_octaves/uv0.outputs:out>
+                float2 inputs:in2.connect = </Looks/unifiednoise2d_omit_octaves/NG_unifiednoise2d_omit_octaves/uv_scale.outputs:out>
+                float2 outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_unifiednoise2d_float"
+                bool inputs:clampoutput = 0
+                float inputs:diminish = 0.55
+                float2 inputs:freq = (2.5, 1.75)
+                float inputs:jitter = 0.8
+                float inputs:lacunarity = 2.3
+                float2 inputs:offset = (0.31, 0.17)
+                float inputs:outmax = 0.85
+                float inputs:outmin = -0.6
+                int inputs:style = 1
+                float2 inputs:texcoord.connect = </Looks/unifiednoise2d_omit_octaves/NG_unifiednoise2d_omit_octaves/uv_scaled.outputs:out>
+                int inputs:type = 1
+                float outputs:out
+            }
+
+            def Shader "noise_01"
+            {
+                uniform token info:id = "ND_range_float"
+                bool inputs:doclamp = 1
+                float inputs:in.connect = </Looks/unifiednoise2d_omit_octaves/NG_unifiednoise2d_omit_octaves/node_under_test.outputs:out>
+                float inputs:inhigh = 1
+                float inputs:inlow = -1
+                float inputs:outhigh = 1
+                float inputs:outlow = 0
+                float outputs:out
+            }
+
+            def Shader "tint_r"
+            {
+                uniform token info:id = "ND_range_float"
+                bool inputs:doclamp = 1
+                float inputs:in.connect = </Looks/unifiednoise2d_omit_octaves/NG_unifiednoise2d_omit_octaves/noise_01.outputs:out>
+                float inputs:inhigh = 1
+                float inputs:inlow = 0
+                float inputs:outhigh = 1
+                float inputs:outlow = 0
+                float outputs:out
+            }
+
+            def Shader "tint_g"
+            {
+                uniform token info:id = "ND_range_float"
+                bool inputs:doclamp = 1
+                float inputs:in.connect = </Looks/unifiednoise2d_omit_octaves/NG_unifiednoise2d_omit_octaves/noise_01.outputs:out>
+                float inputs:inhigh = 1
+                float inputs:inlow = 0
+                float inputs:outhigh = 0.47
+                float inputs:outlow = 0
+                float outputs:out
+            }
+
+            def Shader "tint_b"
+            {
+                uniform token info:id = "ND_range_float"
+                bool inputs:doclamp = 1
+                float inputs:in.connect = </Looks/unifiednoise2d_omit_octaves/NG_unifiednoise2d_omit_octaves/noise_01.outputs:out>
+                float inputs:inhigh = 1
+                float inputs:inlow = 0
+                float inputs:outhigh = 0
+                float inputs:outlow = 0
+                float outputs:out
+            }
+
+            def Shader "base_color"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/unifiednoise2d_omit_octaves/NG_unifiednoise2d_omit_octaves/tint_r.outputs:out>
+                float inputs:in2.connect = </Looks/unifiednoise2d_omit_octaves/NG_unifiednoise2d_omit_octaves/tint_g.outputs:out>
+                float inputs:in3.connect = </Looks/unifiednoise2d_omit_octaves/NG_unifiednoise2d_omit_octaves/tint_b.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/unifiednoise2d_omit_octaves>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/noise/unifiednoise2d_omit_octaves.exr"
+        }
+    }
+}

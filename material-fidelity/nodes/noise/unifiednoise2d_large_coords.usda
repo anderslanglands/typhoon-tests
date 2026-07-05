@@ -1,0 +1,156 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "unifiednoise2d_large_coords" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/unifiednoise2d_large_coords/unifiednoise2d_large_coords.mtlx"
+                string sourceMaterial = "M_unifiednoise2d_large_coords"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/unifiednoise2d_large_coords/SR_unifiednoise2d_large_coords.outputs:out>
+        token outputs:surface.connect = </Looks/unifiednoise2d_large_coords/SR_unifiednoise2d_large_coords.outputs:out>
+
+        def Shader "SR_unifiednoise2d_large_coords"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/unifiednoise2d_large_coords/NG_unifiednoise2d_large_coords.outputs:out_base_color>
+            token outputs:out
+        }
+
+        def NodeGraph "NG_unifiednoise2d_large_coords"
+        {
+            color3f outputs:out_base_color.connect = </Looks/unifiednoise2d_large_coords/NG_unifiednoise2d_large_coords/base_color.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "uv_local"
+            {
+                uniform token info:id = "ND_multiply_vector2"
+                float2 inputs:in1.connect = </Looks/unifiednoise2d_large_coords/NG_unifiednoise2d_large_coords/uv0.outputs:out>
+                float2 inputs:in2 = (7, 9)
+                float2 outputs:out
+            }
+
+            def Shader "coords_under_test"
+            {
+                uniform token info:id = "ND_add_vector2"
+                float2 inputs:in1.connect = </Looks/unifiednoise2d_large_coords/NG_unifiednoise2d_large_coords/uv_local.outputs:out>
+                float2 inputs:in2 = (100000.125, -100000.375)
+                float2 outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_unifiednoise2d_float"
+                bool inputs:clampoutput = 0
+                float inputs:diminish = 0.58
+                float2 inputs:freq = (1.35, 2.05)
+                float inputs:jitter = 0.64
+                float inputs:lacunarity = 2.2
+                int inputs:octaves = 4
+                float2 inputs:offset = (0.37, -0.23)
+                float inputs:outmax = 0.9
+                float inputs:outmin = -0.7
+                int inputs:style = 1
+                float2 inputs:texcoord.connect = </Looks/unifiednoise2d_large_coords/NG_unifiednoise2d_large_coords/coords_under_test.outputs:out>
+                int inputs:type = 2
+                float outputs:out
+            }
+
+            def Shader "noise_01"
+            {
+                uniform token info:id = "ND_range_float"
+                bool inputs:doclamp = 1
+                float inputs:in.connect = </Looks/unifiednoise2d_large_coords/NG_unifiednoise2d_large_coords/node_under_test.outputs:out>
+                float inputs:inhigh = 1
+                float inputs:inlow = -1
+                float inputs:outhigh = 1
+                float inputs:outlow = 0
+                float outputs:out
+            }
+
+            def Shader "tint_r"
+            {
+                uniform token info:id = "ND_range_float"
+                bool inputs:doclamp = 1
+                float inputs:in.connect = </Looks/unifiednoise2d_large_coords/NG_unifiednoise2d_large_coords/noise_01.outputs:out>
+                float inputs:inhigh = 1
+                float inputs:inlow = 0
+                float inputs:outhigh = 1
+                float inputs:outlow = 0
+                float outputs:out
+            }
+
+            def Shader "tint_g"
+            {
+                uniform token info:id = "ND_range_float"
+                bool inputs:doclamp = 1
+                float inputs:in.connect = </Looks/unifiednoise2d_large_coords/NG_unifiednoise2d_large_coords/noise_01.outputs:out>
+                float inputs:inhigh = 1
+                float inputs:inlow = 0
+                float inputs:outhigh = 0.47
+                float inputs:outlow = 0
+                float outputs:out
+            }
+
+            def Shader "tint_b"
+            {
+                uniform token info:id = "ND_range_float"
+                bool inputs:doclamp = 1
+                float inputs:in.connect = </Looks/unifiednoise2d_large_coords/NG_unifiednoise2d_large_coords/noise_01.outputs:out>
+                float inputs:inhigh = 1
+                float inputs:inlow = 0
+                float inputs:outhigh = 0
+                float inputs:outlow = 0
+                float outputs:out
+            }
+
+            def Shader "base_color"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/unifiednoise2d_large_coords/NG_unifiednoise2d_large_coords/tint_r.outputs:out>
+                float inputs:in2.connect = </Looks/unifiednoise2d_large_coords/NG_unifiednoise2d_large_coords/tint_g.outputs:out>
+                float inputs:in3.connect = </Looks/unifiednoise2d_large_coords/NG_unifiednoise2d_large_coords/tint_b.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/unifiednoise2d_large_coords>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/noise/unifiednoise2d_large_coords.exr"
+        }
+    }
+}

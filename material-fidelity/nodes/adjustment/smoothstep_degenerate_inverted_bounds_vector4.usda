@@ -1,0 +1,127 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "smoothstep_degenerate_inverted_bounds_vector4" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/smoothstep_degenerate_inverted_bounds_vector4/smoothstep_degenerate_inverted_bounds_vector4.mtlx"
+                string sourceMaterial = "M_smoothstep_degenerate_inverted_bounds_vector4"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/smoothstep_degenerate_inverted_bounds_vector4/SR_smoothstep_degenerate_inverted_bounds_vector4.outputs:out>
+        token outputs:surface.connect = </Looks/smoothstep_degenerate_inverted_bounds_vector4/SR_smoothstep_degenerate_inverted_bounds_vector4.outputs:out>
+
+        def Shader "SR_smoothstep_degenerate_inverted_bounds_vector4"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/smoothstep_degenerate_inverted_bounds_vector4/NG_smoothstep_degenerate_inverted_bounds_vector4.outputs:out_base_color>
+            float inputs:specular = 0.5
+            float inputs:specular_roughness = 0.45
+            token outputs:out
+        }
+
+        def NodeGraph "NG_smoothstep_degenerate_inverted_bounds_vector4"
+        {
+            color3f outputs:out_base_color.connect = </Looks/smoothstep_degenerate_inverted_bounds_vector4/NG_smoothstep_degenerate_inverted_bounds_vector4/debug_color.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "uv_split"
+            {
+                uniform token info:id = "ND_separate2_vector2"
+                float2 inputs:in.connect = </Looks/smoothstep_degenerate_inverted_bounds_vector4/NG_smoothstep_degenerate_inverted_bounds_vector4/uv0.outputs:out>
+                float outputs:outx
+                float outputs:outy
+            }
+
+            def Shader "step_in"
+            {
+                uniform token info:id = "ND_combine4_vector4"
+                float inputs:in1.connect = </Looks/smoothstep_degenerate_inverted_bounds_vector4/NG_smoothstep_degenerate_inverted_bounds_vector4/uv_split.outputs:outx>
+                float inputs:in2.connect = </Looks/smoothstep_degenerate_inverted_bounds_vector4/NG_smoothstep_degenerate_inverted_bounds_vector4/uv_split.outputs:outy>
+                float inputs:in3 = 0.25
+                float inputs:in4 = 0.75
+                float4 outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_smoothstep_vector4"
+                float4 inputs:high = (0.25, 0.2, 0.1, 0.05)
+                float4 inputs:in.connect = </Looks/smoothstep_degenerate_inverted_bounds_vector4/NG_smoothstep_degenerate_inverted_bounds_vector4/step_in.outputs:out>
+                float4 inputs:low = (0.75, 0.8, 0.9, 0.95)
+                float4 outputs:out
+            }
+
+            def Shader "debug_r"
+            {
+                uniform token info:id = "ND_extract_vector4"
+                float4 inputs:in.connect = </Looks/smoothstep_degenerate_inverted_bounds_vector4/NG_smoothstep_degenerate_inverted_bounds_vector4/node_under_test.outputs:out>
+                int inputs:index = 0
+                float outputs:out
+            }
+
+            def Shader "debug_g"
+            {
+                uniform token info:id = "ND_extract_vector4"
+                float4 inputs:in.connect = </Looks/smoothstep_degenerate_inverted_bounds_vector4/NG_smoothstep_degenerate_inverted_bounds_vector4/node_under_test.outputs:out>
+                int inputs:index = 1
+                float outputs:out
+            }
+
+            def Shader "debug_b"
+            {
+                uniform token info:id = "ND_extract_vector4"
+                float4 inputs:in.connect = </Looks/smoothstep_degenerate_inverted_bounds_vector4/NG_smoothstep_degenerate_inverted_bounds_vector4/node_under_test.outputs:out>
+                int inputs:index = 3
+                float outputs:out
+            }
+
+            def Shader "debug_color"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/smoothstep_degenerate_inverted_bounds_vector4/NG_smoothstep_degenerate_inverted_bounds_vector4/debug_r.outputs:out>
+                float inputs:in2.connect = </Looks/smoothstep_degenerate_inverted_bounds_vector4/NG_smoothstep_degenerate_inverted_bounds_vector4/debug_g.outputs:out>
+                float inputs:in3.connect = </Looks/smoothstep_degenerate_inverted_bounds_vector4/NG_smoothstep_degenerate_inverted_bounds_vector4/debug_b.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/smoothstep_degenerate_inverted_bounds_vector4>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/adjustment/smoothstep_degenerate_inverted_bounds_vector4.exr"
+        }
+    }
+}

@@ -1,0 +1,60 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "thin_film_ior_clamp" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/surfaces/standard_surface/thin_film_ior_clamp/thin_film_ior_clamp.mtlx"
+                string sourceMaterial = "mat_thin_film_ior_clamp_test"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/thin_film_ior_clamp/surface_shader1.outputs:out>
+        token outputs:surface.connect = </Looks/thin_film_ior_clamp/surface_shader1.outputs:out>
+
+        def Shader "surface_shader1"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color = (0.1, 0.1, 0.1)
+            float inputs:metalness = 0
+            float inputs:specular = 1
+            float inputs:specular_IOR = 1.5
+            float inputs:specular_roughness = 0.1
+            float inputs:thin_film_IOR = 3.5
+            float inputs:thin_film_thickness = 200
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/thin_film_ior_clamp>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/surfaces/standard_surface/thin_film_ior_clamp.exr"
+        }
+    }
+}

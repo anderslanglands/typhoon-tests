@@ -1,0 +1,100 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "rotate2d" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/rotate2d/rotate2d.mtlx"
+                string sourceMaterial = "mat_rotate2d_test"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/rotate2d/surface_shader1.outputs:out>
+        token outputs:surface.connect = </Looks/rotate2d/surface_shader1.outputs:out>
+
+        def Shader "surface_shader1"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/rotate2d/rotate2d_test.outputs:out>
+            float inputs:specular = 0.5
+            float inputs:specular_roughness = 0.45
+            token outputs:out
+        }
+
+        def NodeGraph "rotate2d_test"
+        {
+            color3f outputs:out.connect = </Looks/rotate2d/rotate2d_test/rotated_image.outputs:out>
+
+            def Shader "texcoord1"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "texcoord_centered"
+            {
+                uniform token info:id = "ND_subtract_vector2"
+                float2 inputs:in1.connect = </Looks/rotate2d/rotate2d_test/texcoord1.outputs:out>
+                float2 inputs:in2 = (0.5, 0.5)
+                float2 outputs:out
+            }
+
+            def Shader "rotate2d_1"
+            {
+                uniform token info:id = "ND_rotate2d_vector2"
+                float inputs:amount = 45
+                float2 inputs:in.connect = </Looks/rotate2d/rotate2d_test/texcoord_centered.outputs:out>
+                float2 outputs:out
+            }
+
+            def Shader "texcoord_rotated"
+            {
+                uniform token info:id = "ND_add_vector2"
+                float2 inputs:in1.connect = </Looks/rotate2d/rotate2d_test/rotate2d_1.outputs:out>
+                float2 inputs:in2 = (0.5, 0.5)
+                float2 outputs:out
+            }
+
+            def Shader "rotated_image"
+            {
+                uniform token info:id = "ND_image_color3"
+                color3f inputs:default = (0.5, 0.5, 0.5)
+                asset inputs:file = @../../_assets/Materials/nodes/rotate2d/textures/grid.png@
+                float2 inputs:texcoord.connect = </Looks/rotate2d/rotate2d_test/texcoord_rotated.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/rotate2d>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/rotate2d.exr"
+        }
+    }
+}

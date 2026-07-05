@@ -1,0 +1,106 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "normal_model_axis_z" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/normal_model_axis_z/normal_model_axis_z.mtlx"
+                string sourceMaterial = "M_normal_model_axis_z"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/normal_model_axis_z/SR_normal_model_axis_z.outputs:out>
+        token outputs:surface.connect = </Looks/normal_model_axis_z/SR_normal_model_axis_z.outputs:out>
+
+        def Shader "SR_normal_model_axis_z"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/normal_model_axis_z/NG_normal_model_axis_z.outputs:out_base_color>
+            float inputs:specular = 0.5
+            float inputs:specular_roughness = 0.45
+            token outputs:out
+        }
+
+        def NodeGraph "NG_normal_model_axis_z"
+        {
+            color3f outputs:out_base_color.connect = </Looks/normal_model_axis_z/NG_normal_model_axis_z/base_color.outputs:out>
+
+            def Shader "normal0"
+            {
+                uniform token info:id = "ND_normal_vector3"
+                string inputs:space = "model"
+                float3 outputs:out
+            }
+
+            def Shader "split"
+            {
+                uniform token info:id = "ND_separate3_vector3"
+                float3 inputs:in.connect = </Looks/normal_model_axis_z/NG_normal_model_axis_z/normal0.outputs:out>
+                float outputs:outx
+                float outputs:outy
+                float outputs:outz
+            }
+
+            def Shader "axis_value"
+            {
+                uniform token info:id = "ND_range_float"
+                bool inputs:doclamp = 1
+                float inputs:in.connect = </Looks/normal_model_axis_z/NG_normal_model_axis_z/split.outputs:outz>
+                float inputs:inhigh = 1
+                float inputs:inlow = -1
+                float inputs:outhigh = 1
+                float inputs:outlow = 0
+                float outputs:out
+            }
+
+            def Shader "inverse_axis_value"
+            {
+                uniform token info:id = "ND_subtract_float"
+                float inputs:in1 = 1
+                float inputs:in2.connect = </Looks/normal_model_axis_z/NG_normal_model_axis_z/axis_value.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "base_color"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/normal_model_axis_z/NG_normal_model_axis_z/axis_value.outputs:out>
+                float inputs:in2 = 0
+                float inputs:in3.connect = </Looks/normal_model_axis_z/NG_normal_model_axis_z/inverse_axis_value.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/normal_model_axis_z>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/geometric/normal_model_axis_z.exr"
+        }
+    }
+}

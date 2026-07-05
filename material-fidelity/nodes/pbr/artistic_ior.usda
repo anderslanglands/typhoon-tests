@@ -1,0 +1,98 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "artistic_ior" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/artistic_ior/artistic_ior.mtlx"
+                string sourceMaterial = "M_artistic_ior"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/artistic_ior/SR_artistic_ior.outputs:out>
+        token outputs:surface.connect = </Looks/artistic_ior/SR_artistic_ior.outputs:out>
+
+        def Shader "SR_artistic_ior"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/artistic_ior/NG_artistic_ior.outputs:out_base_color>
+            float inputs:specular = 1
+            float inputs:specular_roughness = 0.18
+            token outputs:out
+        }
+
+        def NodeGraph "NG_artistic_ior"
+        {
+            color3f outputs:out_base_color.connect = </Looks/artistic_ior/NG_artistic_ior/aluminum_base_color.outputs:out>
+            color3f outputs:out_specular_color.connect = </Looks/artistic_ior/NG_artistic_ior/aluminum_edge_color.outputs:out>
+
+            def Shader "aluminum_reflectivity"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1 = 0.913
+                float inputs:in2 = 0.921
+                float inputs:in3 = 0.925
+                color3f outputs:out
+            }
+
+            def Shader "aluminum_edge_color"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1 = 0.985
+                float inputs:in2 = 0.992
+                float inputs:in3 = 1
+                color3f outputs:out
+            }
+
+            def Shader "aluminum_ior_tint"
+            {
+                uniform token info:id = "ND_artistic_ior"
+                color3f inputs:edge_color.connect = </Looks/artistic_ior/NG_artistic_ior/aluminum_edge_color.outputs:out>
+                color3f inputs:reflectivity.connect = </Looks/artistic_ior/NG_artistic_ior/aluminum_reflectivity.outputs:out>
+                color3f outputs:extinction
+                color3f outputs:ior
+            }
+
+            def Shader "aluminum_base_color"
+            {
+                uniform token info:id = "ND_mix_color3"
+                color3f inputs:bg.connect = </Looks/artistic_ior/NG_artistic_ior/aluminum_reflectivity.outputs:out>
+                color3f inputs:fg.connect = </Looks/artistic_ior/NG_artistic_ior/aluminum_ior_tint.outputs:ior>
+                float inputs:mix = 0.25
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/artistic_ior>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/pbr/artistic_ior.exr"
+        }
+    }
+}

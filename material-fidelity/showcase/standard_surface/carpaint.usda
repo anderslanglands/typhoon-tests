@@ -1,0 +1,61 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "carpaint" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/showcase/standard_surface/carpaint/carpaint.mtlx"
+                string sourceMaterial = "Car_Paint"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/carpaint/SR_carpaint.outputs:out>
+        token outputs:surface.connect = </Looks/carpaint/SR_carpaint.outputs:out>
+
+        def Shader "SR_carpaint"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            float inputs:base = 0.5
+            color3f inputs:base_color = (0.1037792, 0.5921203, 0.85064936)
+            float inputs:coat = 1
+            float inputs:coat_roughness = 0
+            float inputs:specular = 1
+            float inputs:specular_anisotropy = 0.5
+            color3f inputs:specular_color = (1, 1, 1)
+            float inputs:specular_roughness = 0.4
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/carpaint>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/showcase/standard_surface/carpaint.exr"
+        }
+    }
+}

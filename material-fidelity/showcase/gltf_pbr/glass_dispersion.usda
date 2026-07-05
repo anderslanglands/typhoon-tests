@@ -1,0 +1,62 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "glass_dispersion" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/showcase/gltf_pbr/glass_dispersion/glass_dispersion.mtlx"
+                string sourceMaterial = "PBR_Dispersion_Test"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/glass_dispersion/SR_dispersion_test.outputs:out>
+        token outputs:surface.connect = </Looks/glass_dispersion/SR_dispersion_test.outputs:out>
+
+        def Shader "SR_dispersion_test"
+        {
+            uniform token info:id = "ND_gltf_pbr_surfaceshader"
+            color3f inputs:attenuation_color = (0.85, 0.95, 1)
+            float inputs:attenuation_distance = 0.75
+            color3f inputs:base_color = (1, 1, 1)
+            float inputs:dispersion = 0.35
+            float inputs:ior = 1.52
+            float inputs:metallic = 0
+            float inputs:roughness = 0.02
+            float inputs:thickness = 0.8
+            float inputs:transmission = 1
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/glass_dispersion>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/showcase/gltf_pbr/glass_dispersion.exr"
+        }
+    }
+}

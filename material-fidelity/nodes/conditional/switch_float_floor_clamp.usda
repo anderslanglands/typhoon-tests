@@ -1,0 +1,103 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "switch_float_floor_clamp" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/switch_float_floor_clamp/switch_float_floor_clamp.mtlx"
+                string sourceMaterial = "M_switch_float_floor_clamp"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/switch_float_floor_clamp/SR_switch_float_floor_clamp.outputs:out>
+        token outputs:surface.connect = </Looks/switch_float_floor_clamp/SR_switch_float_floor_clamp.outputs:out>
+
+        def Shader "SR_switch_float_floor_clamp"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/switch_float_floor_clamp/NG_switch_float_floor_clamp.outputs:out_base_color>
+            float inputs:specular = 0.5
+            float inputs:specular_roughness = 0.45
+            token outputs:out
+        }
+
+        def NodeGraph "NG_switch_float_floor_clamp"
+        {
+            color3f outputs:out_base_color.connect = </Looks/switch_float_floor_clamp/NG_switch_float_floor_clamp/node_under_test.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "uv_split"
+            {
+                uniform token info:id = "ND_separate2_vector2"
+                float2 inputs:in.connect = </Looks/switch_float_floor_clamp/NG_switch_float_floor_clamp/uv0.outputs:out>
+                float outputs:outx
+                float outputs:outy
+            }
+
+            def Shader "selector_scaled"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/switch_float_floor_clamp/NG_switch_float_floor_clamp/uv_split.outputs:outx>
+                float inputs:in2 = 7
+                float outputs:out
+            }
+
+            def Shader "selector_raw"
+            {
+                uniform token info:id = "ND_subtract_float"
+                float inputs:in1.connect = </Looks/switch_float_floor_clamp/NG_switch_float_floor_clamp/selector_scaled.outputs:out>
+                float inputs:in2 = 1
+                float outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_switch_color3"
+                color3f inputs:in1 = (0.95, 0.15, 0.15)
+                color3f inputs:in2 = (0.15, 0.95, 0.15)
+                color3f inputs:in3 = (0.15, 0.15, 0.95)
+                color3f inputs:in4 = (0.95, 0.95, 0.15)
+                color3f inputs:in5 = (0.95, 0.15, 0.95)
+                float inputs:which.connect = </Looks/switch_float_floor_clamp/NG_switch_float_floor_clamp/selector_raw.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/switch_float_floor_clamp>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/conditional/switch_float_floor_clamp.exr"
+        }
+    }
+}

@@ -1,0 +1,159 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "matrix33_determinant" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/matrix33_determinant/matrix33_determinant.mtlx"
+                string sourceMaterial = "M_matrix33_determinant"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/matrix33_determinant/SR_matrix33_determinant.outputs:out>
+        token outputs:surface.connect = </Looks/matrix33_determinant/SR_matrix33_determinant.outputs:out>
+
+        def Shader "SR_matrix33_determinant"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/matrix33_determinant/NG_matrix33_determinant.outputs:out_base_color>
+            float inputs:specular = 0.5
+            float inputs:specular_roughness = 0.45
+            token outputs:out
+        }
+
+        def NodeGraph "NG_matrix33_determinant"
+        {
+            color3f outputs:out_base_color.connect = </Looks/matrix33_determinant/NG_matrix33_determinant/final_color.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "uv_split"
+            {
+                uniform token info:id = "ND_separate2_vector2"
+                float2 inputs:in.connect = </Looks/matrix33_determinant/NG_matrix33_determinant/uv0.outputs:out>
+                float outputs:outx
+                float outputs:outy
+            }
+
+            def Shader "scale_x"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/matrix33_determinant/NG_matrix33_determinant/uv_split.outputs:outx>
+                float inputs:in2 = 0.25
+                float outputs:out
+            }
+
+            def Shader "diag_x"
+            {
+                uniform token info:id = "ND_add_float"
+                float inputs:in1 = 0.85
+                float inputs:in2.connect = </Looks/matrix33_determinant/NG_matrix33_determinant/scale_x.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "scale_y"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/matrix33_determinant/NG_matrix33_determinant/uv_split.outputs:outy>
+                float inputs:in2 = 0.25
+                float outputs:out
+            }
+
+            def Shader "diag_y"
+            {
+                uniform token info:id = "ND_add_float"
+                float inputs:in1 = 0.85
+                float inputs:in2.connect = </Looks/matrix33_determinant/NG_matrix33_determinant/scale_y.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "row1"
+            {
+                uniform token info:id = "ND_combine3_vector3"
+                float inputs:in1.connect = </Looks/matrix33_determinant/NG_matrix33_determinant/diag_x.outputs:out>
+                float inputs:in2 = 0.1
+                float inputs:in3 = 0
+                float3 outputs:out
+            }
+
+            def Shader "row2"
+            {
+                uniform token info:id = "ND_combine3_vector3"
+                float inputs:in1 = 0
+                float inputs:in2.connect = </Looks/matrix33_determinant/NG_matrix33_determinant/diag_y.outputs:out>
+                float inputs:in3 = 0.1
+                float3 outputs:out
+            }
+
+            def Shader "row3"
+            {
+                uniform token info:id = "ND_combine3_vector3"
+                float inputs:in1 = 0.1
+                float inputs:in2 = 0
+                float inputs:in3 = 1
+                float3 outputs:out
+            }
+
+            def Shader "source_matrix"
+            {
+                uniform token info:id = "ND_creatematrix_vector3_matrix33"
+                float3 inputs:in1.connect = </Looks/matrix33_determinant/NG_matrix33_determinant/row1.outputs:out>
+                float3 inputs:in2.connect = </Looks/matrix33_determinant/NG_matrix33_determinant/row2.outputs:out>
+                float3 inputs:in3.connect = </Looks/matrix33_determinant/NG_matrix33_determinant/row3.outputs:out>
+                matrix3d outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_determinant_matrix33"
+                matrix3d inputs:in.connect = </Looks/matrix33_determinant/NG_matrix33_determinant/source_matrix.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "final_color"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/matrix33_determinant/NG_matrix33_determinant/node_under_test.outputs:out>
+                float inputs:in2.connect = </Looks/matrix33_determinant/NG_matrix33_determinant/uv_split.outputs:outx>
+                float inputs:in3.connect = </Looks/matrix33_determinant/NG_matrix33_determinant/uv_split.outputs:outy>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/matrix33_determinant>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/matrix33_determinant.exr"
+        }
+    }
+}

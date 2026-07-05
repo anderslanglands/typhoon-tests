@@ -1,0 +1,95 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "conditional_if_float" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/surfaces/standard_surface/conditional_if_float/conditional_if_float.mtlx"
+                string sourceMaterial = "mat_ifgreater_blue"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/conditional_if_float/surface_shader1.outputs:out>
+        token outputs:surface.connect = </Looks/conditional_if_float/surface_shader1.outputs:out>
+
+        def Shader "surface_shader1"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/conditional_if_float/ifgreater_blue.outputs:out>
+            token outputs:out
+        }
+
+        def NodeGraph "ifgreater_blue"
+        {
+            color3f outputs:out.connect = </Looks/conditional_if_float/ifgreater_blue/debug_mix.outputs:out>
+
+            def Shader "input_image"
+            {
+                uniform token info:id = "ND_image_float"
+                float inputs:default = 0
+                asset inputs:file = @../../_assets/Materials/surfaces/standard_surface/conditional_if_float/textures/grid.png@
+                float outputs:out
+            }
+
+            def Shader "blue_gradient"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1 = 0
+                float inputs:in2 = 0
+                float inputs:in3.connect = </Looks/conditional_if_float/ifgreater_blue/input_image.outputs:out>
+                color3f outputs:out
+            }
+
+            def Shader "ifgreater1"
+            {
+                uniform token info:id = "ND_ifgreater_color3"
+                color3f inputs:in1 = (0.2, 0.2, 1)
+                color3f inputs:in2 = (0, 0, 0.2)
+                float inputs:value1.connect = </Looks/conditional_if_float/ifgreater_blue/input_image.outputs:out>
+                float inputs:value2 = 0.5
+                color3f outputs:out
+            }
+
+            def Shader "debug_mix"
+            {
+                uniform token info:id = "ND_mix_color3"
+                color3f inputs:bg.connect = </Looks/conditional_if_float/ifgreater_blue/blue_gradient.outputs:out>
+                color3f inputs:fg.connect = </Looks/conditional_if_float/ifgreater_blue/ifgreater1.outputs:out>
+                float inputs:mix = 0.5
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/conditional_if_float>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/surfaces/standard_surface/conditional_if_float.exr"
+        }
+    }
+}

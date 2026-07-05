@@ -1,0 +1,153 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "matrix44_determinant" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/matrix44_determinant/matrix44_determinant.mtlx"
+                string sourceMaterial = "M_matrix44_determinant"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/matrix44_determinant/SR_matrix44_determinant.outputs:out>
+        token outputs:surface.connect = </Looks/matrix44_determinant/SR_matrix44_determinant.outputs:out>
+
+        def Shader "SR_matrix44_determinant"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/matrix44_determinant/NG_matrix44_determinant.outputs:out_base_color>
+            float inputs:specular = 0.5
+            float inputs:specular_roughness = 0.45
+            token outputs:out
+        }
+
+        def NodeGraph "NG_matrix44_determinant"
+        {
+            color3f outputs:out_base_color.connect = </Looks/matrix44_determinant/NG_matrix44_determinant/final_color.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "uv_split"
+            {
+                uniform token info:id = "ND_separate2_vector2"
+                float2 inputs:in.connect = </Looks/matrix44_determinant/NG_matrix44_determinant/uv0.outputs:out>
+                float outputs:outx
+                float outputs:outy
+            }
+
+            def Shader "scale_x"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/matrix44_determinant/NG_matrix44_determinant/uv_split.outputs:outx>
+                float inputs:in2 = 0.2
+                float outputs:out
+            }
+
+            def Shader "diag_x"
+            {
+                uniform token info:id = "ND_add_float"
+                float inputs:in1 = 0.8
+                float inputs:in2.connect = </Looks/matrix44_determinant/NG_matrix44_determinant/scale_x.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "scale_y"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/matrix44_determinant/NG_matrix44_determinant/uv_split.outputs:outy>
+                float inputs:in2 = 0.2
+                float outputs:out
+            }
+
+            def Shader "diag_y"
+            {
+                uniform token info:id = "ND_add_float"
+                float inputs:in1 = 0.8
+                float inputs:in2.connect = </Looks/matrix44_determinant/NG_matrix44_determinant/scale_y.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "row1"
+            {
+                uniform token info:id = "ND_combine4_vector4"
+                float inputs:in1.connect = </Looks/matrix44_determinant/NG_matrix44_determinant/diag_x.outputs:out>
+                float inputs:in2 = 0.1
+                float inputs:in3 = 0
+                float inputs:in4 = 0
+                float4 outputs:out
+            }
+
+            def Shader "row2"
+            {
+                uniform token info:id = "ND_combine4_vector4"
+                float inputs:in1 = 0
+                float inputs:in2.connect = </Looks/matrix44_determinant/NG_matrix44_determinant/diag_y.outputs:out>
+                float inputs:in3 = 0.1
+                float inputs:in4 = 0
+                float4 outputs:out
+            }
+
+            def Shader "source_matrix"
+            {
+                uniform token info:id = "ND_creatematrix_vector4_matrix44"
+                float4 inputs:in1.connect = </Looks/matrix44_determinant/NG_matrix44_determinant/row1.outputs:out>
+                float4 inputs:in2.connect = </Looks/matrix44_determinant/NG_matrix44_determinant/row2.outputs:out>
+                float4 inputs:in3 = (0.1, 0, 1, 0)
+                float4 inputs:in4 = (0, 0, 0, 1)
+                matrix4d outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_determinant_matrix44"
+                matrix4d inputs:in.connect = </Looks/matrix44_determinant/NG_matrix44_determinant/source_matrix.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "final_color"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/matrix44_determinant/NG_matrix44_determinant/node_under_test.outputs:out>
+                float inputs:in2.connect = </Looks/matrix44_determinant/NG_matrix44_determinant/uv_split.outputs:outx>
+                float inputs:in3.connect = </Looks/matrix44_determinant/NG_matrix44_determinant/uv_split.outputs:outy>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/matrix44_determinant>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/matrix44_determinant.exr"
+        }
+    }
+}

@@ -1,0 +1,120 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "color3_vec3_cm" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/surfaces/standard_surface/color3_vec3_cm/color3_vec3_cm.mtlx"
+                string sourceMaterial = "mat_color3_vec3_cm_test"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/color3_vec3_cm/surface_shader1.outputs:out>
+        token outputs:surface.connect = </Looks/color3_vec3_cm/surface_shader1.outputs:out>
+
+        def Shader "surface_shader1"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/color3_vec3_cm/convert_1.outputs:out>
+            token outputs:out
+        }
+
+        def NodeGraph "height_to_normal_cm"
+        {
+            float3 outputs:out.connect = </Looks/color3_vec3_cm/height_to_normal_cm/impl_heighttonormalmap.outputs:out>
+
+            def Shader "b_image"
+            {
+                uniform token info:id = "ND_image_color3"
+                asset inputs:file = @../../_assets/Materials/surfaces/standard_surface/color3_vec3_cm/textures/grid.png@ (
+                    colorSpace = "srgb_texture"
+                )
+                color3f outputs:out
+            }
+
+            def Shader "extract1"
+            {
+                uniform token info:id = "ND_extract_color3"
+                color3f inputs:in.connect = </Looks/color3_vec3_cm/height_to_normal_cm/b_image.outputs:out>
+                int inputs:index = 1
+                float outputs:out
+            }
+
+            def Shader "impl_heighttonormalmap"
+            {
+                uniform token info:id = "ND_heighttonormal_vector3"
+                float inputs:in.connect = </Looks/color3_vec3_cm/height_to_normal_cm/extract1.outputs:out>
+                float inputs:scale = 1
+                float3 outputs:out
+            }
+        }
+
+        def NodeGraph "normalmap_cm"
+        {
+            float3 outputs:out.connect = </Looks/color3_vec3_cm/normalmap_cm/impl_normalmap.outputs:out>
+
+            def Shader "b_image"
+            {
+                uniform token info:id = "ND_image_color3"
+                asset inputs:file = @../../_assets/Materials/surfaces/standard_surface/color3_vec3_cm/textures/grid.png@ (
+                    colorSpace = "srgb_texture"
+                )
+                color3f outputs:out
+            }
+
+            def Shader "c3tov3"
+            {
+                uniform token info:id = "ND_convert_color3_vector3"
+                color3f inputs:in.connect = </Looks/color3_vec3_cm/normalmap_cm/b_image.outputs:out>
+                float3 outputs:out
+            }
+
+            def Shader "impl_normalmap"
+            {
+                uniform token info:id = "ND_normalmap_float"
+                float3 inputs:in.connect = </Looks/color3_vec3_cm/normalmap_cm/c3tov3.outputs:out>
+                float inputs:scale = 1.5
+                float3 outputs:out
+            }
+        }
+
+        def Shader "convert_1"
+        {
+            uniform token info:id = "ND_convert_vector3_color3"
+            float3 inputs:in.connect = </Looks/color3_vec3_cm/normalmap_cm.outputs:out>
+            color3f outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/color3_vec3_cm>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/surfaces/standard_surface/color3_vec3_cm.exr"
+        }
+    }
+}

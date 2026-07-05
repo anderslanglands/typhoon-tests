@@ -1,0 +1,59 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "chrome" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/showcase/standard_surface/chrome/chrome.mtlx"
+                string sourceMaterial = "Chrome"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/chrome/SR_chrome.outputs:out>
+        token outputs:surface.connect = </Looks/chrome/SR_chrome.outputs:out>
+
+        def Shader "SR_chrome"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            float inputs:base = 1
+            color3f inputs:base_color = (1, 1, 1)
+            float inputs:metalness = 1
+            float inputs:specular = 1
+            color3f inputs:specular_color = (1, 1, 1)
+            float inputs:specular_roughness = 0
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/chrome>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/showcase/standard_surface/chrome.exr"
+        }
+    }
+}

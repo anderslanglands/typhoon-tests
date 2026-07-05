@@ -1,0 +1,58 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "input_emissive_strength" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/surfaces/gltf_pbr/input_emissive_strength/input_emissive_strength.mtlx"
+                string sourceMaterial = "input_emissive_strength"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/input_emissive_strength/SR_default.outputs:out>
+        token outputs:surface.connect = </Looks/input_emissive_strength/SR_default.outputs:out>
+
+        def Shader "SR_default"
+        {
+            uniform token info:id = "ND_gltf_pbr_surfaceshader"
+            color3f inputs:base_color = (0.0518895, 0.29606, 0.425324)
+            color3f inputs:emissive = (0.3, 0.7, 1)
+            float inputs:emissive_strength = 4
+            float inputs:metallic = 0
+            float inputs:roughness = 0.4
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/input_emissive_strength>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/surfaces/gltf_pbr/input_emissive_strength.exr"
+        }
+    }
+}

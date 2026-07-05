@@ -1,0 +1,119 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "rotate3d" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/rotate3d/rotate3d.mtlx"
+                string sourceMaterial = "mat_rotate2d_test"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/rotate3d/surface_shader1.outputs:out>
+        token outputs:surface.connect = </Looks/rotate3d/surface_shader1.outputs:out>
+
+        def Shader "surface_shader1"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/rotate3d/rotate2d_test.outputs:out>
+            float inputs:specular = 0.5
+            float inputs:specular_roughness = 0.45
+            token outputs:out
+        }
+
+        def NodeGraph "rotate2d_test"
+        {
+            color3f outputs:out.connect = </Looks/rotate3d/rotate2d_test/rotated_image.outputs:out>
+
+            def Shader "texcoord1"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "separate_texcoord"
+            {
+                uniform token info:id = "ND_separate2_vector2"
+                float2 inputs:in.connect = </Looks/rotate3d/rotate2d_test/texcoord1.outputs:out>
+                float outputs:outx
+                float outputs:outy
+            }
+
+            def Shader "texcoord_3d"
+            {
+                uniform token info:id = "ND_combine3_vector3"
+                float inputs:in1.connect = </Looks/rotate3d/rotate2d_test/separate_texcoord.outputs:outx>
+                float inputs:in2.connect = </Looks/rotate3d/rotate2d_test/separate_texcoord.outputs:outy>
+                float inputs:in3 = 0
+                float3 outputs:out
+            }
+
+            def Shader "rotate3d_1"
+            {
+                uniform token info:id = "ND_rotate3d_vector3"
+                float inputs:amount = 30
+                float3 inputs:axis = (0, 0, 1)
+                float3 inputs:in.connect = </Looks/rotate3d/rotate2d_test/texcoord_3d.outputs:out>
+                float3 outputs:out
+            }
+
+            def Shader "separate_rotated"
+            {
+                uniform token info:id = "ND_separate3_vector3"
+                float3 inputs:in.connect = </Looks/rotate3d/rotate2d_test/rotate3d_1.outputs:out>
+                float outputs:outx
+                float outputs:outy
+                float outputs:outz
+            }
+
+            def Shader "rotated_texcoord"
+            {
+                uniform token info:id = "ND_combine2_vector2"
+                float inputs:in1.connect = </Looks/rotate3d/rotate2d_test/separate_rotated.outputs:outx>
+                float inputs:in2.connect = </Looks/rotate3d/rotate2d_test/separate_rotated.outputs:outy>
+                float2 outputs:out
+            }
+
+            def Shader "rotated_image"
+            {
+                uniform token info:id = "ND_image_color3"
+                color3f inputs:default = (0.5, 0.5, 0.5)
+                asset inputs:file = @../../_assets/Materials/nodes/rotate3d/textures/grid.png@
+                float2 inputs:texcoord.connect = </Looks/rotate3d/rotate2d_test/rotated_texcoord.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/rotate3d>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/rotate3d.exr"
+        }
+    }
+}

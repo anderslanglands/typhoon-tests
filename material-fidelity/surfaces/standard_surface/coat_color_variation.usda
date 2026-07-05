@@ -1,0 +1,64 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "coat_color_variation" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/surfaces/standard_surface/coat_color_variation/coat_color_variation.mtlx"
+                string sourceMaterial = "CoatColorVariation"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/coat_color_variation/SR_coat_color_variation.outputs:out>
+        token outputs:surface.connect = </Looks/coat_color_variation/SR_coat_color_variation.outputs:out>
+
+        def Shader "SR_coat_color_variation"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color = (0.8, 0.8, 0.8)
+            float inputs:coat = 1
+            color3f inputs:coat_color = (0.85, 0.2, 0.25)
+            float inputs:coat_roughness = 0.05
+            float inputs:metalness = 0
+            color3f inputs:opacity = (1, 1, 1)
+            float inputs:specular = 1
+            color3f inputs:specular_color = (1, 1, 1)
+            float inputs:specular_IOR = 1.5
+            float inputs:specular_roughness = 0.25
+            float inputs:transmission = 0
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/coat_color_variation>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/surfaces/standard_surface/coat_color_variation.exr"
+        }
+    }
+}

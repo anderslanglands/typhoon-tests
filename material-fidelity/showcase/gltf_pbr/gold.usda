@@ -1,0 +1,55 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "gold" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/showcase/gltf_pbr/gold/gold.mtlx"
+                string sourceMaterial = "PBR_Gold"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/gold/SR_gold.outputs:out>
+        token outputs:surface.connect = </Looks/gold/SR_gold.outputs:out>
+
+        def Shader "SR_gold"
+        {
+            uniform token info:id = "ND_gltf_pbr_surfaceshader"
+            color3f inputs:base_color = (0.944, 0.776, 0.373)
+            float inputs:roughness = 0.02
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/gold>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/showcase/gltf_pbr/gold.exr"
+        }
+    }
+}

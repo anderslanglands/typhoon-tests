@@ -1,0 +1,185 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "matrix44_transpose" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/matrix44_transpose/matrix44_transpose.mtlx"
+                string sourceMaterial = "M_matrix44_transpose"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/matrix44_transpose/SR_matrix44_transpose.outputs:out>
+        token outputs:surface.connect = </Looks/matrix44_transpose/SR_matrix44_transpose.outputs:out>
+
+        def Shader "SR_matrix44_transpose"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/matrix44_transpose/NG_matrix44_transpose.outputs:out_base_color>
+            float inputs:specular = 0.5
+            float inputs:specular_roughness = 0.45
+            token outputs:out
+        }
+
+        def NodeGraph "NG_matrix44_transpose"
+        {
+            color3f outputs:out_base_color.connect = </Looks/matrix44_transpose/NG_matrix44_transpose/final_color.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "uv_split"
+            {
+                uniform token info:id = "ND_separate2_vector2"
+                float2 inputs:in.connect = </Looks/matrix44_transpose/NG_matrix44_transpose/uv0.outputs:out>
+                float outputs:outx
+                float outputs:outy
+            }
+
+            def Shader "row1"
+            {
+                uniform token info:id = "ND_combine4_vector4"
+                float inputs:in1 = 1
+                float inputs:in2.connect = </Looks/matrix44_transpose/NG_matrix44_transpose/uv_split.outputs:outx>
+                float inputs:in3 = 0
+                float inputs:in4 = 0
+                float4 outputs:out
+            }
+
+            def Shader "row2"
+            {
+                uniform token info:id = "ND_combine4_vector4"
+                float inputs:in1 = 0
+                float inputs:in2 = 1
+                float inputs:in3.connect = </Looks/matrix44_transpose/NG_matrix44_transpose/uv_split.outputs:outy>
+                float inputs:in4 = 0
+                float4 outputs:out
+            }
+
+            def Shader "row3"
+            {
+                uniform token info:id = "ND_combine4_vector4"
+                float inputs:in1 = 0.25
+                float inputs:in2 = 0
+                float inputs:in3 = 1
+                float inputs:in4 = 0
+                float4 outputs:out
+            }
+
+            def Shader "row4"
+            {
+                uniform token info:id = "ND_combine4_vector4"
+                float inputs:in1 = 0
+                float inputs:in2 = 0.15
+                float inputs:in3 = 0
+                float inputs:in4 = 1
+                float4 outputs:out
+            }
+
+            def Shader "source_matrix"
+            {
+                uniform token info:id = "ND_creatematrix_vector4_matrix44"
+                float4 inputs:in1.connect = </Looks/matrix44_transpose/NG_matrix44_transpose/row1.outputs:out>
+                float4 inputs:in2.connect = </Looks/matrix44_transpose/NG_matrix44_transpose/row2.outputs:out>
+                float4 inputs:in3.connect = </Looks/matrix44_transpose/NG_matrix44_transpose/row3.outputs:out>
+                float4 inputs:in4.connect = </Looks/matrix44_transpose/NG_matrix44_transpose/row4.outputs:out>
+                matrix4d outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_transpose_matrix44"
+                matrix4d inputs:in.connect = </Looks/matrix44_transpose/NG_matrix44_transpose/source_matrix.outputs:out>
+                matrix4d outputs:out
+            }
+
+            def Shader "matrix_row1"
+            {
+                uniform token info:id = "ND_extract_matrix44"
+                matrix4d inputs:in.connect = </Looks/matrix44_transpose/NG_matrix44_transpose/node_under_test.outputs:out>
+                int inputs:index = 1
+                float4 outputs:out
+            }
+
+            def Shader "matrix_row2"
+            {
+                uniform token info:id = "ND_extract_matrix44"
+                matrix4d inputs:in.connect = </Looks/matrix44_transpose/NG_matrix44_transpose/node_under_test.outputs:out>
+                int inputs:index = 2
+                float4 outputs:out
+            }
+
+            def Shader "row1_channels"
+            {
+                uniform token info:id = "ND_separate4_vector4"
+                float4 inputs:in.connect = </Looks/matrix44_transpose/NG_matrix44_transpose/matrix_row1.outputs:out>
+                float outputs:outw
+                float outputs:outx
+                float outputs:outy
+                float outputs:outz
+            }
+
+            def Shader "row2_channels"
+            {
+                uniform token info:id = "ND_separate4_vector4"
+                float4 inputs:in.connect = </Looks/matrix44_transpose/NG_matrix44_transpose/matrix_row2.outputs:out>
+                float outputs:outw
+                float outputs:outx
+                float outputs:outy
+                float outputs:outz
+            }
+
+            def Shader "blue_channel"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/matrix44_transpose/NG_matrix44_transpose/row1_channels.outputs:outx>
+                float inputs:in2.connect = </Looks/matrix44_transpose/NG_matrix44_transpose/row2_channels.outputs:outy>
+                float outputs:out
+            }
+
+            def Shader "final_color"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/matrix44_transpose/NG_matrix44_transpose/row1_channels.outputs:outx>
+                float inputs:in2.connect = </Looks/matrix44_transpose/NG_matrix44_transpose/row2_channels.outputs:outy>
+                float inputs:in3.connect = </Looks/matrix44_transpose/NG_matrix44_transpose/blue_channel.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/matrix44_transpose>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/matrix44_transpose.exr"
+        }
+    }
+}

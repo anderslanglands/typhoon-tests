@@ -1,0 +1,235 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "logic_composite_nodes" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/surfaces/standard_surface/logic_composite_nodes/logic_composite_nodes.mtlx"
+                string sourceMaterial = "M_logic_composite_nodes"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/logic_composite_nodes/SR_logic_composite_nodes.outputs:out>
+        token outputs:surface.connect = </Looks/logic_composite_nodes/SR_logic_composite_nodes.outputs:out>
+
+        def Shader "SR_logic_composite_nodes"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes.outputs:out_color>
+            float inputs:specular_roughness = 0.35
+            token outputs:out
+        }
+
+        def NodeGraph "NG_logic_composite_nodes"
+        {
+            color3f outputs:out_color.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/base_color.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "circle_mask"
+            {
+                uniform token info:id = "ND_circle_float"
+                float2 inputs:center = (0.5, 0.5)
+                float inputs:radius = 0.35
+                float2 inputs:texcoord.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/uv0.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "mask_bool"
+            {
+                uniform token info:id = "ND_ifgreater_boolean"
+                float inputs:value1.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/circle_mask.outputs:out>
+                float inputs:value2 = 0.5
+                bool outputs:out
+            }
+
+            def Shader "true_bool"
+            {
+                uniform token info:id = "ND_constant_boolean"
+                bool inputs:value = 1
+                bool outputs:out
+            }
+
+            def Shader "logic_and"
+            {
+                uniform token info:id = "ND_logical_and"
+                bool inputs:in1.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/mask_bool.outputs:out>
+                bool inputs:in2.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/true_bool.outputs:out>
+                bool outputs:out
+            }
+
+            def Shader "logic_or"
+            {
+                uniform token info:id = "ND_logical_or"
+                bool inputs:in1.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/mask_bool.outputs:out>
+                bool inputs:in2.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/true_bool.outputs:out>
+                bool outputs:out
+            }
+
+            def Shader "logic_xor"
+            {
+                uniform token info:id = "ND_logical_xor"
+                bool inputs:in1.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/logic_and.outputs:out>
+                bool inputs:in2.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/logic_or.outputs:out>
+                bool outputs:out
+            }
+
+            def Shader "base_a"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1 = 0.9
+                float inputs:in2 = 0.2
+                float inputs:in3 = 0.1
+                color3f outputs:out
+            }
+
+            def Shader "base_b"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1 = 0.1
+                float inputs:in2 = 0.35
+                float inputs:in3 = 0.9
+                color3f outputs:out
+            }
+
+            def Shader "minus_color"
+            {
+                uniform token info:id = "ND_minus_color3"
+                color3f inputs:bg.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/base_b.outputs:out>
+                color3f inputs:fg.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/base_a.outputs:out>
+                float inputs:mix = 0.65
+                color3f outputs:out
+            }
+
+            def Shader "difference_color"
+            {
+                uniform token info:id = "ND_difference_color3"
+                color3f inputs:bg.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/base_a.outputs:out>
+                color3f inputs:fg.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/minus_color.outputs:out>
+                float inputs:mix = 0.8
+                color3f outputs:out
+            }
+
+            def Shader "burn_color"
+            {
+                uniform token info:id = "ND_burn_color3"
+                color3f inputs:bg.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/base_b.outputs:out>
+                color3f inputs:fg.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/difference_color.outputs:out>
+                float inputs:mix = 0.65
+                color3f outputs:out
+            }
+
+            def Shader "dodge_color"
+            {
+                uniform token info:id = "ND_dodge_color3"
+                color3f inputs:bg.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/base_a.outputs:out>
+                color3f inputs:fg.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/burn_color.outputs:out>
+                float inputs:mix = 0.45
+                color3f outputs:out
+            }
+
+            def Shader "corrected"
+            {
+                uniform token info:id = "ND_colorcorrect_color3"
+                float inputs:contrast = 1.2
+                float inputs:contrastpivot = 0.5
+                float inputs:exposure = 0.15
+                float inputs:gain = 1.1
+                float inputs:gamma = 0.95
+                float inputs:hue = 0.08
+                color3f inputs:in.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/dodge_color.outputs:out>
+                float inputs:lift = 0.02
+                float inputs:saturation = 1.25
+                color3f outputs:out
+            }
+
+            def Shader "premult_src"
+            {
+                uniform token info:id = "ND_combine4_color4"
+                float inputs:in1.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/circle_mask.outputs:out>
+                float inputs:in2 = 0.4
+                float inputs:in3 = 0.8
+                float inputs:in4 = 0.6
+                color4f outputs:out
+            }
+
+            def Shader "unpremult_color"
+            {
+                uniform token info:id = "ND_unpremult_color4"
+                color4f inputs:in.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/premult_src.outputs:out>
+                color4f outputs:out
+            }
+
+            def Shader "unpremult_channels"
+            {
+                uniform token info:id = "ND_separate4_color4"
+                color4f inputs:in.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/unpremult_color.outputs:out>
+                float outputs:outa
+                float outputs:outb
+                float outputs:outg
+                float outputs:outr
+            }
+
+            def Shader "unpremult_rgb"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/unpremult_channels.outputs:outr>
+                float inputs:in2.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/unpremult_channels.outputs:outg>
+                float inputs:in3.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/unpremult_channels.outputs:outb>
+                color3f outputs:out
+            }
+
+            def Shader "base_color"
+            {
+                uniform token info:id = "ND_mix_color3"
+                color3f inputs:bg.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/unpremult_rgb.outputs:out>
+                color3f inputs:fg.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/corrected.outputs:out>
+                float inputs:mix.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/convert_1.outputs:out>
+                color3f outputs:out
+            }
+
+            def Shader "convert_1"
+            {
+                uniform token info:id = "ND_convert_boolean_float"
+                bool inputs:in.connect = </Looks/logic_composite_nodes/NG_logic_composite_nodes/logic_xor.outputs:out>
+                float outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/logic_composite_nodes>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/surfaces/standard_surface/logic_composite_nodes.exr"
+        }
+    }
+}

@@ -1,0 +1,156 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "unifiednoise3d_large_coords" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/unifiednoise3d_large_coords/unifiednoise3d_large_coords.mtlx"
+                string sourceMaterial = "M_unifiednoise3d_large_coords"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/unifiednoise3d_large_coords/SR_unifiednoise3d_large_coords.outputs:out>
+        token outputs:surface.connect = </Looks/unifiednoise3d_large_coords/SR_unifiednoise3d_large_coords.outputs:out>
+
+        def Shader "SR_unifiednoise3d_large_coords"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/unifiednoise3d_large_coords/NG_unifiednoise3d_large_coords.outputs:out_base_color>
+            token outputs:out
+        }
+
+        def NodeGraph "NG_unifiednoise3d_large_coords"
+        {
+            color3f outputs:out_base_color.connect = </Looks/unifiednoise3d_large_coords/NG_unifiednoise3d_large_coords/base_color.outputs:out>
+
+            def Shader "pos0"
+            {
+                uniform token info:id = "ND_position_vector3"
+                float3 outputs:out
+            }
+
+            def Shader "pos_local"
+            {
+                uniform token info:id = "ND_multiply_vector3"
+                float3 inputs:in1.connect = </Looks/unifiednoise3d_large_coords/NG_unifiednoise3d_large_coords/pos0.outputs:out>
+                float3 inputs:in2 = (3, 4, 5)
+                float3 outputs:out
+            }
+
+            def Shader "coords_under_test"
+            {
+                uniform token info:id = "ND_add_vector3"
+                float3 inputs:in1.connect = </Looks/unifiednoise3d_large_coords/NG_unifiednoise3d_large_coords/pos_local.outputs:out>
+                float3 inputs:in2 = (100000.125, -100000.375, 65536.625)
+                float3 outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_unifiednoise3d_float"
+                bool inputs:clampoutput = 0
+                float inputs:diminish = 0.58
+                float3 inputs:freq = (1.2, 1.75, 2.1)
+                float inputs:jitter = 0.64
+                float inputs:lacunarity = 2.2
+                int inputs:octaves = 4
+                float3 inputs:offset = (0.37, -0.23, 0.19)
+                float inputs:outmax = 0.9
+                float inputs:outmin = -0.7
+                float3 inputs:position.connect = </Looks/unifiednoise3d_large_coords/NG_unifiednoise3d_large_coords/coords_under_test.outputs:out>
+                int inputs:style = 1
+                int inputs:type = 2
+                float outputs:out
+            }
+
+            def Shader "noise_01"
+            {
+                uniform token info:id = "ND_range_float"
+                bool inputs:doclamp = 1
+                float inputs:in.connect = </Looks/unifiednoise3d_large_coords/NG_unifiednoise3d_large_coords/node_under_test.outputs:out>
+                float inputs:inhigh = 1
+                float inputs:inlow = -1
+                float inputs:outhigh = 1
+                float inputs:outlow = 0
+                float outputs:out
+            }
+
+            def Shader "tint_r"
+            {
+                uniform token info:id = "ND_range_float"
+                bool inputs:doclamp = 1
+                float inputs:in.connect = </Looks/unifiednoise3d_large_coords/NG_unifiednoise3d_large_coords/noise_01.outputs:out>
+                float inputs:inhigh = 1
+                float inputs:inlow = 0
+                float inputs:outhigh = 0
+                float inputs:outlow = 0
+                float outputs:out
+            }
+
+            def Shader "tint_g"
+            {
+                uniform token info:id = "ND_range_float"
+                bool inputs:doclamp = 1
+                float inputs:in.connect = </Looks/unifiednoise3d_large_coords/NG_unifiednoise3d_large_coords/noise_01.outputs:out>
+                float inputs:inhigh = 1
+                float inputs:inlow = 0
+                float inputs:outhigh = 0.71
+                float inputs:outlow = 0
+                float outputs:out
+            }
+
+            def Shader "tint_b"
+            {
+                uniform token info:id = "ND_range_float"
+                bool inputs:doclamp = 1
+                float inputs:in.connect = </Looks/unifiednoise3d_large_coords/NG_unifiednoise3d_large_coords/noise_01.outputs:out>
+                float inputs:inhigh = 1
+                float inputs:inlow = 0
+                float inputs:outhigh = 1
+                float inputs:outlow = 0
+                float outputs:out
+            }
+
+            def Shader "base_color"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/unifiednoise3d_large_coords/NG_unifiednoise3d_large_coords/tint_r.outputs:out>
+                float inputs:in2.connect = </Looks/unifiednoise3d_large_coords/NG_unifiednoise3d_large_coords/tint_g.outputs:out>
+                float inputs:in3.connect = </Looks/unifiednoise3d_large_coords/NG_unifiednoise3d_large_coords/tint_b.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/unifiednoise3d_large_coords>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/noise/unifiednoise3d_large_coords.exr"
+        }
+    }
+}

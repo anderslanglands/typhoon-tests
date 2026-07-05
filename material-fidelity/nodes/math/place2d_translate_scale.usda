@@ -1,0 +1,86 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "place2d_translate_scale" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/place2d_translate_scale/material.mtlx"
+                string sourceMaterial = "M_place2d_translate_scale"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/place2d_translate_scale/SR_place2d_translate_scale.outputs:out>
+        token outputs:surface.connect = </Looks/place2d_translate_scale/SR_place2d_translate_scale.outputs:out>
+
+        def Shader "SR_place2d_translate_scale"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/place2d_translate_scale/NG_place2d_translate_scale.outputs:out>
+            float inputs:specular_roughness = 0.4
+            token outputs:out
+        }
+
+        def NodeGraph "NG_place2d_translate_scale"
+        {
+            color3f outputs:out.connect = </Looks/place2d_translate_scale/NG_place2d_translate_scale/base_image.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "uv_transform"
+            {
+                uniform token info:id = "ND_place2d_vector2"
+                float2 inputs:offset = (0.2, -0.1)
+                float2 inputs:scale = (2, 1.5)
+                float2 inputs:texcoord.connect = </Looks/place2d_translate_scale/NG_place2d_translate_scale/uv0.outputs:out>
+                float2 outputs:out
+            }
+
+            def Shader "base_image"
+            {
+                uniform token info:id = "ND_image_color3"
+                color3f inputs:default = (1, 0, 1)
+                asset inputs:file = @../../_assets/Materials/nodes/image_format_png/textures/texture.png@ (
+                    colorSpace = "srgb_texture"
+                )
+                float2 inputs:texcoord.connect = </Looks/place2d_translate_scale/NG_place2d_translate_scale/uv_transform.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/place2d_translate_scale>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/place2d_translate_scale.exr"
+        }
+    }
+}

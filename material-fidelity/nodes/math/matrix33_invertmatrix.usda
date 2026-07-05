@@ -1,0 +1,164 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "matrix33_invertmatrix" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/matrix33_invertmatrix/matrix33_invertmatrix.mtlx"
+                string sourceMaterial = "M_matrix33_invertmatrix"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/matrix33_invertmatrix/SR_matrix33_invertmatrix.outputs:out>
+        token outputs:surface.connect = </Looks/matrix33_invertmatrix/SR_matrix33_invertmatrix.outputs:out>
+
+        def Shader "SR_matrix33_invertmatrix"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/matrix33_invertmatrix/NG_matrix33_invertmatrix.outputs:out_base_color>
+            float inputs:specular = 0.5
+            float inputs:specular_roughness = 0.45
+            token outputs:out
+        }
+
+        def NodeGraph "NG_matrix33_invertmatrix"
+        {
+            color3f outputs:out_base_color.connect = </Looks/matrix33_invertmatrix/NG_matrix33_invertmatrix/final_color.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "uv_split"
+            {
+                uniform token info:id = "ND_separate2_vector2"
+                float2 inputs:in.connect = </Looks/matrix33_invertmatrix/NG_matrix33_invertmatrix/uv0.outputs:out>
+                float outputs:outx
+                float outputs:outy
+            }
+
+            def Shader "uv_sum"
+            {
+                uniform token info:id = "ND_add_float"
+                float inputs:in1.connect = </Looks/matrix33_invertmatrix/NG_matrix33_invertmatrix/uv_split.outputs:outx>
+                float inputs:in2.connect = </Looks/matrix33_invertmatrix/NG_matrix33_invertmatrix/uv_split.outputs:outy>
+                float outputs:out
+            }
+
+            def Shader "uv_wave"
+            {
+                uniform token info:id = "ND_fract_float"
+                float inputs:in.connect = </Looks/matrix33_invertmatrix/NG_matrix33_invertmatrix/uv_sum.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "row1"
+            {
+                uniform token info:id = "ND_combine3_vector3"
+                float inputs:in1 = 1.2
+                float inputs:in2.connect = </Looks/matrix33_invertmatrix/NG_matrix33_invertmatrix/uv_wave.outputs:out>
+                float inputs:in3 = 0
+                float3 outputs:out
+            }
+
+            def Shader "row2"
+            {
+                uniform token info:id = "ND_combine3_vector3"
+                float inputs:in1 = 0
+                float inputs:in2 = 0.9
+                float inputs:in3.connect = </Looks/matrix33_invertmatrix/NG_matrix33_invertmatrix/uv_split.outputs:outx>
+                float3 outputs:out
+            }
+
+            def Shader "row3"
+            {
+                uniform token info:id = "ND_combine3_vector3"
+                float inputs:in1.connect = </Looks/matrix33_invertmatrix/NG_matrix33_invertmatrix/uv_split.outputs:outy>
+                float inputs:in2 = 0
+                float inputs:in3 = 1.1
+                float3 outputs:out
+            }
+
+            def Shader "source_matrix"
+            {
+                uniform token info:id = "ND_creatematrix_vector3_matrix33"
+                float3 inputs:in1.connect = </Looks/matrix33_invertmatrix/NG_matrix33_invertmatrix/row1.outputs:out>
+                float3 inputs:in2.connect = </Looks/matrix33_invertmatrix/NG_matrix33_invertmatrix/row2.outputs:out>
+                float3 inputs:in3.connect = </Looks/matrix33_invertmatrix/NG_matrix33_invertmatrix/row3.outputs:out>
+                matrix3d outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_invertmatrix_matrix33"
+                matrix3d inputs:in.connect = </Looks/matrix33_invertmatrix/NG_matrix33_invertmatrix/source_matrix.outputs:out>
+                matrix3d outputs:out
+            }
+
+            def Shader "inverse_row"
+            {
+                uniform token info:id = "ND_extract_matrix33"
+                matrix3d inputs:in.connect = </Looks/matrix33_invertmatrix/NG_matrix33_invertmatrix/node_under_test.outputs:out>
+                int inputs:index = 0
+                float3 outputs:out
+            }
+
+            def Shader "inverse_scaled"
+            {
+                uniform token info:id = "ND_multiply_vector3"
+                float3 inputs:in1.connect = </Looks/matrix33_invertmatrix/NG_matrix33_invertmatrix/inverse_row.outputs:out>
+                float3 inputs:in2 = (0.5, 0.5, 0.5)
+                float3 outputs:out
+            }
+
+            def Shader "inverse_01"
+            {
+                uniform token info:id = "ND_add_vector3"
+                float3 inputs:in1.connect = </Looks/matrix33_invertmatrix/NG_matrix33_invertmatrix/inverse_scaled.outputs:out>
+                float3 inputs:in2 = (0.5, 0.5, 0.5)
+                float3 outputs:out
+            }
+
+            def Shader "final_color"
+            {
+                uniform token info:id = "ND_convert_vector3_color3"
+                float3 inputs:in.connect = </Looks/matrix33_invertmatrix/NG_matrix33_invertmatrix/inverse_01.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/matrix33_invertmatrix>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/matrix33_invertmatrix.exr"
+        }
+    }
+}

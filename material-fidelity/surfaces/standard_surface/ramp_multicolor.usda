@@ -1,0 +1,115 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "ramp_multicolor" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/surfaces/standard_surface/ramp_multicolor/ramp_multicolor.mtlx"
+                string sourceMaterial = "M_ramp_multicolor_test"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/ramp_multicolor/SR_ramp_multicolor_test.outputs:out>
+        token outputs:surface.connect = </Looks/ramp_multicolor/SR_ramp_multicolor_test.outputs:out>
+
+        def Shader "SR_ramp_multicolor_test"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/ramp_multicolor/NG_ramp_multicolor_test.outputs:out_color>
+            float inputs:specular_roughness = 0.5
+            token outputs:out
+        }
+
+        def NodeGraph "NG_ramp_multicolor_test"
+        {
+            color3f outputs:out_color.connect = </Looks/ramp_multicolor/NG_ramp_multicolor_test/base_color.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "multicolor_ramp"
+            {
+                uniform token info:id = "ND_ramp"
+                color4f inputs:color1 = (0.9, 0.1, 0.1, 1)
+                color4f inputs:color2 = (0.9, 0.6, 0.1, 1)
+                color4f inputs:color3 = (0.1, 0.9, 0.1, 1)
+                color4f inputs:color4 = (0.1, 0.4, 0.9, 1)
+                color4f inputs:color5 = (0.6, 0.1, 0.9, 1)
+                color4f inputs:color6 = (0.9, 0.1, 0.5, 1)
+                color4f inputs:color7 = (1, 1, 1, 1)
+                color4f inputs:color8 = (1, 1, 1, 1)
+                color4f inputs:color9 = (1, 1, 1, 1)
+                color4f inputs:color10 = (1, 1, 1, 1)
+                int inputs:interpolation = 1
+                float inputs:interval1 = 0
+                float inputs:interval2 = 0.2
+                float inputs:interval3 = 0.4
+                float inputs:interval4 = 0.6
+                float inputs:interval5 = 0.8
+                float inputs:interval6 = 1
+                float inputs:interval7 = 1
+                float inputs:interval8 = 1
+                float inputs:interval9 = 1
+                float inputs:interval10 = 1
+                int inputs:num_intervals = 5
+                float2 inputs:texcoord.connect = </Looks/ramp_multicolor/NG_ramp_multicolor_test/uv0.outputs:out>
+                int inputs:type = 0
+                color4f outputs:out
+            }
+
+            def Shader "ramp_split"
+            {
+                uniform token info:id = "ND_separate4_color4"
+                color4f inputs:in.connect = </Looks/ramp_multicolor/NG_ramp_multicolor_test/multicolor_ramp.outputs:out>
+                float outputs:outa
+                float outputs:outb
+                float outputs:outg
+                float outputs:outr
+            }
+
+            def Shader "base_color"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/ramp_multicolor/NG_ramp_multicolor_test/ramp_split.outputs:outr>
+                float inputs:in2.connect = </Looks/ramp_multicolor/NG_ramp_multicolor_test/ramp_split.outputs:outg>
+                float inputs:in3.connect = </Looks/ramp_multicolor/NG_ramp_multicolor_test/ramp_split.outputs:outb>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/ramp_multicolor>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/surfaces/standard_surface/ramp_multicolor.exr"
+        }
+    }
+}

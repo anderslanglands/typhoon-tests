@@ -1,0 +1,79 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "normal_space_tangent" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/surfaces/standard_surface/normal_space_tangent/normal_space_tangent.mtlx"
+                string sourceMaterial = "M_normal_space_tangent"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/normal_space_tangent/SR_normal_space_tangent.outputs:out>
+        token outputs:surface.connect = </Looks/normal_space_tangent/SR_normal_space_tangent.outputs:out>
+
+        def Shader "SR_normal_space_tangent"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            float inputs:base = 1
+            color3f inputs:base_color = (0.5, 0.5, 0.5)
+            float3 inputs:normal.connect = </Looks/normal_space_tangent/NG_normal_space_tangent.outputs:out_normal>
+            float inputs:specular = 1
+            float inputs:specular_roughness = 0.2
+            token outputs:out
+        }
+
+        def NodeGraph "NG_normal_space_tangent"
+        {
+            float3 outputs:out_normal.connect = </Looks/normal_space_tangent/NG_normal_space_tangent/normal_tangent_to_world.outputs:out>
+
+            def Shader "normal_sample_tangent"
+            {
+                uniform token info:id = "ND_image_vector3"
+                float3 inputs:default = (0.5, 0.5, 1)
+                asset inputs:file = @../../_assets/Materials/surfaces/standard_surface/normal_space_tangent/textures/grid.png@
+                float3 outputs:out
+            }
+
+            def Shader "normal_tangent_to_world"
+            {
+                uniform token info:id = "ND_normalmap_float"
+                float3 inputs:in.connect = </Looks/normal_space_tangent/NG_normal_space_tangent/normal_sample_tangent.outputs:out>
+                float inputs:scale = 1
+                float3 outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/normal_space_tangent>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/surfaces/standard_surface/normal_space_tangent.exr"
+        }
+    }
+}

@@ -1,0 +1,79 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "image_format_png" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/image_format_png/image_format_png.mtlx"
+                string sourceMaterial = "M_image_format_png"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/image_format_png/SR_image_format_png.outputs:out>
+        token outputs:surface.connect = </Looks/image_format_png/SR_image_format_png.outputs:out>
+
+        def Shader "SR_image_format_png"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/image_format_png/NG_image_format_png.outputs:base_color_out>
+            float inputs:specular = 0.5
+            float inputs:specular_roughness = 0.35
+            token outputs:out
+        }
+
+        def NodeGraph "NG_image_format_png"
+        {
+            color3f outputs:base_color_out.connect = </Looks/image_format_png/NG_image_format_png/format_tex.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "format_tex"
+            {
+                uniform token info:id = "ND_image_color3"
+                asset inputs:file = @../../_assets/Materials/nodes/image_format_png/textures/texture.png@ (
+                    colorSpace = "srgb_texture"
+                )
+                float2 inputs:texcoord.connect = </Looks/image_format_png/NG_image_format_png/uv0.outputs:out>
+                string inputs:uaddressmode = "periodic"
+                string inputs:vaddressmode = "periodic"
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/image_format_png>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/textures/image_format_png.exr"
+        }
+    }
+}

@@ -1,0 +1,59 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "opacity_only" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/surfaces/standard_surface/opacity_only/opacity_only.mtlx"
+                string sourceMaterial = "mat_opacity_only_test"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/opacity_only/surface_shader1.outputs:out>
+        token outputs:surface.connect = </Looks/opacity_only/surface_shader1.outputs:out>
+
+        def Shader "surface_shader1"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color = (0.2, 0.8, 0.2)
+            float inputs:metalness = 0
+            color3f inputs:opacity = (0.5, 0.5, 0.5)
+            float inputs:specular = 1
+            float inputs:specular_IOR = 1.5
+            float inputs:specular_roughness = 0.2
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/opacity_only>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/surfaces/standard_surface/opacity_only.exr"
+        }
+    }
+}

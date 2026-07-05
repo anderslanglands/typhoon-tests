@@ -1,0 +1,60 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "showcase_opacity_specular_ior" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/surfaces/standard_surface/showcase_opacity_specular_ior/showcase_opacity_specular_ior.mtlx"
+                string sourceMaterial = "showcase_opacity_specular_ior"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/showcase_opacity_specular_ior/surface_shader1.outputs:out>
+        token outputs:surface.connect = </Looks/showcase_opacity_specular_ior/surface_shader1.outputs:out>
+
+        def Shader "surface_shader1"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color = (0.6, 0.8, 0.4)
+            float inputs:metalness = 0
+            color3f inputs:opacity = (0.7, 0.7, 0.7)
+            float inputs:specular = 0.9
+            color3f inputs:specular_color = (0.8, 1, 0.8)
+            float inputs:specular_IOR = 1.8
+            float inputs:specular_roughness = 0.1
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/showcase_opacity_specular_ior>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/surfaces/standard_surface/showcase_opacity_specular_ior.exr"
+        }
+    }
+}

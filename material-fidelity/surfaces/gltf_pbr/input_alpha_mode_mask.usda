@@ -1,0 +1,79 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "input_alpha_mode_mask" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/surfaces/gltf_pbr/input_alpha_mode_mask/input_alpha_mode_mask.mtlx"
+                string sourceMaterial = "input_alpha_mode_mask"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/input_alpha_mode_mask/SR_default.outputs:out>
+        token outputs:surface.connect = </Looks/input_alpha_mode_mask/SR_default.outputs:out>
+
+        def Shader "SR_default"
+        {
+            uniform token info:id = "ND_gltf_pbr_surfaceshader"
+            float inputs:alpha.connect = </Looks/input_alpha_mode_mask/NG_input_alpha_mode_mask.outputs:out_alpha>
+            float inputs:alpha_cutoff = 0.5
+            int inputs:alpha_mode = 1
+            color3f inputs:base_color = (0.0518895, 0.29606, 0.425324)
+            float inputs:metallic = 0
+            float inputs:roughness = 0.4
+            token outputs:out
+        }
+
+        def NodeGraph "NG_input_alpha_mode_mask"
+        {
+            float outputs:out_alpha.connect = </Looks/input_alpha_mode_mask/NG_input_alpha_mode_mask/alpha_mask.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "alpha_mask"
+            {
+                uniform token info:id = "ND_circle_float"
+                float2 inputs:center = (0.5, 0.5)
+                float inputs:radius = 0.35
+                float2 inputs:texcoord.connect = </Looks/input_alpha_mode_mask/NG_input_alpha_mode_mask/uv0.outputs:out>
+                float outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/input_alpha_mode_mask>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/surfaces/gltf_pbr/input_alpha_mode_mask.exr"
+        }
+    }
+}

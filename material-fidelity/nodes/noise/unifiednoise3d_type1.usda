@@ -1,0 +1,157 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "unifiednoise3d_type1" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/unifiednoise3d_type1/unifiednoise3d_type1.mtlx"
+                string sourceMaterial = "M_unifiednoise3d_type1"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/unifiednoise3d_type1/SR_unifiednoise3d_type1.outputs:out>
+        token outputs:surface.connect = </Looks/unifiednoise3d_type1/SR_unifiednoise3d_type1.outputs:out>
+
+        def Shader "SR_unifiednoise3d_type1"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/unifiednoise3d_type1/NG_unifiednoise3d_type1.outputs:out_base_color>
+            token outputs:out
+        }
+
+        def NodeGraph "NG_unifiednoise3d_type1"
+        {
+            color3f outputs:out_base_color.connect = </Looks/unifiednoise3d_type1/NG_unifiednoise3d_type1/base_color.outputs:out>
+
+            def Shader "pos0"
+            {
+                uniform token info:id = "ND_position_vector3"
+                float3 outputs:out
+            }
+
+            def Shader "pos_scale"
+            {
+                uniform token info:id = "ND_combine3_vector3"
+                float inputs:in1 = 6
+                float inputs:in2 = 6
+                float inputs:in3 = 6
+                float3 outputs:out
+            }
+
+            def Shader "pos_scaled"
+            {
+                uniform token info:id = "ND_multiply_vector3"
+                float3 inputs:in1.connect = </Looks/unifiednoise3d_type1/NG_unifiednoise3d_type1/pos0.outputs:out>
+                float3 inputs:in2.connect = </Looks/unifiednoise3d_type1/NG_unifiednoise3d_type1/pos_scale.outputs:out>
+                float3 outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_unifiednoise3d_float"
+                bool inputs:clampoutput = 0
+                float inputs:diminish = 0.6
+                float3 inputs:freq = (1.8, 2.4, 1.6)
+                float inputs:jitter = 0.75
+                float inputs:lacunarity = 2.2
+                int inputs:octaves = 4
+                float3 inputs:offset = (0.2, 0.35, 0.1)
+                float inputs:outmax = 0.9
+                float inputs:outmin = -0.7
+                float3 inputs:position.connect = </Looks/unifiednoise3d_type1/NG_unifiednoise3d_type1/pos_scaled.outputs:out>
+                int inputs:style = 0
+                int inputs:type = 1
+                float outputs:out
+            }
+
+            def Shader "noise_01"
+            {
+                uniform token info:id = "ND_range_float"
+                bool inputs:doclamp = 1
+                float inputs:in.connect = </Looks/unifiednoise3d_type1/NG_unifiednoise3d_type1/node_under_test.outputs:out>
+                float inputs:inhigh = 1
+                float inputs:inlow = -1
+                float inputs:outhigh = 1
+                float inputs:outlow = 0
+                float outputs:out
+            }
+
+            def Shader "tint_r"
+            {
+                uniform token info:id = "ND_range_float"
+                bool inputs:doclamp = 1
+                float inputs:in.connect = </Looks/unifiednoise3d_type1/NG_unifiednoise3d_type1/noise_01.outputs:out>
+                float inputs:inhigh = 1
+                float inputs:inlow = 0
+                float inputs:outhigh = 0
+                float inputs:outlow = 0
+                float outputs:out
+            }
+
+            def Shader "tint_g"
+            {
+                uniform token info:id = "ND_range_float"
+                bool inputs:doclamp = 1
+                float inputs:in.connect = </Looks/unifiednoise3d_type1/NG_unifiednoise3d_type1/noise_01.outputs:out>
+                float inputs:inhigh = 1
+                float inputs:inlow = 0
+                float inputs:outhigh = 0.71
+                float inputs:outlow = 0
+                float outputs:out
+            }
+
+            def Shader "tint_b"
+            {
+                uniform token info:id = "ND_range_float"
+                bool inputs:doclamp = 1
+                float inputs:in.connect = </Looks/unifiednoise3d_type1/NG_unifiednoise3d_type1/noise_01.outputs:out>
+                float inputs:inhigh = 1
+                float inputs:inlow = 0
+                float inputs:outhigh = 1
+                float inputs:outlow = 0
+                float outputs:out
+            }
+
+            def Shader "base_color"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/unifiednoise3d_type1/NG_unifiednoise3d_type1/tint_r.outputs:out>
+                float inputs:in2.connect = </Looks/unifiednoise3d_type1/NG_unifiednoise3d_type1/tint_g.outputs:out>
+                float inputs:in3.connect = </Looks/unifiednoise3d_type1/NG_unifiednoise3d_type1/tint_b.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/unifiednoise3d_type1>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/noise/unifiednoise3d_type1.exr"
+        }
+    }
+}

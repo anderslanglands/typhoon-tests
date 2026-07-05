@@ -1,0 +1,119 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "splittb_compare_center_shift" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/splittb_compare_center_shift/splittb_compare_center_shift.mtlx"
+                string sourceMaterial = "M_splittb_compare_center_shift"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/splittb_compare_center_shift/SR_splittb_compare_center_shift.outputs:out>
+        token outputs:surface.connect = </Looks/splittb_compare_center_shift/SR_splittb_compare_center_shift.outputs:out>
+
+        def Shader "SR_splittb_compare_center_shift"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/splittb_compare_center_shift/NG_splittb_compare_center_shift.outputs:out_base_color>
+            float inputs:specular = 0.5
+            float inputs:specular_roughness = 0.45
+            token outputs:out
+        }
+
+        def NodeGraph "NG_splittb_compare_center_shift"
+        {
+            color3f outputs:out_base_color.connect = </Looks/splittb_compare_center_shift/NG_splittb_compare_center_shift/debug_color.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "splittb_center_low"
+            {
+                uniform token info:id = "ND_splittb_float"
+                float inputs:center = 0.25
+                float2 inputs:texcoord.connect = </Looks/splittb_compare_center_shift/NG_splittb_compare_center_shift/uv0.outputs:out>
+                float inputs:valueb = 0
+                float inputs:valuet = 1
+                float outputs:out
+            }
+
+            def Shader "splittb_center_high"
+            {
+                uniform token info:id = "ND_splittb_float"
+                float inputs:center = 0.75
+                float2 inputs:texcoord.connect = </Looks/splittb_compare_center_shift/NG_splittb_compare_center_shift/uv0.outputs:out>
+                float inputs:valueb = 0
+                float inputs:valuet = 1
+                float outputs:out
+            }
+
+            def Shader "center_delta_raw"
+            {
+                uniform token info:id = "ND_subtract_float"
+                float inputs:in1.connect = </Looks/splittb_compare_center_shift/NG_splittb_compare_center_shift/splittb_center_low.outputs:out>
+                float inputs:in2.connect = </Looks/splittb_compare_center_shift/NG_splittb_compare_center_shift/splittb_center_high.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "center_delta"
+            {
+                uniform token info:id = "ND_absval_float"
+                float inputs:in.connect = </Looks/splittb_compare_center_shift/NG_splittb_compare_center_shift/center_delta_raw.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "center_delta_amplified"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/splittb_compare_center_shift/NG_splittb_compare_center_shift/center_delta.outputs:out>
+                float inputs:in2 = 4
+                float outputs:out
+            }
+
+            def Shader "debug_color"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/splittb_compare_center_shift/NG_splittb_compare_center_shift/splittb_center_low.outputs:out>
+                float inputs:in2.connect = </Looks/splittb_compare_center_shift/NG_splittb_compare_center_shift/splittb_center_high.outputs:out>
+                float inputs:in3.connect = </Looks/splittb_compare_center_shift/NG_splittb_compare_center_shift/center_delta_amplified.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/splittb_compare_center_shift>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/procedurals/splittb_compare_center_shift.exr"
+        }
+    }
+}

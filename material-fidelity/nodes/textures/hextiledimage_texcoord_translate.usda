@@ -1,0 +1,99 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "hextiledimage_texcoord_translate" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/hextiledimage_texcoord_translate/material.mtlx"
+                string sourceMaterial = "M_hextiledimage_texcoord_translate"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/hextiledimage_texcoord_translate/SR_hextiledimage_texcoord_translate.outputs:out>
+        token outputs:surface.connect = </Looks/hextiledimage_texcoord_translate/SR_hextiledimage_texcoord_translate.outputs:out>
+
+        def Shader "SR_hextiledimage_texcoord_translate"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/hextiledimage_texcoord_translate/NG_hextiledimage_texcoord_translate.outputs:out>
+            float inputs:specular = 0.5
+            float inputs:specular_roughness = 0.4
+            token outputs:out
+        }
+
+        def NodeGraph "NG_hextiledimage_texcoord_translate"
+        {
+            color3f outputs:out.connect = </Looks/hextiledimage_texcoord_translate/NG_hextiledimage_texcoord_translate/node_under_test.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "uv_transform"
+            {
+                uniform token info:id = "ND_place2d_vector2"
+                float2 inputs:offset = (0.15, -0.1)
+                float2 inputs:pivot = (0.5, 0.5)
+                float inputs:rotate = 0
+                float2 inputs:scale = (1, 1)
+                float2 inputs:texcoord.connect = </Looks/hextiledimage_texcoord_translate/NG_hextiledimage_texcoord_translate/uv0.outputs:out>
+                float2 outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_hextiledimage_color3"
+                color3f inputs:default = (1, 0, 1)
+                float inputs:falloff = 0.5
+                float inputs:falloffcontrast = 0.5
+                asset inputs:file = @../../_assets/Materials/nodes/image_format_png/textures/texture.png@ (
+                    colorSpace = "srgb_texture"
+                )
+                color3f inputs:lumacoeffs = (0.2722287, 0.6740818, 0.0536895)
+                float inputs:offset = 1
+                float2 inputs:offsetrange = (0, 1)
+                float inputs:rotation = 1
+                float2 inputs:rotationrange = (0, 360)
+                float inputs:scale = 1
+                float2 inputs:scalerange = (0.5, 2)
+                float2 inputs:texcoord.connect = </Looks/hextiledimage_texcoord_translate/NG_hextiledimage_texcoord_translate/uv_transform.outputs:out>
+                float2 inputs:tiling = (1, 1)
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/hextiledimage_texcoord_translate>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/textures/hextiledimage_texcoord_translate.exr"
+        }
+    }
+}

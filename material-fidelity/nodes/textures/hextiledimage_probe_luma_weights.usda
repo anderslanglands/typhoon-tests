@@ -1,0 +1,88 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "hextiledimage_probe_luma_weights" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/hextiledimage_probe_luma_weights/material.mtlx"
+                string sourceMaterial = "M_hextiledimage_probe_luma_weights"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/hextiledimage_probe_luma_weights/SR_hextiledimage_probe_luma_weights.outputs:out>
+        token outputs:surface.connect = </Looks/hextiledimage_probe_luma_weights/SR_hextiledimage_probe_luma_weights.outputs:out>
+
+        def Shader "SR_hextiledimage_probe_luma_weights"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/hextiledimage_probe_luma_weights/NG_hextiledimage_probe_luma_weights.outputs:out>
+            float inputs:specular = 0.5
+            float inputs:specular_roughness = 0.4
+            token outputs:out
+        }
+
+        def NodeGraph "NG_hextiledimage_probe_luma_weights"
+        {
+            color3f outputs:out.connect = </Looks/hextiledimage_probe_luma_weights/NG_hextiledimage_probe_luma_weights/node_under_test.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_hextiledimage_color3"
+                color3f inputs:default = (1, 0, 1)
+                float inputs:falloff = 0.5
+                float inputs:falloffcontrast = 1
+                asset inputs:file = @../../_assets/Materials/nodes/hextiledimage/textures/grid.png@ (
+                    colorSpace = "srgb_texture"
+                )
+                color3f inputs:lumacoeffs = (0.2722287, 0.6740818, 0.0536895)
+                float inputs:offset = 1
+                float2 inputs:offsetrange = (0, 1)
+                float inputs:rotation = 0
+                float2 inputs:rotationrange = (0, 360)
+                float inputs:scale = 0
+                float2 inputs:scalerange = (0.5, 2)
+                float2 inputs:texcoord.connect = </Looks/hextiledimage_probe_luma_weights/NG_hextiledimage_probe_luma_weights/uv0.outputs:out>
+                float2 inputs:tiling = (1, 1)
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/hextiledimage_probe_luma_weights>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/textures/hextiledimage_probe_luma_weights.exr"
+        }
+    }
+}

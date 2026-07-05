@@ -1,0 +1,139 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "ramp_gradient" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/ramp_gradient/ramp_gradient.mtlx"
+                string sourceMaterial = "M_ramp_gradient_test"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/ramp_gradient/SR_ramp_gradient_test.outputs:out>
+        token outputs:surface.connect = </Looks/ramp_gradient/SR_ramp_gradient_test.outputs:out>
+
+        def Shader "SR_ramp_gradient_test"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/ramp_gradient/NG_ramp_gradient_test.outputs:out_color>
+            float inputs:specular = 0.5
+            float inputs:specular_roughness = 0.5
+            token outputs:out
+        }
+
+        def NodeGraph "NG_ramp_gradient_test"
+        {
+            color3f outputs:out_color.connect = </Looks/ramp_gradient/NG_ramp_gradient_test/base_color.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "uv_split"
+            {
+                uniform token info:id = "ND_separate2_vector2"
+                float2 inputs:in.connect = </Looks/ramp_gradient/NG_ramp_gradient_test/uv0.outputs:out>
+                float outputs:outx
+                float outputs:outy
+            }
+
+            def Shader "grad1"
+            {
+                uniform token info:id = "ND_ramp_gradient"
+                color4f inputs:color1 = (0.9, 0.1, 0.1, 1)
+                color4f inputs:color2 = (0.1, 0.9, 0.1, 1)
+                int inputs:interpolation = 1
+                float inputs:interval1 = 0
+                float inputs:interval2 = 0.33
+                int inputs:interval_num = 1
+                int inputs:num_intervals = 3
+                color4f inputs:prev_color = (0.9, 0.1, 0.1, 1)
+                float inputs:x.connect = </Looks/ramp_gradient/NG_ramp_gradient_test/uv_split.outputs:outx>
+                color4f outputs:out
+            }
+
+            def Shader "grad2"
+            {
+                uniform token info:id = "ND_ramp_gradient"
+                color4f inputs:color1 = (0.1, 0.9, 0.1, 1)
+                color4f inputs:color2 = (0.1, 0.1, 0.9, 1)
+                int inputs:interpolation = 1
+                float inputs:interval1 = 0.33
+                float inputs:interval2 = 0.66
+                int inputs:interval_num = 2
+                int inputs:num_intervals = 3
+                color4f inputs:prev_color.connect = </Looks/ramp_gradient/NG_ramp_gradient_test/grad1.outputs:out>
+                float inputs:x.connect = </Looks/ramp_gradient/NG_ramp_gradient_test/uv_split.outputs:outx>
+                color4f outputs:out
+            }
+
+            def Shader "grad3"
+            {
+                uniform token info:id = "ND_ramp_gradient"
+                color4f inputs:color1 = (0.1, 0.1, 0.9, 1)
+                color4f inputs:color2 = (0.9, 0.9, 0.1, 1)
+                int inputs:interpolation = 1
+                float inputs:interval1 = 0.66
+                float inputs:interval2 = 1
+                int inputs:interval_num = 3
+                int inputs:num_intervals = 3
+                color4f inputs:prev_color.connect = </Looks/ramp_gradient/NG_ramp_gradient_test/grad2.outputs:out>
+                float inputs:x.connect = </Looks/ramp_gradient/NG_ramp_gradient_test/uv_split.outputs:outx>
+                color4f outputs:out
+            }
+
+            def Shader "grad_split"
+            {
+                uniform token info:id = "ND_separate4_color4"
+                color4f inputs:in.connect = </Looks/ramp_gradient/NG_ramp_gradient_test/grad3.outputs:out>
+                float outputs:outa
+                float outputs:outb
+                float outputs:outg
+                float outputs:outr
+            }
+
+            def Shader "base_color"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/ramp_gradient/NG_ramp_gradient_test/grad_split.outputs:outr>
+                float inputs:in2.connect = </Looks/ramp_gradient/NG_ramp_gradient_test/grad_split.outputs:outg>
+                float inputs:in3.connect = </Looks/ramp_gradient/NG_ramp_gradient_test/grad_split.outputs:outb>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/ramp_gradient>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/procedurals/ramp_gradient.exr"
+        }
+    }
+}
