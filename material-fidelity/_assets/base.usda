@@ -37,7 +37,7 @@ def "Render"
     {
         rel camera = </World/Camera>
         rel products = </Render/Settings/Product>
-        uniform int2 resolution = (512, 512)
+        uniform int2 resolution = (256, 256)
         uniform int ty:convergedSamplesPerPixel = 64
 
         def RenderProduct "Product"

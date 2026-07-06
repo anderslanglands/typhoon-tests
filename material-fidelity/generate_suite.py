@@ -1410,7 +1410,7 @@ def _write_render_settings(stage: Usd.Stage, product_name: str) -> None:
     settings = UsdRender.Settings.Define(stage, "/Render/Settings")
     settings.GetPrim().ApplyAPI("TyphoonRenderSettingsAPI")
     settings.GetPrim().CreateAttribute("ty:convergedSamplesPerPixel", Sdf.ValueTypeNames.Int).Set(64)
-    settings.CreateResolutionAttr(Gf.Vec2i(512, 512))
+    settings.CreateResolutionAttr(Gf.Vec2i(256, 256))
     settings.CreateCameraRel().SetTargets([Sdf.Path("/World/Camera")])
 
     product = UsdRender.Product.Define(stage, "/Render/Settings/Product")
