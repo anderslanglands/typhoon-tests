@@ -23,6 +23,13 @@ def Scope "Looks"
         token outputs:mtlx:surface.connect = </Looks/gltf_anisotropy_image/SR_gltf_anisotropy_image.outputs:out>
         token outputs:surface.connect = </Looks/gltf_anisotropy_image/SR_gltf_anisotropy_image.outputs:out>
 
+        def Shader "world_tangent"
+        {
+            uniform token info:id = "ND_tangent_vector3"
+            string inputs:space = "world"
+            float3 outputs:out
+        }
+
         def Shader "SR_gltf_anisotropy_image"
         {
             uniform token info:id = "ND_gltf_pbr_surfaceshader"
@@ -32,6 +39,7 @@ def Scope "Looks"
             float inputs:metallic = 1
             float inputs:roughness = 0.2
             float inputs:specular = 1
+            float3 inputs:tangent.connect = </Looks/gltf_anisotropy_image/world_tangent.outputs:out>
             token outputs:out
         }
 
