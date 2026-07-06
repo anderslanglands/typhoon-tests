@@ -3322,3 +3322,53 @@ def test_regenerate_html_rejects_malformed_summary_json(tmp_path: Path) -> None:
 
     with pytest.raises(report_html.ReportRegenerationError, match="invalid JSON"):
         report_html.regenerate_html(output_root=run_dir.parent, run="run-0001")
+
+
+def test_reference_update_removes_override_when_exr_is_suite_default(
+    tmp_path: Path,
+) -> None:
+    suite = tmp_path / "suite"
+    suite.mkdir()
+    (suite / "typhoon-suite.toml").write_text(
+        """[suite]
+name = "sample"
+
+[reference]
+dir = "reference"
+pattern = "{path}.exr"
+""",
+        encoding="utf-8",
+    )
+    usd_path = suite / "case.usda"
+    usd_path.write_text("#usda 1.0\n", encoding="utf-8")
+    config_path = usd_path.with_suffix(".typhoon.toml")
+    config_path.write_text(
+        '[reference]\npath = "reference/case_materialx-osl.png"\n\n'
+        "[comparison]\nflip_threshold = 0.05\n",
+        encoding="utf-8",
+    )
+    reference_path = suite / "reference" / "case.exr"
+
+    actual_path, config_text = view_server.build_case_reference_update(
+        usd_path, reference_path
+    )
+    view_server._write_text_atomic(actual_path, config_text)
+
+    assert actual_path == config_path
+    assert config_text == "[comparison]\nflip_threshold = 0.05\n"
+    assert config_path.read_text(encoding="utf-8") == config_text
+
+    empty_usd = suite / "empty.usda"
+    empty_usd.write_text("#usda 1.0\n", encoding="utf-8")
+    empty_config = empty_usd.with_suffix(".typhoon.toml")
+    empty_config.write_text(
+        '[reference]\npath = "reference/empty_materialx-osl.png"\n',
+        encoding="utf-8",
+    )
+    empty_reference = suite / "reference" / "empty.exr"
+    actual_path, config_text = view_server.build_case_reference_update(
+        empty_usd, empty_reference
+    )
+    view_server._write_text_atomic(actual_path, config_text)
+    assert config_text == ""
+    assert not empty_config.exists()

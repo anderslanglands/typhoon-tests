@@ -5,8 +5,8 @@ Generated from `~/code/material-samples`.
 - Base layer: `_assets/base.usda`
 - Geometry layer: `_assets/Geometry/shaderball.usda`
 - IBL: `viewer/san_giuseppe_bridge_2k.hdr`
-- Materials: every `materials/**/*.mtlx` with a `materialx-osl.png` reference
-- Test cases: 777 pure UsdShade material graphs
+- Materials: non-redundant `materials/**/*.mtlx` fixtures with usable references
+- Test cases: 761 pure UsdShade material graphs
 - Render output pattern: `material-fidelity/<test-path>.exr`
 
 The suite follows the `materialx/` layout, but shared scene assets are kept under
@@ -15,7 +15,7 @@ The suite follows the `materialx/` layout, but shared scene assets are kept unde
 `/Looks`, and over `/Render/Settings/Product` to set a unique output filename.
 
 Surface tests mirror the source shader-model sections under `surfaces/`, and
-complete materials are grouped by shader model under `showcase/`. The 480 node
+complete materials are grouped by shader model under `showcase/`. The 476 node
 tests are grouped under `nodes/` using subsections informed by the MaterialX
 standard-node and PBR specifications:
 `textures`, `procedurals`, `noise`, `patterns`, `geometric`,
@@ -34,7 +34,9 @@ of any image format are preserved. Pass `--force` directly to
 source PNG references.
 
 Each initial reference image is copied from its source material's
-`materialx-osl.png`. The generator checks the 36 known source cases without an
+`materialx-osl.png`. Updated references use EXR by default; tests that still use
+their original PNG have a per-test reference override. The generator checks the
+36 known source cases without an
 OSL reference and the 29 known source validation failures explicitly, so new
 missing references or validation errors stop generation instead of silently
 reducing coverage. Legacy interfaces in those known sources are normalized to

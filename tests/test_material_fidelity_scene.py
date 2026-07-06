@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 import re
+import runpy
 from pathlib import Path
 
 import pytest
@@ -29,17 +30,17 @@ EXPECTED_CASE_COUNTS = {
     "nodes/geometric": 77,
     "nodes/logical": 4,
     "nodes/math": 131,
-    "nodes/noise": 106,
+    "nodes/noise": 102,
     "nodes/patterns": 2,
     "nodes/pbr": 12,
     "nodes/procedurals": 20,
     "nodes/textures": 45,
     "showcase/gltf_pbr": 5,
     "showcase/open_pbr_surface": 8,
-    "showcase/standard_surface": 16,
-    "surfaces/gltf_pbr": 86,
+    "showcase/standard_surface": 14,
+    "surfaces/gltf_pbr": 77,
     "surfaces/open_pbr_surface": 78,
-    "surfaces/standard_surface": 104,
+    "surfaces/standard_surface": 103,
 }
 ASSET_PATH_PATTERN = re.compile(r"@([^@]+)@")
 
@@ -162,6 +163,90 @@ def test_material_fidelity_conversion_preserves_nontrivial_graph_semantics() -> 
         / "gltf_normalmap_isolate_scale_float.usda"
     ).read_text(encoding="utf-8")
     assert "float2 inputs:scale = (1.3, 1.3)" in normal_scale
+
+    standard_subsurface_scale = (
+        MATERIAL_FIDELITY
+        / "surfaces"
+        / "standard_surface"
+        / "input_subsurface_scale.usda"
+    ).read_text(encoding="utf-8")
+    assert "float inputs:subsurface_scale = 0.022" in standard_subsurface_scale
+
+    standard_subsurface_radius = (
+        MATERIAL_FIDELITY
+        / "surfaces"
+        / "standard_surface"
+        / "input_subsurface_radius.usda"
+    ).read_text(encoding="utf-8")
+    assert (
+        "color3f inputs:subsurface_radius = (1.5, 0.7, 0.3)"
+        in standard_subsurface_radius
+    )
+    assert "float inputs:subsurface_scale = 0.01" in standard_subsurface_radius
+
+    transmission_scatter = (
+        MATERIAL_FIDELITY
+        / "surfaces"
+        / "standard_surface"
+        / "input_transmission_scatter.usda"
+    ).read_text(encoding="utf-8")
+    assert "float inputs:transmission_depth = 0.05" in transmission_scatter
+    assert (
+        "color3f inputs:transmission_scatter = (0.5, 0.2, 0.1)"
+        in transmission_scatter
+    )
+
+    transmission_scatter_anisotropy = (
+        MATERIAL_FIDELITY
+        / "surfaces"
+        / "standard_surface"
+        / "input_transmission_scatter_anisotropy.usda"
+    ).read_text(encoding="utf-8")
+    assert "float inputs:transmission_depth = 0.05" in transmission_scatter_anisotropy
+    assert (
+        "float inputs:transmission_scatter_anisotropy = 0.9"
+        in transmission_scatter_anisotropy
+    )
+
+    transmission_depth = (
+        MATERIAL_FIDELITY
+        / "surfaces"
+        / "standard_surface"
+        / "input_transmission_depth.usda"
+    ).read_text(encoding="utf-8")
+    assert (
+        "color3f inputs:transmission_color = (0.25, 0.55, 0.9)"
+        in transmission_depth
+    )
+    assert "float inputs:transmission_depth = 0.05" in transmission_depth
+
+    open_pbr_subsurface = (
+        MATERIAL_FIDELITY
+        / "surfaces"
+        / "open_pbr_surface"
+        / "feature_subsurface.usda"
+    ).read_text(encoding="utf-8")
+    assert "float inputs:subsurface_radius = 0.01" in open_pbr_subsurface
+
+    open_pbr_subsurface_radius = (
+        MATERIAL_FIDELITY
+        / "surfaces"
+        / "open_pbr_surface"
+        / "input_subsurface_radius.usda"
+    ).read_text(encoding="utf-8")
+    assert "float inputs:subsurface_radius = 0.02" in open_pbr_subsurface_radius
+
+    open_pbr_transmission_scatter = (
+        MATERIAL_FIDELITY
+        / "surfaces"
+        / "open_pbr_surface"
+        / "input_transmission_scatter_anisotropy.usda"
+    ).read_text(encoding="utf-8")
+    assert "float inputs:transmission_depth = 0.05" in open_pbr_transmission_scatter
+    assert (
+        "float inputs:transmission_scatter_anisotropy = 0.85"
+        in open_pbr_transmission_scatter
+    )
 
     compound_graph = (
         MATERIAL_FIDELITY
@@ -287,3 +372,67 @@ def test_material_fidelity_composed_scene_normalizes_shaderball() -> None:
 
     _assert_vec3_close(center, Gf.Vec3d(0.0, 0.0, 0.0))
     assert radius == pytest.approx(EXPECTED_SHADERBALL_RADIUS, abs=1e-6)
+
+
+def test_material_fidelity_generator_tracks_png_until_exr_exists(
+    tmp_path: Path,
+) -> None:
+    generator = runpy.run_path(str(MATERIAL_FIDELITY / "generate_suite.py"))
+    output_root = tmp_path / "output"
+    material_root = tmp_path / "source" / "materials"
+    source = material_root / "nodes" / "case" / "case.mtlx"
+    source.parent.mkdir(parents=True)
+    source.write_text("<materialx />\n", encoding="utf-8")
+    source_png = source.with_name("materialx-osl.png")
+    source_png.write_bytes(b"source-png")
+    hdr_source = tmp_path / "source" / "viewer" / "light.hdr"
+    hdr_source.parent.mkdir(parents=True)
+    hdr_source.write_bytes(b"hdr")
+
+    case_type = generator["MaterialCase"]
+    case = case_type(
+        source=source,
+        test_path=output_root / "nodes" / "noise" / "case.usda",
+        reference_path=(
+            output_root
+            / "reference"
+            / "nodes"
+            / "noise"
+            / "case_materialx-osl.png"
+        ),
+    )
+    copy_assets = generator["_copy_shared_assets"]
+    copy_assets.__globals__.update(
+        {
+            "ROOT": output_root,
+            "MATERIAL_ROOT": material_root,
+            "ASSET_ROOT": output_root / "_assets",
+            "HDR_SOURCE": hdr_source,
+            "_material_asset_sources": lambda _source: (),
+        }
+    )
+
+    copy_assets((case,), force=False)
+
+    config_path = case.test_path.with_suffix(".typhoon.toml")
+    assert case.reference_path.read_bytes() == b"source-png"
+    assert config_path.read_text(encoding="utf-8") == (
+        '[reference]\npath = "reference/nodes/noise/case_materialx-osl.png"\n'
+    )
+
+    source_png.write_bytes(b"forced-source-png")
+    copy_assets((case,), force=True)
+    assert case.reference_path.read_bytes() == b"forced-source-png"
+    assert config_path.is_file()
+
+    config_path.unlink()
+    copy_assets((case,), force=False)
+    assert config_path.is_file()
+
+    config_path.unlink()
+    case.reference_path.with_name("case.exr").write_bytes(b"updated-exr")
+    source_png.write_bytes(b"newer-source-png")
+    copy_assets((case,), force=True)
+
+    assert case.reference_path.read_bytes() == b"forced-source-png"
+    assert not config_path.exists()

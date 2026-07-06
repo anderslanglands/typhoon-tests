@@ -6,6 +6,7 @@ import json
 import os
 import shutil
 import struct
+import tomllib
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from pathlib import Path
@@ -66,6 +67,24 @@ _MISSING_REFERENCE_PATTERNS = (
     "nodes/image_format_avif/*.mtlx",
     "surfaces/standard_surface/showcase_graph_pbr_helpers/*.mtlx",
     "surfaces/standard_surface/standard_surface_sweep_thin_film_thickness_*/*.mtlx",
+)
+
+_EXCLUDED_SOURCE_PATTERNS = (
+    # Duplicate authored graphs already covered by another source fixture.
+    "nodes/unifiednoise2d_type2/*.mtlx",
+    "nodes/unifiednoise3d_type2/*.mtlx",
+    "nodes/worleynoise2d/*.mtlx",
+    "nodes/worleynoise3d/*.mtlx",
+    "showcase/standard_surface/onyx_hextiled_no_scale/*.mtlx",
+    "showcase/standard_surface/wood_grain/*.mtlx",
+    "surfaces/standard_surface/marble_solid/*.mtlx",
+    # Occlusion is not observable in the current beauty-render fixture.
+    "surfaces/gltf_pbr/occlusion_half/*.mtlx",
+    "surfaces/gltf_pbr/occlusion_one/*.mtlx",
+    "surfaces/gltf_pbr/occlusion_zero/*.mtlx",
+    # Dispersion fixtures were already removed because this shader path lacks it.
+    "surfaces/gltf_pbr/feature_dispersion/*.mtlx",
+    "surfaces/gltf_pbr/gltf_pbr_sweep_dispersion_*/*.mtlx",
 )
 
 _KNOWN_VALIDATION_FAILURE_PATTERNS = (
@@ -177,6 +196,8 @@ def _discover_material_cases() -> tuple[MaterialCase, ...]:
     cases = []
     missing_references = []
     for source in sorted(MATERIAL_ROOT.glob("**/*.mtlx")):
+        if _matches_source_pattern(source, _EXCLUDED_SOURCE_PATTERNS):
+            continue
         if not source.with_name("materialx-osl.png").is_file():
             missing_references.append(source)
             continue
@@ -500,15 +521,54 @@ def _copy_shared_assets(cases: tuple[MaterialCase, ...], force: bool) -> None:
     for case in cases:
         reference_source = case.source.with_name("materialx-osl.png")
         case_name = _material_case_name(case.source)
-        existing_references = (
-            *case.reference_path.parent.glob(f"{case_name}_materialx-osl.*"),
-            *case.reference_path.parent.glob(f"{case_name}.*"),
-        )
-        if force or not existing_references:
-            _copy_file(reference_source, case.reference_path, force)
+        exr_reference = case.reference_path.with_name(f"{case_name}.exr")
+        png_selected = _png_reference_is_selected(case)
+        if exr_reference.is_file() and not png_selected:
+            pass
+        elif case.reference_path.is_file():
+            if force:
+                _copy_file(reference_source, case.reference_path, True)
+            _ensure_png_reference_override(case)
+        else:
+            _copy_file(reference_source, case.reference_path, False)
+            _ensure_png_reference_override(case)
         for asset_source in _material_asset_sources(case.source):
             destination = _material_asset_path(asset_source)
             _copy_file(asset_source, destination, force)
+
+
+def _png_reference_is_selected(case: MaterialCase) -> bool:
+    config_path = case.test_path.with_suffix(".typhoon.toml")
+    if not config_path.is_file():
+        return False
+    with config_path.open("rb") as stream:
+        data = tomllib.load(stream)
+    reference = data.get("reference")
+    relative_reference = case.reference_path.relative_to(ROOT).as_posix()
+    return isinstance(reference, dict) and reference.get("path") == relative_reference
+
+
+def _ensure_png_reference_override(case: MaterialCase) -> None:
+    config_path = case.test_path.with_suffix(".typhoon.toml")
+    relative_reference = case.reference_path.relative_to(ROOT).as_posix()
+    if config_path.is_file():
+        with config_path.open("rb") as stream:
+            data = tomllib.load(stream)
+        reference = data.get("reference")
+        if isinstance(reference, dict) and reference.get("path") == relative_reference:
+            return
+        if reference is not None:
+            raise ValueError(f"cannot replace [reference] in {config_path}")
+        prefix = config_path.read_text(encoding="utf-8").rstrip() + "\n\n"
+    else:
+        config_path.parent.mkdir(parents=True, exist_ok=True)
+        prefix = ""
+    config_text = (
+        f"{prefix}[reference]\npath = {json.dumps(relative_reference)}\n"
+    )
+    temporary = config_path.with_name(f".{config_path.name}.tmp")
+    temporary.write_text(config_text, encoding="utf-8")
+    os.replace(temporary, config_path)
 
 
 def _copy_file(source: Path, destination: Path, force: bool) -> None:

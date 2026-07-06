@@ -14,7 +14,7 @@ import tomllib
 from typing import Any
 from urllib.parse import unquote, urlparse
 
-from .config import find_suite_config
+from .config import find_suite_config, format_pattern, load_suite_config_for_path
 
 USDVIEW_ENDPOINT = "/__typhoon__/usdview"
 UPDATE_THRESHOLDS_ENDPOINT = "/__typhoon__/thresholds"
@@ -588,6 +588,9 @@ def _validate_reference_update_paths(
 
 def _write_text_atomic(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
+    if not text:
+        path.unlink(missing_ok=True)
+        return
     descriptor, temp_name = tempfile.mkstemp(
         prefix=f".{path.name}.", dir=path.parent
     )
@@ -665,12 +668,27 @@ def build_case_reference_update(
         if not isinstance(loaded, dict):
             raise ViewServerError(f"invalid case config: {config_path}")
         data = loaded
-    reference = data.setdefault("reference", {})
-    if not isinstance(reference, dict):
+    existing_reference = data.get("reference")
+    if existing_reference is not None and not isinstance(existing_reference, dict):
         raise ViewServerError(f"[reference] must be a table in {config_path}")
+
     relative_path = os.path.relpath(reference_path, suite_config_path.parent)
-    reference["path"] = Path(relative_path).as_posix()
-    return config_path, format_toml(data)
+    relative_path = Path(relative_path).as_posix()
+    suite = load_suite_config_for_path(str(usd_path.resolve()))
+    default_reference = None
+    if suite.reference_dir is not None:
+        default_reference = (
+            Path(suite.reference_dir)
+            / format_pattern(suite.reference_pattern, usd_path, suite)
+        ).resolve()
+    if default_reference == reference_path.resolve():
+        data.pop("reference", None)
+    else:
+        reference = data.setdefault("reference", {})
+        if not isinstance(reference, dict):
+            raise ViewServerError(f"[reference] must be a table in {config_path}")
+        reference["path"] = relative_path
+    return config_path, format_toml(data) if data else ""
 
 
 
