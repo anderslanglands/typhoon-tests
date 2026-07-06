@@ -28,6 +28,7 @@ def Scope "Looks"
             uniform token info:id = "ND_standard_surface_surfaceshader"
             color3f inputs:base_color = (0.3, 0.85, 0.8)
             float inputs:subsurface = 1
+            float inputs:subsurface_scale = 0.01
             token outputs:out
         }
     }

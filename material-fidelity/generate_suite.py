@@ -31,6 +31,32 @@ HDR_SOURCE = VIEWER_ROOT / "san_giuseppe_bridge_2k.hdr"
 GLB_SOURCE = VIEWER_ROOT / "ShaderBall.glb"
 
 IDEAL_MESH_SPHERE_RADIUS = 2.0
+SOURCE_DISTANCE_TO_METERS = 0.01
+
+# The source shaderball materials use centimetre-sized material distances,
+# while the generated USD suite declares metre scene units. Keep ratios such
+# as Standard Surface's RGB subsurface_radius unchanged and convert the scalar
+# distance which gives them their physical scale.
+_DISTANCE_INPUTS = {
+    "standard_surface": {"subsurface_scale", "transmission_depth"},
+    "open_pbr_surface": {"subsurface_radius", "transmission_depth"},
+}
+
+# These upstream input fixtures otherwise do not exercise the control named by
+# the case: scattering is disabled at zero transmission depth, and white
+# transmission_color makes transmission_depth inert.
+_FIXTURE_INPUT_OVERRIDES = {
+    "input_transmission_scatter": {
+        ("standard_surface", "transmission_depth"): 5.0,
+    },
+    "input_transmission_scatter_anisotropy": {
+        ("standard_surface", "transmission_depth"): 5.0,
+        ("open_pbr_surface", "transmission_depth"): 5.0,
+    },
+    "input_transmission_depth": {
+        ("standard_surface", "transmission_color"): Gf.Vec3f(0.25, 0.55, 0.9),
+    },
+}
 CAMERA_APERTURE_FOR_45_DEGREE_FOV = 41.421356
 EXPECTED_MISSING_REFERENCE_COUNT = 36
 EXPECTED_VALIDATION_FAILURE_COUNT = 29
@@ -1001,6 +1027,9 @@ def _write_usdshade_material(
                 value = _coerce_mtlx_value(
                     value, input_element.attrib["type"], value_type
                 )
+                value = _adapt_fixture_input_value(
+                    element, input_element, material_path, value
+                )
                 shader_input.Set(value)
             elif "nodename" in input_element.attrib:
                 source = nodes[(scope, input_element.attrib["nodename"])]
@@ -1025,6 +1054,8 @@ def _write_usdshade_material(
             color_space = input_element.attrib.get("colorspace")
             if color_space:
                 shader_input.GetAttr().SetColorSpace(color_space)
+        _author_missing_fixture_overrides(element, shader, material_path)
+        _author_meter_scaled_subsurface_default(element, shader)
 
     for graph_element in root.findall("nodegraph"):
         graph_name = graph_element.attrib["name"]
@@ -1068,6 +1099,81 @@ _LEGACY_INPUT_NAMES = {
     ("standard_surface", "ior"): "specular_IOR",
     ("standard_surface", "thin_film_ior"): "thin_film_IOR",
 }
+
+
+def _adapt_fixture_input_value(
+    node_element: ET.Element,
+    input_element: ET.Element,
+    material_path: Path,
+    value: Any,
+) -> Any:
+    input_name = input_element.attrib["name"]
+    override = _FIXTURE_INPUT_OVERRIDES.get(_material_case_name(material_path), {}).get(
+        (node_element.tag, input_name)
+    )
+    if override is not None:
+        value = override
+
+    subsurface_distance_input = {
+        "standard_surface": "subsurface_scale",
+        "open_pbr_surface": "subsurface_radius",
+    }.get(node_element.tag)
+    if (
+        input_name == subsurface_distance_input
+        and not _has_positive_literal_subsurface_weight(node_element)
+    ):
+        return value
+
+    if input_name in _DISTANCE_INPUTS.get(node_element.tag, set()):
+        return float(value) * SOURCE_DISTANCE_TO_METERS
+    return value
+
+
+def _has_positive_literal_subsurface_weight(node_element: ET.Element) -> bool:
+    weight_name = {
+        "standard_surface": "subsurface",
+        "open_pbr_surface": "subsurface_weight",
+    }.get(node_element.tag)
+    if weight_name is None:
+        return False
+    weight = node_element.find(f"input[@name='{weight_name}']")
+    return weight is not None and float(weight.attrib.get("value", "0")) > 0.0
+
+
+def _author_missing_fixture_overrides(
+    node_element: ET.Element,
+    shader: UsdShade.Shader,
+    material_path: Path,
+) -> None:
+    overrides = _FIXTURE_INPUT_OVERRIDES.get(_material_case_name(material_path), {})
+    for (node_tag, input_name), value in overrides.items():
+        if node_tag != node_element.tag:
+            continue
+        if node_element.find(f"input[@name='{input_name}']") is not None:
+            continue
+        if input_name in _DISTANCE_INPUTS.get(node_tag, set()):
+            value = float(value) * SOURCE_DISTANCE_TO_METERS
+        value_type = (
+            Sdf.ValueTypeNames.Color3f
+            if isinstance(value, Gf.Vec3f)
+            else Sdf.ValueTypeNames.Float
+        )
+        shader.CreateInput(input_name, value_type).Set(value)
+
+
+def _author_meter_scaled_subsurface_default(
+    node_element: ET.Element, shader: UsdShade.Shader
+) -> None:
+    if not _has_positive_literal_subsurface_weight(node_element):
+        return
+    distance_input = {
+        "standard_surface": "subsurface_scale",
+        "open_pbr_surface": "subsurface_radius",
+    }[node_element.tag]
+    if node_element.find(f"input[@name='{distance_input}']") is None:
+        shader.CreateInput(distance_input, Sdf.ValueTypeNames.Float).Set(
+            SOURCE_DISTANCE_TO_METERS
+        )
 
 
 def _normalized_input_spec(

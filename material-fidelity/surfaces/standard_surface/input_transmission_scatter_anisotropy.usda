@@ -60,7 +60,7 @@ def Scope "Looks"
             bool inputs:thin_walled = 0
             float inputs:transmission = 1
             color3f inputs:transmission_color = (1, 1, 1)
-            float inputs:transmission_depth = 0
+            float inputs:transmission_depth = 0.05
             float inputs:transmission_dispersion = 0
             float inputs:transmission_extra_roughness = 0
             color3f inputs:transmission_scatter = (0.4, 0.3, 0.2)

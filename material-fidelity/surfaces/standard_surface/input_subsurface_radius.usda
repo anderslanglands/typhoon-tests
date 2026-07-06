@@ -54,7 +54,7 @@ def Scope "Looks"
             float inputs:subsurface_anisotropy = 0
             color3f inputs:subsurface_color = (1, 1, 1)
             color3f inputs:subsurface_radius = (1.5, 0.7, 0.3)
-            float inputs:subsurface_scale = 1
+            float inputs:subsurface_scale = 0.01
             float inputs:thin_film_IOR = 1.5
             float inputs:thin_film_thickness = 0
             bool inputs:thin_walled = 0

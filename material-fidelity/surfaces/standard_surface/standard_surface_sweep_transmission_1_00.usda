@@ -37,7 +37,7 @@ def Scope "Looks"
             float inputs:thin_film_thickness = 0
             float inputs:transmission = 1
             color3f inputs:transmission_color = (0.95, 0.98, 1)
-            float inputs:transmission_depth = 0.7
+            float inputs:transmission_depth = 0.007
             token outputs:out
         }
     }

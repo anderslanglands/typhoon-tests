@@ -26,6 +26,7 @@ def Scope "Looks"
         def Shader "open_pbr_surface_surfaceshader"
         {
             uniform token info:id = "ND_open_pbr_surface_surfaceshader"
+            float inputs:subsurface_radius = 0.01
             float inputs:subsurface_scatter_anisotropy = 0.9
             float inputs:subsurface_weight = 0.8
             token outputs:out

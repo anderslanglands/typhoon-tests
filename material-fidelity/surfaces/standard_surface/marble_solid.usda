@@ -31,6 +31,7 @@ def Scope "Looks"
             float inputs:specular_roughness = 0.1
             float inputs:subsurface = 0.4
             color3f inputs:subsurface_color.connect = </Looks/marble_solid/NG_marble1.outputs:out>
+            float inputs:subsurface_scale = 0.01
             token outputs:out
         }
 

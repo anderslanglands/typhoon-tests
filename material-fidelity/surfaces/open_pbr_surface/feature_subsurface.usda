@@ -27,6 +27,7 @@ def Scope "Looks"
         {
             uniform token info:id = "ND_open_pbr_surface_surfaceshader"
             color3f inputs:base_color = (0.55, 0.9, 0.35)
+            float inputs:subsurface_radius = 0.01
             float inputs:subsurface_weight = 1
             token outputs:out
         }
