@@ -1,0 +1,293 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "out" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/out/out.mtlx"
+                string sourceMaterial = "M_out"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/out/surface.outputs:out>
+        token outputs:surface.connect = </Looks/out/surface.outputs:out>
+
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/out/NG_out.outputs:out_base_color>
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/out/uniform_edf.outputs:out>
+            token outputs:out
+        }
+
+        def NodeGraph "NG_out"
+        {
+            color3f outputs:out_base_color.connect = </Looks/out/NG_out/final_color.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "pos0"
+            {
+                uniform token info:id = "ND_position_vector3"
+                float3 outputs:out
+            }
+
+            def Shader "uv_split"
+            {
+                uniform token info:id = "ND_separate2_vector2"
+                float2 inputs:in.connect = </Looks/out/NG_out/uv0.outputs:out>
+                float outputs:outx
+                float outputs:outy
+            }
+
+            def Shader "uv_sum"
+            {
+                uniform token info:id = "ND_add_float"
+                float inputs:in1.connect = </Looks/out/NG_out/uv_split.outputs:outx>
+                float inputs:in2.connect = </Looks/out/NG_out/uv_split.outputs:outy>
+                float outputs:out
+            }
+
+            def Shader "uv_mul"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/out/NG_out/uv_split.outputs:outx>
+                float inputs:in2.connect = </Looks/out/NG_out/uv_split.outputs:outy>
+                float outputs:out
+            }
+
+            def Shader "uv_mix"
+            {
+                uniform token info:id = "ND_fract_float"
+                float inputs:in.connect = </Looks/out/NG_out/uv_sum.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "uv_times4"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/out/NG_out/uv_mix.outputs:out>
+                float inputs:in2 = 4
+                float outputs:out
+            }
+
+            def Shader "uv_i_float"
+            {
+                uniform token info:id = "ND_floor_float"
+                float inputs:in.connect = </Looks/out/NG_out/uv_times4.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "uv_i"
+            {
+                uniform token info:id = "ND_constant_integer"
+                int inputs:value = 0
+                int outputs:out
+            }
+
+            def Shader "uv_bool"
+            {
+                uniform token info:id = "ND_ifgreater_boolean"
+                float inputs:value1.connect = </Looks/out/NG_out/uv_mix.outputs:out>
+                float inputs:value2 = 0.5
+                bool outputs:out
+            }
+
+            def Shader "uv_scale"
+            {
+                uniform token info:id = "ND_combine2_vector2"
+                float inputs:in1 = 1
+                float inputs:in2.connect = </Looks/out/NG_out/uv_mix.outputs:out>
+                float2 outputs:out
+            }
+
+            def Shader "uv_offset"
+            {
+                uniform token info:id = "ND_combine2_vector2"
+                float inputs:in1.connect = </Looks/out/NG_out/uv_mul.outputs:out>
+                float inputs:in2.connect = </Looks/out/NG_out/uv_mix.outputs:out>
+                float2 outputs:out
+            }
+
+            def Shader "uv_vec3"
+            {
+                uniform token info:id = "ND_combine3_vector3"
+                float inputs:in1.connect = </Looks/out/NG_out/uv_split.outputs:outx>
+                float inputs:in2.connect = </Looks/out/NG_out/uv_split.outputs:outy>
+                float inputs:in3.connect = </Looks/out/NG_out/uv_mix.outputs:out>
+                float3 outputs:out
+            }
+
+            def Shader "uv_normal"
+            {
+                uniform token info:id = "ND_normalize_vector3"
+                float3 inputs:in.connect = </Looks/out/NG_out/uv_vec3.outputs:out>
+                float3 outputs:out
+            }
+
+            def Shader "uv_vec4"
+            {
+                uniform token info:id = "ND_combine4_vector4"
+                float inputs:in1.connect = </Looks/out/NG_out/uv_split.outputs:outx>
+                float inputs:in2.connect = </Looks/out/NG_out/uv_split.outputs:outy>
+                float inputs:in3.connect = </Looks/out/NG_out/uv_mix.outputs:out>
+                float inputs:in4 = 1
+                float4 outputs:out
+            }
+
+            def Shader "uv_color4"
+            {
+                uniform token info:id = "ND_combine4_color4"
+                float inputs:in1.connect = </Looks/out/NG_out/uv_split.outputs:outx>
+                float inputs:in2.connect = </Looks/out/NG_out/uv_split.outputs:outy>
+                float inputs:in3.connect = </Looks/out/NG_out/uv_mix.outputs:out>
+                float inputs:in4.connect = </Looks/out/NG_out/uv_split.outputs:outx>
+                color4f outputs:out
+            }
+
+            def Shader "uv_color"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/out/NG_out/uv_split.outputs:outx>
+                float inputs:in2.connect = </Looks/out/NG_out/uv_split.outputs:outy>
+                float inputs:in3.connect = </Looks/out/NG_out/uv_mix.outputs:out>
+                color3f outputs:out
+            }
+
+            def Shader "uv_color_hot"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1 = 0.95
+                float inputs:in2.connect = </Looks/out/NG_out/uv_split.outputs:outx>
+                float inputs:in3 = 0.2
+                color3f outputs:out
+            }
+
+            def Shader "uv_color_cool"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1 = 0.1
+                float inputs:in2.connect = </Looks/out/NG_out/uv_split.outputs:outy>
+                float inputs:in3 = 0.8
+                color3f outputs:out
+            }
+
+            def Shader "temp_driver"
+            {
+                uniform token info:id = "ND_add_float"
+                float inputs:in1 = 2500
+                float inputs:in2 = 4000
+                float outputs:out
+            }
+
+            def Shader "ior_driver"
+            {
+                uniform token info:id = "ND_add_float"
+                float inputs:in1 = 1.1
+                float inputs:in2.connect = </Looks/out/NG_out/uv_mul.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "uv_rotate"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/out/NG_out/uv_mix.outputs:out>
+                float inputs:in2 = 0.785398
+                float outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_out_color4"
+                color4f inputs:fg.connect = </Looks/out/NG_out/uv_color4.outputs:out>
+                color4f inputs:bg = (0.1, 0.55, 0.8, 0.65)
+                float inputs:mix.connect = </Looks/out/NG_out/uv_split.outputs:outy>
+                color4f outputs:out
+            }
+
+            def Shader "sep4_0"
+            {
+                uniform token info:id = "ND_separate4_color4"
+                color4f inputs:in.connect = </Looks/out/NG_out/node_under_test.outputs:out>
+                float outputs:outa
+                float outputs:outb
+                float outputs:outg
+                float outputs:outr
+            }
+
+            def Shader "result_rgb"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/out/NG_out/sep4_0.outputs:outr>
+                float inputs:in2.connect = </Looks/out/NG_out/sep4_0.outputs:outg>
+                float inputs:in3.connect = </Looks/out/NG_out/sep4_0.outputs:outb>
+                color3f outputs:out
+            }
+
+            def Shader "result_alpha"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/out/NG_out/sep4_0.outputs:outa>
+                float inputs:in2.connect = </Looks/out/NG_out/sep4_0.outputs:outa>
+                float inputs:in3.connect = </Looks/out/NG_out/sep4_0.outputs:outa>
+                color3f outputs:out
+            }
+
+            def Shader "final_color"
+            {
+                uniform token info:id = "ND_ifgreater_color3"
+                color3f inputs:in1.connect = </Looks/out/NG_out/result_rgb.outputs:out>
+                color3f inputs:in2.connect = </Looks/out/NG_out/result_alpha.outputs:out>
+                float inputs:value1.connect = </Looks/out/NG_out/uv_split.outputs:outy>
+                float inputs:value2 = 0.5
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/out>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/compositing/out.exr"
+        }
+    }
+}
