@@ -1,0 +1,66 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/shaderball.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "sheen_bsdf_zeltner" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/sheen_bsdf_zeltner/sheen_bsdf_zeltner.mtlx"
+                string sourceMaterial = "M_sheen_bsdf_zeltner"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/sheen_bsdf_zeltner/surface.outputs:out>
+        token outputs:surface.connect = </Looks/sheen_bsdf_zeltner/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_sheen_bsdf"
+            color3f inputs:color = (0.75, 0.12, 0.55)
+            string inputs:mode = "zeltner"
+            float inputs:roughness = 0.35
+            float inputs:weight = 1
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:bsdf.connect = </Looks/sheen_bsdf_zeltner/node_under_test.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/sheen_bsdf_zeltner>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/pbr/sheen_bsdf_zeltner.exr"
+        }
+    }
+}

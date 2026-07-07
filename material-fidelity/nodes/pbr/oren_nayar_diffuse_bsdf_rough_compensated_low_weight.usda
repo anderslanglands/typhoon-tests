@@ -1,0 +1,67 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/shaderball.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "oren_nayar_diffuse_bsdf_rough_compensated_low_weight" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/oren_nayar_diffuse_bsdf_rough_compensated_low_weight/oren_nayar_diffuse_bsdf_rough_compensated_low_weight.mtlx"
+                string sourceMaterial = "M_oren_nayar_diffuse_bsdf_rough_compensated_low_weight"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/oren_nayar_diffuse_bsdf_rough_compensated_low_weight/surface.outputs:out>
+        token outputs:surface.connect = </Looks/oren_nayar_diffuse_bsdf_rough_compensated_low_weight/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_oren_nayar_diffuse_bsdf"
+            color3f inputs:color = (0.12, 0.38, 0.9)
+            bool inputs:energy_compensation = 1
+            float3 inputs:normal = (0.35, 0, 0.93675)
+            float inputs:roughness = 1
+            float inputs:weight = 0.35
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:bsdf.connect = </Looks/oren_nayar_diffuse_bsdf_rough_compensated_low_weight/node_under_test.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/oren_nayar_diffuse_bsdf_rough_compensated_low_weight>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/pbr/oren_nayar_diffuse_bsdf_rough_compensated_low_weight.exr"
+        }
+    }
+}

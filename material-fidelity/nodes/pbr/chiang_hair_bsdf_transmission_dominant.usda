@@ -1,0 +1,72 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/shaderball.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "chiang_hair_bsdf_transmission_dominant" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/chiang_hair_bsdf_transmission_dominant/chiang_hair_bsdf_transmission_dominant.mtlx"
+                string sourceMaterial = "M_chiang_hair_bsdf_transmission_dominant"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/chiang_hair_bsdf_transmission_dominant/surface.outputs:out>
+        token outputs:surface.connect = </Looks/chiang_hair_bsdf_transmission_dominant/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_chiang_hair_bsdf"
+            float3 inputs:absorption_coefficient = (0.6, 1.2, 2)
+            float inputs:cuticle_angle = 1.2
+            float3 inputs:curve_direction = (0.707107, 0.707107, 0)
+            float inputs:ior = 1.8
+            float2 inputs:roughness_R = (0.3, 0.3)
+            float2 inputs:roughness_TRT = (0.25, 0.3)
+            float2 inputs:roughness_TT = (0.08, 0.12)
+            color3f inputs:tint_R = (0, 0, 0)
+            color3f inputs:tint_TRT = (0.8, 0.15, 0.05)
+            color3f inputs:tint_TT = (0.1, 0.6, 0.9)
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:bsdf.connect = </Looks/chiang_hair_bsdf_transmission_dominant/node_under_test.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/chiang_hair_bsdf_transmission_dominant>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/pbr/chiang_hair_bsdf_transmission_dominant.exr"
+        }
+    }
+}

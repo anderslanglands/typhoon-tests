@@ -1,0 +1,66 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/shaderball.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "burley_diffuse_bsdf_rough_low_weight_custom_normal" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/burley_diffuse_bsdf_rough_low_weight_custom_normal/burley_diffuse_bsdf_rough_low_weight_custom_normal.mtlx"
+                string sourceMaterial = "M_burley_diffuse_bsdf_rough_low_weight_custom_normal"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/burley_diffuse_bsdf_rough_low_weight_custom_normal/surface.outputs:out>
+        token outputs:surface.connect = </Looks/burley_diffuse_bsdf_rough_low_weight_custom_normal/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_burley_diffuse_bsdf"
+            color3f inputs:color = (0.85, 0.16, 0.06)
+            float3 inputs:normal = (0.35, 0, 0.93675)
+            float inputs:roughness = 1
+            float inputs:weight = 0.35
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:bsdf.connect = </Looks/burley_diffuse_bsdf_rough_low_weight_custom_normal/node_under_test.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/burley_diffuse_bsdf_rough_low_weight_custom_normal>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/pbr/burley_diffuse_bsdf_rough_low_weight_custom_normal.exr"
+        }
+    }
+}

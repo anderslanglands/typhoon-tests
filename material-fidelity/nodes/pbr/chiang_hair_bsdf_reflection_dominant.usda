@@ -1,0 +1,72 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/shaderball.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "chiang_hair_bsdf_reflection_dominant" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/chiang_hair_bsdf_reflection_dominant/chiang_hair_bsdf_reflection_dominant.mtlx"
+                string sourceMaterial = "M_chiang_hair_bsdf_reflection_dominant"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/chiang_hair_bsdf_reflection_dominant/surface.outputs:out>
+        token outputs:surface.connect = </Looks/chiang_hair_bsdf_reflection_dominant/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_chiang_hair_bsdf"
+            float3 inputs:absorption_coefficient = (0, 0, 0)
+            float inputs:cuticle_angle = 0.2
+            float3 inputs:curve_direction = (1, 0, 0)
+            float inputs:ior = 1.35
+            float2 inputs:roughness_R = (0.04, 0.08)
+            float2 inputs:roughness_TRT = (0.25, 0.25)
+            float2 inputs:roughness_TT = (0.12, 0.12)
+            color3f inputs:tint_R = (0.9, 0.35, 0.08)
+            color3f inputs:tint_TRT = (0, 0, 0)
+            color3f inputs:tint_TT = (0, 0, 0)
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:bsdf.connect = </Looks/chiang_hair_bsdf_reflection_dominant/node_under_test.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/chiang_hair_bsdf_reflection_dominant>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/pbr/chiang_hair_bsdf_reflection_dominant.exr"
+        }
+    }
+}
