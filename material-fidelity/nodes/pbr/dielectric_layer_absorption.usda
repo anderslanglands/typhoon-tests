@@ -1,0 +1,95 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/shaderball.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "dielectric_layer_absorption" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/layer_bsdf/dielectric_layer_absorption.mtlx"
+                string sourceMaterial = "M_dielectric_layer_absorption"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/dielectric_layer_absorption/surface.outputs:out>
+        token outputs:surface.connect = </Looks/dielectric_layer_absorption/surface.outputs:out>
+
+        def Shader "specular_bsdf"
+        {
+            uniform token info:id = "ND_dielectric_bsdf"
+            float2 inputs:roughness = (0, 0)
+            string inputs:scatter_mode = "R"
+            token outputs:out
+        }
+
+        def Shader "transmission_bsdf"
+        {
+            uniform token info:id = "ND_dielectric_bsdf"
+            float2 inputs:roughness = (0, 0)
+            string inputs:scatter_mode = "T"
+            token outputs:out
+        }
+
+        def Shader "interior_vdf"
+        {
+            uniform token info:id = "ND_absorption_vdf"
+            float3 inputs:absorption = (0.75, 0.35, 0.12)
+            token outputs:out
+        }
+
+        def Shader "transmission_layer"
+        {
+            uniform token info:id = "ND_layer_vdf"
+            token inputs:top.connect = </Looks/dielectric_layer_absorption/transmission_bsdf.outputs:out>
+            token inputs:base.connect = </Looks/dielectric_layer_absorption/interior_vdf.outputs:out>
+            token outputs:out
+        }
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_layer_bsdf"
+            token inputs:top.connect = </Looks/dielectric_layer_absorption/specular_bsdf.outputs:out>
+            token inputs:base.connect = </Looks/dielectric_layer_absorption/transmission_layer.outputs:out>
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:bsdf.connect = </Looks/dielectric_layer_absorption/node_under_test.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/dielectric_layer_absorption>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/pbr/dielectric_layer_absorption.exr"
+        }
+    }
+}

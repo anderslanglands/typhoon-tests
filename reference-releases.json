@@ -2131,9 +2131,9 @@
       "release": "reference-data-20260707T044516Z-b42b2f89-58118c63"
     },
     "material-fidelity/nodes/pbr": {
-      "archive": "material-fidelity--nodes--pbr--ad7a0d627a28.zip",
-      "archive_sha256": "9324c856d0aa9c7d41f05ad0299f8d77a85204ea07a49113187c27d1c39de110",
-      "archive_size": 23714693,
+      "archive": "material-fidelity--nodes--pbr--9dc525981ac5.zip",
+      "archive_sha256": "f64c4b4bcd503ee6540c0cbc9805c521e51828135f517dcec440f4000adc182e",
+      "archive_size": 25287023,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/pbr/artistic_ior.exr",
@@ -2231,6 +2231,16 @@
           "size": 785831
         },
         {
+          "path": "material-fidelity/reference/nodes/pbr/dielectric_layer_absorption.exr",
+          "sha256": "6e3e13d852176a0d70ddf491d6efe4266e76a511f335f77bcdd0ce02d4ae88b9",
+          "size": 785931
+        },
+        {
+          "path": "material-fidelity/reference/nodes/pbr/dielectric_layer_anisotropic.exr",
+          "sha256": "912aef7a7b20b14384eaabbba5fbe4bea6edc6992652d52fb0d9a7b721eb71c9",
+          "size": 785969
+        },
+        {
           "path": "material-fidelity/reference/nodes/pbr/dielectric_layer_tinted_rough.exr",
           "sha256": "67b684050804223d8e470666dae66291d90bcff8e1b58dd1fc6a2cea9c7fbf26",
           "size": 785874
@@ -2291,7 +2301,7 @@
           "size": 785894
         }
       ],
-      "release": "reference-data-20260707T193612Z-8703cc3c-71baa002"
+      "release": "reference-data-20260707T195053Z-da49cb9d-0cc0ef55"
     },
     "material-fidelity/nodes/procedurals": {
       "archive": "material-fidelity--nodes--procedurals--fb632b46b525.zip",
