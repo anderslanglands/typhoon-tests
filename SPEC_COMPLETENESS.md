@@ -8,12 +8,12 @@ The suite is deep in a few areas, but its overall node coverage is incomplete:
 
 - 178 MaterialX node families have concrete `ND_*` definitions in the current checked-out libraries.
 - Those families comprise 748 typed NodeDefs.
-- 271 of those 748 exact NodeDefs appear in the tests: 36.2%.
+- 280 of those 748 exact NodeDefs appear in the tests: 37.4%.
 - At the family level:
 
-  - 29 families are completely untested.
-  - 72 have only some typed overloads tested.
-  - 77 have every specified overload represented.
+  - 28 families are completely untested.
+  - 71 have only some typed overloads tested.
+  - 79 have every specified overload represented.
 
 These are optimistic numbers: any occurrence counted, including incidental use in a showcase graph. Direct, targeted coverage is lower.
 
@@ -42,7 +42,6 @@ Direct fixtures now cover the core diffuse/transmission/sheen/hair BSDFs, `diele
 ### Texture, convolution, shader, and material nodes
 
 - `triplanarprojection` — all six typed NodeDefs absent
-- `blur` — all six typed NodeDefs absent
 - `displacement` — both typed NodeDefs absent
 - `surface_unlit`
 - `surfacematerial`
@@ -50,6 +49,7 @@ Direct fixtures now cover the core diffuse/transmission/sheen/hair BSDFs, `diele
 
 `triplanarprojection` is particularly significant: none of its three texture axes, per-axis layers, position/normal blending, `upaxis`, filtering, animation controls, or fallback behavior is exercised.
 `latlongimage` now has a targeted fixture that maps the suite dome HDR onto the plane through the `viewdir` input.
+`blur` now has direct fixtures for all six typed variants, using the image-format PNG checker/grid texture on the plane.
 
 ### Geometry, adjustment, NPR, and helper nodes
 
@@ -68,7 +68,7 @@ Direct fixtures now cover the core diffuse/transmission/sheen/hair BSDFs, `diele
 
 | Area | Current coverage | Important omissions |
 |---|---:|---|
-| `image` | 3/6 overloads | No color4, vector2, or vector4. No meaningful layer test, unreadable/missing file fallback, channel expansion/truncation, UDIM/UVTILE/interface/host substitution, or animated sequence boundary behavior. |
+| `image` | 6/6 overloads | All typed outputs now appear, but there is still no meaningful layer test, unreadable/missing file fallback, channel expansion/truncation, UDIM/UVTILE/interface/host substitution, or animated sequence boundary behavior. |
 | `tiledimage` | 3/6 | No color4/vector2/vector4. Only a basic targeted tiling probe; no strong real-world-size, fallback, filtering, or sequence coverage. |
 | `hextiledimage` | 1/2 | Color3 is tested unusually well, but color4 is wholly absent. |
 | `heighttonormal` | 1/1 | `in` and `scale` are exercised, but no explicit custom `texcoord`. |
@@ -148,7 +148,7 @@ The tests are golden-image comparisons. The suite renders each fixture and compa
 ## Recommended priority
 
 1. Remaining PBR EDF/helper constructors, `volume`/`light`, and `surface`/`volume` constructor behavior.
-2. `triplanarprojection`, `blur`, and image fallback/layer/sequence tests.
+2. `triplanarprojection` and image fallback/layer/sequence tests.
 3. Conditional and operator overload coverage, especially `switch`, `ifequal`, `mix`, and matrix variants.
 4. Missing geometry/property, component helper, and NPR nodes.
 5. Structural conformance tests alongside image comparisons, so USD typing/default/token errors cannot pass merely because the render looks plausible.
