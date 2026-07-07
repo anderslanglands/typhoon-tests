@@ -1,2 +1,5 @@
 [reference]
 path = "reference/nodes/pbr/artistic_ior_diag_red_white_edge.exr"
+
+[test]
+suspect = true

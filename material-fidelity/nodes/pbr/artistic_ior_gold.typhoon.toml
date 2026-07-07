@@ -1,2 +1,5 @@
 [reference]
 path = "reference/nodes/pbr/artistic_ior_gold.exr"
+
+[test]
+suspect = true

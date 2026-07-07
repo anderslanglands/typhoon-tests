@@ -33,6 +33,7 @@ class SuiteConfig:
 class CaseConfig:
     skip: str | None = None
     xfail: str | None = None
+    suspect: bool = False
     flip_threshold: float | None = None
     render_output: str | None = None
     reference: str | None = None
@@ -125,6 +126,7 @@ def load_case_config(path: Path) -> CaseConfig:
     return CaseConfig(
         skip=_optional_string(test.get("skip", data.get("skip"))),
         xfail=_optional_string(test.get("xfail", data.get("xfail"))),
+        suspect=_bool(test.get("suspect", data.get("suspect")), False),
         flip_threshold=_optional_float(
             comparison.get("flip_threshold", data.get("flip_threshold"))
         ),
@@ -251,6 +253,14 @@ def _optional_float(value: Any) -> float | None:
     if isinstance(value, int | float):
         return float(value)
     raise TypeError(f"expected number, got {type(value).__name__}")
+
+
+def _bool(value: Any, default: bool) -> bool:
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    raise TypeError(f"expected bool, got {type(value).__name__}")
 
 
 def _parse_frame_value(value: str) -> FrameValue:

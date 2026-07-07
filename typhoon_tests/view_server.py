@@ -19,6 +19,7 @@ from .config import find_suite_config, format_pattern, load_suite_config_for_pat
 USDVIEW_ENDPOINT = "/__typhoon__/usdview"
 UPDATE_THRESHOLDS_ENDPOINT = "/__typhoon__/thresholds"
 UPDATE_REFERENCES_ENDPOINT = "/__typhoon__/references"
+UPDATE_SUSPECTS_ENDPOINT = "/__typhoon__/suspects"
 USD_SUFFIXES = {".usd", ".usda", ".usdc"}
 LDR_IMAGE_SUFFIXES = {".bmp", ".jpeg", ".jpg", ".png", ".tif", ".tiff"}
 IMAGE_SUFFIXES = {".exr", *LDR_IMAGE_SUFFIXES}
@@ -72,6 +73,16 @@ class TyphoonViewHandler(SimpleHTTPRequestHandler):
 
             if endpoint == UPDATE_REFERENCES_ENDPOINT:
                 result = update_references(
+                    payload,
+                    project_root=self.server.project_root,
+                    output_root=output_root,
+                    referer=self.headers.get("Referer", ""),
+                )
+                self._send_json(200, {"ok": True, **result})
+                return
+
+            if endpoint == UPDATE_SUSPECTS_ENDPOINT:
+                result = update_suspects(
                     payload,
                     project_root=self.server.project_root,
                     output_root=output_root,
@@ -283,6 +294,58 @@ def update_thresholds(
                 "key": update["key"],
                 "threshold": threshold,
                 "status": row.get("status"),
+            }
+        )
+
+    _write_run_results(run_dir, results)
+    return {"updated": len(updated_rows), "rows": updated_rows}
+
+
+def update_suspects(
+    payload: dict[str, Any],
+    *,
+    project_root: Path,
+    output_root: Path,
+    referer: str = "",
+) -> dict[str, Any]:
+    run_dir = _resolve_run_dir(payload.get("run"), output_root=output_root, referer=referer)
+    results = _read_run_results(run_dir)
+    updates = []
+
+    for item in _payload_rows(payload):
+        suite = _payload_optional_text(item, "suite")
+        key = _payload_text(item, "key")
+        suspect = _payload_bool(item, "suspect", True)
+        row = _find_report_row(results, suite=suite, key=key)
+        usd_path = _resolve_project_path(
+            _report_text(row, "usd"),
+            project_root=project_root,
+            suffixes=USD_SUFFIXES,
+            must_exist=True,
+        )
+        config_path, config_text = build_case_suspect_update(usd_path, suspect)
+        if any(update["config_path"] == config_path for update in updates):
+            raise ViewServerError(f"selected rows share suspect config: {config_path}")
+        updates.append(
+            {
+                "row": row,
+                "key": key,
+                "suspect": suspect,
+                "config_path": config_path,
+                "config_text": config_text,
+            }
+        )
+
+    updated_rows = []
+    for update in updates:
+        _write_text_atomic(update["config_path"], update["config_text"])
+        row = update["row"]
+        row["suspect"] = update["suspect"]
+        updated_rows.append(
+            {
+                "suite": row.get("suite"),
+                "key": update["key"],
+                "suspect": update["suspect"],
             }
         )
 
@@ -653,6 +716,30 @@ def build_case_threshold_update(usd_path: Path, threshold: float) -> tuple[Path,
     return config_path, format_toml(data)
 
 
+def build_case_suspect_update(usd_path: Path, suspect: bool) -> tuple[Path, str]:
+    config_path = _case_config_path(usd_path)
+    data: dict[str, Any] = {}
+    if config_path.is_file():
+        with config_path.open("rb") as file:
+            loaded = tomllib.load(file)
+        if not isinstance(loaded, dict):
+            raise ViewServerError(f"invalid case config: {config_path}")
+        data = loaded
+
+    data.pop("suspect", None)
+    test = data.setdefault("test", {})
+    if not isinstance(test, dict):
+        raise ViewServerError(f"[test] must be a table in {config_path}")
+    if suspect:
+        test["suspect"] = True
+    else:
+        test.pop("suspect", None)
+        if not test:
+            data.pop("test", None)
+
+    return config_path, format_toml(data) if data else ""
+
+
 def build_case_reference_update(
     usd_path: Path, reference_path: Path
 ) -> tuple[Path, str]:
@@ -790,6 +877,15 @@ def _payload_optional_text(payload: dict[str, Any], key: str) -> str | None:
     if "\x00" in value:
         raise ViewServerError(f"{key} is invalid")
     return value
+
+
+def _payload_bool(payload: dict[str, Any], key: str, default: bool) -> bool:
+    value = payload.get(key)
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    raise ViewServerError(f"{key} must be a boolean")
 
 
 def _report_text(row: dict[str, Any], key: str, *, fallback_key: str | None = None) -> str:

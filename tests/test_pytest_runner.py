@@ -707,12 +707,14 @@ output_pattern = "{stem}-embree.{frame:04d}.exr"
             "sections": [],
             "started_at": report[0]["started_at"],
             "status": "failed-config",
+            "suspect": False,
             "suite": "sample",
             "usd": str(usd),
         }
     ]
     assert summary["total"] == 1
     assert summary["failed"] == 1
+    assert summary["suspect"] == 0
 
 
 def test_dry_run_reports_run_directory_without_rendering(tmp_path: Path) -> None:
@@ -1129,10 +1131,46 @@ def test_suite_skip_still_applies_to_visible_case(tmp_path: Path) -> None:
     assert plugin.build_case(usd).skip == "intentional"
 
 
+def test_adjacent_case_config_marks_case_suspect(tmp_path: Path) -> None:
+    usd = write_suite(tmp_path)
+    case_config = usd.with_suffix(".typhoon.toml")
+    case_config.write_text(
+        "[test]\nsuspect = true\n",
+        encoding="utf-8",
+    )
+
+    case = plugin.build_case(usd)
+    result = plugin.run_typhoon_case(case, options(tmp_path))
+
+    assert case.suspect is True
+    assert result["status"] == "dry-run"
+    assert result["suspect"] is True
+
+    case_config.write_text(
+        "[test]\nsuspect = false\n",
+        encoding="utf-8",
+    )
+
+    assert plugin.build_case(usd).suspect is False
+
+
+def test_case_config_rejects_non_boolean_suspect(tmp_path: Path) -> None:
+    usd = write_suite(tmp_path)
+    usd.with_suffix(".typhoon.toml").write_text(
+        '[test]\nsuspect = "yes"\n',
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TypeError, match="expected bool"):
+        plugin.build_case(usd)
+
+
 def test_cases_use_builtin_default_flip_threshold(tmp_path: Path) -> None:
     usd = write_suite(tmp_path)
 
-    assert plugin.build_case(usd).flip_threshold == 0.04
+    case = plugin.build_case(usd)
+    assert case.flip_threshold == 0.04
+    assert case.suspect is False
 
 
 def test_suite_default_flip_threshold_overrides_builtin_default(tmp_path: Path) -> None:
@@ -1256,6 +1294,7 @@ def test_html_report_styles_statuses_and_makes_columns_sortable(tmp_path: Path) 
                 "suite": "sample",
                 "key": "a",
                 "status": "passed",
+                "suspect": True,
                 "comparison": "flip",
                 "flip_mean": 0.01,
                 "flip_threshold": 0.02,
@@ -1313,12 +1352,13 @@ def test_html_report_styles_statuses_and_makes_columns_sortable(tmp_path: Path) 
 
     assert parser.sort_buttons == [
         {"label": "Status", "column": "0", "type": "text", "direction": ""},
-        {"label": "Mean FLIP", "column": "1", "type": "number", "direction": ""},
-        {"label": "Threshold", "column": "2", "type": "number", "direction": ""},
-        {"label": "Render", "column": "3", "type": "text", "direction": "asc"},
-        {"label": "Images", "column": "4", "type": "number", "direction": ""},
+        {"label": "Review", "column": "1", "type": "number", "direction": ""},
+        {"label": "Mean FLIP", "column": "2", "type": "number", "direction": ""},
+        {"label": "Threshold", "column": "3", "type": "number", "direction": ""},
+        {"label": "Render", "column": "4", "type": "text", "direction": "asc"},
+        {"label": "Images", "column": "5", "type": "number", "direction": ""},
     ]
-    assert [row[3] for row in parser.rows] == [
+    assert [row[4] for row in parser.rows] == [
         "a.exr",
         "b.exr",
         "c.exr",
@@ -1327,8 +1367,10 @@ def test_html_report_styles_statuses_and_makes_columns_sortable(tmp_path: Path) 
         "f.exr",
         "g.exr",
     ]
-    assert [row[1] for row in parser.rows if row[1]] == ["0.010", "0.200"]
-    assert [row[2] for row in parser.rows if row[2]] == ["0.020", "0.250"]
+    assert [row[1] for row in parser.rows if row[1]] == ["suspect"]
+    assert [row[2] for row in parser.rows if row[2]] == ["0.010", "0.200"]
+    assert [row[3] for row in parser.rows if row[3]] == ["0.020", "0.250"]
+    assert "<strong>1</strong> suspect" in html
     assert "Mean FLIP <strong>0.105</strong>" in html
     assert "Min <strong>0.010</strong>" in html
     assert "Max <strong>0.200</strong>" in html
@@ -1483,7 +1525,7 @@ def test_html_report_groups_nested_sections_and_legacy_root_cases(tmp_path: Path
     ) in html
     assert html.count("data-select-all") == 1
     assert len(parser.rows) == 3
-    assert all(len(row) == 6 for row in parser.rows)
+    assert all(len(row) == 7 for row in parser.rows)
 
 
 
@@ -1501,6 +1543,7 @@ def test_html_report_rows_expand_with_exr_canvas_viewer(tmp_path: Path) -> None:
                 "suite": "sample",
                 "key": "case",
                 "status": "passed",
+                "suspect": True,
                 "comparison": "flip",
                 "flip_mean": 0.01,
                 "flip_threshold": 0.02,
@@ -1584,13 +1627,13 @@ def test_html_report_rows_expand_with_exr_canvas_viewer(tmp_path: Path) -> None:
         "render-only 16x zoom image",
     ]
     assert (
-        '<tr id="result-row-0" class="result-row" '
+        '<tr id="result-row-0" class="result-row suspect-row" '
         'data-detail-row="result-detail-0" '
         'data-case-id="[&quot;sample&quot;,&quot;case&quot;]" '
         'aria-expanded="false">'
     ) in html
     assert '<tr id="result-detail-0" class="result-detail-row" hidden>' in html
-    assert '<td colspan="6"><div class="detail-panel">' in html
+    assert '<td colspan="7"><div class="detail-panel">' in html
     assert '(press 1, 2, and 3 to toggle)' in html
     assert '<figcaption>16x Zoom</figcaption>' in html
     assert '<figcaption>FLIP</figcaption>' not in html
@@ -1619,8 +1662,11 @@ def test_html_report_rows_expand_with_exr_canvas_viewer(tmp_path: Path) -> None:
     assert 'data-update-reference' in html
     assert 'data-row-update-threshold' in html
     assert 'data-row-update-reference' in html
+    assert 'data-row-update-suspect' in html
+    assert 'data-suspect-target="false"' in html
     assert 'Update threshold' in html
     assert 'Update reference' in html
+    assert 'Clear suspect' in html
     assert 'canvas {' in html
 
     viewer_js = (Path(__file__).resolve().parents[1] / "typhoon_tests" / "static" / "typhoon-exr-viewer.js").read_text(
@@ -1653,6 +1699,7 @@ def test_html_report_rows_expand_with_exr_canvas_viewer(tmp_path: Path) -> None:
     assert 'data-result-select' in viewer_js
     assert 'runReportAction("/__typhoon__/thresholds"' in viewer_js
     assert 'runReportAction("/__typhoon__/references"' in viewer_js
+    assert '"/__typhoon__/suspects"' in viewer_js
 
 
 def test_nested_report_tables_sort_independently_with_detail_rows(tmp_path: Path) -> None:
@@ -1967,6 +2014,10 @@ def test_report_row_action_targets_only_its_row_and_preserves_ui_state(
         }
         const thresholdRowButton = rowButton();
         const referenceRowButton = rowButton();
+        const suspectRowButton = rowButton();
+        suspectRowButton.dataset.suspectTarget = "true";
+        const clearSuspectRowButton = rowButton();
+        clearSuspectRowButton.dataset.suspectTarget = "false";
         const sortButton = {
           dataset: { sortColumn: "2", sortDirection: "desc" },
         };
@@ -2008,6 +2059,7 @@ def test_report_row_action_targets_only_its_row_and_preserves_ui_state(
           querySelectorAll(selector) {
             if (selector === "[data-row-update-threshold]") return [thresholdRowButton];
             if (selector === "[data-row-update-reference]") return [referenceRowButton];
+            if (selector === "[data-row-update-suspect]") return [suspectRowButton, clearSuspectRowButton];
             if (selector === "[data-result-select]") return [selectedControl, rowControl];
             if (selector === "[data-result-select]:checked") return [selectedControl];
             if (selector === "table[data-sortable-table]") return [table];
@@ -2022,6 +2074,10 @@ def test_report_row_action_targets_only_its_row_and_preserves_ui_state(
         await new Promise((resolve) => setTimeout(resolve, 0));
         storageBlocked = true;
         referenceRowButton.handlers.click({ preventDefault() {}, stopPropagation() {} });
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        suspectRowButton.handlers.click({ preventDefault() {}, stopPropagation() {} });
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        clearSuspectRowButton.handlers.click({ preventDefault() {}, stopPropagation() {} });
         await new Promise((resolve) => setTimeout(resolve, 0));
         console.log(JSON.stringify({
           requests,
@@ -2075,6 +2131,40 @@ def test_report_row_action_targets_only_its_row_and_preserves_ui_state(
                     ],
                 },
             },
+            {
+                "endpoint": "/__typhoon__/suspects",
+                "body": {
+                    "run": "/run-0001/",
+                    "rows": [
+                        {
+                            "suite": "sample",
+                            "key": "target",
+                            "usd": "/target.usda",
+                            "reference": "/target.png",
+                            "render": "/target.exr",
+                            "flipMean": "0.2",
+                            "suspect": True,
+                        }
+                    ],
+                },
+            },
+            {
+                "endpoint": "/__typhoon__/suspects",
+                "body": {
+                    "run": "/run-0001/",
+                    "rows": [
+                        {
+                            "suite": "sample",
+                            "key": "target",
+                            "usd": "/target.usda",
+                            "reference": "/target.png",
+                            "render": "/target.exr",
+                            "flipMean": "0.2",
+                            "suspect": False,
+                        }
+                    ],
+                },
+            },
         ],
         "storedState": {
             "sorts": [
@@ -2091,7 +2181,7 @@ def test_report_row_action_targets_only_its_row_and_preserves_ui_state(
             "scrollY": 413,
         },
         "status": "Updated 1 row; reloading...",
-        "reloadCount": 2,
+        "reloadCount": 4,
     }
 
 
@@ -3011,6 +3101,30 @@ def test_view_server_update_endpoints_mutate_source_files_on_disk(
         assert "flip_threshold = 0.124" in threshold_config.read_text(encoding="utf-8")
 
         status, body = post(
+            view_server.UPDATE_SUSPECTS_ENDPOINT,
+            {
+                "run": "/run-0001/",
+                "rows": [
+                    {
+                        "suite": "sample",
+                        "key": "threshold-case",
+                        "suspect": True,
+                    }
+                ],
+            },
+        )
+        assert status == 200
+        assert body == {
+            "ok": True,
+            "updated": 1,
+            "rows": [{"suite": "sample", "key": "threshold-case", "suspect": True}],
+        }
+        threshold_config_text = threshold_config.read_text(encoding="utf-8")
+        assert "flip_threshold = 0.124" in threshold_config_text
+        assert "[test]" in threshold_config_text
+        assert "suspect = true" in threshold_config_text
+
+        status, body = post(
             view_server.UPDATE_REFERENCES_ENDPOINT,
             {
                 "run": "/run-0001/",
@@ -3164,6 +3278,113 @@ def test_view_server_update_thresholds_updates_case_config_and_report(tmp_path: 
     assert updated_report[2]["flip_threshold"] == 0.04
     assert updated_report[2]["status"] == "failed-threshold"
     assert "Update threshold" in (run_dir / "index.html").read_text(encoding="utf-8")
+
+
+
+def test_view_server_update_suspects_updates_case_config_and_report(tmp_path: Path) -> None:
+    output_base = tmp_path / "_output"
+    run_dir = output_base / "run-0001"
+    run_dir.mkdir(parents=True)
+    suite = tmp_path / "suite"
+    suite.mkdir()
+    (suite / "typhoon-suite.toml").write_text(
+        "[suite]\nname = \"sample\"\n", encoding="utf-8"
+    )
+    usd = suite / "case.usda"
+    usd.write_text("#usda 1.0\n", encoding="utf-8")
+    case_config = suite / "case.typhoon.toml"
+    case_config.write_text("[comparison]\nflip_threshold = 0.05\n", encoding="utf-8")
+    results = [
+        {
+            "suite": "sample",
+            "key": "case",
+            "status": "passed",
+            "usd": str(usd),
+            "render_output": str(run_dir / "case.exr"),
+            "started_at": "2026-06-30T00:00:00+00:00",
+            "suspect": False,
+        }
+    ]
+    (run_dir / "typhoon-report.json").write_text(json.dumps(results) + "\n", encoding="utf-8")
+    (run_dir / "run-summary.json").write_text(
+        json.dumps(
+            {
+                "run_name": "run-0001",
+                "run_number": 1,
+                "started_at": "2026-06-30T00:00:00+00:00",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(view_server.ViewServerError, match="suspect must be a boolean"):
+        view_server.update_suspects(
+            {
+                "run": "/run-0001/",
+                "rows": [{"suite": "sample", "key": "case", "suspect": "yes"}],
+            },
+            project_root=tmp_path,
+            output_root=output_base,
+        )
+    assert case_config.read_text(encoding="utf-8") == "[comparison]\nflip_threshold = 0.05\n"
+
+    with pytest.raises(view_server.ViewServerError, match="share suspect config"):
+        view_server.update_suspects(
+            {
+                "run": "/run-0001/",
+                "rows": [
+                    {"suite": "sample", "key": "case", "suspect": True},
+                    {"suite": "sample", "key": "case", "suspect": False},
+                ],
+            },
+            project_root=tmp_path,
+            output_root=output_base,
+        )
+    assert case_config.read_text(encoding="utf-8") == "[comparison]\nflip_threshold = 0.05\n"
+
+    result = view_server.update_suspects(
+        {
+            "run": "/run-0001/",
+            "rows": [{"suite": "sample", "key": "case", "suspect": True}],
+        },
+        project_root=tmp_path,
+        output_root=output_base,
+    )
+
+    assert result == {
+        "updated": 1,
+        "rows": [{"suite": "sample", "key": "case", "suspect": True}],
+    }
+    assert case_config.read_text(encoding="utf-8") == (
+        "[comparison]\nflip_threshold = 0.05\n\n[test]\nsuspect = true\n"
+    )
+    updated_report = json.loads((run_dir / "typhoon-report.json").read_text(encoding="utf-8"))
+    assert updated_report[0]["suspect"] is True
+    html = (run_dir / "index.html").read_text(encoding="utf-8")
+    assert "Clear suspect" in html
+    assert "suspect-badge" in html
+    assert "<strong>1</strong> suspect" in html
+
+    result = view_server.update_suspects(
+        {
+            "run": "/run-0001/",
+            "rows": [{"suite": "sample", "key": "case", "suspect": False}],
+        },
+        project_root=tmp_path,
+        output_root=output_base,
+    )
+
+    assert result == {
+        "updated": 1,
+        "rows": [{"suite": "sample", "key": "case", "suspect": False}],
+    }
+    assert case_config.read_text(encoding="utf-8") == "[comparison]\nflip_threshold = 0.05\n"
+    updated_report = json.loads((run_dir / "typhoon-report.json").read_text(encoding="utf-8"))
+    assert updated_report[0]["suspect"] is False
+    html = (run_dir / "index.html").read_text(encoding="utf-8")
+    assert "Mark suspect" in html
+    assert "<strong>0</strong> suspect" in html
 
 
 def test_view_server_update_references_copies_render_and_refreshes_report(

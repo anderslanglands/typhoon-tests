@@ -79,6 +79,7 @@ class TyphoonCase:
     sections: tuple[str, ...]
     skip: str | None
     xfail: str | None
+    suspect: bool
     flip_threshold: float | None
     frame: FrameValue | None = None
 
@@ -276,6 +277,7 @@ def build_cases(path: Path) -> list[TyphoonCase]:
             sections=sections,
             skip=skip,
             xfail=xfail,
+            suspect=case_config.suspect,
             flip_threshold=threshold,
             frame=frame,
         )
@@ -419,6 +421,7 @@ def run_typhoon_case(case: TyphoonCase, options: TyphoonOptions) -> dict[str, An
         "reference": None,
         "reference_image": None,
         "flip_threshold": case.flip_threshold,
+        "suspect": case.suspect,
         "frame": case.frame,
         "status": "pending",
         "run_number": options.run_context.run_number,
@@ -730,6 +733,7 @@ def summarize_results(context: RunContext, results: list[dict[str, Any]]) -> dic
     missing = [row for row in results if row.get("comparison") == "missing-reference"]
     failures = [row for row in results if is_failure_result(row)]
     dry_runs = [row for row in results if row.get("status") == "dry-run"]
+    suspect = [row for row in results if row.get("suspect") is True]
     summary = {
         "run_name": context.run_dir.name,
         "run_number": context.run_number,
@@ -740,6 +744,7 @@ def summarize_results(context: RunContext, results: list[dict[str, Any]]) -> dic
         "missing_references": len(missing),
         "failed": len(failures),
         "dry_run": len(dry_runs),
+        "suspect": len(suspect),
         "flip_mean": None,
         "flip_min": None,
         "flip_max": None,
@@ -1084,11 +1089,14 @@ def build_report_sections(
     def summary_stats(node: dict[str, Any]) -> str:
         rows = descendants(node)
         failed = sum(1 for row in rows if is_failure_result(row))
+        suspect = sum(1 for row in rows if row.get("suspect") is True)
         flip_values = numeric_flip_values(rows)
         count = len(rows)
         parts = [f"{count} test" + ("" if count == 1 else "s")]
         if failed:
             parts.append(f"{failed} failed")
+        if suspect:
+            parts.append(f"{suspect} suspect")
         if flip_values:
             parts.append(f"max FLIP {max(flip_values):.3f}")
         return " | ".join(parts)
@@ -1305,6 +1313,9 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
             return ""
         camera_path = row.get("camera") or discover_usd_camera(Path(str(usd_path)))
         frame = format_report_frame(row.get("frame"))
+        suspect = row.get("suspect") is True
+        suspect_label = "Clear suspect" if suspect else "Mark suspect"
+        suspect_target = "false" if suspect else "true"
         return (
             '<div class="detail-actions">'
             '<button type="button" class="usdview-button" data-usdview-open '
@@ -1315,6 +1326,9 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
             'data-row-update-threshold>Update threshold</button>'
             '<button type="button" class="report-action-button" '
             'data-row-update-reference>Update reference</button>'
+            '<button type="button" class="report-action-button" '
+            f'data-row-update-suspect data-suspect-target="{suspect_target}">'
+            f'{esc(suspect_label)}</button>'
             '<span class="usdview-status" data-detail-action-status></span>'
             '</div>'
         )
@@ -1383,6 +1397,7 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
         flip = row.get("flip_mean")
         threshold = row.get("flip_threshold")
         status = status_label(row.get("status", ""))
+        suspect = row.get("suspect") is True
         row_id = f"result-row-{index}"
         detail_id = f"result-detail-{index}"
         escaped_key = esc(row.get("key", ""))
@@ -1392,8 +1407,15 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
         render_output = rel_field(row, "render_output") or rel_field(row, "render_image")
         render_filename = Path(render_output).name if render_output else ""
         status_css = " ".join(part for part in ("status-cell", status_class(status)) if part)
+        suspect_marker = '<span class="suspect-badge">suspect</span>' if suspect else ""
+        row_class = "result-row suspect-row" if suspect else "result-row"
         cells = [
             sortable_cell(esc(status), sort_value=status, css_class=status_css),
+            sortable_cell(
+                suspect_marker,
+                sort_value="1" if suspect else "0",
+                css_class="suspect-cell",
+            ),
             sortable_cell(
                 "" if flip is None else f"{float(flip):.3f}",
                 sort_value="" if flip is None else float(flip),
@@ -1412,13 +1434,13 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
         body_rows.append(
             (
                 row,
-                f'<tr id="{row_id}" class="result-row" data-detail-row="{detail_id}" '
+                f'<tr id="{row_id}" class="{row_class}" data-detail-row="{detail_id}" '
                 f'data-case-id="{escaped_case_id}" '
                 f'aria-expanded="false">'
                 + "".join(cells)
                 + "</tr>"
                 + f'<tr id="{detail_id}" class="result-detail-row" hidden>'
-                + f'<td colspan="6"><div class="detail-panel">{detail_content}</div></td>'
+                + f'<td colspan="7"><div class="detail-panel">{detail_content}</div></td>'
                 + "</tr>"
             )
         )
@@ -1426,10 +1448,11 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
     headers = "".join(
         [
             sortable_header("Status", 0),
-            sortable_header("Mean FLIP", 1, "number"),
-            sortable_header("Threshold", 2, "number"),
-            sortable_header("Render", 3, sort_direction="asc"),
-            sortable_header("Images", 4, "number"),
+            sortable_header("Review", 1, "number"),
+            sortable_header("Mean FLIP", 2, "number"),
+            sortable_header("Threshold", 3, "number"),
+            sortable_header("Render", 4, sort_direction="asc"),
+            sortable_header("Images", 5, "number"),
             (
                 '<th class="select-header">'
                 '<label>Select <input type="checkbox" data-select-all></label>'
@@ -1495,6 +1518,9 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
     tr.result-row:hover td:not(.status-cell) {{ background: #202020; }}
     tr.result-row[aria-expanded="true"] td {{ border-bottom-color: #4a4a4a; }}
     .result-detail-row td {{ padding: 0 10px 18px; background: #101010; border-bottom: 1px solid #3a3a3a; }}
+    .suspect-row td:not(.status-cell) {{ background: #1f1d15; }}
+    .suspect-cell {{ white-space: nowrap; }}
+    .suspect-badge {{ display: inline-block; padding: 2px 7px; border: 1px solid var(--ty-yellow-bright); color: var(--ty-yellow-bright); background: rgba(253, 194, 83, 0.12); border-radius: 999px; font-size: 12px; font-weight: 700; line-height: 1.3; }}
     .detail-panel {{ padding-top: 16px; }}
     .detail-actions {{ display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }}
     .usdview-button {{ appearance: none; border: 1px solid #4a5568; background: #243244; color: #e5f0ff; border-radius: 4px; padding: 7px 10px; font: inherit; cursor: pointer; }}
@@ -1516,7 +1542,7 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
     .pixel-readout th, .pixel-readout td {{ padding: 5px 6px; border-bottom: 1px solid #303030; word-break: break-word; }}
     .pixel-readout th:first-child {{ width: 72px; }}
     .exr-status {{ min-height: 20px; margin-top: 8px; color: #fca5a5; }}
-    td:nth-child(4) {{ word-break: break-all; color: #bbb; }}
+    td:nth-child(5) {{ word-break: break-all; color: #bbb; }}
     .select-header label {{ display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }}
     .select-cell {{ text-align: center; vertical-align: middle; }}
     .selection-actions {{ display: inline-flex; align-items: center; gap: 8px; }}
@@ -1561,6 +1587,7 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
       <span class="top-nav-stat"><strong>{summary['total']}</strong> rendered</span>
       <span class="top-nav-stat"><strong>{summary['missing_references']}</strong> missing refs</span>
       <span class="top-nav-stat"><strong>{summary['failed']}</strong> failed</span>
+      <span class="top-nav-stat"><strong>{summary.get('suspect', 0)}</strong> suspect</span>
       <span class="top-nav-stat">Mean FLIP <strong>{nav_flip_mean}</strong></span>
       <span class="top-nav-stat">Min <strong>{nav_flip_min}</strong></span>
       <span class="top-nav-stat">Max <strong>{nav_flip_max}</strong></span>

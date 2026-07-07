@@ -798,7 +798,7 @@ function initializeSelectionControls() {
       runReportAction("/__typhoon__/references", referenceButton, "Updating references");
     });
   }
-  const initializeRowAction = (selector, endpoint, actionLabel) => {
+  const initializeRowAction = (selector, endpoint, actionLabel, prepareRow = (row) => row) => {
     for (const button of document.querySelectorAll(selector)) {
       button.addEventListener("click", (event) => {
         event.preventDefault();
@@ -809,11 +809,13 @@ function initializeSelectionControls() {
         if (!control) return;
         const status = button.closest(".detail-actions")
           ?.querySelector("[data-detail-action-status]");
+        const row = prepareRow(reportRowFromControl(control), button);
+        const label = typeof actionLabel === "function" ? actionLabel(button) : actionLabel;
         runReportAction(
           endpoint,
           button,
-          actionLabel,
-          [reportRowFromControl(control)],
+          label,
+          [row],
           status,
         );
       });
@@ -828,6 +830,15 @@ function initializeSelectionControls() {
     "[data-row-update-reference]",
     "/__typhoon__/references",
     "Updating reference",
+  );
+  initializeRowAction(
+    "[data-row-update-suspect]",
+    "/__typhoon__/suspects",
+    (button) => button.dataset.suspectTarget === "true" ? "Marking suspect" : "Clearing suspect",
+    (row, button) => ({
+      ...row,
+      suspect: button.dataset.suspectTarget === "true",
+    }),
   );
   updateSelectionControls();
 }
