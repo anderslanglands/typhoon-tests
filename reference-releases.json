@@ -2462,10 +2462,40 @@
       "release": "reference-data-20260707T041914Z-8363eb47-32321cb7"
     },
     "material-fidelity/nodes/textures": {
-      "archive": "material-fidelity--nodes--textures--5c7c0e84c735.zip",
-      "archive_sha256": "0341a80e6d50fbec6883667c419ff65aec238cb2e960eb2a089dc6dc0a38dbbd",
-      "archive_size": 42541605,
+      "archive": "material-fidelity--nodes--textures--d8a5dfdcd275.zip",
+      "archive_sha256": "1a0f8c6953ca9c5cbc330c65ecf68d9f8659a4242f1e36e65bdb452dd80a791c",
+      "archive_size": 46063333,
       "files": [
+        {
+          "path": "material-fidelity/reference/nodes/textures/blur_color3.exr",
+          "sha256": "0b4d1202be293487f8e7f425db1c5edf8eca29673dd2a91123ddc9ff4d8aaae0",
+          "size": 713847
+        },
+        {
+          "path": "material-fidelity/reference/nodes/textures/blur_color4.exr",
+          "sha256": "0b4d1202be293487f8e7f425db1c5edf8eca29673dd2a91123ddc9ff4d8aaae0",
+          "size": 713847
+        },
+        {
+          "path": "material-fidelity/reference/nodes/textures/blur_float.exr",
+          "sha256": "1d1999702b097df2437b2b5294d94a503e3e765bc80f2f4113ceff9b8bd0d10d",
+          "size": 290644
+        },
+        {
+          "path": "material-fidelity/reference/nodes/textures/blur_vector2.exr",
+          "sha256": "e932618b9b5b4ab3522c6b0f87306efa757e07005a3a59f52a82dc5c507f7c70",
+          "size": 479650
+        },
+        {
+          "path": "material-fidelity/reference/nodes/textures/blur_vector3.exr",
+          "sha256": "92d76de0d6dfcf2a800981abfd8b25f95ff32ac5d1b105061b94066f101e3900",
+          "size": 661292
+        },
+        {
+          "path": "material-fidelity/reference/nodes/textures/blur_vector4.exr",
+          "sha256": "92d76de0d6dfcf2a800981abfd8b25f95ff32ac5d1b105061b94066f101e3900",
+          "size": 661292
+        },
         {
           "path": "material-fidelity/reference/nodes/textures/gltf_normalmap_defaults.exr",
           "sha256": "a43da6c94a34ed64b9ca5e2f82f979611e5b34c8c49d7e4c9b53050bb10d99bb",
@@ -2697,7 +2727,7 @@
           "size": 785898
         }
       ],
-      "release": "reference-data-20260707T221420Z-d57825b6-fc436bc4"
+      "release": "reference-data-20260707T231155Z-ad0a37cf-be8a9b73"
     },
     "material-fidelity/showcase/gltf_pbr": {
       "archive": "material-fidelity--showcase--gltf_pbr--83056fd801db.zip",
