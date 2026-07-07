@@ -14,10 +14,44 @@ import pytest
 from typhoon_tests.images import (
     compare_images,
     linear_to_srgb,
+    resize_rgb,
     write_rgb_exr,
     write_scalar_exr_as_rgb,
 )
 
+
+def test_resize_rgb_uses_bilinear_upscaling_and_area_downscaling() -> None:
+    two_pixels = np.array([[[1.0, 0.0, 0.0], [0.0, 0.0, 1.0]]], dtype=np.float32)
+
+    upscaled = resize_rgb(two_pixels, 2, 4)
+
+    assert upscaled.shape == (2, 4, 3)
+    np.testing.assert_allclose(
+        upscaled,
+        np.array(
+            [
+                [[1.0, 0.0, 0.0], [0.75, 0.0, 0.25], [0.25, 0.0, 0.75], [0.0, 0.0, 1.0]],
+                [[1.0, 0.0, 0.0], [0.75, 0.0, 0.25], [0.25, 0.0, 0.75], [0.0, 0.0, 1.0]],
+            ],
+            dtype=np.float32,
+        ),
+    )
+
+    four_pixels = np.array(
+        [[[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0], [1.0, 1.0, 1.0]]],
+        dtype=np.float32,
+    )
+
+    downscaled = resize_rgb(four_pixels, 1, 1)
+
+    np.testing.assert_allclose(downscaled, [[[0.5, 0.5, 0.5]]])
+
+
+    fractional_source = np.arange(21 * 3, dtype=np.float32).reshape(1, 21, 3)
+    fractional = resize_rgb(fractional_source, 1, 19)
+
+    assert fractional.shape == (1, 19, 3)
+    assert np.isfinite(fractional).all()
 
 def test_write_rgb_exr_round_trips_float_pixels_with_flip_loader(tmp_path) -> None:
     import flip_evaluator
@@ -196,6 +230,85 @@ def test_compare_images_runs_flip_on_float_data_and_writes_exr_diff(
         np.array([[[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]], dtype=np.float32),
     )
     assert not (tmp_path / "artifacts" / "render").exists()
+
+
+def test_compare_images_resizes_render_in_memory_before_flip(
+    tmp_path, monkeypatch
+) -> None:
+    reference_path = tmp_path / "reference.exr"
+    render_path = tmp_path / "render.exr"
+    reference_path.write_bytes(b"reference-file")
+    render_path.write_bytes(b"render-file")
+    loaded = {
+        str(reference_path): np.zeros((2, 3, 3), dtype=np.float32),
+        str(render_path): np.array([[[0.25, 0.5, 0.75]]], dtype=np.float32),
+    }
+    captured = {}
+
+    def load(path: str) -> np.ndarray:
+        return loaded[path]
+
+    def evaluate(
+        reference: np.ndarray,
+        test: np.ndarray,
+        dynamic_range: str,
+        *,
+        inputsRGB: bool,
+        applyMagma: bool,
+        computeMeanError: bool,
+    ):
+        captured.update(reference=reference.copy(), test=test.copy())
+        return np.zeros((1, 1, 1), dtype=np.float32), 0.0, {}
+
+    monkeypatch.setitem(
+        sys.modules,
+        "flip_evaluator",
+        SimpleNamespace(load=load, evaluate=evaluate),
+    )
+
+    comparison = compare_images(
+        reference_path=reference_path,
+        render_path=render_path,
+        artifact_dir=tmp_path / "artifacts",
+        key="case",
+    )
+
+    assert captured["reference"].shape == (1, 1, 3)
+    assert captured["test"].shape == (1, 1, 3)
+    np.testing.assert_allclose(captured["test"], [[[0.25, 0.5, 0.75]]])
+    assert comparison.flip_mean == 0.0
+    assert comparison.render_image == render_path
+    assert render_path.read_bytes() == b"render-file"
+
+
+def test_compare_images_writes_lower_common_resolution_flip_exr(tmp_path) -> None:
+    flip_evaluator = pytest.importorskip("flip_evaluator")
+    reference_path = tmp_path / "reference.exr"
+    render_path = tmp_path / "render.exr"
+    y, x = np.mgrid[0:5, 0:7]
+    reference = np.stack(
+        [x / 6.0, y / 4.0, (x + y) / 10.0], axis=-1
+    ).astype(np.float32)
+    render = resize_rgb(reference, 3, 4)
+    write_rgb_exr(reference_path, reference)
+    write_rgb_exr(render_path, render)
+    reference_bytes = reference_path.read_bytes()
+    render_bytes = render_path.read_bytes()
+
+    comparison = compare_images(
+        reference_path=reference_path,
+        render_path=render_path,
+        artifact_dir=tmp_path / "artifacts",
+        key="fractional",
+    )
+
+    diff = np.asarray(
+        flip_evaluator.load(str(comparison.diff_exr)), dtype=np.float32
+    )[..., :3]
+    assert diff.shape == (3, 4, 3)
+    assert comparison.flip_mean == pytest.approx(0.0, abs=1.0e-7)
+    assert reference_path.read_bytes() == reference_bytes
+    assert render_path.read_bytes() == render_bytes
 
 
 def test_near_black_hdr_comparisons_use_explicit_exposure_range(

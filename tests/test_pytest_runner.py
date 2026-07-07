@@ -1626,7 +1626,9 @@ def test_html_report_rows_expand_with_exr_canvas_viewer(tmp_path: Path) -> None:
     viewer_js = (Path(__file__).resolve().parents[1] / "typhoon_tests" / "static" / "typhoon-exr-viewer.js").read_text(
         encoding="utf-8"
     )
-    assert 'loadImageSource(viewer.dataset.referenceSrc, "linear")' in viewer_js
+    assert "loadReferenceSource(referenceSrc)" in viewer_js
+    assert 'const render = renderAtReferenceSize(renderSource, reference);' in viewer_js
+    assert 'state.render = renderAtReferenceSize(state.renderSource, state.reference);' in viewer_js
     assert 'loadImageSource(viewer.dataset.flipSrc, "magma")' in viewer_js
     assert 'function magmaColor(value)' in viewer_js
     assert 'image?.transfer === "magma" ? formatFloat(values[0])' in viewer_js
@@ -2143,6 +2145,231 @@ def test_exr_viewer_applies_magma_to_scalar_flip_values(tmp_path: Path) -> None:
     assert result["magma"] == pytest.approx([0.716387, 0.214982, 0.47529])
 
 
+def test_exr_viewer_scales_render_to_reference_dimensions(tmp_path: Path) -> None:
+    if shutil.which("node") is None:
+        pytest.skip("node is required to validate the browser EXR viewer helpers")
+
+    viewer_js = (
+        Path(__file__).resolve().parents[1]
+        / "typhoon_tests"
+        / "static"
+        / "typhoon-exr-viewer.js"
+    )
+    viewer_module = tmp_path / "typhoon-exr-viewer.mjs"
+    viewer_module.write_text(viewer_js.read_text(encoding="utf-8"), encoding="utf-8")
+    script = tmp_path / "viewer-resize-test.mjs"
+    script.write_text(
+        """
+        import { pathToFileURL } from 'node:url';
+        globalThis.window = {};
+        globalThis.document = {
+          documentElement: { style: { setProperty() {} } },
+          baseURI: 'file:///',
+          querySelector: () => null,
+          querySelectorAll: () => [],
+          getElementById: () => null,
+          addEventListener: () => {},
+        };
+        const viewer = await import(pathToFileURL(process.argv[2]).href);
+        const sourcePixels = new Float32Array([
+          1, 0, 0,
+          0, 0, 1,
+        ]);
+        const render = {
+          src: 'render.exr', width: 2, height: 1,
+          pixels: sourcePixels, transfer: 'linear',
+        };
+        const reference = {
+          src: 'reference.exr', width: 4, height: 2,
+          pixels: new Float32Array(4 * 2 * 3), transfer: 'linear',
+        };
+        const resized = viewer.renderAtReferenceSize(render, reference);
+        const unchanged = viewer.renderAtReferenceSize(render, {
+          width: 2, height: 1,
+        });
+        const aspectChanged = viewer.renderAtReferenceSize(render, {
+          width: 1, height: 2,
+        });
+        const highResolution = {
+          src: 'large.exr', width: 4, height: 1,
+          pixels: new Float32Array([
+            1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1,
+          ]), transfer: 'linear',
+        };
+        const areaFiltered = viewer.renderAtReferenceSize(highResolution, {
+          width: 1, height: 1,
+        });
+        console.log(JSON.stringify({
+          width: resized.width,
+          height: resized.height,
+          pixels: Array.from(resized.pixels),
+          sourcePixels: Array.from(sourcePixels),
+          sourceIdentityPreserved: unchanged === render,
+          transfer: resized.transfer,
+          aspectWidth: aspectChanged.width,
+          aspectHeight: aspectChanged.height,
+          aspectPixels: Array.from(aspectChanged.pixels),
+          areaFilteredPixels: Array.from(areaFiltered.pixels),
+          src: resized.src,
+        }));
+        """,
+        encoding="utf-8",
+    )
+
+    completed = subprocess.run(
+        ["node", str(script), str(viewer_module)],
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+
+    result = json.loads(completed.stdout)
+    assert result["width"] == 4
+    assert result["height"] == 2
+    assert result["pixels"] == pytest.approx(
+        [1, 0, 0, 0.75, 0, 0.25, 0.25, 0, 0.75, 0, 0, 1] * 2
+    )
+    assert result["sourcePixels"] == [1, 0, 0, 0, 0, 1]
+    assert result["sourceIdentityPreserved"] is True
+    assert result["aspectWidth"] == 1
+    assert result["aspectHeight"] == 2
+    assert result["aspectPixels"] == pytest.approx(
+        [0.5, 0, 0.5, 0.5, 0, 0.5]
+    )
+    assert result["areaFilteredPixels"] == pytest.approx([0.5, 0.5, 0.5])
+    assert result["transfer"] == "linear"
+    assert result["src"] == "render.exr"
+
+
+def test_exr_viewer_shows_render_when_initial_reference_fails(tmp_path: Path) -> None:
+    if shutil.which("node") is None:
+        pytest.skip("node is required to validate the browser EXR viewer runtime")
+
+    viewer_js = (
+        Path(__file__).resolve().parents[1]
+        / "typhoon_tests"
+        / "static"
+        / "typhoon-exr-viewer.js"
+    )
+    viewer_module = tmp_path / "typhoon-exr-viewer.mjs"
+    viewer_module.write_text(viewer_js.read_text(encoding="utf-8"), encoding="utf-8")
+    script = tmp_path / "viewer-reference-failure-test.mjs"
+    script.write_text(
+        """
+        import { pathToFileURL } from 'node:url';
+
+        class FakeImage {
+          constructor() {
+            this.naturalWidth = 3;
+            this.naturalHeight = 2;
+          }
+          set src(value) {
+            queueMicrotask(() => {
+              if (value.includes('missing')) this.onerror();
+              else this.onload();
+            });
+          }
+        }
+
+        function makeDecodeCanvas() {
+          const canvas = { width: 0, height: 0 };
+          canvas.getContext = () => ({
+            drawImage() {},
+            getImageData() {
+              const data = new Uint8ClampedArray(canvas.width * canvas.height * 4);
+              for (let index = 0; index < data.length; index += 4) {
+                data[index] = 128;
+                data[index + 1] = 64;
+                data[index + 2] = 32;
+                data[index + 3] = 255;
+              }
+              return { data };
+            },
+          });
+          return canvas;
+        }
+
+        function makeDisplayCanvas() {
+          return {
+            width: 0,
+            height: 0,
+            addEventListener() {},
+            getContext() {
+              return {
+                createImageData: (width, height) => ({
+                  data: new Uint8ClampedArray(width * height * 4),
+                }),
+                putImageData() {},
+                strokeRect() {},
+              };
+            },
+          };
+        }
+
+        globalThis.Image = FakeImage;
+        globalThis.window = {};
+        globalThis.document = {
+          documentElement: { style: { setProperty() {} } },
+          baseURI: 'file:///',
+          createElement: () => makeDecodeCanvas(),
+          querySelector: () => null,
+          querySelectorAll: () => [],
+          getElementById: () => null,
+          addEventListener: () => {},
+        };
+        const module = await import(pathToFileURL(process.argv[2]).href);
+        const status = { textContent: '' };
+        const mainCanvas = makeDisplayCanvas();
+        const zoomCanvas = makeDisplayCanvas();
+        const elements = new Map([
+          ['[data-exr-status]', status],
+          ['[data-main-canvas]', mainCanvas],
+          ['[data-zoom-canvas]', zoomCanvas],
+        ]);
+        const viewer = {
+          dataset: {
+            referenceSrc: 'missing.png',
+            renderSrc: 'render.png',
+            flipSrc: '',
+          },
+          querySelector: (selector) => elements.get(selector) || null,
+        };
+
+        await module.initializeViewer(viewer);
+        console.log(JSON.stringify({
+          activeName: viewer._typhoonExrState.activeName,
+          reference: viewer._typhoonExrState.reference,
+          renderWidth: viewer._typhoonExrState.render.width,
+          renderHeight: viewer._typhoonExrState.render.height,
+          canvasWidth: mainCanvas.width,
+          canvasHeight: mainCanvas.height,
+          status: status.textContent,
+        }));
+        """,
+        encoding="utf-8",
+    )
+
+    completed = subprocess.run(
+        ["node", str(script), str(viewer_module)],
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+
+    result = json.loads(completed.stdout)
+    assert result == {
+        "activeName": "render",
+        "reference": None,
+        "renderWidth": 3,
+        "renderHeight": 2,
+        "canvasWidth": 3,
+        "canvasHeight": 2,
+        "status": "failed to load missing.png",
+    }
+
+
 def test_exr_viewer_keyboard_three_selects_flip_in_main_canvas(tmp_path: Path) -> None:
     if shutil.which("node") is None:
         pytest.skip("node is required to validate the browser EXR viewer runtime")
@@ -2215,7 +2442,7 @@ def test_exr_viewer_keyboard_three_selects_flip_in_main_canvas(tmp_path: Path) -
             flip: makeImage([0.5, 0.5, 0.5], 'magma'),
             active: null,
             activeName: 'reference',
-            pointer: [0, 0],
+            pointer: [3, 4],
           },
           addEventListener: (name, handler) => viewerListeners.set(name, handler),
           querySelector: (selector) => elements.get(selector) || null,
@@ -2252,6 +2479,7 @@ def test_exr_viewer_keyboard_three_selects_flip_in_main_canvas(tmp_path: Path) -
           activeSrgb: elements.get('[data-pixel-srgb="active"]').textContent,
           mainPixel: mainCanvas.puts.at(-1),
           zoomPixel: zoomCanvas.puts.at(-1),
+          pointer: fakeViewer._typhoonExrState.pointer,
           prevented,
         }));
         """,
@@ -2274,6 +2502,7 @@ def test_exr_viewer_keyboard_three_selects_flip_in_main_canvas(tmp_path: Path) -
         "activeSrgb": "183  55  121",
         "mainPixel": [183, 55, 121, 255],
         "zoomPixel": [183, 55, 121, 255],
+        "pointer": [0, 0],
         "prevented": True,
     }
 

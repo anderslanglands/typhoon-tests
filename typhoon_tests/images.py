@@ -35,19 +35,20 @@ def compare_images(
 
     reference_rgb = read_rgb(flip_evaluator, reference_path)
     render_rgb = read_rgb(flip_evaluator, render_path)
+    comparison_height = min(reference_rgb.shape[0], render_rgb.shape[0])
+    comparison_width = min(reference_rgb.shape[1], render_rgb.shape[1])
+    reference_rgb = resize_rgb(
+        reference_rgb, comparison_height, comparison_width
+    )
+    render_rgb = resize_rgb(
+        render_rgb, comparison_height, comparison_width
+    )
     reference_for_flip, render_for_flip, dynamic_range = comparison_inputs(
         reference_path,
         reference_rgb,
         render_path,
         render_rgb,
     )
-
-    if reference_for_flip.shape[:2] != render_for_flip.shape[:2]:
-        raise RuntimeError(
-            "resolution mismatch for "
-            f"{key}: reference {reference_for_flip.shape[:2]} "
-            f"render {render_for_flip.shape[:2]}"
-        )
 
     evaluate_kwargs = {
         "inputsRGB": True,
@@ -185,6 +186,59 @@ def flip_evaluation_parameters(
     if float(combined.max()) <= DARK_HDR_EXPOSURE_MAX:
         return dict(DARK_HDR_FLIP_PARAMETERS)
     return {}
+
+
+def resize_rgb(pixels: np.ndarray, height: int, width: int) -> np.ndarray:
+    image = np.asarray(pixels, dtype=np.float32)
+    if image.shape[:2] == (height, width):
+        return image
+    if height < 1 or width < 1 or image.shape[0] < 1 or image.shape[1] < 1:
+        raise ValueError("cannot resize an empty image")
+    resized = _resize_axis(image, width, axis=1)
+    return np.ascontiguousarray(_resize_axis(resized, height, axis=0), dtype=np.float32)
+
+
+def _resize_axis(pixels: np.ndarray, target_size: int, *, axis: int) -> np.ndarray:
+    source = np.moveaxis(pixels, axis, 0)
+    source_size = source.shape[0]
+    if target_size == source_size:
+        return pixels
+
+    if target_size > source_size:
+        positions = (
+            (np.arange(target_size, dtype=np.float32) + 0.5)
+            * source_size
+            / target_size
+            - 0.5
+        )
+        source0 = np.floor(positions).astype(np.intp)
+        index0 = np.clip(source0, 0, source_size - 1)
+        index1 = np.clip(source0 + 1, 0, source_size - 1)
+        mix = np.clip(positions - source0, 0.0, 1.0)
+        resized = source[index0].copy()
+        interpolate = (index0 != index1) & (mix > 0.0) & (mix < 1.0)
+        if np.any(interpolate):
+            shaped_mix = mix[interpolate].reshape(
+                (-1,) + (1,) * (source.ndim - 1)
+            )
+            resized[interpolate] = (
+                source[index0[interpolate]] * (1.0 - shaped_mix)
+                + source[index1[interpolate]] * shaped_mix
+            )
+        resized[mix >= 1.0] = source[index1[mix >= 1.0]]
+    else:
+        resized = np.empty((target_size, *source.shape[1:]), dtype=np.float32)
+        scale = source_size / target_size
+        for target_index in range(target_size):
+            start = target_index * scale
+            end = min(source_size, (target_index + 1) * scale)
+            first = max(0, int(np.floor(start)))
+            stop = min(source_size, int(np.ceil(end)))
+            indices = np.arange(first, stop, dtype=np.intp)
+            weights = np.minimum(end, indices + 1) - np.maximum(start, indices)
+            weights = weights / (end - start)
+            resized[target_index] = np.tensordot(weights, source[indices], axes=(0, 0))
+    return np.moveaxis(resized, 0, axis)
 
 
 def read_rgb(flip_evaluator: object, path: Path) -> np.ndarray:

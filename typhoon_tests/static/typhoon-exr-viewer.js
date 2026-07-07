@@ -149,6 +149,73 @@ function srgbBytesFor(image, r, g, b) {
   return [toByte(linearToSrgb(r)), toByte(linearToSrgb(g)), toByte(linearToSrgb(b))];
 }
 
+function axisContributions(sourceSize, targetSize, targetIndex) {
+  if (targetSize < sourceSize) {
+    const start = targetIndex * sourceSize / targetSize;
+    const end = (targetIndex + 1) * sourceSize / targetSize;
+    const span = end - start;
+    const contributions = [];
+    for (let sourceIndex = Math.floor(start); sourceIndex < Math.ceil(end); sourceIndex += 1) {
+      const overlap = Math.min(end, sourceIndex + 1) - Math.max(start, sourceIndex);
+      if (overlap > 0) contributions.push([sourceIndex, overlap / span]);
+    }
+    return contributions;
+  }
+  if (targetSize === sourceSize) return [[targetIndex, 1]];
+
+  const source = (targetIndex + 0.5) * sourceSize / targetSize - 0.5;
+  const source0 = Math.floor(source);
+  const index0 = Math.max(0, Math.min(sourceSize - 1, source0));
+  const index1 = Math.max(0, Math.min(sourceSize - 1, source0 + 1));
+  if (index0 === index1) return [[index0, 1]];
+  const mix = Math.max(0, Math.min(1, source - source0));
+  return [[index0, 1 - mix], [index1, mix]];
+}
+
+function resizeDecodedImage(image, width, height) {
+  if (!image || image.width === width && image.height === height) return image;
+  if (width < 1 || height < 1 || image.width < 1 || image.height < 1) return image;
+
+  const pixels = new Float32Array(width * height * 3);
+  const xContributions = Array.from(
+    { length: width }, (_, x) => axisContributions(image.width, width, x)
+  );
+  const yContributions = Array.from(
+    { length: height }, (_, y) => axisContributions(image.height, height, y)
+  );
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const destination = (y * width + x) * 3;
+      for (let channel = 0; channel < 3; channel += 1) {
+        let value = 0;
+        for (const [sourceY, yWeight] of yContributions[y]) {
+          for (const [sourceX, xWeight] of xContributions[x]) {
+            value += image.pixels[
+              (sourceY * image.width + sourceX) * 3 + channel
+            ] * xWeight * yWeight;
+          }
+        }
+        pixels[destination + channel] = value;
+      }
+    }
+  }
+  return { ...image, width, height, pixels };
+}
+
+function renderAtReferenceSize(render, reference) {
+  if (!render || !reference) return render;
+  return resizeDecodedImage(render, reference.width, reference.height);
+}
+
+async function loadReferenceSource(src) {
+  if (!src) return { image: null, error: null };
+  try {
+    return { image: await loadImageSource(src, "linear"), error: null };
+  } catch (error) {
+    return { image: null, error };
+  }
+}
+
 function drawDecoded(canvas, image) {
   if (!image) return;
   canvas.width = image.width;
@@ -346,6 +413,33 @@ function pointerPixel(canvas, image, event) {
   return [x, y];
 }
 
+function reconcileViewerImages(state) {
+  state.renderSource ||= state.render;
+  state.render = renderAtReferenceSize(state.renderSource, state.reference);
+  let active = state[state.activeName];
+  if (!active) {
+    if (state.reference) state.activeName = "reference";
+    else if (state.render) state.activeName = "render";
+    else state.activeName = "flip";
+    active = state[state.activeName];
+  }
+  state.active = active || null;
+}
+
+function redrawViewer(viewer, state) {
+  if (!state.active) return;
+  state.pointer = [
+    Math.max(0, Math.min(state.active.width - 1, state.pointer[0])),
+    Math.max(0, Math.min(state.active.height - 1, state.pointer[1])),
+  ];
+  const mainCanvas = viewer.querySelector("[data-main-canvas]");
+  const zoomCanvas = viewer.querySelector("[data-zoom-canvas]");
+  drawDecoded(mainCanvas, state.active);
+  drawZoom(zoomCanvas, state.active, state.pointer[0], state.pointer[1]);
+  updatePixelReadout(viewer, state, state.pointer[0], state.pointer[1]);
+  updateViewerLabels(viewer, state);
+}
+
 async function initializeViewer(viewer) {
   if (viewer.dataset.exrInitialized === "true") return;
   viewer.dataset.exrInitialized = "true";
@@ -357,13 +451,22 @@ async function initializeViewer(viewer) {
 
   try {
     if (status) status.textContent = "Loading EXRs...";
-    const [reference, render, flip] = await Promise.all([
-      viewer.dataset.referenceSrc ? loadImageSource(viewer.dataset.referenceSrc, "linear") : Promise.resolve(null),
+    let referenceSrc = viewer.dataset.referenceSrc || "";
+    const [initialReferenceResult, renderSource, flip] = await Promise.all([
+      loadReferenceSource(referenceSrc),
       viewer.dataset.renderSrc ? loadImageSource(viewer.dataset.renderSrc, "linear") : Promise.resolve(null),
       viewer.dataset.flipSrc ? loadImageSource(viewer.dataset.flipSrc, "magma") : Promise.resolve(null),
     ]);
+    let referenceResult = initialReferenceResult;
+    while ((viewer.dataset.referenceSrc || "") !== referenceSrc) {
+      referenceSrc = viewer.dataset.referenceSrc || "";
+      referenceResult = await loadReferenceSource(referenceSrc);
+    }
+    const reference = referenceResult.image;
+    const render = renderAtReferenceSize(renderSource, reference);
     const state = {
       reference,
+      renderSource,
       render,
       flip,
       active: reference || render || flip,
@@ -377,11 +480,12 @@ async function initializeViewer(viewer) {
       return;
     }
 
-    drawDecoded(mainCanvas, state.active);
-    drawZoom(zoomCanvas, state.active, 0, 0);
-    updatePixelReadout(viewer, state, 0, 0);
-    updateViewerLabels(viewer, state);
-    if (status) status.textContent = "";
+    redrawViewer(viewer, state);
+    if (status) {
+      status.textContent = referenceResult.error
+        ? String(referenceResult.error.message || referenceResult.error)
+        : "";
+    }
 
     mainCanvas.addEventListener("mousemove", (event) => {
       state.pointer = pointerPixel(mainCanvas, state.active, event);
@@ -402,12 +506,7 @@ function setActiveImage(viewer, imageName) {
   if (!next) return;
   state.active = next;
   state.activeName = nextName;
-  const mainCanvas = viewer.querySelector("[data-main-canvas]");
-  const zoomCanvas = viewer.querySelector("[data-zoom-canvas]");
-  drawDecoded(mainCanvas, state.active);
-  drawZoom(zoomCanvas, state.active, state.pointer[0], state.pointer[1]);
-  updatePixelReadout(viewer, state, state.pointer[0], state.pointer[1]);
-  updateViewerLabels(viewer, state);
+  redrawViewer(viewer, state);
 }
 
 function readRunComparisonManifest() {
@@ -465,25 +564,14 @@ async function reloadViewerReference(viewer) {
     const reference = src ? await loadImageSource(src, "linear") : null;
     if (viewer.dataset.referenceLoadToken !== token) return;
     state.reference = reference;
-    if (state.activeName === "reference") {
-      state.active = state.reference || state.render || state.flip;
-      if (!state.reference && state.render) state.activeName = "render";
-      if (!state.reference && !state.render && state.flip) state.activeName = "flip";
-      const mainCanvas = viewer.querySelector("[data-main-canvas]");
-      const zoomCanvas = viewer.querySelector("[data-zoom-canvas]");
-      if (state.active) {
-        drawDecoded(mainCanvas, state.active);
-        drawZoom(zoomCanvas, state.active, state.pointer[0], state.pointer[1]);
-      }
-    }
-    updateViewerLabels(viewer, state);
-    updatePixelReadout(viewer, state, state.pointer[0], state.pointer[1]);
+    reconcileViewerImages(state);
+    redrawViewer(viewer, state);
     if (status) status.textContent = "";
   } catch (error) {
     if (viewer.dataset.referenceLoadToken !== token) return;
     state.reference = null;
-    updateViewerLabels(viewer, state);
-    updatePixelReadout(viewer, state, state.pointer[0], state.pointer[1]);
+    reconcileViewerImages(state);
+    redrawViewer(viewer, state);
     if (status) status.textContent = String(error.message || error);
   }
 }
@@ -864,4 +952,11 @@ if ("IntersectionObserver" in window) {
   for (const strip of thumbnailStrips) initializeThumbnailStrip(strip);
 }
 
-export { magmaColor, srgbBytesFor, formatPixelValues };
+export {
+  magmaColor,
+  srgbBytesFor,
+  formatPixelValues,
+  resizeDecodedImage,
+  renderAtReferenceSize,
+  initializeViewer,
+};
