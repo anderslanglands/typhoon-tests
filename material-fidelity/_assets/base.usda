@@ -3,21 +3,11 @@
     defaultPrim = "World"
     metersPerUnit = 1
     renderSettingsPrimPath = "/Render/Settings"
-    subLayers = [
-        @./Geometry/shaderball.usda@
-    ]
     upAxis = "Y"
 )
 
 over "World"
 {
-    def DomeLight "DomeLight"
-    {
-        float inputs:intensity = 1
-        asset inputs:texture:file = @Lights/san_giuseppe_bridge_2k.hdr@
-        token inputs:texture:format = "latlong"
-    }
-
     def Camera "Camera"
     {
         float2 clippingRange = (0.05, 1000)

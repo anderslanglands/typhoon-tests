@@ -6,7 +6,9 @@
     renderSettingsPrimPath = "/Render/Settings"
     startTimeCode = 7.25
     subLayers = [
-        @../../_assets/base.usda@
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/shaderball.usda@,
+        @../../_assets/Lights/dome.usda@
     ]
     upAxis = "Y"
 )

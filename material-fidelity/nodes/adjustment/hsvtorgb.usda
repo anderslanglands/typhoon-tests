@@ -4,7 +4,9 @@
     metersPerUnit = 1
     renderSettingsPrimPath = "/Render/Settings"
     subLayers = [
-        @../../_assets/base.usda@
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
     ]
     upAxis = "Y"
 )
@@ -20,15 +22,20 @@ def Scope "Looks"
         }
     )
     {
-        token outputs:mtlx:surface.connect = </Looks/hsvtorgb/SR_hsvtorgb.outputs:out>
-        token outputs:surface.connect = </Looks/hsvtorgb/SR_hsvtorgb.outputs:out>
+        token outputs:mtlx:surface.connect = </Looks/hsvtorgb/surface.outputs:out>
+        token outputs:surface.connect = </Looks/hsvtorgb/surface.outputs:out>
 
-        def Shader "SR_hsvtorgb"
+        def Shader "uniform_edf"
         {
-            uniform token info:id = "ND_standard_surface_surfaceshader"
-            color3f inputs:base_color.connect = </Looks/hsvtorgb/NG_hsvtorgb.outputs:out_base_color>
-            float inputs:specular = 0.5
-            float inputs:specular_roughness = 0.45
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/hsvtorgb/NG_hsvtorgb.outputs:out_base_color>
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/hsvtorgb/uniform_edf.outputs:out>
             token outputs:out
         }
 
@@ -245,6 +252,8 @@ over "Render"
 {
     over "Settings"
     {
+        uniform int ty:convergedSamplesPerPixel = 4
+
         over "Product"
         {
             token productName = "material-fidelity/nodes/adjustment/hsvtorgb.exr"

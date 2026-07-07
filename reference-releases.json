@@ -1,107 +1,107 @@
 {
   "groups": {
     "material-fidelity/nodes/adjustment": {
-      "archive": "material-fidelity--nodes--adjustment--6e07aa175d0a.zip",
-      "archive_sha256": "91089c7593a2f2140c77de80a8248872b92765d4ef343c8bd3c4d78815ddd091",
-      "archive_size": 16919124,
+      "archive": "material-fidelity--nodes--adjustment--1bde7c22edf9.zip",
+      "archive_sha256": "244969d1ad04f571fff4747334e8ecefeb00af88ca94dfdb0cc4378b80deba25",
+      "archive_size": 10121074,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/adjustment/colorcorrect.exr",
-          "sha256": "6d0c2a37095e62d54b25de467b2bcc81f3918117cade81bfcc321eb570845042",
-          "size": 2773292
+          "sha256": "f62c98662af647a03e4a09cb71161a6b5a086adc996dd5f16596ce5c17e88709",
+          "size": 808569
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/contrast.exr",
-          "sha256": "e9e18aca623ec9c6e9258d775c583c8d4d2c809345387ea6e885e4edbc008bce",
-          "size": 785607
+          "sha256": "a24c16536c2d98816937c9c2a1d57e9fd0595bc34f0c9059a7e8b685025ef214",
+          "size": 807668
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/hsvtorgb.exr",
-          "sha256": "66fba0f43def3f509662c2d8076baccb2f7d3aecc8d408343951b392fc4123e0",
-          "size": 785637
+          "sha256": "84ad703d0727464e9439b00545b4b1cc1d91fff98047611326365c0026f602ae",
+          "size": 808559
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/luminance.exr",
-          "sha256": "2eea023eacbb04bfbc3c69efcbbdee887b6fc0a86efb7408e321f685e93ac123",
-          "size": 785572
+          "sha256": "1a3ddfc30e365e302321f223383fb359c11f0d0e5e306a40f2973c69eb2a2202",
+          "size": 807650
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/range.exr",
-          "sha256": "1cb0998880aa95b9c384857168fae118ff7b9c1f7324cb592b1bf1b8623122b0",
-          "size": 785556
+          "sha256": "18f00afb67e237a6447fdcf5c6b554f75a33ba2c380e90a46433613a17a2c61b",
+          "size": 808658
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/range_degenerate_inverted_input_bounds.exr",
-          "sha256": "c9e72be38d793031959eb7c4a1d71b96cb698983cf98dcde16908cfe46fa9104",
-          "size": 785647
+          "sha256": "c2d09e37d295e54939fe7f7b0d2599cbbea40e63b236abacc30b51fea64319a3",
+          "size": 480763
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/range_degenerate_inverted_input_bounds_vector4.exr",
-          "sha256": "e1e2298b1c721676efcf53c13852769b0f4618755105bc1a9c8e04170a09444d",
-          "size": 785732
+          "sha256": "05d0f9ae5c548dac564b8558678deb76fda7e46176c9935bf6d21ead0f0a9adc",
+          "size": 479202
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/range_degenerate_nonpositive_gamma.exr",
-          "sha256": "d2804cb692cf538dfc7eb44104498ac1122a7f0c4444b8eb2b93e2c0d034321f",
-          "size": 785738
+          "sha256": "9fa06bacc7751a5710d8f80ec25d4f182d04ffc246d8dc7da3a3b4f3ebd7d52c",
+          "size": 542762
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/remap.exr",
-          "sha256": "661661e2547ca9c6c64692ba9346d476b432b17e0ab75aae9589fd132a442e30",
-          "size": 785662
+          "sha256": "74c902b61686273d7a171c6607b32e507a1490f8729aee204d8b0334d069a788",
+          "size": 568883
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/remap_degenerate.exr",
-          "sha256": "c97042631bab657b4643f68c218cdab948476dbb4b877fd469aa1df884e8097b",
-          "size": 785631
+          "sha256": "a44d621f8a2d4768e6d399bbc058efb25fccf9114b950998bbf01c25635056d4",
+          "size": 16596
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/remap_degenerate_inverted_input_bounds.exr",
-          "sha256": "c9e72be38d793031959eb7c4a1d71b96cb698983cf98dcde16908cfe46fa9104",
-          "size": 785647
+          "sha256": "c2d09e37d295e54939fe7f7b0d2599cbbea40e63b236abacc30b51fea64319a3",
+          "size": 480763
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/remap_degenerate_inverted_input_bounds_vector4.exr",
-          "sha256": "e1e2298b1c721676efcf53c13852769b0f4618755105bc1a9c8e04170a09444d",
-          "size": 785732
+          "sha256": "05d0f9ae5c548dac564b8558678deb76fda7e46176c9935bf6d21ead0f0a9adc",
+          "size": 479202
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/remap_degenerate_vector4.exr",
-          "sha256": "a7913564601a3a3297f007322b0da5b6b8a4ac7b3dfd537d76b6ec87096c3d86",
-          "size": 785533
+          "sha256": "ff098978f9e5a8f081d06e1419bc9a267167182fea24212034902d6c6cae99a8",
+          "size": 19924
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/rgbtohsv.exr",
-          "sha256": "07d20223c6911d08182c0930e590a9b2ce20b0959e0a5f5babb654a6d28fea65",
-          "size": 785596
+          "sha256": "749b9167bbc18b7be2fead9f752d660fa747802403b41a9b4978ddf947e5b78c",
+          "size": 808096
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/saturate.exr",
-          "sha256": "7ea8a377b76e77fc62aa0cb55c26fd5ddf32679213c5da2ea79eb88e73d793d4",
-          "size": 785603
+          "sha256": "e9495d572645f99fe911abbd6f5ad40a0770c894579202bc066586ba1a0718b5",
+          "size": 808380
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/smoothstep.exr",
-          "sha256": "a174ae4fe4d9bdd7ace7b9223774f23ce299124aedf3814d0942d9ae96eb427e",
-          "size": 785686
+          "sha256": "772501e918094672dcc18a12545bc543307af296a975e80d449ceeae5eeb9d56",
+          "size": 805125
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/smoothstep_degenerate.exr",
-          "sha256": "369822e6a5dbb95f1501c247b5318c660055a6ffa59a096d601360e521a2b023",
-          "size": 785678
+          "sha256": "f2a9062e4ac5ad03855a411a1f98f014bddb7c3d7891d22d43b6b448bb13237e",
+          "size": 283441
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/smoothstep_degenerate_inverted_bounds.exr",
-          "sha256": "402cb14e67bd70f393ecc0ec5fb9740c1283954a2f2989a108b9019b63effbad",
-          "size": 785723
+          "sha256": "b1280804ce0347302be33714df62ba1b9d305562d6cec98b1ce5732e98e7c000",
+          "size": 284768
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/smoothstep_degenerate_inverted_bounds_vector4.exr",
-          "sha256": "d459c40d5a7186dbb6ddec0599c274d7705aea016c4ed5f4a0bca514ad3b4bc1",
-          "size": 785688
+          "sha256": "e045f36281af87a7c92ee460daa44db6ee2604ee09a8e655b22d736eff20b9d6",
+          "size": 17901
         }
       ],
-      "release": "reference-data-20260706T214944Z-c9a9819d-5494fb69"
+      "release": "reference-data-20260707T025828Z-22e3f21e-a99f826c"
     },
     "material-fidelity/nodes/application": {
       "archive": "material-fidelity--nodes--application--0e9d8ff70579.zip",
@@ -2518,9 +2518,9 @@
       "release": "reference-data-20260706T231141Z-61e48ea9-368389e8"
     },
     "material-fidelity/showcase/open_pbr_surface": {
-      "archive": "material-fidelity--showcase--open_pbr_surface--e74f0c5a3af2.zip",
-      "archive_sha256": "14dcc3c9a50a6525899c596cfd0fe1fff8ddd6fe2e76b741b000398093b9f9bd",
-      "archive_size": 8276032,
+      "archive": "material-fidelity--showcase--open_pbr_surface--84cbeaadfa75.zip",
+      "archive_sha256": "7e82d23c2c65d5df59e1e941fce5fc5b7ad670535fb48c8d99e26ec98c04a2b3",
+      "archive_size": 6287657,
       "files": [
         {
           "path": "material-fidelity/reference/showcase/open_pbr_surface/carpaint.exr",
@@ -2534,8 +2534,8 @@
         },
         {
           "path": "material-fidelity/reference/showcase/open_pbr_surface/honey.exr",
-          "sha256": "3d3eb195da8f2d61e7072ba04d66a5edfa91b55336cdebbd4b0e896e6587a9b9",
-          "size": 2774039
+          "sha256": "3c3cf43f5e5412b8e8c476310df4590895ecb5541d86616929069aaa82316d17",
+          "size": 785664
         },
         {
           "path": "material-fidelity/reference/showcase/open_pbr_surface/ketchup.exr",
@@ -2563,7 +2563,7 @@
           "size": 785637
         }
       ],
-      "release": "reference-data-20260706T231141Z-61e48ea9-368389e8"
+      "release": "reference-data-20260707T025828Z-22e3f21e-a99f826c"
     },
     "material-fidelity/showcase/standard_surface": {
       "archive": "material-fidelity--showcase--standard_surface--6b23e3584873.zip",
