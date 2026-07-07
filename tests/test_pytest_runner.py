@@ -43,7 +43,11 @@ output_pattern = "rendered.{stem}.exr"
     return usd
 
 
-def run_context(tmp_path: Path, run_number: int = 1) -> RunContext:
+def run_context(
+    tmp_path: Path,
+    run_number: int = 1,
+    provider: str | None = None,
+) -> RunContext:
     output_base = tmp_path / "_output"
     run_dir = output_base / f"run-{run_number:04d}"
     return RunContext(
@@ -51,6 +55,7 @@ def run_context(tmp_path: Path, run_number: int = 1) -> RunContext:
         run_dir=run_dir,
         run_number=run_number,
         started_at="2026-06-30T00:00:00+00:00",
+        provider=provider,
     )
 
 
@@ -362,6 +367,11 @@ def test_provider_dry_run_reports_clean_environment_command(
     assert len(report) == 1
     assert report[0]["key"] == "case"
     assert report[0]["status"] == "dry-run"
+    assert report[0]["provider"] == str(provider_arg.resolve())
+    summary = json.loads(
+        (tmp_path / "_output" / "run-0001" / "run-summary.json").read_text(encoding="utf-8")
+    )
+    assert summary["provider"] == str(provider_arg.resolve())
     command = report[0]["command"]
     assert command[:6] == [
         "pixi",
@@ -700,6 +710,7 @@ output_pattern = "{stem}-embree.{frame:04d}.exr"
             "output_root": str(tmp_path / "_output" / "run-0001"),
             "reference": None,
             "reference_image": None,
+            "provider": "package",
             "render_image": None,
             "render_output": None,
             "run_dir": str(tmp_path / "_output" / "run-0001"),
@@ -715,6 +726,7 @@ output_pattern = "{stem}-embree.{frame:04d}.exr"
     assert summary["total"] == 1
     assert summary["failed"] == 1
     assert summary["suspect"] == 0
+    assert summary["provider"] == "package"
 
 
 def test_dry_run_reports_run_directory_without_rendering(tmp_path: Path) -> None:
@@ -1270,6 +1282,22 @@ def test_run_outputs_write_per_run_report_and_top_level_index(tmp_path: Path) ->
     output_index = (context.output_base / "index.html").read_text(encoding="utf-8")
     assert "run-0007/index.html" in output_index
     assert "2026-06-30T00:00:00+00:00" in output_index
+
+
+def test_html_report_top_nav_shows_provider(tmp_path: Path) -> None:
+    provider = 'local<foo&"bar'
+    html = plugin.build_html_report([], run_context(tmp_path, provider=provider))
+
+    assert (
+        'Provider <strong title="local&lt;foo&amp;&quot;bar">'
+        'local&lt;foo&amp;&quot;bar</strong>'
+    ) in html
+
+
+def test_html_report_top_nav_defaults_to_package_provider(tmp_path: Path) -> None:
+    html = plugin.build_html_report([], run_context(tmp_path))
+
+    assert 'Provider <strong title="package">package</strong>' in html
 
 
 def test_html_counts_strict_failures(tmp_path: Path) -> None:
@@ -2652,6 +2680,23 @@ def test_html_report_normalizes_legacy_status_labels(tmp_path: Path) -> None:
         "passed",
         "no-ref",
     ]
+
+
+def test_regenerate_html_preserves_provider_in_nav(tmp_path: Path) -> None:
+    output_base = tmp_path / "_output"
+    run_dir = write_report_run(output_base, 1, key="case")
+    provider = str(tmp_path / "openusd")
+    summary_path = run_dir / "run-summary.json"
+    summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    summary["provider"] = provider
+    summary_path.write_text(json.dumps(summary) + "\n", encoding="utf-8")
+
+    report_html.regenerate_html(output_root=output_base, run="run-0001")
+
+    html = (run_dir / "index.html").read_text(encoding="utf-8")
+    regenerated_summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    assert f'Provider <strong title="{provider}">{provider}</strong>' in html
+    assert regenerated_summary["provider"] == provider
 
 
 def test_regenerate_html_defaults_to_latest_run(tmp_path: Path) -> None:

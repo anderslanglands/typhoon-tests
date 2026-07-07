@@ -13,6 +13,7 @@ from .pytest_plugin import (
     copy_report_assets,
     copy_report_favicon,
     summarize_results,
+    provider_label,
 )
 
 
@@ -113,11 +114,13 @@ def build_run_context(run_dir: Path, results: list[dict[str, Any]]) -> RunContex
     match = RUN_DIR_RE.match(run_dir.name)
     run_number = int(summary.get("run_number") or (match.group(1) if match else 0))
     started_at = str(summary.get("started_at") or first_started_at(results))
+    provider = summary.get("provider") or first_provider(results)
     return RunContext(
         output_base=run_dir.parent,
         run_dir=run_dir,
         run_number=run_number,
         started_at=started_at,
+        provider=provider_label(provider),
     )
 
 
@@ -126,6 +129,14 @@ def first_started_at(results: list[dict[str, Any]]) -> str:
         started_at = result.get("started_at")
         if started_at:
             return str(started_at)
+    return ""
+
+
+def first_provider(results: list[dict[str, Any]]) -> str:
+    for result in results:
+        provider = result.get("provider")
+        if provider:
+            return str(provider)
     return ""
 
 

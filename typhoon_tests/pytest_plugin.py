@@ -49,6 +49,8 @@ IGNORED_DIRS = {
     "renders",
 }
 
+DEFAULT_PROVIDER_LABEL = "package"
+
 
 @dataclass(frozen=True)
 class RunContext:
@@ -56,6 +58,7 @@ class RunContext:
     run_dir: Path
     run_number: int
     started_at: str
+    provider: str | None = None
 
 
 @dataclass(frozen=True)
@@ -338,11 +341,27 @@ def sanitize_key_part(value: str) -> str:
     return "".join(char if char.isalnum() or char in "._-" else "_" for char in value)
 
 
+def provider_label(provider: object | None) -> str:
+    if provider is None:
+        return DEFAULT_PROVIDER_LABEL
+    value = str(provider)
+    return value if value else DEFAULT_PROVIDER_LABEL
+
+
+def first_result_provider(results: list[dict[str, Any]]) -> str | None:
+    for row in results:
+        provider = row.get("provider")
+        if provider:
+            return str(provider)
+    return None
+
+
 def options_from_config(config: pytest.Config) -> TyphoonOptions:
     provider = config.getoption("--typhoon-provider")
+    provider_path = Path(provider).expanduser().resolve() if provider else None
     return TyphoonOptions(
-        provider=Path(provider).expanduser().resolve() if provider else None,
-        run_context=get_run_context(config),
+        provider=provider_path,
+        run_context=get_run_context(config, provider_path),
         reference_dir=_optional_path(config.getoption("--typhoon-reference-dir")),
         require_references=bool(config.getoption("--typhoon-require-references")),
         require_thresholds=bool(config.getoption("--typhoon-require-thresholds")),
@@ -350,7 +369,7 @@ def options_from_config(config: pytest.Config) -> TyphoonOptions:
     )
 
 
-def get_run_context(config: pytest.Config) -> RunContext:
+def get_run_context(config: pytest.Config, provider: Path | None = None) -> RunContext:
     context = getattr(config, "_typhoon_run_context", None)
     if context is not None:
         return context
@@ -363,12 +382,16 @@ def get_run_context(config: pytest.Config) -> RunContext:
     else:
         output_base = Path(str(config.rootpath)).resolve() / "_output"
 
-    context = allocate_run_context(output_base)
+    context = allocate_run_context(output_base, provider=provider_label(provider))
     config._typhoon_run_context = context  # type: ignore[attr-defined]
     return context
 
 
-def allocate_run_context(output_base: Path, started_at: str | None = None) -> RunContext:
+def allocate_run_context(
+    output_base: Path,
+    started_at: str | None = None,
+    provider: str | None = None,
+) -> RunContext:
     output_base = output_base.resolve()
     output_base.mkdir(parents=True, exist_ok=True)
     if started_at is None:
@@ -386,6 +409,7 @@ def allocate_run_context(output_base: Path, started_at: str | None = None) -> Ru
             run_dir=run_dir,
             run_number=run_number,
             started_at=started_at,
+            provider=provider_label(provider),
         )
 
 
@@ -427,6 +451,7 @@ def run_typhoon_case(case: TyphoonCase, options: TyphoonOptions) -> dict[str, An
         "run_number": options.run_context.run_number,
         "run_dir": str(options.run_context.run_dir),
         "started_at": options.run_context.started_at,
+        "provider": provider_label(options.provider or options.run_context.provider),
     }
 
     try:
@@ -738,6 +763,7 @@ def summarize_results(context: RunContext, results: list[dict[str, Any]]) -> dic
         "run_name": context.run_dir.name,
         "run_number": context.run_number,
         "started_at": context.started_at,
+        "provider": provider_label(context.provider or first_result_provider(results)),
         "run_dir": str(context.run_dir),
         "total": len(results),
         "compared": len(compared),
@@ -1471,6 +1497,7 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
     nav_flip_mean = format_flip_stat(summary.get("flip_mean"))
     nav_flip_min = format_flip_stat(summary.get("flip_min"))
     nav_flip_max = format_flip_stat(summary.get("flip_max"))
+    nav_provider = provider_label(summary.get("provider"))
 
     return f"""<!doctype html>
 <html lang="en">
@@ -1501,6 +1528,8 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
     .top-nav-stats {{ display: flex; align-items: center; gap: 12px; flex-wrap: wrap; min-width: 0; color: #bbb; }}
     .top-nav-stat {{ white-space: nowrap; }}
     .top-nav-stat strong {{ color: #fff; font-weight: 700; }}
+    .top-nav-provider {{ display: inline-flex; align-items: center; gap: 4px; min-width: 0; max-width: 360px; }}
+    .top-nav-provider strong {{ display: inline-block; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }}
     .top-nav-controls {{ display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-left: auto; color: #bbb; }}
     .top-nav-controls label {{ color: #eee; font-weight: 700; }}
     .top-nav-controls select {{ color: #eee; background: #181818; border: 1px solid #4a5568; border-radius: 4px; padding: 5px 8px; font: inherit; }}
@@ -1588,6 +1617,7 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
       <span class="top-nav-stat"><strong>{summary['missing_references']}</strong> missing refs</span>
       <span class="top-nav-stat"><strong>{summary['failed']}</strong> failed</span>
       <span class="top-nav-stat"><strong>{summary.get('suspect', 0)}</strong> suspect</span>
+      <span class="top-nav-stat top-nav-provider">Provider <strong title="{esc(nav_provider)}">{esc(nav_provider)}</strong></span>
       <span class="top-nav-stat">Mean FLIP <strong>{nav_flip_mean}</strong></span>
       <span class="top-nav-stat">Min <strong>{nav_flip_min}</strong></span>
       <span class="top-nav-stat">Max <strong>{nav_flip_max}</strong></span>

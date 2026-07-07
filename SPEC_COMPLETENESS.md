@@ -1,19 +1,19 @@
 # MaterialX in USD Specification Test Completeness
 
-This report statically compares every `ND_*` definition in the MaterialX in USD specification against every USD fixture in `material-fidelity`, including connected and directly authored inputs.
+This report statically compares every current `ND_*` definition from the checked-out MaterialX `stdlib`, `pbrlib`, and `nprlib` libraries against every USD fixture in `material-fidelity`, including connected and directly authored inputs.
 
 ## Executive summary
 
 The suite is deep in a few areas, but its overall node coverage is incomplete:
 
-- 174 MaterialX node families are described by the specification.
-- 165 have concrete `ND_*` definitions, comprising 680 typed NodeDefs.
-- Only 222 of those 680 exact NodeDefs appear in the tests: 32.6%.
+- 178 MaterialX node families have concrete `ND_*` definitions in the current checked-out libraries.
+- Those families comprise 748 typed NodeDefs.
+- 271 of those 748 exact NodeDefs appear in the tests: 36.2%.
 - At the family level:
 
-  - 54 families are completely untested.
-  - 66 have only some typed overloads tested.
-  - 45 have every specified overload represented.
+  - 29 families are completely untested.
+  - 72 have only some typed overloads tested.
+  - 77 have every specified overload represented.
 
 These are optimistic numbers: any occurrence counted, including incidental use in a showcase graph. Direct, targeted coverage is lower.
 
@@ -23,8 +23,8 @@ These are optimistic numbers: any occurrence counted, including incidental use i
 
 This is the largest and highest-priority gap:
 
-- `absorption_vdf`
-- `anisotropic_vdf`
+- `conductor_bsdf`
+- `generalized_schlick_bsdf`
 - `chiang_hair_roughness`
 - `chiang_hair_absorption_from_color`
 - `deon_hair_absorption_from_melanin`
@@ -36,36 +36,22 @@ This is the largest and highest-priority gap:
 - `roughness_dual`
 - `volume`
 - `light`
-- `layer`
 
-Direct fixtures now cover the six BSDFs removed from this list and connect them through `ND_surface`. The remaining lower-level closure NodeDefs still lack direct coverage, and the independent `opacity` and `thin_walled` behavior of `ND_surface` is not yet tested.
+Direct fixtures now cover the core diffuse/transmission/sheen/hair BSDFs, `dielectric_bsdf`, `absorption_vdf`, `anisotropic_vdf`, and both `layer` NodeDefs. The remaining lower-level closure and constructor NodeDefs still lack direct coverage, and the independent `opacity` and `thin_walled` behavior of `ND_surface` is not yet tested.
 
-### Texture, convolution, and shader nodes
+### Texture, convolution, shader, and material nodes
 
-- `latlongimage`
 - `triplanarprojection` — all six typed NodeDefs absent
 - `blur` — all six typed NodeDefs absent
-- `displacement`
+- `displacement` — both typed NodeDefs absent
 - `surface_unlit`
+- `surfacematerial`
+- `volumematerial`
 
 `triplanarprojection` is particularly significant: none of its three texture axes, per-axis layers, position/normal blending, `upaxis`, filtering, animation controls, or fallback behavior is exercised.
+`latlongimage` now has a targeted fixture that maps the suite dome HDR onto the plane through the `viewdir` input.
 
-### Compositing
-
-- `disjointover`
-- `in`
-- `inside`
-- `mask`
-- `matte`
-- `out`
-- `outside`
-- `over`
-- `plus`
-- `premult`
-
-The suite tests `burn`, `difference`, `dodge`, `minus`, `mix`, `overlay`, `screen`, and `unpremult`, but most are tested only through one of three output types.
-
-### Geometry, adjustment, and NPR
+### Geometry, adjustment, NPR, and helper nodes
 
 - `geomcolor`
 - `geompropvalue`
@@ -73,6 +59,10 @@ The suite tests `burn`, `difference`, `dodge`, `minus`, `mix`, `overlay`, `scree
 - `hsvadjust`
 - `facingratio`
 - `gooch_shade`
+- `flake2d`
+- `flake3d`
+- `mincomponent`
+- `maxcomponent`
 
 ## Poorly tested nodes
 
@@ -87,6 +77,8 @@ The suite tests `burn`, `difference`, `dodge`, `minus`, `mix`, `overlay`, `scree
 | `ifgreater` | 4/20 | Sparse overload coverage. |
 | `ifgreatereq` | 2/20 | Sparse overload coverage. |
 | `mix` | 2/17 | Most value, closure, displacement, and volume variants absent. |
+| `plus` | 1/3 | Only the color3 compositing form is covered; float and color4 are absent. |
+| `inside`, `outside` | 1/3 each | Only the color4 alpha/mask forms are covered; float and color3 are absent. |
 | `add` | 4/19 | Most vector/color/matrix and mixed float variants absent. |
 | `multiply` | 6/19 | Better than `add`, but most typed variants still absent. |
 | `divide` | 2/13 | Zero-divisor case exists, but only for a narrow subset of types. |
@@ -99,6 +91,9 @@ The suite tests `burn`, `difference`, `dodge`, `minus`, `mix`, `overlay`, `scree
 | `normalize` | 1/3 | Only vector3; color3/vector2 absent. Zero-vector fixture is also a declared validation failure. |
 | transcendental math | commonly 1/4 | `sin`, `cos`, `tan`, `exp`, `sqrt`, and `atan2` omit most vector forms. |
 | adjustment nodes | commonly 1/2 or 1/11 | Usually color3 or float only; color4/vector and float-amount variants are sparse. |
+| `dot` | 5/16 | Current local MaterialX libraries define typed `dot` NodeDefs; only float, integer, boolean, color3, and vector3 appear in fixtures. |
+
+The previously missing compositing families now all have direct fixtures. `premult`, `disjointover`, `in`, `mask`, `matte`, `out`, and `over` are fully covered at the NodeDef level because each has only one color4 definition; `plus`, `inside`, and `outside` remain partial overload coverage.
 
 ### Specific texture-edge gaps
 
@@ -129,23 +124,16 @@ Remaining useful cases include:
 - `power`/`safepower`: zero-to-zero, zero with negative exponent, infinities/NaNs if the implementation exposes them.
 - Vector/color versions of the already-tested scalar degeneracies.
 
-## Nodes with no specification NodeDef
+## Former No-NodeDef Notes
 
-Nine specification headings explicitly lack generated NodeDefs:
+The previous pass listed several headings as lacking generated NodeDefs. In the current checked-out MaterialX libraries, those families now have concrete `ND_*` definitions:
 
-- `dielectric_bsdf`
-- `conductor_bsdf`
-- `generalized_schlick_bsdf`
-- `flake2d`
-- `flake3d`
-- `mincomponent`
-- `maxcomponent`
-- `dot`
-- `time`
+- `dielectric_bsdf` is covered directly.
+- `dot` is partially covered.
+- `time` is covered directly.
+- `conductor_bsdf`, `generalized_schlick_bsdf`, `flake2d`, `flake3d`, `mincomponent`, and `maxcomponent` are still completely untested.
 
-`dot` and `time` have tests using invented/library IDs such as `ND_dot_color3` and `ND_time_float`, even though this specification says no corresponding NodeDef can be generated. The remaining seven have no direct tests.
-
-This should be resolved explicitly: either those tests target a future/upstream MaterialX library rather than this specification, or the specification and test-suite versions are out of sync.
+This section is retained to make that library/spec drift explicit. The current static counts above are based on the checked-out libraries, not the older no-NodeDef classification.
 
 ## Test-suite quality observations
 
@@ -159,15 +147,15 @@ The tests are golden-image comparisons. The suite renders each fixture and compa
 
 ## Recommended priority
 
-1. Direct PBR BSDF/EDF/VDF and `surface`/`volume` constructor tests.
-2. `triplanarprojection`, `blur`, `latlongimage`, and image fallback/layer/sequence tests.
+1. Remaining PBR EDF/helper constructors, `volume`/`light`, and `surface`/`volume` constructor behavior.
+2. `triplanarprojection`, `blur`, and image fallback/layer/sequence tests.
 3. Conditional and operator overload coverage, especially `switch`, `ifequal`, `mix`, and matrix variants.
-4. Missing geometry/property and NPR nodes.
+4. Missing geometry/property, component helper, and NPR nodes.
 5. Structural conformance tests alongside image comparisons, so USD typing/default/token errors cannot pass merely because the render looks plausible.
 
 ## Methodology and interpretation
 
-- Specification inputs were extracted from `MaterialX.StandardNodes.md`, `MaterialX.PBRSpec.md`, and `MaterialX.NPRSpec.md`.
+- NodeDef inputs were extracted from the current checked-out `stdlib_defs.mtlx`, `pbrlib_defs.mtlx`, and `nprlib_defs.mtlx` files.
 - Test usage was extracted from all `.usda` files below `material-fidelity` by matching exact `info:id` values and both authored and connected `inputs:*` properties.
 - Exact typed NodeDef coverage and logical node-family coverage were calculated separately.
 - Any occurrence was counted, even if incidental to a larger graph. Consequently, the reported coverage is an upper bound on meaningful targeted coverage.
