@@ -20,7 +20,7 @@ TEST_SCENE = (
 CAMERA_PATH = Sdf.Path("/World/Camera")
 EXPECTED_SHADERBALL_RADIUS = 2.0
 EXPECTED_FOV_DEGREES = 45.0
-EXPECTED_RESOLUTION = (512, 512)
+EXPECTED_RESOLUTION = (256, 256)
 EXPECTED_CASE_COUNTS = {
     "nodes/adjustment": 19,
     "nodes/application": 2,
@@ -31,8 +31,8 @@ EXPECTED_CASE_COUNTS = {
     "nodes/logical": 4,
     "nodes/math": 131,
     "nodes/noise": 102,
-    "nodes/patterns": 2,
-    "nodes/pbr": 12,
+    "nodes/patterns": 13,
+    "nodes/pbr": 29,
     "nodes/procedurals": 20,
     "nodes/textures": 45,
     "showcase/gltf_pbr": 5,
@@ -372,6 +372,17 @@ def test_material_fidelity_composed_scene_normalizes_shaderball() -> None:
 
     _assert_vec3_close(center, Gf.Vec3d(0.0, 0.0, 0.0))
     assert radius == pytest.approx(EXPECTED_SHADERBALL_RADIUS, abs=1e-6)
+
+
+def test_material_fidelity_generator_writes_base_resolution(tmp_path: Path) -> None:
+    generator = runpy.run_path(str(MATERIAL_FIDELITY / "generate_suite.py"))
+    base_layer = tmp_path / "_assets" / "base.usda"
+
+    generator["_write_base_layer"](base_layer)
+
+    stage = Usd.Stage.Open(str(base_layer))
+    settings = stage.GetPrimAtPath("/Render/Settings")
+    assert tuple(settings.GetAttribute("resolution").Get()) == EXPECTED_RESOLUTION
 
 
 def test_material_fidelity_generator_tracks_png_until_exr_exists(
