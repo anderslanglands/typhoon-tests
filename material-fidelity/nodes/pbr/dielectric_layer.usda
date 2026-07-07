@@ -1,0 +1,78 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/shaderball.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "dielectric_layer" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/layer_bsdf/dielectric_layer.mtlx"
+                string sourceMaterial = "M_dielectric_layer"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/dielectric_layer/surface.outputs:out>
+        token outputs:surface.connect = </Looks/dielectric_layer/surface.outputs:out>
+
+        def Shader "specular_bsdf"
+        {
+            uniform token info:id = "ND_dielectric_bsdf"
+            string inputs:scatter_mode = "R"
+            token outputs:out
+        }
+
+        def Shader "transmission_bsdf"
+        {
+            uniform token info:id = "ND_dielectric_bsdf"
+            string inputs:scatter_mode = "T"
+            token outputs:out
+        }
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_layer_bsdf"
+            token inputs:top.connect = </Looks/dielectric_layer/specular_bsdf.outputs:out>
+            token inputs:base.connect = </Looks/dielectric_layer/transmission_bsdf.outputs:out>
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:bsdf.connect = </Looks/dielectric_layer/node_under_test.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/dielectric_layer>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/pbr/dielectric_layer.exr"
+        }
+    }
+}

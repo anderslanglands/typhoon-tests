@@ -1,0 +1,86 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/shaderball.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "dielectric_layer_tinted_rough" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/layer_bsdf/dielectric_layer_tinted_rough.mtlx"
+                string sourceMaterial = "M_dielectric_layer_tinted_rough"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/dielectric_layer_tinted_rough/surface.outputs:out>
+        token outputs:surface.connect = </Looks/dielectric_layer_tinted_rough/surface.outputs:out>
+
+        def Shader "specular_bsdf"
+        {
+            uniform token info:id = "ND_dielectric_bsdf"
+            float inputs:ior = 1.8
+            float2 inputs:roughness = (0.04, 0.04)
+            string inputs:scatter_mode = "R"
+            color3f inputs:tint = (0.95, 0.98, 1)
+            float inputs:weight = 1
+            token outputs:out
+        }
+
+        def Shader "transmission_bsdf"
+        {
+            uniform token info:id = "ND_dielectric_bsdf"
+            float inputs:ior = 1.35
+            float2 inputs:roughness = (0.12, 0.12)
+            string inputs:scatter_mode = "T"
+            color3f inputs:tint = (0.65, 0.9, 1)
+            float inputs:weight = 1
+            token outputs:out
+        }
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_layer_bsdf"
+            token inputs:top.connect = </Looks/dielectric_layer_tinted_rough/specular_bsdf.outputs:out>
+            token inputs:base.connect = </Looks/dielectric_layer_tinted_rough/transmission_bsdf.outputs:out>
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:bsdf.connect = </Looks/dielectric_layer_tinted_rough/node_under_test.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/dielectric_layer_tinted_rough>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/pbr/dielectric_layer_tinted_rough.exr"
+        }
+    }
+}

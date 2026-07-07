@@ -2131,9 +2131,9 @@
       "release": "reference-data-20260707T044516Z-b42b2f89-58118c63"
     },
     "material-fidelity/nodes/pbr": {
-      "archive": "material-fidelity--nodes--pbr--aae7fe2cf606.zip",
-      "archive_sha256": "05c3bdaf954c2329e545f19ca5778f027be40159daf96c0b6165771323c7bf7f",
-      "archive_size": 22142578,
+      "archive": "material-fidelity--nodes--pbr--ad7a0d627a28.zip",
+      "archive_sha256": "9324c856d0aa9c7d41f05ad0299f8d77a85204ea07a49113187c27d1c39de110",
+      "archive_size": 23714693,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/pbr/artistic_ior.exr",
@@ -2226,6 +2226,16 @@
           "size": 570002
         },
         {
+          "path": "material-fidelity/reference/nodes/pbr/dielectric_layer.exr",
+          "sha256": "edd13f26c51064b93ba57df5a4069235c2950c6aaf48aaa62a0393d5eb2cdeca",
+          "size": 785831
+        },
+        {
+          "path": "material-fidelity/reference/nodes/pbr/dielectric_layer_tinted_rough.exr",
+          "sha256": "67b684050804223d8e470666dae66291d90bcff8e1b58dd1fc6a2cea9c7fbf26",
+          "size": 785874
+        },
+        {
           "path": "material-fidelity/reference/nodes/pbr/oren_nayar_diffuse_bsdf.exr",
           "sha256": "b80b095f536905d0313836985db7cabb729b8d134f269342c60f20bb3a954e42",
           "size": 785653
@@ -2281,7 +2291,7 @@
           "size": 785894
         }
       ],
-      "release": "reference-data-20260707T090145Z-ad6c58f5-509a6b80"
+      "release": "reference-data-20260707T193612Z-8703cc3c-71baa002"
     },
     "material-fidelity/nodes/procedurals": {
       "archive": "material-fidelity--nodes--procedurals--fb632b46b525.zip",
