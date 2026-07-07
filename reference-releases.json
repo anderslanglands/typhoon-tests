@@ -2131,9 +2131,9 @@
       "release": "reference-data-20260707T044516Z-b42b2f89-58118c63"
     },
     "material-fidelity/nodes/pbr": {
-      "archive": "material-fidelity--nodes--pbr--f1768e6d6dac.zip",
-      "archive_sha256": "293de3cf0fb6886057a99078d1d4920fccc17236e5cc5b73b2e10e677f23c9c9",
-      "archive_size": 9428950,
+      "archive": "material-fidelity--nodes--pbr--b5f61eb4594d.zip",
+      "archive_sha256": "f2041596795a67276b0e63b517bf35b0c42e1334aa1dedf2aa14555dda7ce18a",
+      "archive_size": 13928692,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/pbr/artistic_ior.exr",
@@ -2194,9 +2194,39 @@
           "path": "material-fidelity/reference/nodes/pbr/blackbody.exr",
           "sha256": "ed7e4f05bb68907c5133fe4774aa4949c8d6ef0b9a259faf71e4eb76fefffcd8",
           "size": 784894
+        },
+        {
+          "path": "material-fidelity/reference/nodes/pbr/burley_diffuse_bsdf.exr",
+          "sha256": "73f6a73863dff62be4048694507ffc4ec6ee7ef9e98cb84e4805345c784931ae",
+          "size": 785634
+        },
+        {
+          "path": "material-fidelity/reference/nodes/pbr/chiang_hair_bsdf.exr",
+          "sha256": "e418740d7cd28e91441ae0a5311cd72b1ee47e1db51afff55faa1ce50cd91554",
+          "size": 570002
+        },
+        {
+          "path": "material-fidelity/reference/nodes/pbr/oren_nayar_diffuse_bsdf.exr",
+          "sha256": "b80b095f536905d0313836985db7cabb729b8d134f269342c60f20bb3a954e42",
+          "size": 785653
+        },
+        {
+          "path": "material-fidelity/reference/nodes/pbr/sheen_bsdf.exr",
+          "sha256": "dbdf21a86bff6372f95765a378004b20c5f144772a6ecd17bb8350cbab17c51d",
+          "size": 785639
+        },
+        {
+          "path": "material-fidelity/reference/nodes/pbr/subsurface_bsdf.exr",
+          "sha256": "451f04ee95d7fd5c511b36bf7e3cfb6592507a66dc76cbc5b46f518ce4660b89",
+          "size": 785814
+        },
+        {
+          "path": "material-fidelity/reference/nodes/pbr/translucent_bsdf.exr",
+          "sha256": "6e084453fe77f911840923fd4ec4da2fbb0503d1ac3ced4fb9df05b15aa5c2f8",
+          "size": 785842
         }
       ],
-      "release": "reference-data-20260706T214944Z-c9a9819d-5494fb69"
+      "release": "reference-data-20260707T060224Z-36a1356f-f191ae4e"
     },
     "material-fidelity/nodes/procedurals": {
       "archive": "material-fidelity--nodes--procedurals--fb632b46b525.zip",

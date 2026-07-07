@@ -1,0 +1,66 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/shaderball.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "subsurface_bsdf" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/subsurface_bsdf/subsurface_bsdf.mtlx"
+                string sourceMaterial = "M_subsurface_bsdf"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/subsurface_bsdf/surface.outputs:out>
+        token outputs:surface.connect = </Looks/subsurface_bsdf/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_subsurface_bsdf"
+            float inputs:anisotropy = 0.2
+            color3f inputs:color = (0.9, 0.32, 0.18)
+            color3f inputs:radius = (1, 0.35, 0.15)
+            float inputs:weight = 1
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:bsdf.connect = </Looks/subsurface_bsdf/node_under_test.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/subsurface_bsdf>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/pbr/subsurface_bsdf.exr"
+        }
+    }
+}

@@ -1,0 +1,71 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/shaderball.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "chiang_hair_bsdf" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/chiang_hair_bsdf/chiang_hair_bsdf.mtlx"
+                string sourceMaterial = "M_chiang_hair_bsdf"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/chiang_hair_bsdf/surface.outputs:out>
+        token outputs:surface.connect = </Looks/chiang_hair_bsdf/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_chiang_hair_bsdf"
+            float3 inputs:absorption_coefficient = (0.35, 0.7, 1.1)
+            float inputs:cuticle_angle = 0.5
+            float inputs:ior = 1.55
+            float2 inputs:roughness_R = (0.12, 0.08)
+            float2 inputs:roughness_TRT = (0.25, 0.2)
+            float2 inputs:roughness_TT = (0.08, 0.06)
+            color3f inputs:tint_R = (0.5, 0.18, 0.06)
+            color3f inputs:tint_TRT = (0.3, 0.08, 0.025)
+            color3f inputs:tint_TT = (0.75, 0.32, 0.1)
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:bsdf.connect = </Looks/chiang_hair_bsdf/node_under_test.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/chiang_hair_bsdf>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/pbr/chiang_hair_bsdf.exr"
+        }
+    }
+}
