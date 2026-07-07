@@ -1,0 +1,118 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "randomfloat" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/randomfloat/randomfloat.mtlx"
+                string sourceMaterial = "M_randomfloat"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/randomfloat/surface.outputs:out>
+        token outputs:surface.connect = </Looks/randomfloat/surface.outputs:out>
+
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/randomfloat/NG_randomfloat.outputs:out_color>
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/randomfloat/uniform_edf.outputs:out>
+            token outputs:out
+        }
+
+        def NodeGraph "NG_randomfloat"
+        {
+            color3f outputs:out_color.connect = </Looks/randomfloat/NG_randomfloat/color_mix.outputs:out>
+
+            def Shader "texcoord"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "separate_uv"
+            {
+                uniform token info:id = "ND_separate2_vector2"
+                float2 inputs:in.connect = </Looks/randomfloat/NG_randomfloat/texcoord.outputs:out>
+                float outputs:outx
+                float outputs:outy
+            }
+
+            def Shader "scale_u"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/randomfloat/NG_randomfloat/separate_uv.outputs:outx>
+                float inputs:in2 = 8
+                float outputs:out
+            }
+
+            def Shader "band_index"
+            {
+                uniform token info:id = "ND_floor_float"
+                float inputs:in.connect = </Looks/randomfloat/NG_randomfloat/scale_u.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_randomfloat_float"
+                float inputs:in.connect = </Looks/randomfloat/NG_randomfloat/band_index.outputs:out>
+                float inputs:max = 0.9
+                float inputs:min = 0.1
+                int inputs:seed = 7
+                float outputs:out
+            }
+
+            def Shader "color_mix"
+            {
+                uniform token info:id = "ND_mix_color3"
+                color3f inputs:bg = (0.05, 0.12, 0.35)
+                color3f inputs:fg = (1, 0.45, 0.05)
+                float inputs:mix.connect = </Looks/randomfloat/NG_randomfloat/node_under_test.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/randomfloat>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/patterns/randomfloat.exr"
+        }
+    }
+}

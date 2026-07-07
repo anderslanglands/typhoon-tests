@@ -1,0 +1,108 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "trianglewave" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/trianglewave/trianglewave.mtlx"
+                string sourceMaterial = "M_trianglewave"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/trianglewave/surface.outputs:out>
+        token outputs:surface.connect = </Looks/trianglewave/surface.outputs:out>
+
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/trianglewave/NG_trianglewave.outputs:out_color>
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/trianglewave/uniform_edf.outputs:out>
+            token outputs:out
+        }
+
+        def NodeGraph "NG_trianglewave"
+        {
+            color3f outputs:out_color.connect = </Looks/trianglewave/NG_trianglewave/color_mix.outputs:out>
+
+            def Shader "texcoord"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "separate_uv"
+            {
+                uniform token info:id = "ND_separate2_vector2"
+                float2 inputs:in.connect = </Looks/trianglewave/NG_trianglewave/texcoord.outputs:out>
+                float outputs:outx
+                float outputs:outy
+            }
+
+            def Shader "scale_u"
+            {
+                uniform token info:id = "ND_multiply_float"
+                float inputs:in1.connect = </Looks/trianglewave/NG_trianglewave/separate_uv.outputs:outx>
+                float inputs:in2 = 2
+                float outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_trianglewave_float"
+                float inputs:in.connect = </Looks/trianglewave/NG_trianglewave/scale_u.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "color_mix"
+            {
+                uniform token info:id = "ND_mix_color3"
+                color3f inputs:bg = (0.05, 0.12, 0.35)
+                color3f inputs:fg = (1, 0.45, 0.05)
+                float inputs:mix.connect = </Looks/trianglewave/NG_trianglewave/node_under_test.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/trianglewave>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/patterns/trianglewave.exr"
+        }
+    }
+}

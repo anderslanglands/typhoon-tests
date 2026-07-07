@@ -2058,9 +2058,9 @@
       "release": "reference-data-20260707T041914Z-8363eb47-32321cb7"
     },
     "material-fidelity/nodes/patterns": {
-      "archive": "material-fidelity--nodes--patterns--5902b82e6d5f.zip",
-      "archive_sha256": "13f4c29610feb6112ab5760531a225bd5ebe88f86f436ed83536c5b9a00b0a86",
-      "archive_size": 85239,
+      "archive": "material-fidelity--nodes--patterns--157af0341c86.zip",
+      "archive_sha256": "221533b45b373087afe5913259e6e2bbe4b59f9a57f57926e57e3a1d49877ece",
+      "archive_size": 1421099,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/patterns/checkerboard.exr",
@@ -2071,9 +2071,64 @@
           "path": "material-fidelity/reference/nodes/patterns/circle.exr",
           "sha256": "4e5365b5f2ec3d5998bcff9a90dacf335aac64380f1883440a48bf5d4a0c8b3f",
           "size": 34236
+        },
+        {
+          "path": "material-fidelity/reference/nodes/patterns/cloverleaf.exr",
+          "sha256": "ce44a3bf0d8d4a50c268372e315e5597fc77a4e661596fec676fda5e179b03e3",
+          "size": 35210
+        },
+        {
+          "path": "material-fidelity/reference/nodes/patterns/crosshatch.exr",
+          "sha256": "21e9ac0e28a20ab1bc89f9b81be43e1600f49aee981e29f5969c2f71c5599060",
+          "size": 71583
+        },
+        {
+          "path": "material-fidelity/reference/nodes/patterns/grid.exr",
+          "sha256": "ff036148e6d9edbfa2ebe237d1f7b9c49ee5d88e1898e29ce505d20a4d3def38",
+          "size": 46692
+        },
+        {
+          "path": "material-fidelity/reference/nodes/patterns/hexagon.exr",
+          "sha256": "2e84dd1238cf6bfd76cdacb0c919ba3d941882fad0ce1dd1fdc8a9cf88fbaff0",
+          "size": 37082
+        },
+        {
+          "path": "material-fidelity/reference/nodes/patterns/line.exr",
+          "sha256": "71f4a2bd267dcab7d859830135687c1ef0b4ffcde9c55aa894e9eb8659aee75e",
+          "size": 34524
+        },
+        {
+          "path": "material-fidelity/reference/nodes/patterns/randomcolor.exr",
+          "sha256": "5192633efcd72e1d32faf09401ff75c85af334b0b9247910c5bdf749f664106d",
+          "size": 81650
+        },
+        {
+          "path": "material-fidelity/reference/nodes/patterns/randomfloat.exr",
+          "sha256": "089238b6359fa8d5be42bed9143211b7ead26d0582b9d6edaf03ef4f3444e85e",
+          "size": 82721
+        },
+        {
+          "path": "material-fidelity/reference/nodes/patterns/tiledcircles.exr",
+          "sha256": "3d7eb0a31bbc6198be3e066f0b147917b88d14c224d899ab2f8e63ab1c669bae",
+          "size": 44192
+        },
+        {
+          "path": "material-fidelity/reference/nodes/patterns/tiledcloverleafs.exr",
+          "sha256": "18d6bcaf2e3feceedc02471e0bd606f89aad78b17959353c90a01762252f2c2f",
+          "size": 43974
+        },
+        {
+          "path": "material-fidelity/reference/nodes/patterns/tiledhexagons.exr",
+          "sha256": "1b73b30b780e2ce345fc6511a056f147d0d7eb538a849ee91d7468cb372dd8f4",
+          "size": 47483
+        },
+        {
+          "path": "material-fidelity/reference/nodes/patterns/trianglewave.exr",
+          "sha256": "5b901aee5b1fb704414513a2a8ac9b7a907cbffbf3be56bcb3b615f7df642db0",
+          "size": 808659
         }
       ],
-      "release": "reference-data-20260707T042519Z-ca9b8e19-45436609"
+      "release": "reference-data-20260707T044516Z-b42b2f89-58118c63"
     },
     "material-fidelity/nodes/pbr": {
       "archive": "material-fidelity--nodes--pbr--f1768e6d6dac.zip",
