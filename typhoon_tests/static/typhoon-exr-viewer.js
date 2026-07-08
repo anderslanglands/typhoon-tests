@@ -714,6 +714,19 @@ export function captureReportUiState() {
   }
 }
 
+function selectableRowsForSelectAll(selectAll) {
+  const table = selectAll?.closest?.("table[data-sortable-table]");
+  const root = table || document;
+  return Array.from(root.querySelectorAll("[data-result-select]"));
+}
+
+function updateSelectAllControl(selectAll) {
+  const checkboxes = selectableRowsForSelectAll(selectAll);
+  const selected = checkboxes.filter((checkbox) => checkbox.checked);
+  selectAll.checked = checkboxes.length > 0 && selected.length === checkboxes.length;
+  selectAll.indeterminate = selected.length > 0 && selected.length < checkboxes.length;
+}
+
 function updateSelectionControls() {
   const checkboxes = Array.from(document.querySelectorAll("[data-result-select]"));
   const selected = checkboxes.filter((checkbox) => checkbox.checked);
@@ -723,10 +736,8 @@ function updateSelectionControls() {
   if (thresholdButton) thresholdButton.textContent = `Update threshold (${selected.length})`;
   const referenceButton = document.querySelector("[data-update-reference]");
   if (referenceButton) referenceButton.textContent = `Update reference (${selected.length})`;
-  const selectAll = document.querySelector("[data-select-all]");
-  if (selectAll) {
-    selectAll.checked = checkboxes.length > 0 && selected.length === checkboxes.length;
-    selectAll.indeterminate = selected.length > 0 && selected.length < checkboxes.length;
+  for (const selectAll of document.querySelectorAll("[data-select-all]")) {
+    updateSelectAllControl(selectAll);
   }
   if (selected.length === 0) setReportActionStatus("");
 }
@@ -770,11 +781,13 @@ async function runReportAction(
 }
 
 function initializeSelectionControls() {
-  const selectAll = document.querySelector("[data-select-all]");
+  const selectAllControls = Array.from(document.querySelectorAll("[data-select-all]"));
   const checkboxes = Array.from(document.querySelectorAll("[data-result-select]"));
-  if (selectAll) {
+  for (const selectAll of selectAllControls) {
     selectAll.addEventListener("change", () => {
-      for (const checkbox of checkboxes) checkbox.checked = selectAll.checked;
+      for (const checkbox of selectableRowsForSelectAll(selectAll)) {
+        checkbox.checked = selectAll.checked;
+      }
       updateSelectionControls();
     });
   }

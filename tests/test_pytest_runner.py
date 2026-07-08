@@ -1551,7 +1551,7 @@ def test_html_report_groups_nested_sections_and_legacy_root_cases(tmp_path: Path
         'data-section-id="[&quot;sample&quot;,&quot;Surfaces&quot;,'
         '&quot;Open PBR&quot;]"'
     ) in html
-    assert html.count("data-select-all") == 1
+    assert html.count("data-select-all") == 3
     assert len(parser.rows) == 3
     assert all(len(row) == 7 for row in parser.rows)
 
@@ -1900,7 +1900,7 @@ def test_nested_report_tables_sort_independently_with_detail_rows(tmp_path: Path
 
 
 
-def test_report_select_all_controls_rows_across_section_tables(tmp_path: Path) -> None:
+def test_report_select_all_controls_rows_within_section_tables(tmp_path: Path) -> None:
     if shutil.which("node") is None:
         pytest.skip("node is required to validate report selection")
 
@@ -1918,30 +1918,40 @@ def test_report_select_all_controls_rows_across_section_tables(tmp_path: Path) -
             hidden: true,
             handlers: {},
             addEventListener(name, handler) { this.handlers[name] = handler; },
+            closest() { return null; },
           };
         }
-        const selectAll = control();
+        function table(rows) {
+          return {
+            querySelectorAll(selector) {
+              if (selector === "[data-result-select]") return rows;
+              return [];
+            },
+          };
+        }
+        const selectAllA = control();
+        const selectAllB = control();
         const actions = control();
         const thresholdButton = control();
         const referenceButton = control();
-        const rows = [control(), control(), control()];
+        const rowsA = [control(), control()];
+        const rowsB = [control(), control()];
+        const tableA = table(rowsA);
+        const tableB = table(rowsB);
+        selectAllA.closest = (selector) => selector === "table[data-sortable-table]" ? tableA : null;
+        selectAllB.closest = (selector) => selector === "table[data-sortable-table]" ? tableB : null;
+        const rows = [...rowsA, ...rowsB];
         globalThis.window = { setTimeout };
         globalThis.document = {
-          documentElement: {
-            style: { setProperty(name, value) { rootStyle[name] = value; } },
-          },
-          querySelector(selector) {
-            return selector === ".top-nav" ? topNav : null;
-          },
           baseURI: "file:///",
           querySelector(selector) {
-            if (selector === "[data-select-all]") return selectAll;
             if (selector === "[data-selection-actions]") return actions;
             if (selector === "[data-update-threshold]") return thresholdButton;
             if (selector === "[data-update-reference]") return referenceButton;
             return null;
           },
           querySelectorAll(selector) {
+            if (selector === "[data-select-all]") return [selectAllA, selectAllB];
             if (selector === "[data-result-select]") return rows;
             if (selector === "[data-result-select]:checked") return rows.filter((row) => row.checked);
             return [];
@@ -1950,15 +1960,42 @@ def test_report_select_all_controls_rows_across_section_tables(tmp_path: Path) -
           addEventListener() {},
         };
         await import(pathToFileURL(process.argv[2]).href);
-        selectAll.checked = true;
-        selectAll.handlers.change();
-        console.log(JSON.stringify({
+
+        selectAllA.checked = true;
+        selectAllA.handlers.change();
+        const afterFirstSection = {
           selected: rows.map((row) => row.checked),
-          actionsHidden: actions.hidden,
-          selectAllChecked: selectAll.checked,
-          selectAllIndeterminate: selectAll.indeterminate,
+          selectAllA: [selectAllA.checked, selectAllA.indeterminate],
+          selectAllB: [selectAllB.checked, selectAllB.indeterminate],
           thresholdLabel: thresholdButton.textContent,
           referenceLabel: referenceButton.textContent,
+        };
+
+        rowsB[0].checked = true;
+        rowsB[0].handlers.change();
+        const afterPartialSecondSection = {
+          selected: rows.map((row) => row.checked),
+          selectAllA: [selectAllA.checked, selectAllA.indeterminate],
+          selectAllB: [selectAllB.checked, selectAllB.indeterminate],
+          thresholdLabel: thresholdButton.textContent,
+          referenceLabel: referenceButton.textContent,
+        };
+
+        selectAllB.checked = true;
+        selectAllB.handlers.change();
+        const afterSecondSection = {
+          selected: rows.map((row) => row.checked),
+          actionsHidden: actions.hidden,
+          selectAllA: [selectAllA.checked, selectAllA.indeterminate],
+          selectAllB: [selectAllB.checked, selectAllB.indeterminate],
+          thresholdLabel: thresholdButton.textContent,
+          referenceLabel: referenceButton.textContent,
+        };
+
+        console.log(JSON.stringify({
+          afterFirstSection,
+          afterPartialSecondSection,
+          afterSecondSection,
         }));
         """,
         encoding="utf-8",
@@ -1973,12 +2010,28 @@ def test_report_select_all_controls_rows_across_section_tables(tmp_path: Path) -
     )
 
     assert json.loads(completed.stdout) == {
-        "selected": [True, True, True],
-        "actionsHidden": False,
-        "selectAllChecked": True,
-        "selectAllIndeterminate": False,
-        "thresholdLabel": "Update threshold (3)",
-        "referenceLabel": "Update reference (3)",
+        "afterFirstSection": {
+            "selected": [True, True, False, False],
+            "selectAllA": [True, False],
+            "selectAllB": [False, False],
+            "thresholdLabel": "Update threshold (2)",
+            "referenceLabel": "Update reference (2)",
+        },
+        "afterPartialSecondSection": {
+            "selected": [True, True, True, False],
+            "selectAllA": [True, False],
+            "selectAllB": [False, True],
+            "thresholdLabel": "Update threshold (3)",
+            "referenceLabel": "Update reference (3)",
+        },
+        "afterSecondSection": {
+            "selected": [True, True, True, True],
+            "actionsHidden": False,
+            "selectAllA": [True, False],
+            "selectAllB": [True, False],
+            "thresholdLabel": "Update threshold (4)",
+            "referenceLabel": "Update reference (4)",
+        },
     }
 
 

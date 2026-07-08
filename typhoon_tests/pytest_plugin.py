@@ -1152,8 +1152,6 @@ def build_report_sections(
             )
         node["rows"].append((row, markup))
 
-    table_count = 0
-
     def descendants(node: dict[str, Any]) -> list[dict[str, Any]]:
         result = [row for row, _markup in node["rows"]]
         for child in node["children"].values():
@@ -1178,21 +1176,13 @@ def build_report_sections(
     def table_markup(
         rows: list[tuple[dict[str, Any], str]], path: tuple[str, ...]
     ) -> str:
-        nonlocal table_count
-        table_headers = headers
-        if table_count:
-            table_headers = table_headers.replace(
-                "<label>Select <input type=\"checkbox\" data-select-all></label>",
-                "Select",
-            )
-        table_count += 1
         body = "".join(markup for _row, markup in rows)
         table_key = html.escape(
             json.dumps(path, separators=(",", ":")), quote=True
         )
         return (
             f'<table data-sortable-table data-sort-table-key="{table_key}">'
-            f"<thead><tr>{table_headers}</tr></thead>"
+            f"<thead><tr>{headers}</tr></thead>"
             f"<tbody>{body}</tbody>"
             "</table>"
         )
