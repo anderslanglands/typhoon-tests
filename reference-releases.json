@@ -506,9 +506,9 @@
       "release": "reference-data-20260707T041914Z-8363eb47-32321cb7"
     },
     "material-fidelity/nodes/geometric": {
-      "archive": "material-fidelity--nodes--geometric--d3856b75d0f5.zip",
-      "archive_sha256": "b623acc97d5bb3537b493be8d2bcd34d007df68b780082654838f62d48031ee0",
-      "archive_size": 69303132,
+      "archive": "material-fidelity--nodes--geometric--33ae0380f89c.zip",
+      "archive_sha256": "f390fa75dc346db7d704f895cae84b9bfff7e63913e436439b0ab2e89ea4124a",
+      "archive_size": 71208571,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/geometric/binormal_default.exr",
@@ -579,6 +579,21 @@
           "path": "material-fidelity/reference/nodes/geometric/bump.exr",
           "sha256": "29ca6b996f940ff346164237c083dfcfac43d8a58018cfd9f3b2199bd9fedfea",
           "size": 785607
+        },
+        {
+          "path": "material-fidelity/reference/nodes/geometric/geomcolor_color3.exr",
+          "sha256": "1f6929b673d02a9a5d3a60757c4dde0402a708e51c05e54f6980e18d8b9e9a71",
+          "size": 806382
+        },
+        {
+          "path": "material-fidelity/reference/nodes/geometric/geomcolor_color4.exr",
+          "sha256": "d906fe60b33f48d8b8a7fe115445e79a382635123d0cd38a61d06f328d7c9bf7",
+          "size": 808083
+        },
+        {
+          "path": "material-fidelity/reference/nodes/geometric/geomcolor_float.exr",
+          "sha256": "91da72d5e7cc2d2c85d718ecd79542b26c52973224a7880eea16c29495ed1fcf",
+          "size": 290364
         },
         {
           "path": "material-fidelity/reference/nodes/geometric/normal_default.exr",
@@ -896,7 +911,7 @@
           "size": 785716
         }
       ],
-      "release": "reference-data-20260706T214944Z-c9a9819d-5494fb69"
+      "release": "reference-data-20260708T003501Z-2fd15b1a-44f8eeeb"
     },
     "material-fidelity/nodes/logical": {
       "archive": "material-fidelity--nodes--logical--83420186235d.zip",
