@@ -827,7 +827,8 @@ def _write_mesh_primitive(
         st = primvars.CreatePrimvar(
             "st", Sdf.ValueTypeNames.TexCoord2fArray, UsdGeom.Tokens.vertex
         )
-        st.Set([Gf.Vec2f(*texcoord) for texcoord in texcoords])
+        # glTF texture coordinates use an upper-left image origin; USD MaterialX uses lower-left.
+        st.Set([Gf.Vec2f(texcoord[0], 1.0 - texcoord[1]) for texcoord in texcoords])
 
     tangent_index = attributes.get("TANGENT")
     if tangent_index is not None:
