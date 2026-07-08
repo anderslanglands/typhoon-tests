@@ -76,8 +76,8 @@ def Scope "Looks"
             def Shader "latitude_centered"
             {
                 uniform token info:id = "ND_subtract_float"
-                float inputs:in1 = 0.5
-                float inputs:in2.connect = </Looks/latlongimage/NG_latlongimage/uv_split.outputs:outy>
+                float inputs:in1.connect = </Looks/latlongimage/NG_latlongimage/uv_split.outputs:outy>
+                float inputs:in2 = 0.5
                 float outputs:out
             }
 
@@ -169,6 +169,8 @@ over "Render"
 {
     over "Settings"
     {
+        uniform int ty:convergedSamplesPerPixel = 4
+
         over "Product"
         {
             token productName = "material-fidelity/nodes/textures/latlongimage.exr"
