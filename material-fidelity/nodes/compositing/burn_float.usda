@@ -1,0 +1,110 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "burn_float" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/burn/burn_float.mtlx"
+                string sourceMaterial = "M_burn_float"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/burn_float/surface.outputs:out>
+        token outputs:surface.connect = </Looks/burn_float/surface.outputs:out>
+
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/burn_float/NG_burn_float.outputs:out_base_color>
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/burn_float/uniform_edf.outputs:out>
+            token outputs:out
+        }
+
+        def NodeGraph "NG_burn_float"
+        {
+            color3f outputs:out_base_color.connect = </Looks/burn_float/NG_burn_float/to_color.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "fg_image"
+            {
+                uniform token info:id = "ND_image_float"
+                float inputs:default = 1
+                asset inputs:file = @../../_assets/Materials/radial.exr@
+                float2 inputs:texcoord.connect = </Looks/burn_float/NG_burn_float/uv0.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "bg_image"
+            {
+                uniform token info:id = "ND_image_float"
+                float inputs:default = 1
+                asset inputs:file = @../../_assets/Materials/grid.exr@
+                float2 inputs:texcoord.connect = </Looks/burn_float/NG_burn_float/uv0.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_burn_float"
+                float inputs:bg.connect = </Looks/burn_float/NG_burn_float/bg_image.outputs:out>
+                float inputs:fg.connect = </Looks/burn_float/NG_burn_float/fg_image.outputs:out>
+                float inputs:mix = 1
+                float outputs:out
+            }
+
+            def Shader "to_color"
+            {
+                uniform token info:id = "ND_convert_float_color3"
+                float inputs:in.connect = </Looks/burn_float/NG_burn_float/node_under_test.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/burn_float>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/compositing/burn_float.exr"
+        }
+    }
+}

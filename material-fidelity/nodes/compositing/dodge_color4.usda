@@ -13,35 +13,35 @@
 
 def Scope "Looks"
 {
-    def Material "over_png" (
+    def Material "dodge_color4" (
         customData = {
             dictionary materialFidelity = {
-                string source = "materials/nodes/over_png/over_png.mtlx"
-                string sourceMaterial = "M_over_png"
+                string source = "materials/nodes/dodge/dodge_color4.mtlx"
+                string sourceMaterial = "M_dodge_color4"
             }
         }
     )
     {
-        token outputs:mtlx:surface.connect = </Looks/over_png/surface.outputs:out>
-        token outputs:surface.connect = </Looks/over_png/surface.outputs:out>
+        token outputs:mtlx:surface.connect = </Looks/dodge_color4/surface.outputs:out>
+        token outputs:surface.connect = </Looks/dodge_color4/surface.outputs:out>
 
         def Shader "uniform_edf"
         {
             uniform token info:id = "ND_uniform_edf"
-            color3f inputs:color.connect = </Looks/over_png/NG_over_png.outputs:out_base_color>
+            color3f inputs:color.connect = </Looks/dodge_color4/NG_dodge_color4.outputs:out_base_color>
             token outputs:out
         }
 
         def Shader "surface"
         {
             uniform token info:id = "ND_surface"
-            token inputs:edf.connect = </Looks/over_png/uniform_edf.outputs:out>
+            token inputs:edf.connect = </Looks/dodge_color4/uniform_edf.outputs:out>
             token outputs:out
         }
 
-        def NodeGraph "NG_over_png"
+        def NodeGraph "NG_dodge_color4"
         {
-            color3f outputs:out_base_color.connect = </Looks/over_png/NG_over_png/to_color.outputs:out>
+            color3f outputs:out_base_color.connect = </Looks/dodge_color4/NG_dodge_color4/to_color.outputs:out>
 
             def Shader "uv0"
             {
@@ -53,10 +53,8 @@ def Scope "Looks"
             {
                 uniform token info:id = "ND_image_color4"
                 color4f inputs:default = (1, 0, 1, 1)
-                asset inputs:file = @../../_assets/Materials/radial.png@ (
-                    colorSpace = "srgb_rec709_scene"
-                )
-                float2 inputs:texcoord.connect = </Looks/over_png/NG_over_png/uv0.outputs:out>
+                asset inputs:file = @../../_assets/Materials/radial.exr@
+                float2 inputs:texcoord.connect = </Looks/dodge_color4/NG_dodge_color4/uv0.outputs:out>
                 color4f outputs:out
             }
 
@@ -64,18 +62,16 @@ def Scope "Looks"
             {
                 uniform token info:id = "ND_image_color4"
                 color4f inputs:default = (1, 0, 1, 1)
-                asset inputs:file = @../../_assets/Materials/grid.png@ (
-                    colorSpace = "srgb_rec709_scene"
-                )
-                float2 inputs:texcoord.connect = </Looks/over_png/NG_over_png/uv0.outputs:out>
+                asset inputs:file = @../../_assets/Materials/grid.exr@
+                float2 inputs:texcoord.connect = </Looks/dodge_color4/NG_dodge_color4/uv0.outputs:out>
                 color4f outputs:out
             }
 
             def Shader "node_under_test"
             {
-                uniform token info:id = "ND_over_color4"
-                color4f inputs:bg.connect = </Looks/over_png/NG_over_png/bg_image.outputs:out>
-                color4f inputs:fg.connect = </Looks/over_png/NG_over_png/fg_image.outputs:out>
+                uniform token info:id = "ND_dodge_color4"
+                color4f inputs:bg.connect = </Looks/dodge_color4/NG_dodge_color4/bg_image.outputs:out>
+                color4f inputs:fg.connect = </Looks/dodge_color4/NG_dodge_color4/fg_image.outputs:out>
                 float inputs:mix = 1
                 color4f outputs:out
             }
@@ -83,7 +79,7 @@ def Scope "Looks"
             def Shader "to_color"
             {
                 uniform token info:id = "ND_convert_color4_color3"
-                color4f inputs:in.connect = </Looks/over_png/NG_over_png/node_under_test.outputs:out>
+                color4f inputs:in.connect = </Looks/dodge_color4/NG_dodge_color4/node_under_test.outputs:out>
                 color3f outputs:out
             }
         }
@@ -96,7 +92,7 @@ over "World"
         prepend apiSchemas = ["MaterialBindingAPI"]
     )
     {
-        rel material:binding = </Looks/over_png>
+        rel material:binding = </Looks/dodge_color4>
     }
 }
 
@@ -108,7 +104,7 @@ over "Render"
 
         over "Product"
         {
-            token productName = "material-fidelity/nodes/compositing/over_png.exr"
+            token productName = "material-fidelity/nodes/compositing/dodge_color4.exr"
         }
     }
 }

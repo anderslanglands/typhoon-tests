@@ -1,0 +1,110 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "mix_vector2" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/mix/mix_vector2.mtlx"
+                string sourceMaterial = "M_mix_vector2"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/mix_vector2/surface.outputs:out>
+        token outputs:surface.connect = </Looks/mix_vector2/surface.outputs:out>
+
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/mix_vector2/NG_mix_vector2.outputs:out_base_color>
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/mix_vector2/uniform_edf.outputs:out>
+            token outputs:out
+        }
+
+        def NodeGraph "NG_mix_vector2"
+        {
+            color3f outputs:out_base_color.connect = </Looks/mix_vector2/NG_mix_vector2/to_color.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "fg_image"
+            {
+                uniform token info:id = "ND_image_vector2"
+                float2 inputs:default = (1, 0)
+                asset inputs:file = @../../_assets/Materials/radial.exr@
+                float2 inputs:texcoord.connect = </Looks/mix_vector2/NG_mix_vector2/uv0.outputs:out>
+                float2 outputs:out
+            }
+
+            def Shader "bg_image"
+            {
+                uniform token info:id = "ND_image_vector2"
+                float2 inputs:default = (1, 0)
+                asset inputs:file = @../../_assets/Materials/grid.exr@
+                float2 inputs:texcoord.connect = </Looks/mix_vector2/NG_mix_vector2/uv0.outputs:out>
+                float2 outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_mix_vector2"
+                float2 inputs:bg.connect = </Looks/mix_vector2/NG_mix_vector2/bg_image.outputs:out>
+                float2 inputs:fg.connect = </Looks/mix_vector2/NG_mix_vector2/fg_image.outputs:out>
+                float inputs:mix = 0.5
+                float2 outputs:out
+            }
+
+            def Shader "to_color"
+            {
+                uniform token info:id = "ND_convert_vector2_color3"
+                float2 inputs:in.connect = </Looks/mix_vector2/NG_mix_vector2/node_under_test.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/mix_vector2>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/compositing/mix_vector2.exr"
+        }
+    }
+}
