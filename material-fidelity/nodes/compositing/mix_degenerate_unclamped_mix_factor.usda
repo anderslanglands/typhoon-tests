@@ -77,9 +77,7 @@ def Scope "Looks"
             {
                 uniform token info:id = "ND_image_float"
                 float inputs:default = 1
-                asset inputs:file = @../../_assets/Materials/radial.png@ (
-                    colorSpace = "srgb_texture"
-                )
+                asset inputs:file = @../../_assets/Materials/radial.exr@
                 float2 inputs:texcoord.connect = </Looks/mix_degenerate_unclamped_mix_factor/NG_mix_degenerate_unclamped_mix_factor/uv0.outputs:out>
                 float outputs:out
             }
@@ -88,9 +86,7 @@ def Scope "Looks"
             {
                 uniform token info:id = "ND_image_float"
                 float inputs:default = 1
-                asset inputs:file = @../../_assets/Materials/grid.png@ (
-                    colorSpace = "srgb_texture"
-                )
+                asset inputs:file = @../../_assets/Materials/grid.exr@
                 float2 inputs:texcoord.connect = </Looks/mix_degenerate_unclamped_mix_factor/NG_mix_degenerate_unclamped_mix_factor/uv0.outputs:out>
                 float outputs:out
             }

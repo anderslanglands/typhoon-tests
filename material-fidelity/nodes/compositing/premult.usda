@@ -53,9 +53,7 @@ def Scope "Looks"
             {
                 uniform token info:id = "ND_image_color4"
                 color4f inputs:default = (1, 0, 1, 1)
-                asset inputs:file = @../../_assets/Materials/radial.png@ (
-                    colorSpace = "srgb_texture"
-                )
+                asset inputs:file = @../../_assets/Materials/radial.exr@
                 float2 inputs:texcoord.connect = </Looks/premult/NG_premult/uv0.outputs:out>
                 color4f outputs:out
             }

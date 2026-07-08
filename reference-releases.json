@@ -365,107 +365,107 @@
       "release": "reference-data-20260707T041914Z-8363eb47-32321cb7"
     },
     "material-fidelity/nodes/compositing": {
-      "archive": "material-fidelity--nodes--compositing--fd2835a78702.zip",
-      "archive_sha256": "cc3a3a5857913950d8333d99e8966f7f2d38f5dc05753735ca04183e062095b7",
-      "archive_size": 7809234,
+      "archive": "material-fidelity--nodes--compositing--b40bdd26c95d.zip",
+      "archive_sha256": "e990917e383f668c185576043af3d1fc24728e5edd162d019783283a05ce031f",
+      "archive_size": 4886044,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/compositing/burn.exr",
-          "sha256": "8dec6fd757695c0be79d997eb3afd572b6d3dfce26b59e9a4f8b19717cab4a2a",
-          "size": 26354
+          "sha256": "1cd5564888ed9b08a15a4c02a8844c02571e84ae599dbe942878a3974f468cea",
+          "size": 32119
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/difference.exr",
-          "sha256": "ad32910df4bd0dad28a2511791ce7c979114e58a87b82703aa4147619a0e31db",
-          "size": 556378
+          "sha256": "5a77c84b9b54e98c37ce6891f2d5391d2e4084cb50977b3e505935918475c04d",
+          "size": 401125
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/disjointover.exr",
-          "sha256": "03e35a1c0406cf348c11dec486f512d698b11b3628b32328012e065be666906c",
-          "size": 558639
+          "sha256": "85048e5235d4bb44f6bb3dafab8bdd8629c99b55bc5ee82c6df880f4845750aa",
+          "size": 401954
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/dodge.exr",
-          "sha256": "88026eeaa2825b324ed9e2ca70972eb4ea57b420cad1dcc004dbff98aad93b54",
-          "size": 490697
+          "sha256": "af95b85cfceacb641027834f4aaefdb9bdb9a0bb8bf73718929a4f2af8e89d6c",
+          "size": 341371
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/in.exr",
-          "sha256": "cae64e70f82a007cf7079e1d2ed457c08287fb88df4b276eda39af012ed701c9",
-          "size": 532255
+          "sha256": "fd598a6bdbbda7609fb8b5ee302b392e7f6f39d4068f94f286c8b8462975c66d",
+          "size": 112751
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/inside.exr",
-          "sha256": "cc826fd4e4513f8a59d20373e099e8f3a66a621adf0ca2ffe60e28b6d2713886",
-          "size": 547352
+          "sha256": "fd598a6bdbbda7609fb8b5ee302b392e7f6f39d4068f94f286c8b8462975c66d",
+          "size": 112751
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/mask.exr",
-          "sha256": "a2795a2903c42bbecb4303cf18f390dd5b65228a430f706730880880c1aedf0a",
-          "size": 109451
+          "sha256": "fd598a6bdbbda7609fb8b5ee302b392e7f6f39d4068f94f286c8b8462975c66d",
+          "size": 112751
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/matte.exr",
-          "sha256": "4a911ca42b664b886d2a5ebc83efe47024844b4d4df1ffafbb764684abb22dd0",
-          "size": 558705
+          "sha256": "0c1632a6df96c5c1ade851d255c50e175c9eb8fd24e41fb953efe28a8c952817",
+          "size": 402362
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/minus.exr",
-          "sha256": "4b9cfe895a38e36495b98911d21ce547c163d08c6bf031e6d90118aec7c00b5e",
-          "size": 602006
+          "sha256": "3243b3f4248309a57c5e26c3888e5e802120180283d22035bdda8dbd5ac3ea83",
+          "size": 328908
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/mix.exr",
-          "sha256": "30cd4d6ca3001bac9a5a2d88be3fa4c1276bfd2a99fcb479cb497ce09fe7f7ce",
-          "size": 556306
+          "sha256": "10f3708cb7333b02dcea655e61d01311d09efc054904400859758a17984b3573",
+          "size": 400293
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/mix_degenerate_unclamped_mix_factor.exr",
-          "sha256": "d4f11972751010f1243125a02cc40513f3805354d2eafb0af0b955cf5eecc8e4",
-          "size": 176242
+          "sha256": "4c531c9701d0dc2e93390fcbbca513b0d4c916fe4a668c595cfe3648bb6f2f66",
+          "size": 182936
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/out.exr",
-          "sha256": "56f3079886ec9651ce9a2bb18654701cbd6a5e0d3a89f2d8a1b4dfcf648a2433",
-          "size": 128264
+          "sha256": "9cfaf60b0fc5f6da8598b879136955f671b358936f7862e19c7005fc6b501fb8",
+          "size": 136268
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/outside.exr",
-          "sha256": "e83a451ed2c72ce018fdf64b4016d91a27bbe5eca749f0c0d13785df38bce22a",
-          "size": 543059
+          "sha256": "9cfaf60b0fc5f6da8598b879136955f671b358936f7862e19c7005fc6b501fb8",
+          "size": 136268
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/over.exr",
-          "sha256": "5c1b6fc802f958e1323bdcae1131419d9056b30dc8b0664e17dccb0ced9fd34c",
-          "size": 558611
+          "sha256": "dfac2e5ccb85c4eb262981597c6c1d173aaef2839c65bf77907f935368e8b0b7",
+          "size": 401927
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/overlay.exr",
-          "sha256": "e1805702f13d433661e5757c1b79d5612fec7cb67107d6f26c2b1c5b987441a8",
-          "size": 435484
+          "sha256": "446c46505e6831e4d2481b5f6b102a58c6dbb1a434f906a8a178f0c3cc640d26",
+          "size": 251856
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/plus.exr",
-          "sha256": "5a1e1e667cc3a5765c18831c6da1c935a544cbb965145dd1d0d75489503cc128",
-          "size": 556204
+          "sha256": "7fc80fdc40705b7e2b656ee05adf20b95deba05cd1bcaf08da5510ad71a273e9",
+          "size": 400758
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/premult.exr",
-          "sha256": "7c882dc2a879b7717ee91951cdc4c5a40b456f0f32da934400d5f5bee86e4e76",
-          "size": 158938
+          "sha256": "7cab36c5215c63b8ab31d9107fec662b178b293931382f8b234ca364fbdfab98",
+          "size": 174502
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/screen.exr",
-          "sha256": "1ef194b1b72aad4eea7edf741ba8e8ec30ba006875e110b1c70c51319145d96c",
-          "size": 551711
+          "sha256": "a9bd335283a0f58bd290f1e36ee1832916015cd8d6707d25c204a9937b67b727",
+          "size": 397344
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/unpremult.exr",
-          "sha256": "d2599ab7325eeb5582f4bb88679834d282693a7e52bbf325d1744a975240ebb6",
-          "size": 158936
+          "sha256": "d937afbbb4d632c847c0c178c5db0b2eb029f444d858e759fdbbad3e15262bb0",
+          "size": 154158
         }
       ],
-      "release": "reference-data-20260708T024659Z-f419db37-9df40a7d"
+      "release": "reference-data-20260708T025521Z-ab6a0099-266dd84d"
     },
     "material-fidelity/nodes/conditional": {
       "archive": "material-fidelity--nodes--conditional--0c5a4b007061.zip",
