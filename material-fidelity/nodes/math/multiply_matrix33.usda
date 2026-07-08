@@ -1,0 +1,115 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_multiply_matrix33 with literal inputs in1 = ((0.5, 0.25, 0.1), (0.1, 0.5, 0.25), (0.2, 0.1, 0.5)) and in2 = ((0.2, 0.4, 0.6), (0.1, 0.3, 0.5), (0.2, 0.1, 0.4)), by multiplying in1 and in2. The node result is ((0.145, 0.285, 0.465), (0.12, 0.215, 0.41), (0.15, 0.16, 0.37)). The matrix result rows are added component-wise before conversion to color3, so the expected emitted RGB is (0.415, 0.66, 1.245)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "multiply_matrix33" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/multiply/multiply_matrix33.mtlx"
+                string sourceMaterial = "M_multiply_matrix33"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/multiply_matrix33/surface.outputs:out>
+        token outputs:surface.connect = </Looks/multiply_matrix33/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_multiply_matrix33"
+            matrix3d inputs:in1 = ( (0.5, 0.25, 0.1), (0.1, 0.5, 0.25), (0.2, 0.1, 0.5) )
+            matrix3d inputs:in2 = ( (0.2, 0.4, 0.6), (0.1, 0.3, 0.5), (0.2, 0.1, 0.4) )
+            matrix3d outputs:out
+        }
+        def Shader "display_row0"
+        {
+            uniform token info:id = "ND_extract_matrix33"
+            matrix3d inputs:in.connect = </Looks/multiply_matrix33/node_under_test.outputs:out>
+            int inputs:index = 0
+            float3 outputs:out
+        }
+        def Shader "display_row1"
+        {
+            uniform token info:id = "ND_extract_matrix33"
+            matrix3d inputs:in.connect = </Looks/multiply_matrix33/node_under_test.outputs:out>
+            int inputs:index = 1
+            float3 outputs:out
+        }
+        def Shader "display_row2"
+        {
+            uniform token info:id = "ND_extract_matrix33"
+            matrix3d inputs:in.connect = </Looks/multiply_matrix33/node_under_test.outputs:out>
+            int inputs:index = 2
+            float3 outputs:out
+        }
+        def Shader "display_row01"
+        {
+            uniform token info:id = "ND_add_vector3"
+            float3 inputs:in1.connect = </Looks/multiply_matrix33/display_row0.outputs:out>
+            float3 inputs:in2.connect = </Looks/multiply_matrix33/display_row1.outputs:out>
+            float3 outputs:out
+        }
+        def Shader "display_packed"
+        {
+            uniform token info:id = "ND_add_vector3"
+            float3 inputs:in1.connect = </Looks/multiply_matrix33/display_row01.outputs:out>
+            float3 inputs:in2.connect = </Looks/multiply_matrix33/display_row2.outputs:out>
+            float3 outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_convert_vector3_color3"
+            float3 inputs:in.connect = </Looks/multiply_matrix33/display_packed.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/multiply_matrix33/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/multiply_matrix33/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/multiply_matrix33>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/multiply_matrix33.exr"
+        }
+    }
+}

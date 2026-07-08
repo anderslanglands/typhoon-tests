@@ -1,0 +1,80 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_add_vector3FA with literal inputs in1 = (0.1, 0.2, 0.3) and in2 = 0.2, by adding in1 and in2. The node result is (0.3, 0.4, 0.5). The result is connected to uniform_edf.color, so the expected emitted RGB is (0.3, 0.4, 0.5)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "add_vector3FA" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/add/add_vector3FA.mtlx"
+                string sourceMaterial = "M_add_vector3FA"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/add_vector3FA/surface.outputs:out>
+        token outputs:surface.connect = </Looks/add_vector3FA/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_add_vector3FA"
+            float3 inputs:in1 = (0.1, 0.2, 0.3)
+            float inputs:in2 = 0.2
+            float3 outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_convert_vector3_color3"
+            float3 inputs:in.connect = </Looks/add_vector3FA/node_under_test.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/add_vector3FA/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/add_vector3FA/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/add_vector3FA>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/add_vector3FA.exr"
+        }
+    }
+}

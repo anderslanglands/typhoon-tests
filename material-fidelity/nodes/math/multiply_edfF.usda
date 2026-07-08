@@ -1,0 +1,83 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_multiply_edfF by multiplying a uniform EDF color (1, 0.25, 0.08) by scalar 0.45. The product is emitted through ND_surface.edf, so the plane should render RGB (0.45, 0.1125, 0.036) apart from renderer sampling noise."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "multiply_edfF" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/multiply/multiply_edfF.mtlx"
+                string sourceMaterial = "M_multiply_edfF"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/multiply_edfF/surface.outputs:out>
+        token outputs:surface.connect = </Looks/multiply_edfF/surface.outputs:out>
+
+        def Shader "edf_warm"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color = (1, 0.25, 0.08)
+            token outputs:out
+        }
+
+        def Shader "edf_cool"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color = (0.08, 0.35, 1)
+            token outputs:out
+        }
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_multiply_edfF"
+            token inputs:in1.connect = </Looks/multiply_edfF/edf_warm.outputs:out>
+            float inputs:in2 = 0.45
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/multiply_edfF/node_under_test.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/multiply_edfF>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/multiply_edfF.exr"
+        }
+    }
+}

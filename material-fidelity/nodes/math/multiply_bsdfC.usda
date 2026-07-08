@@ -1,0 +1,78 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_multiply_bsdfC by multiplying a red Burley diffuse BSDF, color (0.85, 0.16, 0.06), by color (0.35, 0.8, 0.6). The shaderball should keep the diffuse lighting shape while tinting the BSDF contribution component-wise to approximately (0.2975, 0.128, 0.036)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/shaderball.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "multiply_bsdfC" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/multiply/multiply_bsdfC.mtlx"
+                string sourceMaterial = "M_multiply_bsdfC"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/multiply_bsdfC/surface.outputs:out>
+        token outputs:surface.connect = </Looks/multiply_bsdfC/surface.outputs:out>
+
+        def Shader "diffuse_bsdf"
+        {
+            uniform token info:id = "ND_burley_diffuse_bsdf"
+            color3f inputs:color = (0.85, 0.16, 0.06)
+            float inputs:roughness = 0.55
+            float inputs:weight = 1
+            token outputs:out
+        }
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_multiply_bsdfC"
+            token inputs:in1.connect = </Looks/multiply_bsdfC/diffuse_bsdf.outputs:out>
+            color3f inputs:in2 = (0.35, 0.8, 0.6)
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:bsdf.connect = </Looks/multiply_bsdfC/node_under_test.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/multiply_bsdfC>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/multiply_bsdfC.exr"
+        }
+    }
+}

@@ -1,0 +1,80 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_divide_vector2FA with literal inputs in1 = (0.4, 0.6) and in2 = 2, by dividing in1 and in2. The node result is (0.2, 0.3). The vector2 result is converted to color3 as (x, y, 0), so the expected emitted RGB is (0.2, 0.3, 0)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "divide_vector2FA" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/divide/divide_vector2FA.mtlx"
+                string sourceMaterial = "M_divide_vector2FA"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/divide_vector2FA/surface.outputs:out>
+        token outputs:surface.connect = </Looks/divide_vector2FA/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_divide_vector2FA"
+            float2 inputs:in1 = (0.4, 0.6)
+            float inputs:in2 = 2
+            float2 outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_convert_vector2_color3"
+            float2 inputs:in.connect = </Looks/divide_vector2FA/node_under_test.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/divide_vector2FA/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/divide_vector2FA/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/divide_vector2FA>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/divide_vector2FA.exr"
+        }
+    }
+}

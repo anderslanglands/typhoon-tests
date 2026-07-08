@@ -1,0 +1,88 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_add_bsdf by summing a weighted red Burley diffuse lobe, color (0.85, 0.16, 0.06) with weight 0.7, and a cool-tinted dielectric reflection lobe with tint (0.9, 0.95, 1), roughness (0.18, 0.18), and weight 0.3. The shaderball pixels should contain both the red diffuse lighting response and the added specular reflection because the summed BSDF is connected directly to ND_surface.bsdf."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/shaderball.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "add_bsdf" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/add/add_bsdf.mtlx"
+                string sourceMaterial = "M_add_bsdf"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/add_bsdf/surface.outputs:out>
+        token outputs:surface.connect = </Looks/add_bsdf/surface.outputs:out>
+
+        def Shader "diffuse_bsdf"
+        {
+            uniform token info:id = "ND_burley_diffuse_bsdf"
+            color3f inputs:color = (0.85, 0.16, 0.06)
+            float inputs:roughness = 0.55
+            float inputs:weight = 0.7
+            token outputs:out
+        }
+
+        def Shader "specular_bsdf"
+        {
+            uniform token info:id = "ND_dielectric_bsdf"
+            color3f inputs:tint = (0.9, 0.95, 1)
+            float2 inputs:roughness = (0.18, 0.18)
+            string inputs:scatter_mode = "R"
+            float inputs:weight = 0.3
+            token outputs:out
+        }
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_add_bsdf"
+            token inputs:in1.connect = </Looks/add_bsdf/diffuse_bsdf.outputs:out>
+            token inputs:in2.connect = </Looks/add_bsdf/specular_bsdf.outputs:out>
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:bsdf.connect = </Looks/add_bsdf/node_under_test.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/add_bsdf>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 32
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/add_bsdf.exr"
+        }
+    }
+}

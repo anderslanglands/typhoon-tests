@@ -1,0 +1,83 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_add_edf by adding two uniform emission lobes with colors (1, 0.25, 0.08) and (0.08, 0.35, 1). The sum is emitted through ND_surface.edf, so the plane should render RGB (1.08, 0.6, 1.08) apart from renderer sampling noise."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "add_edf" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/add/add_edf.mtlx"
+                string sourceMaterial = "M_add_edf"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/add_edf/surface.outputs:out>
+        token outputs:surface.connect = </Looks/add_edf/surface.outputs:out>
+
+        def Shader "edf_warm"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color = (1, 0.25, 0.08)
+            token outputs:out
+        }
+
+        def Shader "edf_cool"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color = (0.08, 0.35, 1)
+            token outputs:out
+        }
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_add_edf"
+            token inputs:in1.connect = </Looks/add_edf/edf_warm.outputs:out>
+            token inputs:in2.connect = </Looks/add_edf/edf_cool.outputs:out>
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/add_edf/node_under_test.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/add_edf>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/add_edf.exr"
+        }
+    }
+}

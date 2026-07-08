@@ -1,0 +1,65 @@
+#usda 1.0
+(
+    defaultPrim = "standard_shader_ball_scene"
+    endTimeCode = 3
+    framesPerSecond = 24
+    metersPerUnit = 0.01
+    renderSettingsPrimPath = "/Render/RenderSettings"
+    startTimeCode = 3
+    subLayers = [
+        @../../assets/full_assets/StandardShaderBall/standard_shader_ball_scene.usda@
+    ]
+    timeCodesPerSecond = 24
+    upAxis = "Y"
+)
+
+over "standard_shader_ball_scene" (
+    variants = {
+        string example_material = "none"
+        string surface_geometry = "triangulated"
+    }
+)
+{
+    over "materials" (
+        variants = {
+            string material_model = "OpenPBRSurface"
+        }
+    )
+    {
+        over "examples" (
+            variants = {
+                string material_model = ""
+            }
+        )
+        {
+        }
+    }
+}
+
+def Scope "Render"
+{
+    def RenderSettings "RenderSettings" (
+        prepend apiSchemas = ["TyphoonRenderSettingsAPI"]
+    )
+    {
+        rel camera = </standard_shader_ball_scene/camera>
+        rel products = [</Render/Product>]
+        uniform int2 resolution = (256, 256)
+        uniform int ty:convergedSamplesPerPixel = 64
+    }
+
+    def RenderProduct "Product"
+    {
+        rel camera = </standard_shader_ball_scene/camera>
+        rel orderedVars = [</Render/Product/Var>]
+        token productType = "raster"
+        token productName = "material-fidelity.exr"
+
+        def RenderVar "Var"
+        {
+            token dataType = "color4f"
+            string sourceName = "color"
+            token sourceType = "raw"
+        }
+    }
+}

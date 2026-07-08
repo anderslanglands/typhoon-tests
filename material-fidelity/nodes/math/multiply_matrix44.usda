@@ -1,0 +1,147 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_multiply_matrix44 with literal inputs in1 = ((0.5, 0.2, 0.1, 0.05), (0.1, 0.5, 0.2, 0.1), (0.15, 0.1, 0.5, 0.2), (0.05, 0.15, 0.1, 0.5)) and in2 = ((0.2, 0.4, 0.2, 0.2), (0.1, 0.3, 0.1, 0.1), (0.2, 0.1, 0.4, 0.1), (0.1, 0.2, 0.1, 0.4)), by multiplying in1 and in2. The node result is ((0.145, 0.28, 0.165, 0.15), (0.12, 0.23, 0.16, 0.13), (0.16, 0.18, 0.26, 0.17), (0.095, 0.175, 0.115, 0.235)). The matrix result rows are added component-wise to a vector4 and then packed as (x, y, z + w), so the expected emitted RGB is (0.52, 0.865, 1.385)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "multiply_matrix44" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/multiply/multiply_matrix44.mtlx"
+                string sourceMaterial = "M_multiply_matrix44"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/multiply_matrix44/surface.outputs:out>
+        token outputs:surface.connect = </Looks/multiply_matrix44/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_multiply_matrix44"
+            matrix4d inputs:in1 = ( (0.5, 0.2, 0.1, 0.05), (0.1, 0.5, 0.2, 0.1), (0.15, 0.1, 0.5, 0.2), (0.05, 0.15, 0.1, 0.5) )
+            matrix4d inputs:in2 = ( (0.2, 0.4, 0.2, 0.2), (0.1, 0.3, 0.1, 0.1), (0.2, 0.1, 0.4, 0.1), (0.1, 0.2, 0.1, 0.4) )
+            matrix4d outputs:out
+        }
+        def Shader "display_row0"
+        {
+            uniform token info:id = "ND_extract_matrix44"
+            matrix4d inputs:in.connect = </Looks/multiply_matrix44/node_under_test.outputs:out>
+            int inputs:index = 0
+            float4 outputs:out
+        }
+        def Shader "display_row1"
+        {
+            uniform token info:id = "ND_extract_matrix44"
+            matrix4d inputs:in.connect = </Looks/multiply_matrix44/node_under_test.outputs:out>
+            int inputs:index = 1
+            float4 outputs:out
+        }
+        def Shader "display_row2"
+        {
+            uniform token info:id = "ND_extract_matrix44"
+            matrix4d inputs:in.connect = </Looks/multiply_matrix44/node_under_test.outputs:out>
+            int inputs:index = 2
+            float4 outputs:out
+        }
+        def Shader "display_row3"
+        {
+            uniform token info:id = "ND_extract_matrix44"
+            matrix4d inputs:in.connect = </Looks/multiply_matrix44/node_under_test.outputs:out>
+            int inputs:index = 3
+            float4 outputs:out
+        }
+        def Shader "display_row01"
+        {
+            uniform token info:id = "ND_add_vector4"
+            float4 inputs:in1.connect = </Looks/multiply_matrix44/display_row0.outputs:out>
+            float4 inputs:in2.connect = </Looks/multiply_matrix44/display_row1.outputs:out>
+            float4 outputs:out
+        }
+        def Shader "display_row23"
+        {
+            uniform token info:id = "ND_add_vector4"
+            float4 inputs:in1.connect = </Looks/multiply_matrix44/display_row2.outputs:out>
+            float4 inputs:in2.connect = </Looks/multiply_matrix44/display_row3.outputs:out>
+            float4 outputs:out
+        }
+        def Shader "display_packed_vector"
+        {
+            uniform token info:id = "ND_add_vector4"
+            float4 inputs:in1.connect = </Looks/multiply_matrix44/display_row01.outputs:out>
+            float4 inputs:in2.connect = </Looks/multiply_matrix44/display_row23.outputs:out>
+            float4 outputs:out
+        }
+        def Shader "display_channels"
+        {
+            uniform token info:id = "ND_separate4_vector4"
+            float4 inputs:in.connect = </Looks/multiply_matrix44/display_packed_vector.outputs:out>
+            float outputs:outx
+            float outputs:outy
+            float outputs:outz
+            float outputs:outw
+        }
+        def Shader "display_blue"
+        {
+            uniform token info:id = "ND_add_float"
+            float inputs:in1.connect = </Looks/multiply_matrix44/display_channels.outputs:outz>
+            float inputs:in2.connect = </Looks/multiply_matrix44/display_channels.outputs:outw>
+            float outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/multiply_matrix44/display_channels.outputs:outx>
+            float inputs:in2.connect = </Looks/multiply_matrix44/display_channels.outputs:outy>
+            float inputs:in3.connect = </Looks/multiply_matrix44/display_blue.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/multiply_matrix44/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/multiply_matrix44/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/multiply_matrix44>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/multiply_matrix44.exr"
+        }
+    }
+}

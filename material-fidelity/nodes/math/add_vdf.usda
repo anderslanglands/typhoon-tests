@@ -1,0 +1,117 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_add_vdf by summing an absorption VDF, absorption (0.75, 0.35, 0.12), and an anisotropic VDF, absorption (0.75, 0.35, 0.12), scattering (0.08, 0.18, 0.28), anisotropy 0.45. The combined volume is placed under a zero-roughness dielectric transmission layer and a zero-roughness reflective dielectric layer, so transmitted shaderball pixels should show the combined absorption and scattering effects from both VDF inputs."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/shaderball.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "add_vdf" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/add/add_vdf.mtlx"
+                string sourceMaterial = "M_add_vdf"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/add_vdf/surface.outputs:out>
+        token outputs:surface.connect = </Looks/add_vdf/surface.outputs:out>
+
+        def Shader "specular_bsdf"
+        {
+            uniform token info:id = "ND_dielectric_bsdf"
+            float2 inputs:roughness = (0, 0)
+            string inputs:scatter_mode = "R"
+            token outputs:out
+        }
+
+        def Shader "transmission_bsdf"
+        {
+            uniform token info:id = "ND_dielectric_bsdf"
+            float2 inputs:roughness = (0, 0)
+            string inputs:scatter_mode = "T"
+            token outputs:out
+        }
+
+        def Shader "absorption_vdf"
+        {
+            uniform token info:id = "ND_absorption_vdf"
+            float3 inputs:absorption = (0.75, 0.35, 0.12)
+            token outputs:out
+        }
+
+        def Shader "anisotropic_vdf"
+        {
+            uniform token info:id = "ND_anisotropic_vdf"
+            float3 inputs:absorption = (0.75, 0.35, 0.12)
+            float3 inputs:scattering = (0.08, 0.18, 0.28)
+            float inputs:anisotropy = 0.45
+            token outputs:out
+        }
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_add_vdf"
+            token inputs:in1.connect = </Looks/add_vdf/absorption_vdf.outputs:out>
+            token inputs:in2.connect = </Looks/add_vdf/anisotropic_vdf.outputs:out>
+            token outputs:out
+        }
+
+        def Shader "transmission_layer"
+        {
+            uniform token info:id = "ND_layer_vdf"
+            token inputs:top.connect = </Looks/add_vdf/transmission_bsdf.outputs:out>
+            token inputs:base.connect = </Looks/add_vdf/node_under_test.outputs:out>
+            token outputs:out
+        }
+
+        def Shader "surface_bsdf"
+        {
+            uniform token info:id = "ND_layer_bsdf"
+            token inputs:top.connect = </Looks/add_vdf/specular_bsdf.outputs:out>
+            token inputs:base.connect = </Looks/add_vdf/transmission_layer.outputs:out>
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:bsdf.connect = </Looks/add_vdf/surface_bsdf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/add_vdf>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 128
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/add_vdf.exr"
+        }
+    }
+}

@@ -1,0 +1,115 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_subtract_matrix33FA with literal inputs in1 = ((0.7, 0.6, 0.5), (0.6, 0.5, 0.4), (0.5, 0.4, 0.3)) and in2 = 0.2, by subtracting in1 and in2. The node result is ((0.5, 0.4, 0.3), (0.4, 0.3, 0.2), (0.3, 0.2, 0.1)). The matrix result rows are added component-wise before conversion to color3, so the expected emitted RGB is (1.2, 0.9, 0.6)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "subtract_matrix33FA" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/subtract/subtract_matrix33FA.mtlx"
+                string sourceMaterial = "M_subtract_matrix33FA"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/subtract_matrix33FA/surface.outputs:out>
+        token outputs:surface.connect = </Looks/subtract_matrix33FA/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_subtract_matrix33FA"
+            matrix3d inputs:in1 = ( (0.7, 0.6, 0.5), (0.6, 0.5, 0.4), (0.5, 0.4, 0.3) )
+            float inputs:in2 = 0.2
+            matrix3d outputs:out
+        }
+        def Shader "display_row0"
+        {
+            uniform token info:id = "ND_extract_matrix33"
+            matrix3d inputs:in.connect = </Looks/subtract_matrix33FA/node_under_test.outputs:out>
+            int inputs:index = 0
+            float3 outputs:out
+        }
+        def Shader "display_row1"
+        {
+            uniform token info:id = "ND_extract_matrix33"
+            matrix3d inputs:in.connect = </Looks/subtract_matrix33FA/node_under_test.outputs:out>
+            int inputs:index = 1
+            float3 outputs:out
+        }
+        def Shader "display_row2"
+        {
+            uniform token info:id = "ND_extract_matrix33"
+            matrix3d inputs:in.connect = </Looks/subtract_matrix33FA/node_under_test.outputs:out>
+            int inputs:index = 2
+            float3 outputs:out
+        }
+        def Shader "display_row01"
+        {
+            uniform token info:id = "ND_add_vector3"
+            float3 inputs:in1.connect = </Looks/subtract_matrix33FA/display_row0.outputs:out>
+            float3 inputs:in2.connect = </Looks/subtract_matrix33FA/display_row1.outputs:out>
+            float3 outputs:out
+        }
+        def Shader "display_packed"
+        {
+            uniform token info:id = "ND_add_vector3"
+            float3 inputs:in1.connect = </Looks/subtract_matrix33FA/display_row01.outputs:out>
+            float3 inputs:in2.connect = </Looks/subtract_matrix33FA/display_row2.outputs:out>
+            float3 outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_convert_vector3_color3"
+            float3 inputs:in.connect = </Looks/subtract_matrix33FA/display_packed.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/subtract_matrix33FA/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/subtract_matrix33FA/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/subtract_matrix33FA>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/subtract_matrix33FA.exr"
+        }
+    }
+}

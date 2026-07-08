@@ -1,0 +1,74 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_subtract_color3FA with literal inputs in1 = (0.7, 0.6, 0.5) and in2 = 0.2, by subtracting in1 and in2. The node result is (0.5, 0.4, 0.3). The result is connected to uniform_edf.color, so the expected emitted RGB is (0.5, 0.4, 0.3)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "subtract_color3FA" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/subtract/subtract_color3FA.mtlx"
+                string sourceMaterial = "M_subtract_color3FA"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/subtract_color3FA/surface.outputs:out>
+        token outputs:surface.connect = </Looks/subtract_color3FA/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_subtract_color3FA"
+            color3f inputs:in1 = (0.7, 0.6, 0.5)
+            float inputs:in2 = 0.2
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/subtract_color3FA/node_under_test.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/subtract_color3FA/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/subtract_color3FA>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/subtract_color3FA.exr"
+        }
+    }
+}
