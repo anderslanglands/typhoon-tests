@@ -2871,13 +2871,17 @@ def test_regenerate_html_module_cli_and_pixi_task(tmp_path: Path) -> None:
     assert "cli_case" in (run_dir / "index.html").read_text(encoding="utf-8")
 
     pixi = tomllib.loads((repo_root / "pixi.toml").read_text(encoding="utf-8"))
-    assert pixi["target"]["linux-64"]["tasks"]["regenerate-html"] == {
+    tasks = pixi["tasks"]
+    assert tasks["regenerate-html"] == {
         "cmd": "python -m typhoon_tests.report_html"
     }
-    assert pixi["target"]["linux-64"]["tasks"]["build"] == {
+    assert tasks["extract-failures"] == {
+        "cmd": "python -m typhoon_tests.extract_failures"
+    }
+    assert tasks["build"] == {
         "cmd": "python -m typhoon_tests.build_exr_wasm"
     }
-    assert pixi["target"]["linux-64"]["tasks"]["view"] == {
+    assert tasks["view"] == {
         "cmd": "python -m typhoon_tests.view_server --directory _output --port 8000"
     }
 

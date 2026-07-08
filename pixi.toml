@@ -35,6 +35,7 @@ render-material-fidelity-one = { args = ["usd"], cmd = "pytest {{ usd }}" }
 render-material-fidelity-all = { cmd = "pytest material-fidelity" }
 regenerate-html = { cmd = "python -m typhoon_tests.report_html" }
 regenerate-comparisons = { cmd = "python -m typhoon_tests.regenerate_comparisons" }
+extract-failures = { cmd = "python -m typhoon_tests.extract_failures" }
 build = { cmd = "python -m typhoon_tests.build_exr_wasm" }
 view = { cmd = "python -m typhoon_tests.view_server --directory _output --port 8000" }
 compare-materialx-renders = { cmd = "python materialx/generate_comparison_html.py" }
