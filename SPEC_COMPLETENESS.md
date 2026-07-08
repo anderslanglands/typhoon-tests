@@ -8,12 +8,12 @@ The suite is deep in a few areas, but its overall node coverage is incomplete:
 
 - 178 MaterialX node families have concrete `ND_*` definitions in the current checked-out libraries.
 - Those families comprise 748 typed NodeDefs.
-- 280 of those 748 exact NodeDefs appear in the tests: 37.4%.
+- 321 of those 748 exact NodeDefs appear in the tests: 42.9%.
 - At the family level:
 
-  - 28 families are completely untested.
-  - 71 have only some typed overloads tested.
-  - 79 have every specified overload represented.
+  - 25 families are completely untested.
+  - 62 have only some typed overloads tested.
+  - 91 have every specified overload represented.
 
 These are optimistic numbers: any occurrence counted, including incidental use in a showcase graph. Direct, targeted coverage is lower.
 
@@ -53,9 +53,6 @@ Direct fixtures now cover the core diffuse/transmission/sheen/hair BSDFs, `diele
 
 ### Geometry, adjustment, NPR, and helper nodes
 
-- `geomcolor`
-- `geompropvalue`
-- `geompropvalueuniform`
 - `hsvadjust`
 - `facingratio`
 - `gooch_shade`
@@ -64,11 +61,13 @@ Direct fixtures now cover the core diffuse/transmission/sheen/hair BSDFs, `diele
 - `mincomponent`
 - `maxcomponent`
 
+`geomcolor`, `geompropvalue`, and `geompropvalueuniform` now have direct plane fixtures for every typed overload, using typed custom primvars instead of USD display-color primvars. The uniform string fixture reads a scalar `primvars:testString = "clamp"` value and uses it as the image `uaddressmode` while sampling plane UVs offset by 0.5, and the filename fixture reads a scalar asset primvar to drive the image file input.
+
 ## Poorly tested nodes
 
 | Area | Current coverage | Important omissions |
 |---|---:|---|
-| `image` | 6/6 overloads | All typed outputs now appear, but there is still no meaningful layer test, unreadable/missing file fallback, channel expansion/truncation, UDIM/UVTILE/interface/host substitution, or animated sequence boundary behavior. |
+| `image` | 6/6 overloads | All typed outputs now appear, and there is a targeted `<UDIM>` fixture. There is still no meaningful layer test, unreadable/missing file fallback, channel expansion/truncation, UVTILE/interface/host substitution, or animated sequence boundary behavior. |
 | `tiledimage` | 3/6 | No color4/vector2/vector4. Only a basic targeted tiling probe; no strong real-world-size, fallback, filtering, or sequence coverage. |
 | `hextiledimage` | 1/2 | Color3 is tested unusually well, but color4 is wholly absent. |
 | `heighttonormal` | 1/1 | `in` and `scale` are exercised, but no explicit custom `texcoord`. |
@@ -76,9 +75,7 @@ Direct fixtures now cover the core diffuse/transmission/sheen/hair BSDFs, `diele
 | `ifequal` | 2/30 | Almost all result and comparison-type combinations are absent. |
 | `ifgreater` | 4/20 | Sparse overload coverage. |
 | `ifgreatereq` | 2/20 | Sparse overload coverage. |
-| `mix` | 2/17 | Most value, closure, displacement, and volume variants absent. |
-| `plus` | 1/3 | Only the color3 compositing form is covered; float and color4 are absent. |
-| `inside`, `outside` | 1/3 each | Only the color4 alpha/mask forms are covered; float and color3 are absent. |
+| `mix` | 12/17 | All float/color/vector value variants and the surfaceshader variant now have direct EXR fixtures; the remaining gaps are displacementshader, volumeshader, BSDF, EDF, and VDF. |
 | `add` | 4/19 | Most vector/color/matrix and mixed float variants absent. |
 | `multiply` | 6/19 | Better than `add`, but most typed variants still absent. |
 | `divide` | 2/13 | Zero-divisor case exists, but only for a narrow subset of types. |
@@ -93,18 +90,18 @@ Direct fixtures now cover the core diffuse/transmission/sheen/hair BSDFs, `diele
 | adjustment nodes | commonly 1/2 or 1/11 | Usually color3 or float only; color4/vector and float-amount variants are sparse. |
 | `dot` | 5/16 | Current local MaterialX libraries define typed `dot` NodeDefs; only float, integer, boolean, color3, and vector3 appear in fixtures. |
 
-The previously missing compositing families now all have direct fixtures. `premult`, `disjointover`, `in`, `mask`, `matte`, `out`, and `over` are fully covered at the NodeDef level because each has only one color4 definition; `plus`, `inside`, and `outside` remain partial overload coverage.
+The previously missing compositing families now all have direct fixtures. `premult`, `unpremult`, `plus`, `minus`, `difference`, `burn`, `dodge`, `screen`, `overlay`, `disjointover`, `in`, `mask`, `matte`, `out`, `over`, `inside`, and `outside` are fully covered at the NodeDef level. `mix` has direct EXR fixtures for every float/color/vector value variant and the surfaceshader variant, but remains partial because displacement, volume, and closure variants need separate structural fixtures.
 
 ### Specific texture-edge gaps
 
-The `image` tests cover all four U/V address modes and `closest`/`linear`, which is good. They do not cover:
+The `image` tests cover all four U/V address modes, `closest`/`linear`, and a targeted `<UDIM>` substitution case with standard `1001`, `1002`, `1011`, and `1012` tile assets, which is good. They do not cover:
 
 - `cubic` filtering.
 - Different U and V address modes in the same test.
 - Named layers or absent layers.
 - Failed URI resolution and the `default` result.
 - Output channel truncation and padding rules.
-- `<UDIM>`, `<UVTILE>`, interface-token, host-attribute, `{frame}`, or padded-frame substitution.
+- `<UVTILE>`, interface-token, host-attribute, `{frame}`, or padded-frame substitution.
 - `frameoffset` with a real sequence.
 - `clamp`, `periodic`, and `mirror` as `frameendaction`.
 
@@ -148,9 +145,9 @@ The tests are golden-image comparisons. The suite renders each fixture and compa
 ## Recommended priority
 
 1. Remaining PBR EDF/helper constructors, `volume`/`light`, and `surface`/`volume` constructor behavior.
-2. `triplanarprojection` and image fallback/layer/sequence tests.
+2. `triplanarprojection` and image fallback/layer/UVTILE/sequence tests.
 3. Conditional and operator overload coverage, especially `switch`, `ifequal`, `mix`, and matrix variants.
-4. Missing geometry/property, component helper, and NPR nodes.
+4. Remaining component helper, adjustment, and NPR nodes.
 5. Structural conformance tests alongside image comparisons, so USD typing/default/token errors cannot pass merely because the render looks plausible.
 
 ## Methodology and interpretation
