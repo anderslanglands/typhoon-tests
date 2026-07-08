@@ -1,0 +1,123 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "outside_png" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/outside_png/outside_png.mtlx"
+                string sourceMaterial = "M_outside_png"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/outside_png/surface.outputs:out>
+        token outputs:surface.connect = </Looks/outside_png/surface.outputs:out>
+
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/outside_png/NG_outside_png.outputs:out_base_color>
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/outside_png/uniform_edf.outputs:out>
+            token outputs:out
+        }
+
+        def NodeGraph "NG_outside_png"
+        {
+            color3f outputs:out_base_color.connect = </Looks/outside_png/NG_outside_png/to_color.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "input_image"
+            {
+                uniform token info:id = "ND_image_color4"
+                color4f inputs:default = (1, 0, 1, 1)
+                asset inputs:file = @../../_assets/Materials/radial.png@ (
+                    colorSpace = "srgb_rec709_scene"
+                )
+                float2 inputs:texcoord.connect = </Looks/outside_png/NG_outside_png/uv0.outputs:out>
+                color4f outputs:out
+            }
+
+            def Shader "mask_image"
+            {
+                uniform token info:id = "ND_image_color4"
+                color4f inputs:default = (1, 0, 1, 1)
+                asset inputs:file = @../../_assets/Materials/grid.png@ (
+                    colorSpace = "srgb_rec709_scene"
+                )
+                float2 inputs:texcoord.connect = </Looks/outside_png/NG_outside_png/uv0.outputs:out>
+                color4f outputs:out
+            }
+
+            def Shader "mask_alpha"
+            {
+                uniform token info:id = "ND_separate4_color4"
+                color4f inputs:in.connect = </Looks/outside_png/NG_outside_png/mask_image.outputs:out>
+                float outputs:outr
+                float outputs:outg
+                float outputs:outb
+                float outputs:outa
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_outside_color4"
+                color4f inputs:in.connect = </Looks/outside_png/NG_outside_png/input_image.outputs:out>
+                float inputs:mask.connect = </Looks/outside_png/NG_outside_png/mask_alpha.outputs:outa>
+                color4f outputs:out
+            }
+
+            def Shader "to_color"
+            {
+                uniform token info:id = "ND_convert_color4_color3"
+                color4f inputs:in.connect = </Looks/outside_png/NG_outside_png/node_under_test.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/outside_png>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/compositing/outside_png.exr"
+        }
+    }
+}

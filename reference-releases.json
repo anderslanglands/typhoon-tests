@@ -365,9 +365,9 @@
       "release": "reference-data-20260707T041914Z-8363eb47-32321cb7"
     },
     "material-fidelity/nodes/compositing": {
-      "archive": "material-fidelity--nodes--compositing--b40bdd26c95d.zip",
-      "archive_sha256": "e990917e383f668c185576043af3d1fc24728e5edd162d019783283a05ce031f",
-      "archive_size": 4886044,
+      "archive": "material-fidelity--nodes--compositing--307a72658915.zip",
+      "archive_sha256": "889521f498d4f8d8543f9e1efd0099985317a9af2a92f3c2324039279df5b100",
+      "archive_size": 11683864,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/compositing/burn.exr",
@@ -375,9 +375,19 @@
           "size": 32119
         },
         {
+          "path": "material-fidelity/reference/nodes/compositing/burn_png.exr",
+          "sha256": "e1c3612e54766b1b3df2fa3fdf7deb590f42b4df6cf4adf680c6dfb222772651",
+          "size": 32551
+        },
+        {
           "path": "material-fidelity/reference/nodes/compositing/difference.exr",
           "sha256": "5a77c84b9b54e98c37ce6891f2d5391d2e4084cb50977b3e505935918475c04d",
           "size": 401125
+        },
+        {
+          "path": "material-fidelity/reference/nodes/compositing/difference_png.exr",
+          "sha256": "f86af6fce007417eeb07fe3bd6cadcc7a250c275286e6b5161ad1d947f3a365f",
+          "size": 586128
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/disjointover.exr",
@@ -385,9 +395,19 @@
           "size": 401954
         },
         {
+          "path": "material-fidelity/reference/nodes/compositing/disjointover_png.exr",
+          "sha256": "56275cbae5e5ba8d91f8d180dcc3689413f51b3d8251599d32fe5d7a1d494a2b",
+          "size": 586121
+        },
+        {
           "path": "material-fidelity/reference/nodes/compositing/dodge.exr",
           "sha256": "af95b85cfceacb641027834f4aaefdb9bdb9a0bb8bf73718929a4f2af8e89d6c",
           "size": 341371
+        },
+        {
+          "path": "material-fidelity/reference/nodes/compositing/dodge_png.exr",
+          "sha256": "1a4e629ce2eb3eb454078e946063e8144fa7f7839577b0ab1e2597290b927532",
+          "size": 524127
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/in.exr",
@@ -395,9 +415,19 @@
           "size": 112751
         },
         {
+          "path": "material-fidelity/reference/nodes/compositing/in_png.exr",
+          "sha256": "316d8adab33e45e9268629920d712c2beecae8eb7eaf608e0a72bc4803c08949",
+          "size": 115580
+        },
+        {
           "path": "material-fidelity/reference/nodes/compositing/inside.exr",
           "sha256": "fd598a6bdbbda7609fb8b5ee302b392e7f6f39d4068f94f286c8b8462975c66d",
           "size": 112751
+        },
+        {
+          "path": "material-fidelity/reference/nodes/compositing/inside_png.exr",
+          "sha256": "316d8adab33e45e9268629920d712c2beecae8eb7eaf608e0a72bc4803c08949",
+          "size": 115580
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/mask.exr",
@@ -405,14 +435,29 @@
           "size": 112751
         },
         {
+          "path": "material-fidelity/reference/nodes/compositing/mask_png.exr",
+          "sha256": "316d8adab33e45e9268629920d712c2beecae8eb7eaf608e0a72bc4803c08949",
+          "size": 115580
+        },
+        {
           "path": "material-fidelity/reference/nodes/compositing/matte.exr",
           "sha256": "0c1632a6df96c5c1ade851d255c50e175c9eb8fd24e41fb953efe28a8c952817",
           "size": 402362
         },
         {
+          "path": "material-fidelity/reference/nodes/compositing/matte_png.exr",
+          "sha256": "41684498a96d09a48c8cb941a9165b0430017d2beb36d0f4d0bd2efe7435defd",
+          "size": 585832
+        },
+        {
           "path": "material-fidelity/reference/nodes/compositing/minus.exr",
           "sha256": "3243b3f4248309a57c5e26c3888e5e802120180283d22035bdda8dbd5ac3ea83",
           "size": 328908
+        },
+        {
+          "path": "material-fidelity/reference/nodes/compositing/minus_png.exr",
+          "sha256": "2a063e64a42ae27d0fe3377774dcca7e86add662fbd24ad90ace8dc8119ac0ad",
+          "size": 511465
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/mix.exr",
@@ -425,9 +470,24 @@
           "size": 182936
         },
         {
+          "path": "material-fidelity/reference/nodes/compositing/mix_degenerate_unclamped_mix_factor_png.exr",
+          "sha256": "1895891784011803221f62d5fff34447e74f2a88ea8c61ce38effe931710dfae",
+          "size": 182923
+        },
+        {
+          "path": "material-fidelity/reference/nodes/compositing/mix_png.exr",
+          "sha256": "ac8b4c3a2f2ab66bd380ccbddcf99067eb6dd608d24ef5f34e8d7b66d55f2db4",
+          "size": 586397
+        },
+        {
           "path": "material-fidelity/reference/nodes/compositing/out.exr",
           "sha256": "9cfaf60b0fc5f6da8598b879136955f671b358936f7862e19c7005fc6b501fb8",
           "size": 136268
+        },
+        {
+          "path": "material-fidelity/reference/nodes/compositing/out_png.exr",
+          "sha256": "7f9d85aeb1e3032e2cd9b367d4836864f234f9757da149f8288e26786d164f11",
+          "size": 138727
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/outside.exr",
@@ -435,9 +495,19 @@
           "size": 136268
         },
         {
+          "path": "material-fidelity/reference/nodes/compositing/outside_png.exr",
+          "sha256": "7f9d85aeb1e3032e2cd9b367d4836864f234f9757da149f8288e26786d164f11",
+          "size": 138727
+        },
+        {
           "path": "material-fidelity/reference/nodes/compositing/over.exr",
           "sha256": "dfac2e5ccb85c4eb262981597c6c1d173aaef2839c65bf77907f935368e8b0b7",
           "size": 401927
+        },
+        {
+          "path": "material-fidelity/reference/nodes/compositing/over_png.exr",
+          "sha256": "3a6084564536ce1b16cf8568adf3332953474c6e279c04fef76594e244193484",
+          "size": 586152
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/overlay.exr",
@@ -445,9 +515,19 @@
           "size": 251856
         },
         {
+          "path": "material-fidelity/reference/nodes/compositing/overlay_png.exr",
+          "sha256": "74249e8abaf10104619b7232113c9907a698d1149262bc26080b509a4fd1b0a8",
+          "size": 454853
+        },
+        {
           "path": "material-fidelity/reference/nodes/compositing/plus.exr",
           "sha256": "7fc80fdc40705b7e2b656ee05adf20b95deba05cd1bcaf08da5510ad71a273e9",
           "size": 400758
+        },
+        {
+          "path": "material-fidelity/reference/nodes/compositing/plus_png.exr",
+          "sha256": "485a2a879be0ff869737dda691d788e69538908cd28966e5f5dd6a7c9a90c267",
+          "size": 586101
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/premult.exr",
@@ -455,17 +535,32 @@
           "size": 174502
         },
         {
+          "path": "material-fidelity/reference/nodes/compositing/premult_png.exr",
+          "sha256": "68609279fee9d7850915739003839ea88692f00aebffc7f0bc99eb843f285ea8",
+          "size": 181882
+        },
+        {
           "path": "material-fidelity/reference/nodes/compositing/screen.exr",
           "sha256": "a9bd335283a0f58bd290f1e36ee1832916015cd8d6707d25c204a9937b67b727",
           "size": 397344
         },
         {
+          "path": "material-fidelity/reference/nodes/compositing/screen_png.exr",
+          "sha256": "58d59b7d8de481f80b189d25809a5f2198c6ad9eb2075a8988d2f9fde06d44fb",
+          "size": 583458
+        },
+        {
           "path": "material-fidelity/reference/nodes/compositing/unpremult.exr",
           "sha256": "d937afbbb4d632c847c0c178c5db0b2eb029f444d858e759fdbbad3e15262bb0",
           "size": 154158
+        },
+        {
+          "path": "material-fidelity/reference/nodes/compositing/unpremult_png.exr",
+          "sha256": "938dd2046e758dbb7238b712c7f9a73c4824f3795d8ebd11e277deca05b1c59b",
+          "size": 181864
         }
       ],
-      "release": "reference-data-20260708T025521Z-ab6a0099-266dd84d"
+      "release": "reference-data-20260708T045240Z-75020846-aa64a412"
     },
     "material-fidelity/nodes/conditional": {
       "archive": "material-fidelity--nodes--conditional--0c5a4b007061.zip",

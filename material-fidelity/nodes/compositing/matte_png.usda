@@ -1,0 +1,114 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "matte_png" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/matte_png/matte_png.mtlx"
+                string sourceMaterial = "M_matte_png"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/matte_png/surface.outputs:out>
+        token outputs:surface.connect = </Looks/matte_png/surface.outputs:out>
+
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/matte_png/NG_matte_png.outputs:out_base_color>
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/matte_png/uniform_edf.outputs:out>
+            token outputs:out
+        }
+
+        def NodeGraph "NG_matte_png"
+        {
+            color3f outputs:out_base_color.connect = </Looks/matte_png/NG_matte_png/to_color.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "fg_image"
+            {
+                uniform token info:id = "ND_image_color4"
+                color4f inputs:default = (1, 0, 1, 1)
+                asset inputs:file = @../../_assets/Materials/radial.png@ (
+                    colorSpace = "srgb_rec709_scene"
+                )
+                float2 inputs:texcoord.connect = </Looks/matte_png/NG_matte_png/uv0.outputs:out>
+                color4f outputs:out
+            }
+
+            def Shader "bg_image"
+            {
+                uniform token info:id = "ND_image_color4"
+                color4f inputs:default = (1, 0, 1, 1)
+                asset inputs:file = @../../_assets/Materials/grid.png@ (
+                    colorSpace = "srgb_rec709_scene"
+                )
+                float2 inputs:texcoord.connect = </Looks/matte_png/NG_matte_png/uv0.outputs:out>
+                color4f outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_matte_color4"
+                color4f inputs:bg.connect = </Looks/matte_png/NG_matte_png/bg_image.outputs:out>
+                color4f inputs:fg.connect = </Looks/matte_png/NG_matte_png/fg_image.outputs:out>
+                float inputs:mix = 1
+                color4f outputs:out
+            }
+
+            def Shader "to_color"
+            {
+                uniform token info:id = "ND_convert_color4_color3"
+                color4f inputs:in.connect = </Looks/matte_png/NG_matte_png/node_under_test.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/matte_png>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/compositing/matte_png.exr"
+        }
+    }
+}
