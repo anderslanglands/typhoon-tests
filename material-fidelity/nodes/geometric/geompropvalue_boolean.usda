@@ -1,0 +1,89 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "geompropvalue_boolean" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/geompropvalue/geompropvalue_boolean.mtlx"
+                string sourceMaterial = "M_geompropvalue_boolean"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/geompropvalue_boolean/surface.outputs:out>
+        token outputs:surface.connect = </Looks/geompropvalue_boolean/surface.outputs:out>
+
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/geompropvalue_boolean/NG_geompropvalue_boolean.outputs:out_base_color>
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/geompropvalue_boolean/uniform_edf.outputs:out>
+            token outputs:out
+        }
+
+        def NodeGraph "NG_geompropvalue_boolean"
+        {
+            color3f outputs:out_base_color.connect = </Looks/geompropvalue_boolean/NG_geompropvalue_boolean/to_color.outputs:out>
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_geompropvalue_boolean"
+                string inputs:geomprop = "testBoolean"
+                bool inputs:default = false
+                bool outputs:out
+            }
+
+            def Shader "to_color"
+            {
+                uniform token info:id = "ND_convert_boolean_color3"
+                bool inputs:in.connect = </Looks/geompropvalue_boolean/NG_geompropvalue_boolean/node_under_test.outputs:out>
+                color3f outputs:out
+            }
+        }
+
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        bool[] primvars:testBoolean = [true] (
+            interpolation = "uniform"
+        )
+        rel material:binding = </Looks/geompropvalue_boolean>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/geometric/geompropvalue_boolean.exr"
+        }
+    }
+}

@@ -41,7 +41,7 @@ def Scope "Looks"
 
         def NodeGraph "NG_mix_degenerate_unclamped_mix_factor"
         {
-            color3f outputs:out_base_color.connect = </Looks/mix_degenerate_unclamped_mix_factor/NG_mix_degenerate_unclamped_mix_factor/debug_color.outputs:out>
+            color3f outputs:out_base_color.connect = </Looks/mix_degenerate_unclamped_mix_factor/NG_mix_degenerate_unclamped_mix_factor/to_color.outputs:out>
 
             def Shader "uv0"
             {
@@ -73,21 +73,41 @@ def Scope "Looks"
                 float outputs:out
             }
 
+            def Shader "fg_image"
+            {
+                uniform token info:id = "ND_image_float"
+                float inputs:default = 1
+                asset inputs:file = @../../_assets/Materials/radial.png@ (
+                    colorSpace = "srgb_texture"
+                )
+                float2 inputs:texcoord.connect = </Looks/mix_degenerate_unclamped_mix_factor/NG_mix_degenerate_unclamped_mix_factor/uv0.outputs:out>
+                float outputs:out
+            }
+
+            def Shader "bg_image"
+            {
+                uniform token info:id = "ND_image_float"
+                float inputs:default = 1
+                asset inputs:file = @../../_assets/Materials/grid.png@ (
+                    colorSpace = "srgb_texture"
+                )
+                float2 inputs:texcoord.connect = </Looks/mix_degenerate_unclamped_mix_factor/NG_mix_degenerate_unclamped_mix_factor/uv0.outputs:out>
+                float outputs:out
+            }
+
             def Shader "node_under_test"
             {
                 uniform token info:id = "ND_mix_float"
-                float inputs:bg = 0
-                float inputs:fg = 1
+                float inputs:bg.connect = </Looks/mix_degenerate_unclamped_mix_factor/NG_mix_degenerate_unclamped_mix_factor/bg_image.outputs:out>
+                float inputs:fg.connect = </Looks/mix_degenerate_unclamped_mix_factor/NG_mix_degenerate_unclamped_mix_factor/fg_image.outputs:out>
                 float inputs:mix.connect = </Looks/mix_degenerate_unclamped_mix_factor/NG_mix_degenerate_unclamped_mix_factor/mix_factor_unclamped.outputs:out>
                 float outputs:out
             }
 
-            def Shader "debug_color"
+            def Shader "to_color"
             {
-                uniform token info:id = "ND_combine3_color3"
-                float inputs:in1.connect = </Looks/mix_degenerate_unclamped_mix_factor/NG_mix_degenerate_unclamped_mix_factor/node_under_test.outputs:out>
-                float inputs:in2.connect = </Looks/mix_degenerate_unclamped_mix_factor/NG_mix_degenerate_unclamped_mix_factor/mix_factor_unclamped.outputs:out>
-                float inputs:in3.connect = </Looks/mix_degenerate_unclamped_mix_factor/NG_mix_degenerate_unclamped_mix_factor/uv_split.outputs:outy>
+                uniform token info:id = "ND_convert_float_color3"
+                float inputs:in.connect = </Looks/mix_degenerate_unclamped_mix_factor/NG_mix_degenerate_unclamped_mix_factor/node_under_test.outputs:out>
                 color3f outputs:out
             }
         }
