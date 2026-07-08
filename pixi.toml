@@ -16,13 +16,15 @@ pytest = "*"
 rust = "1.96.*"
 rust-std-wasm32-unknown-unknown = "*"
 numpy = "*"
+pillow = "*"
+
+[pypi-dependencies]
+flip-evaluator = "==1.7"
 
 [tasks]
 download-references = { cmd = "python -m typhoon_tests.reference_archives download" }
 update-references = { cmd = "python -m typhoon_tests.reference_archives update" }
 generate-material-fidelity = { cmd = "python material-fidelity/generate_suite.py" }
-
-[target.linux-64.tasks]
 test = { cmd = "pytest" }
 test-local = { args = ["provider"], cmd = "pytest --typhoon-provider {{ provider }}" }
 test-materialx = { cmd = "pytest materialx" }
@@ -37,9 +39,3 @@ build = { cmd = "python -m typhoon_tests.build_exr_wasm" }
 view = { cmd = "python -m typhoon_tests.view_server --directory _output --port 8000" }
 compare-materialx-renders = { cmd = "python materialx/generate_comparison_html.py" }
 
-[target.linux-64.dependencies]
-numpy = ">=2.4.6,<3"
-pillow = ">=12.2.0,<13"
-
-[target.linux-64.pypi-dependencies]
-flip-evaluator = "==1.7"
