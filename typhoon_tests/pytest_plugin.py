@@ -485,6 +485,7 @@ def run_typhoon_case(case: TyphoonCase, options: TyphoonOptions) -> dict[str, An
     output_root = resolve_output_root(case, options)
     artifact_root = resolve_artifact_root(case, options)
 
+    usd_doc = read_usd_layer_doc(case.path)
     result: dict[str, Any] = {
         "suite": case.suite.name,
         "key": case.key,
@@ -511,6 +512,8 @@ def run_typhoon_case(case: TyphoonCase, options: TyphoonOptions) -> dict[str, An
         "started_at": options.run_context.started_at,
         "provider": provider_label(options.provider or options.run_context.provider),
     }
+    if usd_doc:
+        result["usd_doc"] = usd_doc
 
     try:
         render_output = resolve_render_output(case, output_root)
@@ -1291,6 +1294,41 @@ def discover_usd_camera(path: Path) -> str:
     return camera if camera.startswith("/") else f"/{camera}"
 
 
+def read_usd_layer_doc(path: Path) -> str:
+    try:
+        from pxr import Sdf
+
+        layer = Sdf.Layer.FindOrOpen(str(path))
+    except Exception:
+        return ""
+    if layer is None:
+        return ""
+    return usd_layer_doc(layer.customLayerData)
+
+
+def read_usd_layer_doc_from_source(source: str) -> str:
+    if not source:
+        return ""
+    try:
+        from pxr import Sdf
+
+        layer = Sdf.Layer.CreateAnonymous("typhoon-report-source.usda")
+        if not layer.ImportFromString(source):
+            return ""
+    except Exception:
+        return ""
+    return usd_layer_doc(layer.customLayerData)
+
+
+def usd_layer_doc(custom_layer_data: object) -> str:
+    if not isinstance(custom_layer_data, dict):
+        return ""
+    doc = custom_layer_data.get("doc")
+    if not isinstance(doc, str):
+        return ""
+    return doc.strip()
+
+
 def format_report_frame(value: object) -> str:
     if value is None:
         return ""
@@ -1535,6 +1573,24 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
             "</details>"
         )
 
+    def fixture_doc(row: dict[str, Any]) -> str:
+        doc = row.get("usd_doc")
+        if isinstance(doc, str) and doc.strip():
+            return doc.strip()
+        source = row.get("usd_source")
+        if not isinstance(source, str):
+            return ""
+        return read_usd_layer_doc_from_source(source)
+
+    def fixture_doc_markup(row: dict[str, Any]) -> str:
+        doc = fixture_doc(row)
+        if not doc:
+            return ""
+        return (
+            '<section class="fixture-doc" aria-label="Fixture documentation">'
+            f"{esc(doc)}</section>"
+        )
+
     def selection_cell(row: dict[str, Any]) -> str:
         case_id = report_case_id(row)
         return (
@@ -1608,6 +1664,7 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
         detail_content = (
             usdview_action_markup(row)
             + viewer_markup(row, escaped_key)
+            + fixture_doc_markup(row)
             + renderer_output_markup(row)
             + usda_source_markup(row)
         )
@@ -1738,6 +1795,7 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
     .usdview-button:disabled {{ opacity: 0.55; cursor: wait; }}
     .usdview-status {{ color: #bbb; min-height: 20px; }}
     .detail-empty {{ color: #888; }}
+    .fixture-doc {{ margin-top: 12px; padding: 10px 12px; border-left: 3px solid var(--ty-base15); background: #181818; color: #e5e7eb; white-space: pre-wrap; }}
     .renderer-output, .usda-source {{ margin-top: 14px; border: 1px solid #333; background: #181818; }}
     .renderer-output summary, .usda-source summary {{ padding: 8px 10px; cursor: pointer; color: #e5e7eb; font-weight: 700; }}
     .renderer-output pre, .usda-source pre {{ max-height: 60vh; margin: 0; padding: 12px; overflow: auto; background: #0b0b0b; border-top: 1px solid #333; color: #d1d5db; font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre; }}

@@ -722,8 +722,16 @@ output_pattern = "{stem}.exr"
         encoding="utf-8",
     )
     usd = suite / "case.usda"
+    usd_doc = "Fixture doc explains <case> & ampersand."
     usd.write_text(
-        '#usda 1.0\ndef Scope "Render"\n{\n    def RenderSettings "Settings"\n    {\n        rel camera = </cameras/camera1>\n    }\n}\n',
+        '#usda 1.0\n'
+        '(\n'
+        '    customLayerData = {\n'
+        f'        string doc = "{usd_doc}"\n'
+        '    }\n'
+        '    defaultPrim = "Render"\n'
+        ')\n'
+        'def Scope "Render"\n{\n    def RenderSettings "Settings"\n    {\n        rel camera = </cameras/camera1>\n    }\n}\n',
         encoding="utf-8",
     )
 
@@ -742,6 +750,7 @@ output_pattern = "{stem}.exr"
     assert report[0]["usd"] == str(usd)
     assert report[0]["usd_source_name"] == "case.usda"
     assert report[0]["usd_source"] == usd.read_text(encoding="utf-8")
+    assert report[0]["usd_doc"] == usd_doc
     assert report[0]["camera"] == "/cameras/camera1"
 
 
@@ -1659,6 +1668,7 @@ def test_html_report_rows_expand_with_exr_canvas_viewer(tmp_path: Path) -> None:
                 "usd": str(usd),
                 "usd_source_name": usd.name,
                 "usd_source": saved_usda_source,
+                "usd_doc": 'Saved fixture doc <value> & "</script>"',
                 "camera": "/cameras/camera1",
                 "frame": 4,
                 "reference_image": str(context.run_dir / "reference" / "case.png"),
@@ -1749,6 +1759,11 @@ def test_html_report_rows_expand_with_exr_canvas_viewer(tmp_path: Path) -> None:
     detail0 = html[
         html.index('<tr id="result-detail-0"') : html.index('<tr id="result-detail-1"')
     ]
+    assert '<section class="fixture-doc" aria-label="Fixture documentation">' in detail0
+    assert 'Saved fixture doc &lt;value&gt; &amp; &quot;&lt;/script&gt;&quot;' in detail0
+    assert detail0.index('<div class="comparison-viewer"') < detail0.index(
+        '<section class="fixture-doc"'
+    ) < detail0.index('<details class="renderer-output">')
     assert '<details class="renderer-output"><summary>Renderer output</summary>' in detail0
     assert 'stdout &lt;line&gt;' in detail0
     assert 'stderr &quot;&lt;/script&gt;&quot;' in detail0
@@ -1762,8 +1777,11 @@ def test_html_report_rows_expand_with_exr_canvas_viewer(tmp_path: Path) -> None:
         in detail0
     )
     assert '<span class="usd-token usd-string">&quot;&lt;/script&gt;&quot;</span>' in detail0
+    detail1 = html[html.index('<tr id="result-detail-1"') :]
+    assert 'class="fixture-doc"' not in detail1
     assert 'def Scope &quot;Render&quot;' not in detail0
     assert '</script>' not in detail0
+    assert '.fixture-doc {' in html
     assert '.renderer-output pre, .usda-source pre {' in html
     assert '.usd-comment { color: var(--ty-base04);' in html
     assert '.usd-keyword { color: var(--ty-base17);' in html
@@ -1833,6 +1851,38 @@ def test_html_report_rows_expand_with_exr_canvas_viewer(tmp_path: Path) -> None:
     assert 'runReportAction("/__typhoon__/thresholds"' in viewer_js
     assert 'runReportAction("/__typhoon__/references"' in viewer_js
     assert '"/__typhoon__/suspects"' in viewer_js
+
+
+def test_html_report_derives_fixture_doc_from_saved_usda_source(tmp_path: Path) -> None:
+    context = run_context(tmp_path)
+    saved_usda_source = (
+        '#usda 1.0\n'
+        '(\n'
+        '    customLayerData = {\n'
+        '        string doc = "Saved source doc <fallback>"\n'
+        '    }\n'
+        ')\n'
+    )
+
+    html = plugin.build_html_report(
+        [
+            {
+                "suite": "sample",
+                "key": "case",
+                "status": "no-ref",
+                "comparison": "missing-reference",
+                "usd_source_name": "case.usda",
+                "usd_source": saved_usda_source,
+                "render_image": str(context.run_dir / "case.exr"),
+            }
+        ],
+        context,
+    )
+
+    assert (
+        '<section class="fixture-doc" aria-label="Fixture documentation">'
+        'Saved source doc &lt;fallback&gt;</section>'
+    ) in html
 
 
 def test_nested_report_tables_sort_independently_with_detail_rows(tmp_path: Path) -> None:
@@ -3019,6 +3069,38 @@ def test_regenerate_html_uses_saved_usda_source_from_report(tmp_path: Path) -> N
     assert '<details class="usda-source"><summary>case.usda</summary>' in html
     assert '<span class="usd-token usd-string">&quot;Saved &lt;Fixture&gt;&quot;</span>' in html
     assert 'def Scope &quot;Current&quot;' not in html
+
+
+def test_regenerate_html_derives_fixture_doc_from_saved_usda_source(tmp_path: Path) -> None:
+    output_base = tmp_path / "_output"
+    run_dir = write_report_run(output_base, 1, key="case")
+    saved_source = (
+        '#usda 1.0\n'
+        '(\n'
+        '    customLayerData = {\n'
+        '        string doc = "Regenerated doc <value>"\n'
+        '    }\n'
+        ')\n'
+    )
+    report = json.loads((run_dir / "typhoon-report.json").read_text(encoding="utf-8"))
+    report[0].update(
+        {
+            "usd_source_name": "case.usda",
+            "usd_source": saved_source,
+        }
+    )
+    (run_dir / "typhoon-report.json").write_text(
+        json.dumps(report, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    report_html.regenerate_html(output_root=output_base, run="1")
+
+    html = (run_dir / "index.html").read_text(encoding="utf-8")
+    assert (
+        '<section class="fixture-doc" aria-label="Fixture documentation">'
+        'Regenerated doc &lt;value&gt;</section>'
+    ) in html
 
 
 def test_regenerate_html_accepts_specific_run_number(tmp_path: Path) -> None:
