@@ -2,6 +2,16 @@
 
 This repo contains USD render regression suites for Typhoon. Test execution is pytest-based: `.usda` files are collected as render tests, and each suite is configured by a `typhoon-suite.toml` file placed in the suite directory.
 
+## Quick Start
+
+```bash
+git submodule init --update --recursive
+pixi run download-references            # download reference images
+pixi run build                          # build web server
+pixi run material-fidelity              # run materials test suite
+pixi run view                           # run web server
+```
+
 ## Prerequisites
 
 [Pixi](https://pixi.sh/latest/installation/) must be installed before using the repository's build, test, and viewing commands. Publishing updated reference archives also requires the authenticated [GitHub CLI](https://cli.github.com/).
