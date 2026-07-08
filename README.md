@@ -8,7 +8,7 @@ This repo contains USD render regression suites for Typhoon. Test execution is p
 git submodule update --init --recursive
 pixi run download-references            # download reference images
 pixi run build                          # build web server
-pixi run material-fidelity              # run materials test suite
+pixi run pytest material-fidelity       # run materials test suite
 pixi run view                           # run web server
 ```
 
