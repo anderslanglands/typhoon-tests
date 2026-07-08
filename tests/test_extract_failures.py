@@ -97,6 +97,7 @@ def test_extract_failures_copies_only_failed_rows_and_run_local_artifacts(
                     "--outputRoot",
                     str(source_run),
                 ],
+                "renderer_output": "failed stdout\nfailed stderr\n",
             },
             {
                 "key": "passed",
@@ -159,6 +160,7 @@ def test_extract_failures_copies_only_failed_rows_and_run_local_artifacts(
     assert failed["output_root"] == str(new_run.resolve())
     assert failed["artifact_root"] == str(new_run.resolve())
     assert failed["command"][-1] == str(new_run.resolve())
+    assert failed["renderer_output"] == "failed stdout\nfailed stderr\n"
     assert (new_run / "nested" / "failed.exr").read_bytes() == b"failed-render"
     assert (new_run / "reference" / "failed.png").read_bytes() == b"failed-reference"
     assert (new_run / "flip" / "failed.exr").read_bytes() == b"failed-diff"
@@ -269,6 +271,47 @@ def test_extract_failures_preserves_partial_sparse_and_legacy_artifact_rows(
     assert (new_run / "reference" / "legacy.png").read_bytes() == b"legacy-reference"
     assert (new_run / "render" / "legacy.png").read_bytes() == b"legacy-render"
     assert (new_run / "diff" / "legacy.png").read_bytes() == b"legacy-diff"
+
+
+def test_extract_failures_backfills_legacy_usda_source_in_new_html(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    output_root = tmp_path / "_output"
+    source_run = output_root / "run-0001"
+    usd = tmp_path / "suite" / "failed.usda"
+    usd.parent.mkdir()
+    usd.write_text('#usda 1.0\ndef Scope "ExtractedLegacy"\n', encoding="utf-8")
+    render = source_run / "failed.exr"
+    render.parent.mkdir(parents=True, exist_ok=True)
+    render.write_bytes(b"failed-render")
+    write_run(
+        output_root,
+        1,
+        [
+            {
+                "key": "failed",
+                "status": "failed-render",
+                "usd": str(usd),
+                "render_output": str(render),
+            }
+        ],
+    )
+    monkeypatch.chdir(tmp_path)
+
+    extract.extract_failures(
+        output_root=output_root,
+        run="1",
+        started_at="2026-07-01T00:00:00+00:00",
+    )
+
+    new_run = output_root / "run-0002"
+    html = (new_run / "index.html").read_text(encoding="utf-8")
+    report = json.loads((new_run / "typhoon-report.json").read_text(encoding="utf-8"))
+    assert '<details class="usda-source"><summary>failed.usda</summary>' in html
+    assert '<span class="usd-token usd-string">&quot;ExtractedLegacy&quot;</span>' in html
+    assert report[0]["usd_source_name"] == "failed.usda"
+    assert report[0]["usd_source"] == '#usda 1.0\ndef Scope "ExtractedLegacy"\n'
 
 
 def test_extract_failures_defaults_to_latest_before_allocating_new_run(

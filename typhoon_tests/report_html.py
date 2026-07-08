@@ -14,11 +14,13 @@ from .pytest_plugin import (
     copy_report_favicon,
     summarize_results,
     provider_label,
+    read_text_file,
 )
 
 
 REPORT_NAME = "typhoon-report.json"
 SUMMARY_NAME = "run-summary.json"
+PROJECT_ROOT_MARKERS = ("pyproject.toml", "pixi.toml", ".git")
 
 
 class ReportRegenerationError(RuntimeError):
@@ -60,6 +62,7 @@ def regenerate_run_html(run_dir: Path) -> list[Path]:
         raise ReportRegenerationError(f"missing {REPORT_NAME}: {report_path}")
 
     results = read_json_list(report_path)
+    populate_missing_usda_sources(results, run_dir)
     context = build_run_context(run_dir, results)
     summary = summarize_results(context, results)
 
@@ -71,6 +74,75 @@ def regenerate_run_html(run_dir: Path) -> list[Path]:
     )
     index_path.write_text(build_html_report(results, context), encoding="utf-8")
     return [summary_path, index_path, *copy_report_assets(run_dir)]
+
+
+def populate_missing_usda_sources(
+    results: list[dict[str, Any]],
+    run_dir: Path,
+) -> None:
+    allowed_roots = source_backfill_roots(run_dir)
+    for row in results:
+        if isinstance(row.get("usd_source"), str) and row.get("usd_source_name"):
+            continue
+        source_path = legacy_usda_source_path(row.get("usd"), allowed_roots)
+        if source_path is None:
+            continue
+        row["usd_source_name"] = source_path.name
+        if not isinstance(row.get("usd_source"), str):
+            row["usd_source"] = read_text_file(source_path)
+
+
+def source_backfill_roots(run_dir: Path) -> tuple[Path, ...]:
+    roots: list[Path] = []
+    for candidate in (
+        find_project_root(Path.cwd()) or Path.cwd().resolve(),
+        find_project_root(run_dir),
+    ):
+        if candidate is None:
+            continue
+        root = candidate.resolve()
+        if root not in roots:
+            roots.append(root)
+    return tuple(roots)
+
+
+def find_project_root(start: Path) -> Path | None:
+    path = start.expanduser().resolve()
+    if path.is_file():
+        path = path.parent
+    for candidate in (path, *path.parents):
+        if any((candidate / marker).exists() for marker in PROJECT_ROOT_MARKERS):
+            return candidate
+    return None
+
+
+def legacy_usda_source_path(
+    value: object,
+    allowed_roots: tuple[Path, ...],
+) -> Path | None:
+    if not value:
+        return None
+    raw_path = Path(str(value)).expanduser()
+    candidates = (
+        [raw_path]
+        if raw_path.is_absolute()
+        else [root / raw_path for root in allowed_roots]
+    )
+    for candidate in candidates:
+        path = candidate.resolve()
+        if path.suffix != ".usda" or not path.is_file():
+            continue
+        if any(is_relative_to(path, root) for root in allowed_roots):
+            return path
+    return None
+
+
+def is_relative_to(path: Path, root: Path) -> bool:
+    try:
+        path.relative_to(root)
+    except ValueError:
+        return False
+    return True
 
 
 def resolve_run_dir(output_base: Path, run: str | Path | None) -> Path:

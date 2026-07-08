@@ -17,6 +17,7 @@ from .report_html import (
     REPORT_NAME,
     ReportRegenerationError,
     build_run_context,
+    populate_missing_usda_sources,
     read_json_list,
     resolve_run_dir,
 )
@@ -75,6 +76,7 @@ def extract_failures(
     target_results = [
         extract_failure_row(row, source_run, target_context) for row in failures
     ]
+    populate_missing_usda_sources(target_results, target_context.run_dir)
     write_run_outputs(target_context, target_results)
     return ExtractedFailures(
         source_run=source_run,

@@ -387,6 +387,80 @@ def test_provider_dry_run_reports_clean_environment_command(
     assert plugin.format_command(command) in completed.stdout
 
 
+def test_renderer_output_is_captured_as_combined_stream(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    usd = write_suite(tmp_path)
+    case = plugin.build_case(usd)
+    opts = options(tmp_path, dry_run=False)
+    render_output = opts.run_context.run_dir / "rendered.case.exr"
+
+    def fake_run(cmd: list[str], **kwargs: object) -> SimpleNamespace:
+        assert kwargs["stdout"] is subprocess.PIPE
+        assert kwargs["stderr"] is subprocess.STDOUT
+        render_output.parent.mkdir(parents=True, exist_ok=True)
+        render_output.write_bytes(b"not a real exr")
+        return SimpleNamespace(returncode=0, stdout="stdout line\nstderr line\n", stderr=None)
+
+    monkeypatch.setattr(plugin.subprocess, "run", fake_run)
+
+    result = plugin.run_typhoon_case(case, opts)
+
+    assert result["status"] == "no-ref"
+    assert result["renderer_output"] == "stdout line\nstderr line\n"
+
+
+def test_renderer_output_is_recorded_on_renderer_failure(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    usd = write_suite(tmp_path)
+    case = plugin.build_case(usd)
+    opts = options(tmp_path, dry_run=False)
+
+    def fake_run(cmd: list[str], **kwargs: object) -> SimpleNamespace:
+        assert kwargs["stdout"] is subprocess.PIPE
+        assert kwargs["stderr"] is subprocess.STDOUT
+        return SimpleNamespace(returncode=2, stdout="stderr line\n", stderr=None)
+
+    monkeypatch.setattr(plugin.subprocess, "run", fake_run)
+
+    with pytest.raises(plugin.TyphoonRenderError, match="output:\nstderr line") as excinfo:
+        plugin.run_typhoon_case(case, opts)
+
+    assert excinfo.value.result["status"] == "failed-render"
+    assert excinfo.value.result["returncode"] == 2
+    assert excinfo.value.result["renderer_output"] == "stderr line\n"
+
+
+def test_usda_source_highlighter_escapes_and_wraps_tokens() -> None:
+    highlighted = plugin.highlight_usda_source(
+        '#usda 1.0\n'
+        'def Scope "Saved & <Source>"\n'
+        '{\n'
+        '    string note = "</script>"\n'
+        '    rel target = </World/Looks/Mat>\n'
+        '    asset file = @./textures/diffuse.png@\n'
+        '    float roughness = 0.25\n'
+        '}\n'
+    )
+
+    assert '<span class="usd-token usd-comment">#usda 1.0</span>' in highlighted
+    assert '<span class="usd-token usd-keyword">def</span>' in highlighted
+    assert '<span class="usd-token usd-type">Scope</span>' in highlighted
+    assert (
+        '<span class="usd-token usd-string">&quot;Saved &amp; &lt;Source&gt;&quot;</span>'
+        in highlighted
+    )
+    assert '<span class="usd-token usd-string">&quot;&lt;/script&gt;&quot;</span>' in highlighted
+    assert '<span class="usd-token usd-keyword">rel</span>' in highlighted
+    assert '<span class="usd-token usd-path">&lt;/World/Looks/Mat&gt;</span>' in highlighted
+    assert '<span class="usd-token usd-asset">@./textures/diffuse.png@</span>' in highlighted
+    assert '<span class="usd-token usd-number">0.25</span>' in highlighted
+    assert '</script>' not in highlighted
+
+
 def test_frame_spec_parsing_supports_ranges_lists_strides_and_fractional_frames() -> None:
     assert plugin.parse_frame_spec("1:3") == (1, 2, 3)
     assert plugin.parse_frame_spec("3:1") == (3, 2, 1)
@@ -666,6 +740,8 @@ output_pattern = "{stem}.exr"
     assert len(report) == 1
     assert report[0]["key"] == "case"
     assert report[0]["usd"] == str(usd)
+    assert report[0]["usd_source_name"] == "case.usda"
+    assert report[0]["usd_source"] == usd.read_text(encoding="utf-8")
     assert report[0]["camera"] == "/cameras/camera1"
 
 
@@ -721,6 +797,8 @@ output_pattern = "{stem}-embree.{frame:04d}.exr"
             "suspect": False,
             "suite": "sample",
             "usd": str(usd),
+            "usd_source": "#usda 1.0\n",
+            "usd_source_name": "case.usda",
         }
     ]
     assert summary["total"] == 1
@@ -1565,6 +1643,8 @@ def test_html_report_rows_expand_with_exr_canvas_viewer(tmp_path: Path) -> None:
         '#usda 1.0\ndef Scope "Render"\n{\n    def RenderSettings "Settings"\n    {\n        rel camera = </cameras/camera1>\n    }\n}\n',
         encoding="utf-8",
     )
+    saved_usda_source = '#usda 1.0\ndef Scope "Saved & <Source>"\n{\n    string note = "</script>"\n}\n'
+
     html = plugin.build_html_report(
         [
             {
@@ -1577,10 +1657,14 @@ def test_html_report_rows_expand_with_exr_canvas_viewer(tmp_path: Path) -> None:
                 "flip_threshold": 0.02,
                 "render_output": str(context.run_dir / "case.exr"),
                 "usd": str(usd),
+                "usd_source_name": usd.name,
+                "usd_source": saved_usda_source,
+                "camera": "/cameras/camera1",
                 "frame": 4,
                 "reference_image": str(context.run_dir / "reference" / "case.png"),
                 "render_image": str(context.run_dir / "case.exr"),
                 "diff_exr": str(context.run_dir / "flip" / "case.exr"),
+                "renderer_output": 'stdout <line>\nstderr "</script>"\n',
             },
             {
                 "suite": "sample",
@@ -1662,6 +1746,27 @@ def test_html_report_rows_expand_with_exr_canvas_viewer(tmp_path: Path) -> None:
     ) in html
     assert '<tr id="result-detail-0" class="result-detail-row" hidden>' in html
     assert '<td colspan="7"><div class="detail-panel">' in html
+    detail0 = html[
+        html.index('<tr id="result-detail-0"') : html.index('<tr id="result-detail-1"')
+    ]
+    assert '<details class="renderer-output"><summary>Renderer output</summary>' in detail0
+    assert 'stdout &lt;line&gt;' in detail0
+    assert 'stderr &quot;&lt;/script&gt;&quot;' in detail0
+    assert '<details class="usda-source"><summary>case.usda</summary>' in detail0
+    assert f"<summary>{usd}</summary>" not in detail0
+    assert '<span class="usd-token usd-comment">#usda 1.0</span>' in detail0
+    assert '<span class="usd-token usd-keyword">def</span>' in detail0
+    assert '<span class="usd-token usd-type">Scope</span>' in detail0
+    assert (
+        '<span class="usd-token usd-string">&quot;Saved &amp; &lt;Source&gt;&quot;</span>'
+        in detail0
+    )
+    assert '<span class="usd-token usd-string">&quot;&lt;/script&gt;&quot;</span>' in detail0
+    assert 'def Scope &quot;Render&quot;' not in detail0
+    assert '</script>' not in detail0
+    assert '.renderer-output pre, .usda-source pre {' in html
+    assert '.usd-comment { color: var(--ty-base04);' in html
+    assert '.usd-keyword { color: var(--ty-base17);' in html
     assert '(press 1, 2, and 3 to toggle)' in html
     assert '<figcaption>16x Zoom</figcaption>' in html
     assert '<figcaption>FLIP</figcaption>' not in html
@@ -2780,6 +2885,140 @@ def test_regenerate_html_defaults_to_latest_run(tmp_path: Path) -> None:
     summary = json.loads((latest / "run-summary.json").read_text(encoding="utf-8"))
     assert summary["total"] == 1
     assert summary["compared"] == 1
+
+
+def test_regenerate_html_backfills_legacy_usda_source_from_usd_path(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    output_base = tmp_path / "_output"
+    run_dir = write_report_run(output_base, 1, key="legacy")
+    usd = tmp_path / "suite" / "legacy.usda"
+    usd.parent.mkdir()
+    usd.write_text('#usda 1.0\ndef Scope "Legacy & <Fixture>"\n', encoding="utf-8")
+    report = json.loads((run_dir / "typhoon-report.json").read_text(encoding="utf-8"))
+    report[0]["usd"] = str(usd)
+    report_path = run_dir / "typhoon-report.json"
+    report_path.write_text(
+        json.dumps(report, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    report_before = report_path.read_text(encoding="utf-8")
+    monkeypatch.chdir(tmp_path)
+
+    report_html.regenerate_html(output_root=output_base, run="1")
+
+    html = (run_dir / "index.html").read_text(encoding="utf-8")
+    assert '<details class="usda-source"><summary>legacy.usda</summary>' in html
+    assert '<span class="usd-token usd-string">&quot;Legacy &amp; &lt;Fixture&gt;&quot;</span>' in html
+    assert f"<summary>{usd}</summary>" not in html
+    assert report_path.read_text(encoding="utf-8") == report_before
+
+
+def test_regenerate_html_backfills_legacy_usda_source_from_project_root_subdir(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    (tmp_path / "pixi.toml").write_text("[workspace]\nname = 'fixture'\n", encoding="utf-8")
+    output_base = tmp_path / "_output"
+    run_dir = write_report_run(output_base, 1, key="legacy")
+    usd = tmp_path / "suite" / "legacy.usda"
+    usd.parent.mkdir()
+    usd.write_text('#usda 1.0\ndef Scope "ProjectRoot"\n', encoding="utf-8")
+    report = json.loads((run_dir / "typhoon-report.json").read_text(encoding="utf-8"))
+    report[0]["usd"] = str(usd)
+    (run_dir / "typhoon-report.json").write_text(
+        json.dumps(report, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    subdir = tmp_path / "tools"
+    subdir.mkdir()
+    monkeypatch.chdir(subdir)
+
+    report_html.regenerate_html(output_root=output_base, run="1")
+
+    html = (run_dir / "index.html").read_text(encoding="utf-8")
+    assert '<details class="usda-source"><summary>legacy.usda</summary>' in html
+    assert '<span class="usd-token usd-string">&quot;ProjectRoot&quot;</span>' in html
+
+
+def test_regenerate_html_backfills_legacy_usda_source_with_custom_output_root(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    output_base = tmp_path / "artifacts" / "_output"
+    run_dir = write_report_run(output_base, 1, key="legacy")
+    usd = tmp_path / "suite" / "legacy.usda"
+    usd.parent.mkdir()
+    usd.write_text('#usda 1.0\ndef Scope "CustomOutput"\n', encoding="utf-8")
+    report = json.loads((run_dir / "typhoon-report.json").read_text(encoding="utf-8"))
+    report[0]["usd"] = str(usd)
+    (run_dir / "typhoon-report.json").write_text(
+        json.dumps(report, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.chdir(tmp_path)
+
+    report_html.regenerate_html(output_root=output_base, run="1")
+
+    html = (run_dir / "index.html").read_text(encoding="utf-8")
+    assert '<details class="usda-source"><summary>legacy.usda</summary>' in html
+    assert '<span class="usd-token usd-string">&quot;CustomOutput&quot;</span>' in html
+
+
+def test_regenerate_html_does_not_backfill_legacy_usda_source_outside_cwd(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    output_base = tmp_path / "_output"
+    run_dir = write_report_run(output_base, 1, key="legacy")
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    usd = outside / "legacy.usda"
+    usd.write_text('#usda 1.0\ndef Scope "Outside"\n', encoding="utf-8")
+    report = json.loads((run_dir / "typhoon-report.json").read_text(encoding="utf-8"))
+    report[0]["usd"] = str(usd)
+    (run_dir / "typhoon-report.json").write_text(
+        json.dumps(report, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    project_root = tmp_path / "project"
+    project_root.mkdir()
+    monkeypatch.chdir(project_root)
+
+    report_html.regenerate_html(output_root=output_base, run="1")
+
+    html = (run_dir / "index.html").read_text(encoding="utf-8")
+    assert 'class="usda-source"' not in html
+    assert "Outside" not in html
+
+
+def test_regenerate_html_uses_saved_usda_source_from_report(tmp_path: Path) -> None:
+    output_base = tmp_path / "_output"
+    run_dir = write_report_run(output_base, 1, key="case")
+    usd = tmp_path / "suite" / "case.usda"
+    usd.parent.mkdir()
+    usd.write_text('#usda 1.0\ndef Scope "Current"\n', encoding="utf-8")
+    saved_source = '#usda 1.0\ndef Scope "Saved <Fixture>"\n'
+    report = json.loads((run_dir / "typhoon-report.json").read_text(encoding="utf-8"))
+    report[0].update(
+        {
+            "usd": str(usd),
+            "usd_source_name": "case.usda",
+            "usd_source": saved_source,
+        }
+    )
+    (run_dir / "typhoon-report.json").write_text(
+        json.dumps(report, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    report_html.regenerate_html(output_root=output_base, run="1")
+
+    html = (run_dir / "index.html").read_text(encoding="utf-8")
+    assert '<details class="usda-source"><summary>case.usda</summary>' in html
+    assert '<span class="usd-token usd-string">&quot;Saved &lt;Fixture&gt;&quot;</span>' in html
+    assert 'def Scope &quot;Current&quot;' not in html
 
 
 def test_regenerate_html_accepts_specific_run_number(tmp_path: Path) -> None:

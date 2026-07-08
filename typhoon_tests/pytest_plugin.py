@@ -31,6 +31,62 @@ from .images import compare_images
 
 RUN_DIR_RE = re.compile(r"^run-(\d+)$")
 CAMERA_REL_RE = re.compile(r"\brel\s+camera\s*=\s*<([^>]+)>")
+USDA_HIGHLIGHT_RE = re.compile(
+    r"(?P<comment>\#.*)"
+    r"|(?P<asset>@(?:[^@\\]|\\.)*@)"
+    r'|(?P<string>"(?:\\.|[^"\\])*")'
+    r"|(?P<path><[^>\n]*>)"
+    r"|(?P<number>(?<![\w.])-?(?:\d+\.\d*|\.\d+|\d+)(?:[eE][+-]?\d+)?)(?![\w.])"
+    r"|(?P<identifier>[A-Za-z_][A-Za-z0-9_:]*)"
+)
+USDA_KEYWORDS = {
+    "add",
+    "append",
+    "class",
+    "custom",
+    "def",
+    "delete",
+    "inherits",
+    "over",
+    "payload",
+    "prepend",
+    "references",
+    "rel",
+    "reorder",
+    "specializes",
+    "uniform",
+    "variantSet",
+    "variantSets",
+    "varying",
+}
+USDA_TYPES = {
+    "Scope",
+    "Xform",
+    "Material",
+    "Shader",
+    "Mesh",
+    "Camera",
+    "RenderSettings",
+    "RenderProduct",
+    "RenderVar",
+    "asset",
+    "bool",
+    "color3f",
+    "color4f",
+    "double",
+    "float",
+    "int",
+    "matrix3d",
+    "matrix4d",
+    "normal3f",
+    "point3f",
+    "string",
+    "texCoord2f",
+    "token",
+    "uchar",
+    "vector2f",
+    "vector3f",
+}
 
 REPORT_STATIC_DIR = Path(__file__).resolve().parent / "static"
 REPORT_ASSET_NAMES = ("typhoon-exr-viewer.js", "typhoon_exr_wasm.wasm")
@@ -436,6 +492,8 @@ def run_typhoon_case(case: TyphoonCase, options: TyphoonOptions) -> dict[str, An
         "relative_path": case.relative_path,
         "sections": list(case.sections),
         "usd": str(case.path),
+        "usd_source_name": case.path.name,
+        "usd_source": read_text_file(case.path),
         "camera": discover_usd_camera(case.path),
         "command": [],
         "output_root": str(output_root),
@@ -481,7 +539,7 @@ def run_typhoon_case(case: TyphoonCase, options: TyphoonOptions) -> dict[str, An
             cmd,
             check=False,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
             text=True,
         )
     except FileNotFoundError as exc:
@@ -491,15 +549,16 @@ def run_typhoon_case(case: TyphoonCase, options: TyphoonOptions) -> dict[str, An
             result,
         ) from exc
 
+    renderer_output = combined_process_output(completed)
     result["returncode"] = completed.returncode
+    result["renderer_output"] = renderer_output
     if completed.returncode != 0:
         result["status"] = "failed-render"
         raise TyphoonRenderError(
             "renderer failed\n"
             f"command: {format_command(cmd)}\n"
             f"exit code: {completed.returncode}\n"
-            f"stdout:\n{tail(completed.stdout)}\n"
-            f"stderr:\n{tail(completed.stderr)}",
+            f"output:\n{tail(renderer_output)}",
             result,
         )
 
@@ -1242,6 +1301,60 @@ def format_report_frame(value: object) -> str:
     return str(value)
 
 
+def combined_process_output(completed: object) -> str:
+    output = getattr(completed, "stdout", None) or ""
+    stderr = getattr(completed, "stderr", None)
+    if stderr:
+        separator = "" if not output or output.endswith("\n") else "\n"
+        output = f"{output}{separator}{stderr}"
+    return output
+
+
+def read_text_file(path: Path) -> str:
+    try:
+        return path.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        return path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return ""
+
+
+def highlight_usda_source(source: str) -> str:
+    highlighted = []
+    cursor = 0
+    for match in USDA_HIGHLIGHT_RE.finditer(source):
+        highlighted.append(html.escape(source[cursor : match.start()]))
+        token = match.group(0)
+        kind = match.lastgroup or ""
+        css_class = usda_token_class(kind, token)
+        escaped_token = html.escape(token)
+        if css_class:
+            highlighted.append(
+                f'<span class="usd-token {css_class}">{escaped_token}</span>'
+            )
+        else:
+            highlighted.append(escaped_token)
+        cursor = match.end()
+    highlighted.append(html.escape(source[cursor:]))
+    return "".join(highlighted)
+
+
+def usda_token_class(kind: str, token: str) -> str:
+    if kind == "identifier":
+        if token in USDA_KEYWORDS:
+            return "usd-keyword"
+        if token in USDA_TYPES:
+            return "usd-type"
+        return ""
+    return {
+        "asset": "usd-asset",
+        "comment": "usd-comment",
+        "number": "usd-number",
+        "path": "usd-path",
+        "string": "usd-string",
+    }.get(kind, "")
+
+
 def report_case_id(row: dict[str, Any]) -> str:
     return json.dumps(
         [str(row.get("suite", "")), str(row.get("key", ""))],
@@ -1397,6 +1510,31 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
             '</div>'
         )
 
+    def renderer_output_markup(row: dict[str, Any]) -> str:
+        output = row.get("renderer_output")
+        if not isinstance(output, str) or not output:
+            return ""
+        return (
+            '<details class="renderer-output">'
+            '<summary>Renderer output</summary>'
+            f"<pre><code>{esc(output)}</code></pre>"
+            "</details>"
+        )
+
+    def usda_source_markup(row: dict[str, Any]) -> str:
+        source = row.get("usd_source")
+        if not isinstance(source, str):
+            return ""
+        source_name = row.get("usd_source_name")
+        if not source_name:
+            return ""
+        return (
+            '<details class="usda-source">'
+            f"<summary>{esc(source_name)}</summary>"
+            f"<pre><code>{highlight_usda_source(source)}</code></pre>"
+            "</details>"
+        )
+
     def selection_cell(row: dict[str, Any]) -> str:
         case_id = report_case_id(row)
         return (
@@ -1467,7 +1605,12 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
         escaped_key = esc(row.get("key", ""))
         escaped_case_id = esc(report_case_id(row))
         thumbnails = thumbnail_markup(row, escaped_key)
-        detail_content = usdview_action_markup(row) + viewer_markup(row, escaped_key)
+        detail_content = (
+            usdview_action_markup(row)
+            + viewer_markup(row, escaped_key)
+            + renderer_output_markup(row)
+            + usda_source_markup(row)
+        )
         render_output = rel_field(row, "render_output") or rel_field(row, "render_image")
         render_filename = Path(render_output).name if render_output else ""
         status_css = " ".join(part for part in ("status-cell", status_class(status)) if part)
@@ -1595,6 +1738,15 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
     .usdview-button:disabled {{ opacity: 0.55; cursor: wait; }}
     .usdview-status {{ color: #bbb; min-height: 20px; }}
     .detail-empty {{ color: #888; }}
+    .renderer-output, .usda-source {{ margin-top: 14px; border: 1px solid #333; background: #181818; }}
+    .renderer-output summary, .usda-source summary {{ padding: 8px 10px; cursor: pointer; color: #e5e7eb; font-weight: 700; }}
+    .renderer-output pre, .usda-source pre {{ max-height: 60vh; margin: 0; padding: 12px; overflow: auto; background: #0b0b0b; border-top: 1px solid #333; color: #d1d5db; font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre; }}
+    .usd-comment {{ color: var(--ty-base04); font-style: italic; }}
+    .usd-keyword {{ color: var(--ty-base17); font-weight: 700; }}
+    .usd-type {{ color: var(--ty-base16); }}
+    .usd-string, .usd-asset {{ color: var(--ty-base14); }}
+    .usd-path {{ color: var(--ty-base15); }}
+    .usd-number {{ color: var(--ty-base13); }}
     .viewer-grid {{ display: grid; grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr) minmax(280px, 0.82fr); gap: 12px; align-items: start; }}
     figure {{ margin: 0; min-width: 0; }}
     figcaption {{ margin: 0 0 6px; color: #ddd; font-weight: 700; }}
