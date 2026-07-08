@@ -601,9 +601,9 @@
       "release": "reference-data-20260707T041914Z-8363eb47-32321cb7"
     },
     "material-fidelity/nodes/geometric": {
-      "archive": "material-fidelity--nodes--geometric--e82c276e32e6.zip",
-      "archive_sha256": "635bde97bc1b500e2bdb72bedd63db63f6f24130629302a8296d19499398d5a0",
-      "archive_size": 74535546,
+      "archive": "material-fidelity--nodes--geometric--c06f86c18f3e.zip",
+      "archive_sha256": "5ce14e1fe3cd881f2d853d8cf51becc2b6225baa79a850b127832b1159455e52",
+      "archive_size": 74998212,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/geometric/binormal_default.exr",
@@ -729,6 +729,16 @@
           "path": "material-fidelity/reference/nodes/geometric/geompropvalue_vector4.exr",
           "sha256": "d4cf99d4d84ded8fc993b7d64aa41b68f30f24388dc94d1c89ea9ccabde9f9f9",
           "size": 553905
+        },
+        {
+          "path": "material-fidelity/reference/nodes/geometric/geompropvalueuniform_filename.exr",
+          "sha256": "143501d6e8c6de5555e610f294fc6f29b6476d747e8a3453b9094822e1107b81",
+          "size": 298854
+        },
+        {
+          "path": "material-fidelity/reference/nodes/geometric/geompropvalueuniform_string.exr",
+          "sha256": "5d6ced5b597c17941f5bb7312b8b178990e658daa9d97aea0be1e560973b5991",
+          "size": 163356
         },
         {
           "path": "material-fidelity/reference/nodes/geometric/normal_default.exr",
@@ -1046,7 +1056,7 @@
           "size": 785716
         }
       ],
-      "release": "reference-data-20260708T024659Z-f419db37-9df40a7d"
+      "release": "reference-data-20260708T051159Z-d1b789a1-b3a4424a"
     },
     "material-fidelity/nodes/logical": {
       "archive": "material-fidelity--nodes--logical--83420186235d.zip",
