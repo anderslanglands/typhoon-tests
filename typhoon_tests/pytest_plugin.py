@@ -1053,6 +1053,54 @@ def sortable_table_script() -> str:
           detail.hidden = expanded;
         });
       }
+      const navRows = () =>
+        Array.from(document.querySelectorAll("tr.result-row[data-detail-row]"))
+          .filter((row) => row.offsetParent !== null);
+      const isRowOpen = (row) => row.getAttribute("aria-expanded") === "true";
+      const setRowOpen = (row, open) => {
+        if (isRowOpen(row) === open) return;
+        row.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      };
+      const openOnlyRow = (target) => {
+        for (const row of document.querySelectorAll("tr.result-row[data-detail-row]")) {
+          if (row !== target && isRowOpen(row)) setRowOpen(row, false);
+        }
+        setRowOpen(target, true);
+      };
+      const moveViewer = (delta) => {
+        const rows = navRows();
+        if (!rows.length) return;
+        const current = rows.find(isRowOpen);
+        let index;
+        if (current) {
+          index = rows.indexOf(current) + delta;
+        } else {
+          index = delta > 0 ? 0 : rows.length - 1;
+        }
+        index = Math.max(0, Math.min(rows.length - 1, index));
+        const target = rows[index];
+        openOnlyRow(target);
+        const detail = document.getElementById(target.dataset.detailRow);
+        const focus = (detail && detail.querySelector("[data-exr-viewer]")) || detail || target;
+        if (focus && typeof focus.scrollIntoView === "function") {
+          focus.scrollIntoView({ block: "center", behavior: "smooth" });
+        }
+      };
+      document.addEventListener("keydown", (event) => {
+        if (event.defaultPrevented) return;
+        if (event.metaKey || event.ctrlKey || event.altKey) return;
+        const target = event.target;
+        if (target && target.closest
+            && target.closest("input, textarea, select, [contenteditable='true']")) {
+          return;
+        }
+        let delta = 0;
+        if (event.key === "ArrowDown" || event.key === "j") delta = 1;
+        else if (event.key === "ArrowUp" || event.key === "k") delta = -1;
+        else return;
+        event.preventDefault();
+        moveViewer(delta);
+      });
       if (Array.isArray(restoredState?.selected)) {
         for (const checkbox of document.querySelectorAll("[data-result-select]")) {
           checkbox.checked = restoredState.selected.includes(checkbox.dataset.caseId || "");
