@@ -1,49 +1,49 @@
 {
   "groups": {
     "material-fidelity/nodes/adjustment": {
-      "archive": "material-fidelity--nodes--adjustment--1bde7c22edf9.zip",
-      "archive_sha256": "244969d1ad04f571fff4747334e8ecefeb00af88ca94dfdb0cc4378b80deba25",
-      "archive_size": 10121074,
+      "archive": "material-fidelity--nodes--adjustment--f061a12f9b71.zip",
+      "archive_sha256": "72122b93665187ee4c87d772e9bfbfc82757481f8457b4bcd67f71d4cc579ebb",
+      "archive_size": 10120906,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/adjustment/colorcorrect.exr",
-          "sha256": "f62c98662af647a03e4a09cb71161a6b5a086adc996dd5f16596ce5c17e88709",
-          "size": 808569
+          "sha256": "7c66077a47638fecd6d802f08a5ee910e8638cd6f4a3310b4255c7747de73d9c",
+          "size": 808714
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/contrast.exr",
-          "sha256": "a24c16536c2d98816937c9c2a1d57e9fd0595bc34f0c9059a7e8b685025ef214",
-          "size": 807668
+          "sha256": "49e1b4b2d09c2c06f122a82969383a076f4f9221ee2b9e2c438eba5c2ad03dfe",
+          "size": 807535
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/hsvtorgb.exr",
-          "sha256": "84ad703d0727464e9439b00545b4b1cc1d91fff98047611326365c0026f602ae",
-          "size": 808559
+          "sha256": "b33362d930a2324be4827bebf2210c3fab686b9a37a98ac398855c335debbe02",
+          "size": 808687
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/luminance.exr",
-          "sha256": "1a3ddfc30e365e302321f223383fb359c11f0d0e5e306a40f2973c69eb2a2202",
-          "size": 807650
+          "sha256": "db4180044a07d680cf9ac0571b79f2f8fcb9f579869b33925acbcfb5cfc40f27",
+          "size": 807551
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/range.exr",
-          "sha256": "18f00afb67e237a6447fdcf5c6b554f75a33ba2c380e90a46433613a17a2c61b",
-          "size": 808658
+          "sha256": "6ae7307db65306eaf5a4787e15115b974a9b7dc4ed8fc5af6ed8cfe1c6c828c8",
+          "size": 808745
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/range_degenerate_inverted_input_bounds.exr",
-          "sha256": "c2d09e37d295e54939fe7f7b0d2599cbbea40e63b236abacc30b51fea64319a3",
-          "size": 480763
+          "sha256": "1da829461b7d63deaab7b52172bc363c7a81545e988e211fae33a2895898d533",
+          "size": 480525
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/range_degenerate_inverted_input_bounds_vector4.exr",
-          "sha256": "05d0f9ae5c548dac564b8558678deb76fda7e46176c9935bf6d21ead0f0a9adc",
-          "size": 479202
+          "sha256": "469476fe17ba17b08c6f9aeec595b55a7af05a2d6e3010342af18c220a108c66",
+          "size": 479452
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/range_degenerate_nonpositive_gamma.exr",
-          "sha256": "9fa06bacc7751a5710d8f80ec25d4f182d04ffc246d8dc7da3a3b4f3ebd7d52c",
-          "size": 542762
+          "sha256": "c722623cd82f30d672791729724377d340fe83435f23180caa4ad704834d30b7",
+          "size": 542643
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/remap.exr",
@@ -57,13 +57,13 @@
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/remap_degenerate_inverted_input_bounds.exr",
-          "sha256": "c2d09e37d295e54939fe7f7b0d2599cbbea40e63b236abacc30b51fea64319a3",
-          "size": 480763
+          "sha256": "1da829461b7d63deaab7b52172bc363c7a81545e988e211fae33a2895898d533",
+          "size": 480525
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/remap_degenerate_inverted_input_bounds_vector4.exr",
-          "sha256": "05d0f9ae5c548dac564b8558678deb76fda7e46176c9935bf6d21ead0f0a9adc",
-          "size": 479202
+          "sha256": "469476fe17ba17b08c6f9aeec595b55a7af05a2d6e3010342af18c220a108c66",
+          "size": 479452
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/remap_degenerate_vector4.exr",
@@ -72,36 +72,36 @@
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/rgbtohsv.exr",
-          "sha256": "749b9167bbc18b7be2fead9f752d660fa747802403b41a9b4978ddf947e5b78c",
-          "size": 808096
+          "sha256": "4cea8e23cdc3012c4b6f6ec35bcbb674626b7e66d4a52b39ca9bd93a39ed6676",
+          "size": 807961
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/saturate.exr",
-          "sha256": "e9495d572645f99fe911abbd6f5ad40a0770c894579202bc066586ba1a0718b5",
-          "size": 808380
+          "sha256": "93beb2ab5aa8fe2d7ecae4dfdc12907c74ed83e3ebb0e31b82e31efbd1bde9a6",
+          "size": 808231
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/smoothstep.exr",
-          "sha256": "772501e918094672dcc18a12545bc543307af296a975e80d449ceeae5eeb9d56",
-          "size": 805125
+          "sha256": "6c7dd4c5c569443e85a23dd0f28e921212681ddb55785a72a5326af26e1a539f",
+          "size": 805065
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/smoothstep_degenerate.exr",
-          "sha256": "f2a9062e4ac5ad03855a411a1f98f014bddb7c3d7891d22d43b6b448bb13237e",
-          "size": 283441
+          "sha256": "577c470b55e6c85d9ffe1879f10559fb5e6a70e3c680b407875e3dd978a2e012",
+          "size": 283516
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/smoothstep_degenerate_inverted_bounds.exr",
-          "sha256": "b1280804ce0347302be33714df62ba1b9d305562d6cec98b1ce5732e98e7c000",
-          "size": 284768
+          "sha256": "691df32cd5767904424999d4430fbfcb6bc0db2b8ab114dc4bb174b6f30797ed",
+          "size": 284841
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/smoothstep_degenerate_inverted_bounds_vector4.exr",
-          "sha256": "e045f36281af87a7c92ee460daa44db6ee2604ee09a8e655b22d736eff20b9d6",
-          "size": 17901
+          "sha256": "47771551f6f25c9679171261365d353812083491198bc8d597eb16b3a714de94",
+          "size": 17896
         }
       ],
-      "release": "reference-data-20260707T025828Z-22e3f21e-a99f826c"
+      "release": "reference-data-20260708T054718Z-1b0435b7-83ffc62e"
     },
     "material-fidelity/nodes/application": {
       "archive": "material-fidelity--nodes--application--0b878de19b1c.zip",
