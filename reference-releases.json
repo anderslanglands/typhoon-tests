@@ -2477,9 +2477,9 @@
       "release": "reference-data-20260707T041914Z-8363eb47-32321cb7"
     },
     "material-fidelity/nodes/textures": {
-      "archive": "material-fidelity--nodes--textures--d8a5dfdcd275.zip",
-      "archive_sha256": "1a0f8c6953ca9c5cbc330c65ecf68d9f8659a4242f1e36e65bdb452dd80a791c",
-      "archive_size": 46063333,
+      "archive": "material-fidelity--nodes--textures--ad65fc2315cf.zip",
+      "archive_sha256": "54ae8a9e81df03e27a1fd3bf0ac59a69d9ae6e9cbb85d467b3ee624e134665f8",
+      "archive_size": 45679789,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/textures/blur_color3.exr",
@@ -2658,8 +2658,8 @@
         },
         {
           "path": "material-fidelity/reference/nodes/textures/image.exr",
-          "sha256": "a18090fd4bb95812649a4db71a81a47ecba51f20db8f137d335a6c3e3917ceeb",
-          "size": 785797
+          "sha256": "d8da1003d36cd16fa5cd4d53e0c212f87e5e49f698baf46d845f8d83d2e40acc",
+          "size": 402253
         },
         {
           "path": "material-fidelity/reference/nodes/textures/image_addressmode_clamp.exr",
@@ -2742,7 +2742,7 @@
           "size": 785898
         }
       ],
-      "release": "reference-data-20260707T231155Z-ad0a37cf-be8a9b73"
+      "release": "reference-data-20260708T011817Z-290e52a0-b3bf28dc"
     },
     "material-fidelity/showcase/gltf_pbr": {
       "archive": "material-fidelity--showcase--gltf_pbr--83056fd801db.zip",
