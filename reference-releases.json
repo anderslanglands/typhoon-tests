@@ -2672,9 +2672,9 @@
       "release": "reference-data-20260708T071504Z-c94df4a9-02d9f075"
     },
     "material-fidelity/nodes/textures": {
-      "archive": "material-fidelity--nodes--textures--f0e61b08daf1.zip",
-      "archive_sha256": "ad810f9bdfea6a80fe7a4ba78642c90466d2a52ee775eb197aa15e8df9dc1cec",
-      "archive_size": 41738217,
+      "archive": "material-fidelity--nodes--textures--e3472ce41658.zip",
+      "archive_sha256": "aeb6fa33517c15458722cfd9404819ab518dab0383e8c9092be969a5d2247cf9",
+      "archive_size": 33785891,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/textures/blur_color3.exr",
@@ -2713,18 +2713,18 @@
         },
         {
           "path": "material-fidelity/reference/nodes/textures/gltf_normalmap_isolate_operationorder_zero.exr",
-          "sha256": "3c0acb1ab3448012b824180f47143abee648eeca8050c8e890e69badf8ea368b",
-          "size": 2773353
+          "sha256": "80c6e052e5b03877e2906b97354664ad68593dba043e13f1f3064cff79bf8304",
+          "size": 785666
         },
         {
           "path": "material-fidelity/reference/nodes/textures/gltf_normalmap_isolate_rotate_dynamic.exr",
-          "sha256": "56fcb5b31cdc4a8d0ecded423b46a29719b592ae3fd8c90893ebb1b50d5ba382",
-          "size": 2773872
+          "sha256": "a4bff670c3c628ecfcacbaab351d6664f8159e673fed96268b91f6b09215986f",
+          "size": 785705
         },
         {
           "path": "material-fidelity/reference/nodes/textures/gltf_normalmap_isolate_rotate_offset_procedural.exr",
-          "sha256": "4947297ad9a046327868a2e379292c63adfafebe139f2a42b7c8b4771b4497e1",
-          "size": 2773992
+          "sha256": "665f1cb1af9c05505f4413cd97cd37222a45357f4e0cf6c9b230c0aa134422e6",
+          "size": 785740
         },
         {
           "path": "material-fidelity/reference/nodes/textures/gltf_normalmap_isolate_scale_float.exr",
@@ -2733,8 +2733,8 @@
         },
         {
           "path": "material-fidelity/reference/nodes/textures/gltf_normalmap_transform.exr",
-          "sha256": "ffe991ad47b7bd5650576bf13ee211f83b51f3b99237a1c9cd4af5073072ef7d",
-          "size": 2773929
+          "sha256": "507c027c80ca492e8ce107506595ededbb9e76991f9ae28367b152f9f414e4c6",
+          "size": 785709
         },
         {
           "path": "material-fidelity/reference/nodes/textures/hextiledimage.exr",
@@ -2942,7 +2942,7 @@
           "size": 785898
         }
       ],
-      "release": "reference-data-20260708T080447Z-7793e912-beef5d31"
+      "release": "reference-data-20260708T082800Z-42c88353-df7539a5"
     },
     "material-fidelity/showcase/gltf_pbr": {
       "archive": "material-fidelity--showcase--gltf_pbr--83056fd801db.zip",

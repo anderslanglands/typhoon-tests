@@ -51,7 +51,7 @@ def Scope "Looks"
                 float inputs:falloff = 0.5
                 float inputs:falloffcontrast = 1
                 asset inputs:file = @../../_assets/Materials/nodes/image_format_png/textures/texture.png@ (
-                    colorSpace = "srgb_texture"
+                    colorSpace = "srgb_rec709_scene"
                 )
                 color3f inputs:lumacoeffs = (0.2722287, 0.6740818, 0.0536895)
                 float inputs:offset = 1
