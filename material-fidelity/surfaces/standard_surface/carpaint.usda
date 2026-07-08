@@ -57,7 +57,7 @@ over "Render"
     {
         over "Product"
         {
-            token productName = "material-fidelity/showcase/standard_surface/carpaint.exr"
+            token productName = "material-fidelity/surfaces/standard_surface/carpaint.exr"
         }
     }
 }

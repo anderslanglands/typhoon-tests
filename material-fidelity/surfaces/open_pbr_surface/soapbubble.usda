@@ -13,26 +13,27 @@
 
 def Scope "Looks"
 {
-    def Material "honey" (
+    def Material "soapbubble" (
         customData = {
             dictionary materialFidelity = {
-                string source = "materials/showcase/open_pbr_surface/honey/honey.mtlx"
-                string sourceMaterial = "Honey"
+                string source = "materials/showcase/open_pbr_surface/soapbubble/soapbubble.mtlx"
+                string sourceMaterial = "Soap_Bubble"
             }
         }
     )
     {
-        token outputs:mtlx:surface.connect = </Looks/honey/open_pbr_surface_surfaceshader.outputs:out>
-        token outputs:surface.connect = </Looks/honey/open_pbr_surface_surfaceshader.outputs:out>
+        token outputs:mtlx:surface.connect = </Looks/soapbubble/open_pbr_surface_surfaceshader.outputs:out>
+        token outputs:surface.connect = </Looks/soapbubble/open_pbr_surface_surfaceshader.outputs:out>
 
         def Shader "open_pbr_surface_surfaceshader"
         {
             uniform token info:id = "ND_open_pbr_surface_surfaceshader"
-            float inputs:specular_ior = 1.504
+            bool inputs:geometry_thin_walled = 1
+            float inputs:specular_ior = 1
             float inputs:specular_roughness = 0
-            color3f inputs:transmission_color = (0.83, 0.4, 0.04)
-            float inputs:transmission_depth = 2
-            color3f inputs:transmission_scatter = (0.9, 0.9, 0.9)
+            float inputs:thin_film_ior = 1.4
+            float inputs:thin_film_thickness = 0.5
+            float inputs:thin_film_weight = 1
             float inputs:transmission_weight = 1
             token outputs:out
         }
@@ -45,7 +46,7 @@ over "World"
         prepend apiSchemas = ["MaterialBindingAPI"]
     )
     {
-        rel material:binding = </Looks/honey>
+        rel material:binding = </Looks/soapbubble>
     }
 }
 
@@ -55,7 +56,7 @@ over "Render"
     {
         over "Product"
         {
-            token productName = "material-fidelity/showcase/open_pbr_surface/honey.exr"
+            token productName = "material-fidelity/surfaces/open_pbr_surface/soapbubble.exr"
         }
     }
 }

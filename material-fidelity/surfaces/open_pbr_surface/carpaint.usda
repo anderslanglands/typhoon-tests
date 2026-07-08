@@ -55,7 +55,7 @@ over "Render"
     {
         over "Product"
         {
-            token productName = "material-fidelity/showcase/open_pbr_surface/carpaint.exr"
+            token productName = "material-fidelity/surfaces/open_pbr_surface/carpaint.exr"
         }
     }
 }

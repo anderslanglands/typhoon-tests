@@ -13,23 +13,26 @@
 
 def Scope "Looks"
 {
-    def Material "lightbulb" (
+    def Material "glass" (
         customData = {
             dictionary materialFidelity = {
-                string source = "materials/showcase/open_pbr_surface/lightbulb/lightbulb.mtlx"
-                string sourceMaterial = "Light_Bulb"
+                string source = "materials/showcase/open_pbr_surface/glass/glass.mtlx"
+                string sourceMaterial = "Glass"
             }
         }
     )
     {
-        token outputs:mtlx:surface.connect = </Looks/lightbulb/open_pbr_surface_surfaceshader.outputs:out>
-        token outputs:surface.connect = </Looks/lightbulb/open_pbr_surface_surfaceshader.outputs:out>
+        token outputs:mtlx:surface.connect = </Looks/glass/open_pbr_surface_surfaceshader.outputs:out>
+        token outputs:surface.connect = </Looks/glass/open_pbr_surface_surfaceshader.outputs:out>
 
         def Shader "open_pbr_surface_surfaceshader"
         {
             uniform token info:id = "ND_open_pbr_surface_surfaceshader"
-            color3f inputs:emission_color = (1, 0.415, 0.099)
-            float inputs:emission_luminance = 10000
+            float inputs:specular_ior = 1.52
+            float inputs:specular_roughness = 0
+            float inputs:transmission_dispersion_abbe_number = 64
+            float inputs:transmission_dispersion_scale = 1
+            float inputs:transmission_weight = 1
             token outputs:out
         }
     }
@@ -41,7 +44,7 @@ over "World"
         prepend apiSchemas = ["MaterialBindingAPI"]
     )
     {
-        rel material:binding = </Looks/lightbulb>
+        rel material:binding = </Looks/glass>
     }
 }
 
@@ -51,7 +54,7 @@ over "Render"
     {
         over "Product"
         {
-            token productName = "material-fidelity/showcase/open_pbr_surface/lightbulb.exr"
+            token productName = "material-fidelity/surfaces/open_pbr_surface/glass.exr"
         }
     }
 }

@@ -105,7 +105,7 @@ over "Render"
     {
         over "Product"
         {
-            token productName = "material-fidelity/showcase/standard_surface/onyx_hextiled.exr"
+            token productName = "material-fidelity/surfaces/standard_surface/onyx_hextiled.exr"
         }
     }
 }

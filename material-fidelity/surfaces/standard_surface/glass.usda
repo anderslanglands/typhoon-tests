@@ -64,7 +64,7 @@ over "Render"
     {
         over "Product"
         {
-            token productName = "material-fidelity/showcase/standard_surface/glass.exr"
+            token productName = "material-fidelity/surfaces/standard_surface/glass.exr"
         }
     }
 }

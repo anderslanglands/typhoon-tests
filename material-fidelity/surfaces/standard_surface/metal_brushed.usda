@@ -66,7 +66,7 @@ over "Render"
     {
         over "Product"
         {
-            token productName = "material-fidelity/showcase/standard_surface/metal_brushed.exr"
+            token productName = "material-fidelity/surfaces/standard_surface/metal_brushed.exr"
         }
     }
 }
