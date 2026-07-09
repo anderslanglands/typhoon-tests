@@ -1,0 +1,81 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_smoothstep_vector2 with literal in = (0.25, 0.75) and typed low = (0, 0.25) and high = (1, 1.25). The normalized/clamped t is (0.25, 0.5), so smoothstep computes t*t*(3 - 2*t) = (0.15625, 0.5). The vector2 result is converted to RGB as (x, y, 0), so the expected emitted RGB on the plane is (0.15625, 0.5, 0)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "smoothstep_vector2" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/smoothstep/smoothstep_vector2.mtlx"
+                string sourceMaterial = "M_smoothstep_vector2"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/smoothstep_vector2/surface.outputs:out>
+        token outputs:surface.connect = </Looks/smoothstep_vector2/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_smoothstep_vector2"
+            float2 inputs:in = (0.25, 0.75)
+            float2 inputs:low = (0, 0.25)
+            float2 inputs:high = (1, 1.25)
+            float2 outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_convert_vector2_color3"
+            float2 inputs:in.connect = </Looks/smoothstep_vector2/node_under_test.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/smoothstep_vector2/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/smoothstep_vector2/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/smoothstep_vector2>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/adjustment/smoothstep_vector2.exr"
+        }
+    }
+}

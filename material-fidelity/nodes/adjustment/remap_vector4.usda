@@ -1,0 +1,101 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_remap_vector4 with literal in = (0.25, 0.75, 1.25, 0.5) and typed bounds inlow = (0, 0.25, 0.5, 0), inhigh = (1, 1.25, 1.5, 1), outlow = (0.1, 0.2, 0.3, 0.05), outhigh = (0.9, 0.8, 0.7, 0.45). The normalized t is (0.25, 0.5, 0.75, 0.5), so remap computes outlow + t * (outhigh - outlow) = (0.3, 0.5, 0.6, 0.25). The vector4 result is packed into RGB as (x, y, z + w), so the expected emitted RGB on the plane is (0.3, 0.5, 0.85)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "remap_vector4" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/remap/remap_vector4.mtlx"
+                string sourceMaterial = "M_remap_vector4"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/remap_vector4/surface.outputs:out>
+        token outputs:surface.connect = </Looks/remap_vector4/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_remap_vector4"
+            float4 inputs:in = (0.25, 0.75, 1.25, 0.5)
+            float4 inputs:inlow = (0, 0.25, 0.5, 0)
+            float4 inputs:inhigh = (1, 1.25, 1.5, 1)
+            float4 inputs:outlow = (0.1, 0.2, 0.3, 0.05)
+            float4 inputs:outhigh = (0.9, 0.8, 0.7, 0.45)
+            float4 outputs:out
+        }
+        def Shader "display_channels"
+        {
+            uniform token info:id = "ND_separate4_vector4"
+            float4 inputs:in.connect = </Looks/remap_vector4/node_under_test.outputs:out>
+            float outputs:outx
+            float outputs:outy
+            float outputs:outz
+            float outputs:outw
+        }
+        def Shader "display_blue"
+        {
+            uniform token info:id = "ND_add_float"
+            float inputs:in1.connect = </Looks/remap_vector4/display_channels.outputs:outz>
+            float inputs:in2.connect = </Looks/remap_vector4/display_channels.outputs:outw>
+            float outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/remap_vector4/display_channels.outputs:outx>
+            float inputs:in2.connect = </Looks/remap_vector4/display_channels.outputs:outy>
+            float inputs:in3.connect = </Looks/remap_vector4/display_blue.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/remap_vector4/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/remap_vector4/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/remap_vector4>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/adjustment/remap_vector4.exr"
+        }
+    }
+}

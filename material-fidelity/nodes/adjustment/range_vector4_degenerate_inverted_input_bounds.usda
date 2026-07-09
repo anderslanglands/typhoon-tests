@@ -1,0 +1,143 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests the ND_range_vector4 edge case with UV-driven input (u, v, 0.25, 0.75), inverted per-component input bounds, doclamp false, and gamma = (1, 1, 1, 1). RGB displays the output x, y, and z components, so the image shows how the first three vector components respond to inverted bounds over the plane."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "range_vector4_degenerate_inverted_input_bounds" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/range_vector4_degenerate_inverted_input_bounds/range_vector4_degenerate_inverted_input_bounds.mtlx"
+                string sourceMaterial = "M_range_vector4_degenerate_inverted_input_bounds"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/range_vector4_degenerate_inverted_input_bounds/surface.outputs:out>
+        token outputs:surface.connect = </Looks/range_vector4_degenerate_inverted_input_bounds/surface.outputs:out>
+
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/range_vector4_degenerate_inverted_input_bounds/NG_range_vector4_degenerate_inverted_input_bounds.outputs:out_base_color>
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/range_vector4_degenerate_inverted_input_bounds/uniform_edf.outputs:out>
+            token outputs:out
+        }
+
+        def NodeGraph "NG_range_vector4_degenerate_inverted_input_bounds"
+        {
+            color3f outputs:out_base_color.connect = </Looks/range_vector4_degenerate_inverted_input_bounds/NG_range_vector4_degenerate_inverted_input_bounds/debug_color.outputs:out>
+
+            def Shader "uv0"
+            {
+                uniform token info:id = "ND_texcoord_vector2"
+                float2 outputs:out
+            }
+
+            def Shader "uv_split"
+            {
+                uniform token info:id = "ND_separate2_vector2"
+                float2 inputs:in.connect = </Looks/range_vector4_degenerate_inverted_input_bounds/NG_range_vector4_degenerate_inverted_input_bounds/uv0.outputs:out>
+                float outputs:outx
+                float outputs:outy
+            }
+
+            def Shader "range_in"
+            {
+                uniform token info:id = "ND_combine4_vector4"
+                float inputs:in1.connect = </Looks/range_vector4_degenerate_inverted_input_bounds/NG_range_vector4_degenerate_inverted_input_bounds/uv_split.outputs:outx>
+                float inputs:in2.connect = </Looks/range_vector4_degenerate_inverted_input_bounds/NG_range_vector4_degenerate_inverted_input_bounds/uv_split.outputs:outy>
+                float inputs:in3 = 0.25
+                float inputs:in4 = 0.75
+                float4 outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_range_vector4"
+                bool inputs:doclamp = 0
+                float4 inputs:gamma = (1, 1, 1, 1)
+                float4 inputs:in.connect = </Looks/range_vector4_degenerate_inverted_input_bounds/NG_range_vector4_degenerate_inverted_input_bounds/range_in.outputs:out>
+                float4 inputs:inhigh = (0.25, 0.1, 0.2, 0.3)
+                float4 inputs:inlow = (0.75, 0.9, 0.8, 0.7)
+                float4 inputs:outhigh = (1, 0.9, 0.8, 0.7)
+                float4 inputs:outlow = (0, 0.1, 0.2, 0.3)
+                float4 outputs:out
+            }
+
+            def Shader "debug_r"
+            {
+                uniform token info:id = "ND_extract_vector4"
+                float4 inputs:in.connect = </Looks/range_vector4_degenerate_inverted_input_bounds/NG_range_vector4_degenerate_inverted_input_bounds/node_under_test.outputs:out>
+                int inputs:index = 0
+                float outputs:out
+            }
+
+            def Shader "debug_g"
+            {
+                uniform token info:id = "ND_extract_vector4"
+                float4 inputs:in.connect = </Looks/range_vector4_degenerate_inverted_input_bounds/NG_range_vector4_degenerate_inverted_input_bounds/node_under_test.outputs:out>
+                int inputs:index = 1
+                float outputs:out
+            }
+
+            def Shader "debug_b"
+            {
+                uniform token info:id = "ND_extract_vector4"
+                float4 inputs:in.connect = </Looks/range_vector4_degenerate_inverted_input_bounds/NG_range_vector4_degenerate_inverted_input_bounds/node_under_test.outputs:out>
+                int inputs:index = 2
+                float outputs:out
+            }
+
+            def Shader "debug_color"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/range_vector4_degenerate_inverted_input_bounds/NG_range_vector4_degenerate_inverted_input_bounds/debug_r.outputs:out>
+                float inputs:in2.connect = </Looks/range_vector4_degenerate_inverted_input_bounds/NG_range_vector4_degenerate_inverted_input_bounds/debug_g.outputs:out>
+                float inputs:in3.connect = </Looks/range_vector4_degenerate_inverted_input_bounds/NG_range_vector4_degenerate_inverted_input_bounds/debug_b.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/range_vector4_degenerate_inverted_input_bounds>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/adjustment/range_vector4_degenerate_inverted_input_bounds.exr"
+        }
+    }
+}

@@ -1,0 +1,103 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_range_color4 with literal in = (0.25, 0.75, 1.25, 0.5) and typed bounds inlow = (0, 0.25, 0.5, 0), inhigh = (1, 1.25, 1.5, 1), outlow = (0.1, 0.2, 0.3, 0.05), outhigh = (0.9, 0.8, 0.7, 0.45), gamma = (1, 1, 1, 1), with doclamp true. The normalized/clamped t is (0.25, 0.5, 0.75, 0.5), and gamma is 1, so range computes outlow + t * (outhigh - outlow) = (0.3, 0.5, 0.6, 0.25). The color4 result is packed into RGB as (r, g, b + a), so the expected emitted RGB on the plane is (0.3, 0.5, 0.85)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "range_color4" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/range/range_color4.mtlx"
+                string sourceMaterial = "M_range_color4"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/range_color4/surface.outputs:out>
+        token outputs:surface.connect = </Looks/range_color4/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_range_color4"
+            color4f inputs:in = (0.25, 0.75, 1.25, 0.5)
+            color4f inputs:inlow = (0, 0.25, 0.5, 0)
+            color4f inputs:inhigh = (1, 1.25, 1.5, 1)
+            color4f inputs:gamma = (1, 1, 1, 1)
+            color4f inputs:outlow = (0.1, 0.2, 0.3, 0.05)
+            color4f inputs:outhigh = (0.9, 0.8, 0.7, 0.45)
+            bool inputs:doclamp = true
+            color4f outputs:out
+        }
+        def Shader "display_channels"
+        {
+            uniform token info:id = "ND_separate4_color4"
+            color4f inputs:in.connect = </Looks/range_color4/node_under_test.outputs:out>
+            float outputs:outr
+            float outputs:outg
+            float outputs:outb
+            float outputs:outa
+        }
+        def Shader "display_blue"
+        {
+            uniform token info:id = "ND_add_float"
+            float inputs:in1.connect = </Looks/range_color4/display_channels.outputs:outb>
+            float inputs:in2.connect = </Looks/range_color4/display_channels.outputs:outa>
+            float outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/range_color4/display_channels.outputs:outr>
+            float inputs:in2.connect = </Looks/range_color4/display_channels.outputs:outg>
+            float inputs:in3.connect = </Looks/range_color4/display_blue.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/range_color4/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/range_color4/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/range_color4>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/adjustment/range_color4.exr"
+        }
+    }
+}

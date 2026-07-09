@@ -1,0 +1,77 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_remap_color3FA with literal in = (0.25, 0.5, 0.75) and scalar bounds inlow = 0, inhigh = 1, outlow = 0.1, outhigh = 0.9. The normalized t is (0.25, 0.5, 0.75), so remap computes outlow + t * (outhigh - outlow) = (0.3, 0.5, 0.7). The color3 result is connected directly to uniform_edf.color, so the expected emitted RGB on the plane is (0.3, 0.5, 0.7)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "remap_color3FA" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/remap/remap_color3FA.mtlx"
+                string sourceMaterial = "M_remap_color3FA"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/remap_color3FA/surface.outputs:out>
+        token outputs:surface.connect = </Looks/remap_color3FA/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_remap_color3FA"
+            color3f inputs:in = (0.25, 0.5, 0.75)
+            float inputs:inlow = 0
+            float inputs:inhigh = 1
+            float inputs:outlow = 0.1
+            float inputs:outhigh = 0.9
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/remap_color3FA/node_under_test.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/remap_color3FA/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/remap_color3FA>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/adjustment/remap_color3FA.exr"
+        }
+    }
+}

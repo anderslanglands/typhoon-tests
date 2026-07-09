@@ -1,9 +1,9 @@
 {
   "groups": {
     "material-fidelity/nodes/adjustment": {
-      "archive": "material-fidelity--nodes--adjustment--f061a12f9b71.zip",
-      "archive_sha256": "72122b93665187ee4c87d772e9bfbfc82757481f8457b4bcd67f71d4cc579ebb",
-      "archive_size": 10120906,
+      "archive": "material-fidelity--nodes--adjustment--598e8e1ae61d.zip",
+      "archive_sha256": "cabafe350f591ca8d361d300c1f8a644554c4d60cb774c5b20d379002fa71690",
+      "archive_size": 8554077,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/adjustment/colorcorrect.exr",
@@ -26,49 +26,149 @@
           "size": 807551
         },
         {
-          "path": "material-fidelity/reference/nodes/adjustment/range.exr",
-          "sha256": "6ae7307db65306eaf5a4787e15115b974a9b7dc4ed8fc5af6ed8cfe1c6c828c8",
-          "size": 808745
+          "path": "material-fidelity/reference/nodes/adjustment/range_color3.exr",
+          "sha256": "1a1348669849fbbc05c3053e3158a5e6603237f1bdcf9e8f3e3139d837c6b4a1",
+          "size": 19668
         },
         {
-          "path": "material-fidelity/reference/nodes/adjustment/range_degenerate_inverted_input_bounds.exr",
+          "path": "material-fidelity/reference/nodes/adjustment/range_color3FA.exr",
+          "sha256": "0990fa15bf9f86e69edc7b3c7708a92a85dc2f28e241581f3a1fc84c356fb507",
+          "size": 19668
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/range_color4.exr",
+          "sha256": "406b1ef788cfc5d9802c9db1514bd9d694432be82f4de6ec47cf7bee5c1ba408",
+          "size": 19668
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/range_color4FA.exr",
+          "sha256": "cb2bf9104523a312d88bbd03d569f5704b4d512d1a4c1fd1979fbfd85ca1a2b9",
+          "size": 19668
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/range_float.exr",
+          "sha256": "bf053c94385af921f06aca56a60dff1303bc4ba10c8f05451ffa6ec034388309",
+          "size": 17876
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/range_float_degenerate_inverted_input_bounds.exr",
           "sha256": "1da829461b7d63deaab7b52172bc363c7a81545e988e211fae33a2895898d533",
           "size": 480525
         },
         {
-          "path": "material-fidelity/reference/nodes/adjustment/range_degenerate_inverted_input_bounds_vector4.exr",
-          "sha256": "469476fe17ba17b08c6f9aeec595b55a7af05a2d6e3010342af18c220a108c66",
-          "size": 479452
-        },
-        {
-          "path": "material-fidelity/reference/nodes/adjustment/range_degenerate_nonpositive_gamma.exr",
+          "path": "material-fidelity/reference/nodes/adjustment/range_float_degenerate_nonpositive_gamma.exr",
           "sha256": "c722623cd82f30d672791729724377d340fe83435f23180caa4ad704834d30b7",
           "size": 542643
         },
         {
-          "path": "material-fidelity/reference/nodes/adjustment/remap.exr",
-          "sha256": "74c902b61686273d7a171c6607b32e507a1490f8729aee204d8b0334d069a788",
-          "size": 568883
+          "path": "material-fidelity/reference/nodes/adjustment/range_vector2.exr",
+          "sha256": "808e3b95343aa70b9a8ea28968151ae2599462a0fedf1292f733c32a1df15850",
+          "size": 18644
         },
         {
-          "path": "material-fidelity/reference/nodes/adjustment/remap_degenerate.exr",
-          "sha256": "a44d621f8a2d4768e6d399bbc058efb25fccf9114b950998bbf01c25635056d4",
-          "size": 16596
+          "path": "material-fidelity/reference/nodes/adjustment/range_vector2FA.exr",
+          "sha256": "0c2928db98a6ad60cda2884ecf5cc581573f82fb5eb695c44e334822eab6f36a",
+          "size": 19668
         },
         {
-          "path": "material-fidelity/reference/nodes/adjustment/remap_degenerate_inverted_input_bounds.exr",
-          "sha256": "1da829461b7d63deaab7b52172bc363c7a81545e988e211fae33a2895898d533",
-          "size": 480525
+          "path": "material-fidelity/reference/nodes/adjustment/range_vector3.exr",
+          "sha256": "1a1348669849fbbc05c3053e3158a5e6603237f1bdcf9e8f3e3139d837c6b4a1",
+          "size": 19668
         },
         {
-          "path": "material-fidelity/reference/nodes/adjustment/remap_degenerate_inverted_input_bounds_vector4.exr",
+          "path": "material-fidelity/reference/nodes/adjustment/range_vector3FA.exr",
+          "sha256": "0990fa15bf9f86e69edc7b3c7708a92a85dc2f28e241581f3a1fc84c356fb507",
+          "size": 19668
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/range_vector4.exr",
+          "sha256": "406b1ef788cfc5d9802c9db1514bd9d694432be82f4de6ec47cf7bee5c1ba408",
+          "size": 19668
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/range_vector4FA.exr",
+          "sha256": "cb2bf9104523a312d88bbd03d569f5704b4d512d1a4c1fd1979fbfd85ca1a2b9",
+          "size": 19668
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/range_vector4_degenerate_inverted_input_bounds.exr",
           "sha256": "469476fe17ba17b08c6f9aeec595b55a7af05a2d6e3010342af18c220a108c66",
           "size": 479452
         },
         {
-          "path": "material-fidelity/reference/nodes/adjustment/remap_degenerate_vector4.exr",
+          "path": "material-fidelity/reference/nodes/adjustment/remap_color3.exr",
+          "sha256": "1a1348669849fbbc05c3053e3158a5e6603237f1bdcf9e8f3e3139d837c6b4a1",
+          "size": 19668
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/remap_color3FA.exr",
+          "sha256": "0990fa15bf9f86e69edc7b3c7708a92a85dc2f28e241581f3a1fc84c356fb507",
+          "size": 19668
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/remap_color4.exr",
+          "sha256": "406b1ef788cfc5d9802c9db1514bd9d694432be82f4de6ec47cf7bee5c1ba408",
+          "size": 19668
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/remap_color4FA.exr",
+          "sha256": "cb2bf9104523a312d88bbd03d569f5704b4d512d1a4c1fd1979fbfd85ca1a2b9",
+          "size": 19668
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/remap_float.exr",
+          "sha256": "bf053c94385af921f06aca56a60dff1303bc4ba10c8f05451ffa6ec034388309",
+          "size": 17876
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/remap_float_degenerate.exr",
+          "sha256": "a44d621f8a2d4768e6d399bbc058efb25fccf9114b950998bbf01c25635056d4",
+          "size": 16596
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/remap_float_degenerate_inverted_input_bounds.exr",
+          "sha256": "1da829461b7d63deaab7b52172bc363c7a81545e988e211fae33a2895898d533",
+          "size": 480525
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/remap_vector2.exr",
+          "sha256": "808e3b95343aa70b9a8ea28968151ae2599462a0fedf1292f733c32a1df15850",
+          "size": 18644
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/remap_vector2FA.exr",
+          "sha256": "0c2928db98a6ad60cda2884ecf5cc581573f82fb5eb695c44e334822eab6f36a",
+          "size": 19668
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/remap_vector3.exr",
+          "sha256": "1a1348669849fbbc05c3053e3158a5e6603237f1bdcf9e8f3e3139d837c6b4a1",
+          "size": 19668
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/remap_vector3FA.exr",
+          "sha256": "0990fa15bf9f86e69edc7b3c7708a92a85dc2f28e241581f3a1fc84c356fb507",
+          "size": 19668
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/remap_vector4.exr",
+          "sha256": "406b1ef788cfc5d9802c9db1514bd9d694432be82f4de6ec47cf7bee5c1ba408",
+          "size": 19668
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/remap_vector4FA.exr",
+          "sha256": "cb2bf9104523a312d88bbd03d569f5704b4d512d1a4c1fd1979fbfd85ca1a2b9",
+          "size": 19668
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/remap_vector4_degenerate.exr",
           "sha256": "ff098978f9e5a8f081d06e1419bc9a267167182fea24212034902d6c6cae99a8",
           "size": 19924
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/remap_vector4_degenerate_inverted_input_bounds.exr",
+          "sha256": "469476fe17ba17b08c6f9aeec595b55a7af05a2d6e3010342af18c220a108c66",
+          "size": 479452
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/rgbtohsv.exr",
@@ -81,27 +181,77 @@
           "size": 808231
         },
         {
-          "path": "material-fidelity/reference/nodes/adjustment/smoothstep.exr",
-          "sha256": "6c7dd4c5c569443e85a23dd0f28e921212681ddb55785a72a5326af26e1a539f",
-          "size": 805065
+          "path": "material-fidelity/reference/nodes/adjustment/smoothstep_color3.exr",
+          "sha256": "236a19ca2a41cedad628033dbd39a29056a7aaacaac653cfbc4a8192e3137063",
+          "size": 16340
         },
         {
-          "path": "material-fidelity/reference/nodes/adjustment/smoothstep_degenerate.exr",
+          "path": "material-fidelity/reference/nodes/adjustment/smoothstep_color3FA.exr",
+          "sha256": "236a19ca2a41cedad628033dbd39a29056a7aaacaac653cfbc4a8192e3137063",
+          "size": 16340
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/smoothstep_color4.exr",
+          "sha256": "d6a7ba9ba8dffcaa62a9d4c4f77b7adcfc79dc0334834de13a694d52bca3ae2b",
+          "size": 16340
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/smoothstep_color4FA.exr",
+          "sha256": "d6a7ba9ba8dffcaa62a9d4c4f77b7adcfc79dc0334834de13a694d52bca3ae2b",
+          "size": 16340
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/smoothstep_float.exr",
+          "sha256": "e0a50452ebe5c7557750fd88abb098667b915228babb89970a8c2b6d3f49bb40",
+          "size": 16084
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/smoothstep_float_degenerate.exr",
           "sha256": "577c470b55e6c85d9ffe1879f10559fb5e6a70e3c680b407875e3dd978a2e012",
           "size": 283516
         },
         {
-          "path": "material-fidelity/reference/nodes/adjustment/smoothstep_degenerate_inverted_bounds.exr",
+          "path": "material-fidelity/reference/nodes/adjustment/smoothstep_float_degenerate_inverted_bounds.exr",
           "sha256": "691df32cd5767904424999d4430fbfcb6bc0db2b8ab114dc4bb174b6f30797ed",
           "size": 284841
         },
         {
-          "path": "material-fidelity/reference/nodes/adjustment/smoothstep_degenerate_inverted_bounds_vector4.exr",
+          "path": "material-fidelity/reference/nodes/adjustment/smoothstep_vector2.exr",
+          "sha256": "c3453e274d77dca28123597a3453da2edc6b8aee7d71a9ea89d3454568706554",
+          "size": 17876
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/smoothstep_vector2FA.exr",
+          "sha256": "c3453e274d77dca28123597a3453da2edc6b8aee7d71a9ea89d3454568706554",
+          "size": 17876
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/smoothstep_vector3.exr",
+          "sha256": "236a19ca2a41cedad628033dbd39a29056a7aaacaac653cfbc4a8192e3137063",
+          "size": 16340
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/smoothstep_vector3FA.exr",
+          "sha256": "236a19ca2a41cedad628033dbd39a29056a7aaacaac653cfbc4a8192e3137063",
+          "size": 16340
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/smoothstep_vector4.exr",
+          "sha256": "d6a7ba9ba8dffcaa62a9d4c4f77b7adcfc79dc0334834de13a694d52bca3ae2b",
+          "size": 16340
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/smoothstep_vector4FA.exr",
+          "sha256": "d6a7ba9ba8dffcaa62a9d4c4f77b7adcfc79dc0334834de13a694d52bca3ae2b",
+          "size": 16340
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/smoothstep_vector4_degenerate_inverted_bounds.exr",
           "sha256": "47771551f6f25c9679171261365d353812083491198bc8d597eb16b3a714de94",
           "size": 17896
         }
       ],
-      "release": "reference-data-20260708T054718Z-1b0435b7-83ffc62e"
+      "release": "reference-data-20260709T012442Z-9136c278-5724bfad"
     },
     "material-fidelity/nodes/application": {
       "archive": "material-fidelity--nodes--application--5ddcd570703c.zip",

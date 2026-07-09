@@ -1,5 +1,8 @@
 #usda 1.0
 (
+    customLayerData = {
+        string doc = "Tests the ND_remap_vector4 zero-width input range edge case using UV-driven input (u - 0.5, v, -0.25, 0.75), with each component having inlow = inhigh = 0. RGB displays the output x, y, and z components, so the image records renderer behavior for degenerate vector remaps."
+    }
     defaultPrim = "World"
     metersPerUnit = 1
     renderSettingsPrimPath = "/Render/Settings"
@@ -13,35 +16,35 @@
 
 def Scope "Looks"
 {
-    def Material "remap_degenerate_vector4" (
+    def Material "remap_vector4_degenerate" (
         customData = {
             dictionary materialFidelity = {
-                string source = "materials/nodes/remap_degenerate_vector4/remap_degenerate_vector4.mtlx"
-                string sourceMaterial = "M_remap_degenerate_vector4"
+                string source = "materials/nodes/remap_vector4_degenerate/remap_vector4_degenerate.mtlx"
+                string sourceMaterial = "M_remap_vector4_degenerate"
             }
         }
     )
     {
-        token outputs:mtlx:surface.connect = </Looks/remap_degenerate_vector4/surface.outputs:out>
-        token outputs:surface.connect = </Looks/remap_degenerate_vector4/surface.outputs:out>
+        token outputs:mtlx:surface.connect = </Looks/remap_vector4_degenerate/surface.outputs:out>
+        token outputs:surface.connect = </Looks/remap_vector4_degenerate/surface.outputs:out>
 
         def Shader "uniform_edf"
         {
             uniform token info:id = "ND_uniform_edf"
-            color3f inputs:color.connect = </Looks/remap_degenerate_vector4/NG_remap_degenerate_vector4.outputs:out_base_color>
+            color3f inputs:color.connect = </Looks/remap_vector4_degenerate/NG_remap_vector4_degenerate.outputs:out_base_color>
             token outputs:out
         }
 
         def Shader "surface"
         {
             uniform token info:id = "ND_surface"
-            token inputs:edf.connect = </Looks/remap_degenerate_vector4/uniform_edf.outputs:out>
+            token inputs:edf.connect = </Looks/remap_vector4_degenerate/uniform_edf.outputs:out>
             token outputs:out
         }
 
-        def NodeGraph "NG_remap_degenerate_vector4"
+        def NodeGraph "NG_remap_vector4_degenerate"
         {
-            color3f outputs:out_base_color.connect = </Looks/remap_degenerate_vector4/NG_remap_degenerate_vector4/debug_color.outputs:out>
+            color3f outputs:out_base_color.connect = </Looks/remap_vector4_degenerate/NG_remap_vector4_degenerate/debug_color.outputs:out>
 
             def Shader "uv0"
             {
@@ -52,7 +55,7 @@ def Scope "Looks"
             def Shader "uv_split"
             {
                 uniform token info:id = "ND_separate2_vector2"
-                float2 inputs:in.connect = </Looks/remap_degenerate_vector4/NG_remap_degenerate_vector4/uv0.outputs:out>
+                float2 inputs:in.connect = </Looks/remap_vector4_degenerate/NG_remap_vector4_degenerate/uv0.outputs:out>
                 float outputs:outx
                 float outputs:outy
             }
@@ -60,7 +63,7 @@ def Scope "Looks"
             def Shader "centered_u"
             {
                 uniform token info:id = "ND_subtract_float"
-                float inputs:in1.connect = </Looks/remap_degenerate_vector4/NG_remap_degenerate_vector4/uv_split.outputs:outx>
+                float inputs:in1.connect = </Looks/remap_vector4_degenerate/NG_remap_vector4_degenerate/uv_split.outputs:outx>
                 float inputs:in2 = 0.5
                 float outputs:out
             }
@@ -68,8 +71,8 @@ def Scope "Looks"
             def Shader "remap_in"
             {
                 uniform token info:id = "ND_combine4_vector4"
-                float inputs:in1.connect = </Looks/remap_degenerate_vector4/NG_remap_degenerate_vector4/centered_u.outputs:out>
-                float inputs:in2.connect = </Looks/remap_degenerate_vector4/NG_remap_degenerate_vector4/uv_split.outputs:outy>
+                float inputs:in1.connect = </Looks/remap_vector4_degenerate/NG_remap_vector4_degenerate/centered_u.outputs:out>
+                float inputs:in2.connect = </Looks/remap_vector4_degenerate/NG_remap_vector4_degenerate/uv_split.outputs:outy>
                 float inputs:in3 = -0.25
                 float inputs:in4 = 0.75
                 float4 outputs:out
@@ -78,7 +81,7 @@ def Scope "Looks"
             def Shader "node_under_test"
             {
                 uniform token info:id = "ND_remap_vector4"
-                float4 inputs:in.connect = </Looks/remap_degenerate_vector4/NG_remap_degenerate_vector4/remap_in.outputs:out>
+                float4 inputs:in.connect = </Looks/remap_vector4_degenerate/NG_remap_vector4_degenerate/remap_in.outputs:out>
                 float4 inputs:inhigh = (0, 0, 0, 0)
                 float4 inputs:inlow = (0, 0, 0, 0)
                 float4 inputs:outhigh = (0.9, 0.8, 0.7, 0.6)
@@ -89,7 +92,7 @@ def Scope "Looks"
             def Shader "debug_r"
             {
                 uniform token info:id = "ND_extract_vector4"
-                float4 inputs:in.connect = </Looks/remap_degenerate_vector4/NG_remap_degenerate_vector4/node_under_test.outputs:out>
+                float4 inputs:in.connect = </Looks/remap_vector4_degenerate/NG_remap_vector4_degenerate/node_under_test.outputs:out>
                 int inputs:index = 0
                 float outputs:out
             }
@@ -97,7 +100,7 @@ def Scope "Looks"
             def Shader "debug_g"
             {
                 uniform token info:id = "ND_extract_vector4"
-                float4 inputs:in.connect = </Looks/remap_degenerate_vector4/NG_remap_degenerate_vector4/node_under_test.outputs:out>
+                float4 inputs:in.connect = </Looks/remap_vector4_degenerate/NG_remap_vector4_degenerate/node_under_test.outputs:out>
                 int inputs:index = 1
                 float outputs:out
             }
@@ -105,7 +108,7 @@ def Scope "Looks"
             def Shader "debug_b"
             {
                 uniform token info:id = "ND_extract_vector4"
-                float4 inputs:in.connect = </Looks/remap_degenerate_vector4/NG_remap_degenerate_vector4/node_under_test.outputs:out>
+                float4 inputs:in.connect = </Looks/remap_vector4_degenerate/NG_remap_vector4_degenerate/node_under_test.outputs:out>
                 int inputs:index = 2
                 float outputs:out
             }
@@ -113,9 +116,9 @@ def Scope "Looks"
             def Shader "debug_color"
             {
                 uniform token info:id = "ND_combine3_color3"
-                float inputs:in1.connect = </Looks/remap_degenerate_vector4/NG_remap_degenerate_vector4/debug_r.outputs:out>
-                float inputs:in2.connect = </Looks/remap_degenerate_vector4/NG_remap_degenerate_vector4/debug_g.outputs:out>
-                float inputs:in3.connect = </Looks/remap_degenerate_vector4/NG_remap_degenerate_vector4/debug_b.outputs:out>
+                float inputs:in1.connect = </Looks/remap_vector4_degenerate/NG_remap_vector4_degenerate/debug_r.outputs:out>
+                float inputs:in2.connect = </Looks/remap_vector4_degenerate/NG_remap_vector4_degenerate/debug_g.outputs:out>
+                float inputs:in3.connect = </Looks/remap_vector4_degenerate/NG_remap_vector4_degenerate/debug_b.outputs:out>
                 color3f outputs:out
             }
         }
@@ -128,7 +131,7 @@ over "World"
         prepend apiSchemas = ["MaterialBindingAPI"]
     )
     {
-        rel material:binding = </Looks/remap_degenerate_vector4>
+        rel material:binding = </Looks/remap_vector4_degenerate>
     }
 }
 
@@ -140,7 +143,7 @@ over "Render"
 
         over "Product"
         {
-            token productName = "material-fidelity/nodes/adjustment/remap_degenerate_vector4.exr"
+            token productName = "material-fidelity/nodes/adjustment/remap_vector4_degenerate.exr"
         }
     }
 }

@@ -1,0 +1,85 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_range_vector3 with literal in = (0.25, 0.75, 1.25) and typed bounds inlow = (0, 0.25, 0.5), inhigh = (1, 1.25, 1.5), outlow = (0.1, 0.2, 0.3), outhigh = (0.9, 0.8, 0.7), gamma = (1, 1, 1), with doclamp true. The normalized/clamped t is (0.25, 0.5, 0.75), and gamma is 1, so range computes outlow + t * (outhigh - outlow) = (0.3, 0.5, 0.6). The vector3 result is converted directly to RGB, so the expected emitted RGB on the plane is (0.3, 0.5, 0.6)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "range_vector3" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/range/range_vector3.mtlx"
+                string sourceMaterial = "M_range_vector3"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/range_vector3/surface.outputs:out>
+        token outputs:surface.connect = </Looks/range_vector3/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_range_vector3"
+            float3 inputs:in = (0.25, 0.75, 1.25)
+            float3 inputs:inlow = (0, 0.25, 0.5)
+            float3 inputs:inhigh = (1, 1.25, 1.5)
+            float3 inputs:gamma = (1, 1, 1)
+            float3 inputs:outlow = (0.1, 0.2, 0.3)
+            float3 inputs:outhigh = (0.9, 0.8, 0.7)
+            bool inputs:doclamp = true
+            float3 outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_convert_vector3_color3"
+            float3 inputs:in.connect = </Looks/range_vector3/node_under_test.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/range_vector3/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/range_vector3/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/range_vector3>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/adjustment/range_vector3.exr"
+        }
+    }
+}
