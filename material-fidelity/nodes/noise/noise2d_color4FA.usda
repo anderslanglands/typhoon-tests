@@ -1,0 +1,122 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_noise2d_color4FA on the plane with UV0 scaled by (18, 13), scalar float amplitude 0.75, and pivot 0. noise2d should render a non-uniform zero-centered 2D Perlin noise pattern rather than a flat color. The signed color4 output is clamped and remapped from [-1, 1] to [0, 1] per channel for display, then packed into RGB as (r, g, b + a); the packed blue channel may saturate where both source channels are high. This is a visual coverage fixture for the typed NodeDef variant, so the important result is visible procedural variation in the packed RGB channels."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "noise2d_color4FA" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/noise2d/noise2d_color4FA.mtlx"
+                string sourceMaterial = "M_noise2d_color4FA"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/noise2d_color4FA/surface.outputs:out>
+        token outputs:surface.connect = </Looks/noise2d_color4FA/surface.outputs:out>
+
+        def Shader "base_coord"
+        {
+            uniform token info:id = "ND_texcoord_vector2"
+            float2 outputs:out
+        }
+        def Shader "coords_under_test"
+        {
+            uniform token info:id = "ND_multiply_vector2"
+            float2 inputs:in1.connect = </Looks/noise2d_color4FA/base_coord.outputs:out>
+            float2 inputs:in2 = (18, 13)
+            float2 outputs:out
+        }
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_noise2d_color4FA"
+            float inputs:amplitude = 0.75
+            float inputs:pivot = 0
+            float2 inputs:texcoord.connect = </Looks/noise2d_color4FA/coords_under_test.outputs:out>
+            color4f outputs:out
+        }
+        def Shader "display_remap"
+        {
+            uniform token info:id = "ND_range_color4"
+            bool inputs:doclamp = 1
+            color4f inputs:in.connect = </Looks/noise2d_color4FA/node_under_test.outputs:out>
+            color4f inputs:inlow = (-1, -1, -1, -1)
+            color4f inputs:inhigh = (1, 1, 1, 1)
+            color4f inputs:outlow = (0, 0, 0, 0)
+            color4f inputs:outhigh = (1, 1, 1, 1)
+            color4f outputs:out
+        }
+        def Shader "display_channels"
+        {
+            uniform token info:id = "ND_separate4_color4"
+            color4f inputs:in.connect = </Looks/noise2d_color4FA/display_remap.outputs:out>
+            float outputs:outr
+            float outputs:outg
+            float outputs:outb
+            float outputs:outa
+        }
+        def Shader "display_blue"
+        {
+            uniform token info:id = "ND_add_float"
+            float inputs:in1.connect = </Looks/noise2d_color4FA/display_channels.outputs:outb>
+            float inputs:in2.connect = </Looks/noise2d_color4FA/display_channels.outputs:outa>
+            float outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/noise2d_color4FA/display_channels.outputs:outr>
+            float inputs:in2.connect = </Looks/noise2d_color4FA/display_channels.outputs:outg>
+            float inputs:in3.connect = </Looks/noise2d_color4FA/display_blue.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/noise2d_color4FA/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/noise2d_color4FA/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/noise2d_color4FA>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/noise/noise2d_color4FA.exr"
+        }
+    }
+}

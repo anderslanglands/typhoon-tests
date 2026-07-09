@@ -1,0 +1,104 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_noise3d_vector3FA on the plane with object-space position scaled by (6, 6, 6), scalar float amplitude 0.75, and pivot 0. noise3d should render a non-uniform zero-centered 3D Perlin noise pattern rather than a flat color. The signed vector3 output is clamped and remapped from [-1, 1] to [0, 1] per component for display, then converted to color3. This is a visual coverage fixture for the typed NodeDef variant, so the important result is visible procedural variation in the packed RGB channels."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "noise3d_vector3FA" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/noise3d/noise3d_vector3FA.mtlx"
+                string sourceMaterial = "M_noise3d_vector3FA"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/noise3d_vector3FA/surface.outputs:out>
+        token outputs:surface.connect = </Looks/noise3d_vector3FA/surface.outputs:out>
+
+        def Shader "base_coord"
+        {
+            uniform token info:id = "ND_position_vector3"
+            float3 outputs:out
+        }
+        def Shader "coords_under_test"
+        {
+            uniform token info:id = "ND_multiply_vector3"
+            float3 inputs:in1.connect = </Looks/noise3d_vector3FA/base_coord.outputs:out>
+            float3 inputs:in2 = (6, 6, 6)
+            float3 outputs:out
+        }
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_noise3d_vector3FA"
+            float inputs:amplitude = 0.75
+            float inputs:pivot = 0
+            float3 inputs:position.connect = </Looks/noise3d_vector3FA/coords_under_test.outputs:out>
+            float3 outputs:out
+        }
+        def Shader "display_remap"
+        {
+            uniform token info:id = "ND_range_vector3"
+            bool inputs:doclamp = 1
+            float3 inputs:in.connect = </Looks/noise3d_vector3FA/node_under_test.outputs:out>
+            float3 inputs:inlow = (-1, -1, -1)
+            float3 inputs:inhigh = (1, 1, 1)
+            float3 inputs:outlow = (0, 0, 0)
+            float3 inputs:outhigh = (1, 1, 1)
+            float3 outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_convert_vector3_color3"
+            float3 inputs:in.connect = </Looks/noise3d_vector3FA/display_remap.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/noise3d_vector3FA/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/noise3d_vector3FA/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/noise3d_vector3FA>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/noise/noise3d_vector3FA.exr"
+        }
+    }
+}
