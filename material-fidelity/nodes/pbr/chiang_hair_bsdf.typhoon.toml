@@ -1,5 +1,2 @@
-[reference]
-path = "reference/nodes/pbr/chiang_hair_bsdf.exr"
-
 [test]
 suspect = true

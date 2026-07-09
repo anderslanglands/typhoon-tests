@@ -1,5 +1,2 @@
-[reference]
-path = "reference/nodes/pbr/artistic_ior_copper.exr"
-
 [test]
 suspect = true

@@ -1,5 +1,2 @@
-[reference]
-path = "reference/nodes/pbr/artistic_ior_diag_low_reflectivity.exr"
-
 [test]
 suspect = true
