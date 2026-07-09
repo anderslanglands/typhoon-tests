@@ -4336,9 +4336,9 @@
       "release": "reference-data-20260709T020142Z-ba315cf3-646ed532"
     },
     "material-fidelity/nodes/patterns": {
-      "archive": "material-fidelity--nodes--patterns--6308286fce19.zip",
-      "archive_sha256": "262efc6e1798acecf9773e9b93a5f1d296fa6b4a4235aefd3c541155435e74f4",
-      "archive_size": 1420911,
+      "archive": "material-fidelity--nodes--patterns--6edeb34d6bc4.zip",
+      "archive_sha256": "99b8ff2ced5a3e766213f8c7cac47a2222238c05bbbf069caf6e0396953780cf",
+      "archive_size": 1502669,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/patterns/checkerboard.exr",
@@ -4377,13 +4377,23 @@
         },
         {
           "path": "material-fidelity/reference/nodes/patterns/randomcolor.exr",
-          "sha256": "5192633efcd72e1d32faf09401ff75c85af334b0b9247910c5bdf749f664106d",
-          "size": 81650
+          "sha256": "c4634307aa245c18dec6ce7e28b8aa6a510b859b36d13624cda284ce3cc6f618",
+          "size": 84217
+        },
+        {
+          "path": "material-fidelity/reference/nodes/patterns/randomcolor_integer.exr",
+          "sha256": "c4634307aa245c18dec6ce7e28b8aa6a510b859b36d13624cda284ce3cc6f618",
+          "size": 84217
         },
         {
           "path": "material-fidelity/reference/nodes/patterns/randomfloat.exr",
-          "sha256": "089238b6359fa8d5be42bed9143211b7ead26d0582b9d6edaf03ef4f3444e85e",
-          "size": 82721
+          "sha256": "3efe62ea10548d0cca67f2277ee82b20d32dcd423d03b9be66f236aa4c762abf",
+          "size": 38621
+        },
+        {
+          "path": "material-fidelity/reference/nodes/patterns/randomfloat_integer.exr",
+          "sha256": "5bd5dcef8868760c4d64055c09150cd9ad1e406972b90946ba68d95f42fdc2ce",
+          "size": 38658
         },
         {
           "path": "material-fidelity/reference/nodes/patterns/tiledcircles.exr",
@@ -4406,7 +4416,7 @@
           "size": 808659
         }
       ],
-      "release": "reference-data-20260708T071504Z-c94df4a9-02d9f075"
+      "release": "reference-data-20260709T203348Z-f0f932aa-ddd61359"
     },
     "material-fidelity/nodes/pbr": {
       "archive": "material-fidelity--nodes--pbr--9dc525981ac5.zip",

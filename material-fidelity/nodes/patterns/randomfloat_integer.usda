@@ -1,7 +1,7 @@
 #usda 1.0
 (
     customLayerData = {
-        string doc = "Tests ND_randomfloat_float on the plane using explicit UV0 texcoords. The graph partitions U into eight clamped vertical bands with indices 0 through 7, feeds that band index into the randomfloat node, and sets min = 0.1, max = 0.9, and seed = 7. The float output is packed into RGB as (value, 0, 0). The expected render is eight deterministic constant red-channel bands with values in the 0.1 to 0.9 range and green/blue at zero; the exact red values are defined by the MaterialX randomfloat implementation and should remain stable for the same band index and seed."
+        string doc = "Tests ND_randomfloat_integer on the plane using explicit UV0 texcoords. The graph partitions U into eight clamped vertical bands with indices 0 through 7, feeds that band index into the randomfloat node, and sets min = 0.1, max = 0.9, and seed = 7. The float output is packed into RGB as (value, 0, 0). The expected render is eight deterministic constant red-channel bands with values in the 0.1 to 0.9 range and green/blue at zero; the exact red values are defined by the MaterialX randomfloat implementation and should remain stable for the same band index and seed."
     }
     defaultPrim = "World"
     metersPerUnit = 1
@@ -16,17 +16,17 @@
 
 def Scope "Looks"
 {
-    def Material "randomfloat" (
+    def Material "randomfloat_integer" (
         customData = {
             dictionary materialFidelity = {
-                string source = "materials/nodes/randomfloat/randomfloat.mtlx"
-                string sourceMaterial = "M_randomfloat"
+                string source = "materials/nodes/randomfloat/randomfloat_integer.mtlx"
+                string sourceMaterial = "M_randomfloat_integer"
             }
         }
     )
     {
-        token outputs:mtlx:surface.connect = </Looks/randomfloat/surface.outputs:out>
-        token outputs:surface.connect = </Looks/randomfloat/surface.outputs:out>
+        token outputs:mtlx:surface.connect = </Looks/randomfloat_integer/surface.outputs:out>
+        token outputs:surface.connect = </Looks/randomfloat_integer/surface.outputs:out>
 
         def Shader "texcoord"
         {
@@ -36,36 +36,42 @@ def Scope "Looks"
         def Shader "separate_uv"
         {
             uniform token info:id = "ND_separate2_vector2"
-            float2 inputs:in.connect = </Looks/randomfloat/texcoord.outputs:out>
+            float2 inputs:in.connect = </Looks/randomfloat_integer/texcoord.outputs:out>
             float outputs:outx
             float outputs:outy
         }
         def Shader "scale_u"
         {
             uniform token info:id = "ND_multiply_float"
-            float inputs:in1.connect = </Looks/randomfloat/separate_uv.outputs:outx>
+            float inputs:in1.connect = </Looks/randomfloat_integer/separate_uv.outputs:outx>
             float inputs:in2 = 8
             float outputs:out
         }
         def Shader "band_raw"
         {
             uniform token info:id = "ND_floor_float"
-            float inputs:in.connect = </Looks/randomfloat/scale_u.outputs:out>
+            float inputs:in.connect = </Looks/randomfloat_integer/scale_u.outputs:out>
             float outputs:out
         }
         def Shader "band_index"
         {
             uniform token info:id = "ND_clamp_float"
-            float inputs:in.connect = </Looks/randomfloat/band_raw.outputs:out>
+            float inputs:in.connect = </Looks/randomfloat_integer/band_raw.outputs:out>
             float inputs:low = 0
             float inputs:high = 7
             float outputs:out
         }
+        def Shader "band_index_integer"
+        {
+            uniform token info:id = "ND_floor_integer"
+            float inputs:in.connect = </Looks/randomfloat_integer/band_index.outputs:out>
+            int outputs:out
+        }
 
         def Shader "node_under_test"
         {
-            uniform token info:id = "ND_randomfloat_float"
-            float inputs:in.connect = </Looks/randomfloat/band_index.outputs:out>
+            uniform token info:id = "ND_randomfloat_integer"
+            int inputs:in.connect = </Looks/randomfloat_integer/band_index_integer.outputs:out>
             float inputs:min = 0.1
             float inputs:max = 0.9
             int inputs:seed = 7
@@ -74,7 +80,7 @@ def Scope "Looks"
         def Shader "display_color"
         {
             uniform token info:id = "ND_combine3_color3"
-            float inputs:in1.connect = </Looks/randomfloat/node_under_test.outputs:out>
+            float inputs:in1.connect = </Looks/randomfloat_integer/node_under_test.outputs:out>
             float inputs:in2 = 0
             float inputs:in3 = 0
             color3f outputs:out
@@ -82,13 +88,13 @@ def Scope "Looks"
         def Shader "uniform_edf"
         {
             uniform token info:id = "ND_uniform_edf"
-            color3f inputs:color.connect = </Looks/randomfloat/display_color.outputs:out>
+            color3f inputs:color.connect = </Looks/randomfloat_integer/display_color.outputs:out>
             token outputs:out
         }
         def Shader "surface"
         {
             uniform token info:id = "ND_surface"
-            token inputs:edf.connect = </Looks/randomfloat/uniform_edf.outputs:out>
+            token inputs:edf.connect = </Looks/randomfloat_integer/uniform_edf.outputs:out>
             token outputs:out
         }
     }
@@ -100,7 +106,7 @@ over "World"
         prepend apiSchemas = ["MaterialBindingAPI"]
     )
     {
-        rel material:binding = </Looks/randomfloat>
+        rel material:binding = </Looks/randomfloat_integer>
     }
 }
 
@@ -112,7 +118,7 @@ over "Render"
 
         over "Product"
         {
-            token productName = "material-fidelity/nodes/patterns/randomfloat.exr"
+            token productName = "material-fidelity/nodes/patterns/randomfloat_integer.exr"
         }
     }
 }
