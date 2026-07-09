@@ -1,0 +1,79 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_asin_vector3 with in-domain literal in = (0, 0.5, 0.8); the output is in radians and computed component-wise. The node result is (0, 0.523598776, 0.927295218). The three-channel result maps directly to RGB, so the expected emitted RGB is (0, 0.523598776, 0.927295218)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "asin_vector3" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/asin/asin_vector3.mtlx"
+                string sourceMaterial = "M_asin_vector3"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/asin_vector3/surface.outputs:out>
+        token outputs:surface.connect = </Looks/asin_vector3/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_asin_vector3"
+            float3 inputs:in = (0, 0.5, 0.8)
+            float3 outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_convert_vector3_color3"
+            float3 inputs:in.connect = </Looks/asin_vector3/node_under_test.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/asin_vector3/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/asin_vector3/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/asin_vector3>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/asin_vector3.exr"
+        }
+    }
+}

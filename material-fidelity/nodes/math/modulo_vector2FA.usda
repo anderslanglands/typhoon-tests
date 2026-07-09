@@ -1,0 +1,89 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_modulo_vector2FA with positive literal in1 = (0.7, 0.9) and in2 = 0.5; the spec returns the non-negative component-wise remainder. The node result is (0.2, 0.4). The vector2 result is packed as (x, y, 0), so the expected emitted RGB is (0.2, 0.4, 0)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "modulo_vector2FA" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/modulo/modulo_vector2FA.mtlx"
+                string sourceMaterial = "M_modulo_vector2FA"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/modulo_vector2FA/surface.outputs:out>
+        token outputs:surface.connect = </Looks/modulo_vector2FA/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_modulo_vector2FA"
+            float2 inputs:in1 = (0.7, 0.9)
+            float inputs:in2 = 0.5
+            float2 outputs:out
+        }
+        def Shader "display_channels"
+        {
+            uniform token info:id = "ND_separate2_vector2"
+            float2 inputs:in.connect = </Looks/modulo_vector2FA/node_under_test.outputs:out>
+            float outputs:outx
+            float outputs:outy
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/modulo_vector2FA/display_channels.outputs:outx>
+            float inputs:in2.connect = </Looks/modulo_vector2FA/display_channels.outputs:outy>
+            float inputs:in3 = 0
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/modulo_vector2FA/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/modulo_vector2FA/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/modulo_vector2FA>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/modulo_vector2FA.exr"
+        }
+    }
+}

@@ -1,0 +1,88 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_safepower_color3 with negative literal in1 = (-0.04, -0.16, -0.36) and in2 = (0.5, 0.5, 0.5). Safepower keeps the sign of negative bases while raising their magnitudes, so the node result is (-0.2, -0.4, -0.6). The signed result is remapped for display as (out + 1) * 0.5, yielding (0.4, 0.3, 0.2). The remapped color3 maps directly to RGB, so the expected emitted RGB is (0.4, 0.3, 0.2)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "safepower_color3" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/safepower/safepower_color3.mtlx"
+                string sourceMaterial = "M_safepower_color3"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/safepower_color3/surface.outputs:out>
+        token outputs:surface.connect = </Looks/safepower_color3/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_safepower_color3"
+            color3f inputs:in1 = (-0.04, -0.16, -0.36)
+            color3f inputs:in2 = (0.5, 0.5, 0.5)
+            color3f outputs:out
+        }
+        def Shader "display_offset"
+        {
+            uniform token info:id = "ND_add_color3"
+            color3f inputs:in1.connect = </Looks/safepower_color3/node_under_test.outputs:out>
+            color3f inputs:in2 = (1, 1, 1)
+            color3f outputs:out
+        }
+        def Shader "display_remap"
+        {
+            uniform token info:id = "ND_multiply_color3FA"
+            color3f inputs:in1.connect = </Looks/safepower_color3/display_offset.outputs:out>
+            float inputs:in2 = 0.5
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/safepower_color3/display_remap.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/safepower_color3/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/safepower_color3>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/safepower_color3.exr"
+        }
+    }
+}

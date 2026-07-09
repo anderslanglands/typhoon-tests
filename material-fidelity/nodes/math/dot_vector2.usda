@@ -1,0 +1,89 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_dot_vector2 with literal in = (0.25, 0.75). Dot nodes are pass-through organization nodes, so the output should exactly equal the input. The vector2 result is packed as (x, y, 0), so the expected emitted RGB is (0.25, 0.75, 0)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "dot_vector2" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/dot/dot_vector2.mtlx"
+                string sourceMaterial = "M_dot_vector2"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/dot_vector2/surface.outputs:out>
+        token outputs:surface.connect = </Looks/dot_vector2/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_dot_vector2"
+            float2 inputs:in = (0.25, 0.75)
+            string inputs:note = "pass-through fixture"
+            float2 outputs:out
+        }
+        def Shader "display_channels"
+        {
+            uniform token info:id = "ND_separate2_vector2"
+            float2 inputs:in.connect = </Looks/dot_vector2/node_under_test.outputs:out>
+            float outputs:outx
+            float outputs:outy
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/dot_vector2/display_channels.outputs:outx>
+            float inputs:in2.connect = </Looks/dot_vector2/display_channels.outputs:outy>
+            float inputs:in3 = 0
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/dot_vector2/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/dot_vector2/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/dot_vector2>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/dot_vector2.exr"
+        }
+    }
+}

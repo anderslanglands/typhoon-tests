@@ -1,0 +1,75 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_clamp_color3 with literal in = (-0.1, 0.35, 1.2), low = (0.2, 0.3, 0.4), and high = (0.6, 0.6, 0.7). The node clamps each component between low and high, so the result is (0.2, 0.35, 0.7). The color3 result maps directly to RGB, so the expected emitted RGB is (0.2, 0.35, 0.7)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "clamp_color3" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/clamp/clamp_color3.mtlx"
+                string sourceMaterial = "M_clamp_color3"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/clamp_color3/surface.outputs:out>
+        token outputs:surface.connect = </Looks/clamp_color3/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_clamp_color3"
+            color3f inputs:in = (-0.1, 0.35, 1.2)
+            color3f inputs:low = (0.2, 0.3, 0.4)
+            color3f inputs:high = (0.6, 0.6, 0.7)
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/clamp_color3/node_under_test.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/clamp_color3/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/clamp_color3>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/clamp_color3.exr"
+        }
+    }
+}

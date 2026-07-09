@@ -1,0 +1,89 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_atan2_vector2 with literal iny = (0.2, 0.4) and inx = (1, 1); the output is atan2(iny, inx) in radians component-wise. The node result is (0.19739556, 0.380506377). The vector2 result is packed as (x, y, 0), so the expected emitted RGB is (0.19739556, 0.380506377, 0)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "atan2_vector2" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/atan2/atan2_vector2.mtlx"
+                string sourceMaterial = "M_atan2_vector2"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/atan2_vector2/surface.outputs:out>
+        token outputs:surface.connect = </Looks/atan2_vector2/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_atan2_vector2"
+            float2 inputs:iny = (0.2, 0.4)
+            float2 inputs:inx = (1, 1)
+            float2 outputs:out
+        }
+        def Shader "display_channels"
+        {
+            uniform token info:id = "ND_separate2_vector2"
+            float2 inputs:in.connect = </Looks/atan2_vector2/node_under_test.outputs:out>
+            float outputs:outx
+            float outputs:outy
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/atan2_vector2/display_channels.outputs:outx>
+            float inputs:in2.connect = </Looks/atan2_vector2/display_channels.outputs:outy>
+            float inputs:in3 = 0
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/atan2_vector2/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/atan2_vector2/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/atan2_vector2>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/atan2_vector2.exr"
+        }
+    }
+}

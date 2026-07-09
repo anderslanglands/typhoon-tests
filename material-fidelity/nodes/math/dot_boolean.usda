@@ -1,0 +1,80 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_dot_boolean with literal in = true. Dot nodes are pass-through organization nodes, so the output should exactly equal the input. The boolean result is converted to color3, so the expected emitted RGB is (1, 1, 1)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "dot_boolean" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/dot/dot_boolean.mtlx"
+                string sourceMaterial = "M_dot_boolean"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/dot_boolean/surface.outputs:out>
+        token outputs:surface.connect = </Looks/dot_boolean/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_dot_boolean"
+            bool inputs:in = true
+            string inputs:note = "pass-through fixture"
+            bool outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_convert_boolean_color3"
+            bool inputs:in.connect = </Looks/dot_boolean/node_under_test.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/dot_boolean/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/dot_boolean/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/dot_boolean>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/dot_boolean.exr"
+        }
+    }
+}

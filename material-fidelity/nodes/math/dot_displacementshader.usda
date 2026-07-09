@@ -1,0 +1,75 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_dot_displacementshader by forwarding the output of ND_displacement_float. The upstream displacement uses displacement 0.05 with scale 1.0, and the dot output is connected to the material displacement output. A separate uniform EDF surface keeps the render visible; if the dot node is a true pass-through then the material receives the same displacementshader closure produced by the input."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "dot_displacementshader"
+    {
+        token outputs:mtlx:surface.connect = </Looks/dot_displacementshader/surface.outputs:out>
+        token outputs:surface.connect = </Looks/dot_displacementshader/surface.outputs:out>
+        token outputs:mtlx:displacement.connect = </Looks/dot_displacementshader/node_under_test.outputs:out>
+        token outputs:displacement.connect = </Looks/dot_displacementshader/node_under_test.outputs:out>
+        def Shader "input_displacement"
+        {
+            uniform token info:id = "ND_displacement_float"
+            float inputs:displacement = 0.05
+            float inputs:scale = 1
+            token outputs:out
+        }
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_dot_displacementshader"
+            token inputs:in.connect = </Looks/dot_displacementshader/input_displacement.outputs:out>
+            string inputs:note = "pass-through fixture"
+            token outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color = (0.25, 0.45, 0.65)
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/dot_displacementshader/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/dot_displacementshader>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/dot_displacementshader.exr"
+        }
+    }
+}

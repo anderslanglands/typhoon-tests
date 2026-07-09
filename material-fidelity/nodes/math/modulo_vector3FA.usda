@@ -1,0 +1,80 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_modulo_vector3FA with positive literal in1 = (0.7, 0.9, 1.1) and in2 = 0.5; the spec returns the non-negative component-wise remainder. The node result is (0.2, 0.4, 0.1). The three-channel result maps directly to RGB, so the expected emitted RGB is (0.2, 0.4, 0.1)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "modulo_vector3FA" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/modulo/modulo_vector3FA.mtlx"
+                string sourceMaterial = "M_modulo_vector3FA"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/modulo_vector3FA/surface.outputs:out>
+        token outputs:surface.connect = </Looks/modulo_vector3FA/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_modulo_vector3FA"
+            float3 inputs:in1 = (0.7, 0.9, 1.1)
+            float inputs:in2 = 0.5
+            float3 outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_convert_vector3_color3"
+            float3 inputs:in.connect = </Looks/modulo_vector3FA/node_under_test.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/modulo_vector3FA/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/modulo_vector3FA/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/modulo_vector3FA>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/modulo_vector3FA.exr"
+        }
+    }
+}

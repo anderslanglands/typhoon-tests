@@ -1,0 +1,87 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_round_integer with literal in = 0.6; values avoid ties and round to the nearest integer. The node result is 1. The integer result is converted to float and packed into red with green and blue zero, so the expected emitted RGB is (1, 0, 0)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "round_integer" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/round/round_integer.mtlx"
+                string sourceMaterial = "M_round_integer"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/round_integer/surface.outputs:out>
+        token outputs:surface.connect = </Looks/round_integer/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_round_integer"
+            float inputs:in = 0.6
+            int outputs:out
+        }
+        def Shader "display_float"
+        {
+            uniform token info:id = "ND_convert_integer_float"
+            int inputs:in.connect = </Looks/round_integer/node_under_test.outputs:out>
+            float outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/round_integer/display_float.outputs:out>
+            float inputs:in2 = 0
+            float inputs:in3 = 0
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/round_integer/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/round_integer/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/round_integer>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/round_integer.exr"
+        }
+    }
+}

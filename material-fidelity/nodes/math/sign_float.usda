@@ -1,0 +1,95 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_sign_float with literal in = -0.25, covering negative, zero, and positive components where the type permits it. The node result is -1. For display only, sign outputs are remapped with (value + 1) * 0.5 before RGB packing, so the expected emitted RGB is (0, 0, 0)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "sign_float" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/sign/sign_float.mtlx"
+                string sourceMaterial = "M_sign_float"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/sign_float/surface.outputs:out>
+        token outputs:surface.connect = </Looks/sign_float/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_sign_float"
+            float inputs:in = -0.25
+            float outputs:out
+        }
+        def Shader "display_shift"
+        {
+            uniform token info:id = "ND_add_float"
+            float inputs:in1.connect = </Looks/sign_float/node_under_test.outputs:out>
+            float inputs:in2 = 1
+            float outputs:out
+        }
+        def Shader "display_scaled"
+        {
+            uniform token info:id = "ND_multiply_float"
+            float inputs:in1.connect = </Looks/sign_float/display_shift.outputs:out>
+            float inputs:in2 = 0.5
+            float outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/sign_float/display_scaled.outputs:out>
+            float inputs:in2 = 0
+            float inputs:in3 = 0
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/sign_float/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/sign_float/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/sign_float>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/sign_float.exr"
+        }
+    }
+}

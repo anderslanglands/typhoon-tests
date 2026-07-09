@@ -1,0 +1,103 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_safepower_vector2FA with negative literal in1 = (-0.04, -0.16) and in2 = 0.5. Safepower keeps the sign of negative bases while raising their magnitudes, so the node result is (-0.2, -0.4). The signed result is remapped for display as (out + 1) * 0.5, yielding (0.4, 0.3). The remapped vector2 is packed as (x, y, 0), so the expected emitted RGB is (0.4, 0.3, 0)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "safepower_vector2FA" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/safepower/safepower_vector2FA.mtlx"
+                string sourceMaterial = "M_safepower_vector2FA"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/safepower_vector2FA/surface.outputs:out>
+        token outputs:surface.connect = </Looks/safepower_vector2FA/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_safepower_vector2FA"
+            float2 inputs:in1 = (-0.04, -0.16)
+            float inputs:in2 = 0.5
+            float2 outputs:out
+        }
+        def Shader "display_offset"
+        {
+            uniform token info:id = "ND_add_vector2"
+            float2 inputs:in1.connect = </Looks/safepower_vector2FA/node_under_test.outputs:out>
+            float2 inputs:in2 = (1, 1)
+            float2 outputs:out
+        }
+        def Shader "display_remap"
+        {
+            uniform token info:id = "ND_multiply_vector2FA"
+            float2 inputs:in1.connect = </Looks/safepower_vector2FA/display_offset.outputs:out>
+            float inputs:in2 = 0.5
+            float2 outputs:out
+        }
+        def Shader "display_channels"
+        {
+            uniform token info:id = "ND_separate2_vector2"
+            float2 inputs:in.connect = </Looks/safepower_vector2FA/display_remap.outputs:out>
+            float outputs:outx
+            float outputs:outy
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/safepower_vector2FA/display_channels.outputs:outx>
+            float inputs:in2.connect = </Looks/safepower_vector2FA/display_channels.outputs:outy>
+            float inputs:in3 = 0
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/safepower_vector2FA/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/safepower_vector2FA/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/safepower_vector2FA>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/safepower_vector2FA.exr"
+        }
+    }
+}

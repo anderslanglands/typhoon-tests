@@ -1,0 +1,81 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_clamp_vector3 with literal in = (-0.1, 0.35, 1.2), low = (0.2, 0.3, 0.4), and high = (0.6, 0.6, 0.7). The spec clamps each component between low and high, so the node result is (0.2, 0.35, 0.7). The three-channel result maps directly to RGB, so the expected emitted RGB is (0.2, 0.35, 0.7)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "clamp_vector3" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/clamp/clamp_vector3.mtlx"
+                string sourceMaterial = "M_clamp_vector3"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/clamp_vector3/surface.outputs:out>
+        token outputs:surface.connect = </Looks/clamp_vector3/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_clamp_vector3"
+            float3 inputs:in = (-0.1, 0.35, 1.2)
+            float3 inputs:low = (0.2, 0.3, 0.4)
+            float3 inputs:high = (0.6, 0.6, 0.7)
+            float3 outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_convert_vector3_color3"
+            float3 inputs:in.connect = </Looks/clamp_vector3/node_under_test.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/clamp_vector3/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/clamp_vector3/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/clamp_vector3>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/clamp_vector3.exr"
+        }
+    }
+}

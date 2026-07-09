@@ -1,0 +1,73 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_absval_color3 with literal in = (-0.25, 0.5, -0.75). The node returns the absolute value component-wise, so the result is (0.25, 0.5, 0.75). The color3 result maps directly to RGB, so the expected emitted RGB is (0.25, 0.5, 0.75)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "absval_color3" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/absval/absval_color3.mtlx"
+                string sourceMaterial = "M_absval_color3"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/absval_color3/surface.outputs:out>
+        token outputs:surface.connect = </Looks/absval_color3/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_absval_color3"
+            color3f inputs:in = (-0.25, 0.5, -0.75)
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/absval_color3/node_under_test.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/absval_color3/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/absval_color3>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/absval_color3.exr"
+        }
+    }
+}
