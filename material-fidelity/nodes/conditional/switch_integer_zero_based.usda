@@ -1,5 +1,8 @@
 #usda 1.0
 (
+    customLayerData = {
+        string doc = "Tests ND_switch_color3I on the plane using explicit UV0 texcoords. The graph computes integer selector clamp(floor(U * 10), 0, 9), partitioning U into ten vertical sections; those sections select switch inputs in1 through in10 across the plane. The color3 output is connected directly to uniform_edf.color. The expected emitted RGB stripes from left to right are (0.9000, 0.1000, 0.1000), (0.1000, 0.7500, 0.1500), (0.1000, 0.2000, 0.9000), (0.8500, 0.7000, 0.1000), (0.7500, 0.1500, 0.8500), (0.1000, 0.7500, 0.8000), (0.5500, 0.3500, 0.1500), (0.3500, 0.5500, 0.9000), (0.7500, 0.4500, 0.4500), (0.2500, 0.8500, 0.4500)."
+    }
     defaultPrim = "World"
     metersPerUnit = 1
     renderSettingsPrimPath = "/Render/Settings"
@@ -16,7 +19,7 @@ def Scope "Looks"
     def Material "switch_integer_zero_based" (
         customData = {
             dictionary materialFidelity = {
-                string source = "materials/nodes/switch_integer_zero_based/switch_integer_zero_based.mtlx"
+                string source = "materials/nodes/switch/switch_integer_zero_based.mtlx"
                 string sourceMaterial = "M_switch_integer_zero_based"
             }
         }
@@ -25,74 +28,148 @@ def Scope "Looks"
         token outputs:mtlx:surface.connect = </Looks/switch_integer_zero_based/surface.outputs:out>
         token outputs:surface.connect = </Looks/switch_integer_zero_based/surface.outputs:out>
 
+        def Shader "uv0"
+        {
+            uniform token info:id = "ND_texcoord_vector2"
+            float2 outputs:out
+        }
+        def Shader "uv_split"
+        {
+            uniform token info:id = "ND_separate2_vector2"
+            float2 inputs:in.connect = </Looks/switch_integer_zero_based/uv0.outputs:out>
+            float outputs:outx
+            float outputs:outy
+        }
+        def Shader "u_scaled"
+        {
+            uniform token info:id = "ND_multiply_float"
+            float inputs:in1.connect = </Looks/switch_integer_zero_based/uv_split.outputs:outx>
+            float inputs:in2 = 10
+            float outputs:out
+        }
+        def Shader "section_raw"
+        {
+            uniform token info:id = "ND_floor_float"
+            float inputs:in.connect = </Looks/switch_integer_zero_based/u_scaled.outputs:out>
+            float outputs:out
+        }
+        def Shader "section_index"
+        {
+            uniform token info:id = "ND_clamp_float"
+            float inputs:in.connect = </Looks/switch_integer_zero_based/section_raw.outputs:out>
+            float inputs:low = 0
+            float inputs:high = 9
+            float outputs:out
+        }
+        def Shader "section_ge_1"
+        {
+            uniform token info:id = "ND_ifgreatereq_integer"
+            float inputs:value1.connect = </Looks/switch_integer_zero_based/section_index.outputs:out>
+            float inputs:value2 = 1
+            int inputs:in1 = 1
+            int inputs:in2 = 0
+            int outputs:out
+        }
+        def Shader "section_ge_2"
+        {
+            uniform token info:id = "ND_ifgreatereq_integer"
+            float inputs:value1.connect = </Looks/switch_integer_zero_based/section_index.outputs:out>
+            float inputs:value2 = 2
+            int inputs:in1 = 2
+            int inputs:in2.connect = </Looks/switch_integer_zero_based/section_ge_1.outputs:out>
+            int outputs:out
+        }
+        def Shader "section_ge_3"
+        {
+            uniform token info:id = "ND_ifgreatereq_integer"
+            float inputs:value1.connect = </Looks/switch_integer_zero_based/section_index.outputs:out>
+            float inputs:value2 = 3
+            int inputs:in1 = 3
+            int inputs:in2.connect = </Looks/switch_integer_zero_based/section_ge_2.outputs:out>
+            int outputs:out
+        }
+        def Shader "section_ge_4"
+        {
+            uniform token info:id = "ND_ifgreatereq_integer"
+            float inputs:value1.connect = </Looks/switch_integer_zero_based/section_index.outputs:out>
+            float inputs:value2 = 4
+            int inputs:in1 = 4
+            int inputs:in2.connect = </Looks/switch_integer_zero_based/section_ge_3.outputs:out>
+            int outputs:out
+        }
+        def Shader "section_ge_5"
+        {
+            uniform token info:id = "ND_ifgreatereq_integer"
+            float inputs:value1.connect = </Looks/switch_integer_zero_based/section_index.outputs:out>
+            float inputs:value2 = 5
+            int inputs:in1 = 5
+            int inputs:in2.connect = </Looks/switch_integer_zero_based/section_ge_4.outputs:out>
+            int outputs:out
+        }
+        def Shader "section_ge_6"
+        {
+            uniform token info:id = "ND_ifgreatereq_integer"
+            float inputs:value1.connect = </Looks/switch_integer_zero_based/section_index.outputs:out>
+            float inputs:value2 = 6
+            int inputs:in1 = 6
+            int inputs:in2.connect = </Looks/switch_integer_zero_based/section_ge_5.outputs:out>
+            int outputs:out
+        }
+        def Shader "section_ge_7"
+        {
+            uniform token info:id = "ND_ifgreatereq_integer"
+            float inputs:value1.connect = </Looks/switch_integer_zero_based/section_index.outputs:out>
+            float inputs:value2 = 7
+            int inputs:in1 = 7
+            int inputs:in2.connect = </Looks/switch_integer_zero_based/section_ge_6.outputs:out>
+            int outputs:out
+        }
+        def Shader "section_ge_8"
+        {
+            uniform token info:id = "ND_ifgreatereq_integer"
+            float inputs:value1.connect = </Looks/switch_integer_zero_based/section_index.outputs:out>
+            float inputs:value2 = 8
+            int inputs:in1 = 8
+            int inputs:in2.connect = </Looks/switch_integer_zero_based/section_ge_7.outputs:out>
+            int outputs:out
+        }
+        def Shader "selector_integer"
+        {
+            uniform token info:id = "ND_ifgreatereq_integer"
+            float inputs:value1.connect = </Looks/switch_integer_zero_based/section_index.outputs:out>
+            float inputs:value2 = 9
+            int inputs:in1 = 9
+            int inputs:in2.connect = </Looks/switch_integer_zero_based/section_ge_8.outputs:out>
+            int outputs:out
+        }
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_switch_color3I"
+            color3f inputs:in1 = (0.9000, 0.1000, 0.1000)
+            color3f inputs:in2 = (0.1000, 0.7500, 0.1500)
+            color3f inputs:in3 = (0.1000, 0.2000, 0.9000)
+            color3f inputs:in4 = (0.8500, 0.7000, 0.1000)
+            color3f inputs:in5 = (0.7500, 0.1500, 0.8500)
+            color3f inputs:in6 = (0.1000, 0.7500, 0.8000)
+            color3f inputs:in7 = (0.5500, 0.3500, 0.1500)
+            color3f inputs:in8 = (0.3500, 0.5500, 0.9000)
+            color3f inputs:in9 = (0.7500, 0.4500, 0.4500)
+            color3f inputs:in10 = (0.2500, 0.8500, 0.4500)
+            int inputs:which.connect = </Looks/switch_integer_zero_based/selector_integer.outputs:out>
+            color3f outputs:out
+        }
         def Shader "uniform_edf"
         {
             uniform token info:id = "ND_uniform_edf"
-            color3f inputs:color.connect = </Looks/switch_integer_zero_based/NG_switch_integer_zero_based.outputs:out_base_color>
+            color3f inputs:color.connect = </Looks/switch_integer_zero_based/node_under_test.outputs:out>
             token outputs:out
         }
-
         def Shader "surface"
         {
             uniform token info:id = "ND_surface"
             token inputs:edf.connect = </Looks/switch_integer_zero_based/uniform_edf.outputs:out>
             token outputs:out
-        }
-
-        def NodeGraph "NG_switch_integer_zero_based"
-        {
-            color3f outputs:out_base_color.connect = </Looks/switch_integer_zero_based/NG_switch_integer_zero_based/node_under_test.outputs:out>
-
-            def Shader "uv0"
-            {
-                uniform token info:id = "ND_texcoord_vector2"
-                float2 outputs:out
-            }
-
-            def Shader "uv_split"
-            {
-                uniform token info:id = "ND_separate2_vector2"
-                float2 inputs:in.connect = </Looks/switch_integer_zero_based/NG_switch_integer_zero_based/uv0.outputs:out>
-                float outputs:outx
-                float outputs:outy
-            }
-
-            def Shader "uv_sum"
-            {
-                uniform token info:id = "ND_add_float"
-                float inputs:in1.connect = </Looks/switch_integer_zero_based/NG_switch_integer_zero_based/uv_split.outputs:outx>
-                float inputs:in2.connect = </Looks/switch_integer_zero_based/NG_switch_integer_zero_based/uv_split.outputs:outy>
-                float outputs:out
-            }
-
-            def Shader "uv_mix"
-            {
-                uniform token info:id = "ND_fract_float"
-                float inputs:in.connect = </Looks/switch_integer_zero_based/NG_switch_integer_zero_based/uv_sum.outputs:out>
-                float outputs:out
-            }
-
-            def Shader "switch_index"
-            {
-                uniform token info:id = "ND_ifgreater_integer"
-                int inputs:in1 = 4
-                int inputs:in2 = 0
-                float inputs:value1.connect = </Looks/switch_integer_zero_based/NG_switch_integer_zero_based/uv_mix.outputs:out>
-                float inputs:value2 = 0.5
-                int outputs:out
-            }
-
-            def Shader "node_under_test"
-            {
-                uniform token info:id = "ND_switch_color3I"
-                color3f inputs:in1 = (0.95, 0.2, 0.2)
-                color3f inputs:in2 = (0.2, 0.95, 0.2)
-                color3f inputs:in3 = (0.2, 0.2, 0.95)
-                color3f inputs:in4 = (0.95, 0.95, 0.2)
-                color3f inputs:in5 = (0.95, 0.2, 0.95)
-                int inputs:which.connect = </Looks/switch_integer_zero_based/NG_switch_integer_zero_based/switch_index.outputs:out>
-                color3f outputs:out
-            }
         }
     }
 }

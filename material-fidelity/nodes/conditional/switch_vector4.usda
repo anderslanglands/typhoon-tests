@@ -1,0 +1,149 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_switch_vector4 on the plane using explicit UV0 texcoords. The graph computes float selector clamp(floor(U * 10), 0, 9) + 0.5, partitioning U into ten vertical sections; those sections select switch inputs in1 through in10 across the plane. The vector4 output is packed into RGB as (x, y, z + w). The expected emitted RGB stripes from left to right are (0.9000, 0.1000, 0.1000), (0.1000, 0.7500, 0.1500), (0.1000, 0.2000, 0.9000), (0.8500, 0.7000, 0.1000), (0.7500, 0.1500, 0.8500), (0.1000, 0.7500, 0.8000), (0.5500, 0.3500, 0.1500), (0.3500, 0.5500, 0.9000), (0.7500, 0.4500, 0.4500), (0.2500, 0.8500, 0.4500)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "switch_vector4" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/switch/switch_vector4.mtlx"
+                string sourceMaterial = "M_switch_vector4"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/switch_vector4/surface.outputs:out>
+        token outputs:surface.connect = </Looks/switch_vector4/surface.outputs:out>
+
+        def Shader "uv0"
+        {
+            uniform token info:id = "ND_texcoord_vector2"
+            float2 outputs:out
+        }
+        def Shader "uv_split"
+        {
+            uniform token info:id = "ND_separate2_vector2"
+            float2 inputs:in.connect = </Looks/switch_vector4/uv0.outputs:out>
+            float outputs:outx
+            float outputs:outy
+        }
+        def Shader "u_scaled"
+        {
+            uniform token info:id = "ND_multiply_float"
+            float inputs:in1.connect = </Looks/switch_vector4/uv_split.outputs:outx>
+            float inputs:in2 = 10
+            float outputs:out
+        }
+        def Shader "section_raw"
+        {
+            uniform token info:id = "ND_floor_float"
+            float inputs:in.connect = </Looks/switch_vector4/u_scaled.outputs:out>
+            float outputs:out
+        }
+        def Shader "section_index"
+        {
+            uniform token info:id = "ND_clamp_float"
+            float inputs:in.connect = </Looks/switch_vector4/section_raw.outputs:out>
+            float inputs:low = 0
+            float inputs:high = 9
+            float outputs:out
+        }
+        def Shader "selector_float"
+        {
+            uniform token info:id = "ND_add_float"
+            float inputs:in1.connect = </Looks/switch_vector4/section_index.outputs:out>
+            float inputs:in2 = 0.5
+            float outputs:out
+        }
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_switch_vector4"
+            float4 inputs:in1 = (0.9000, 0.1000, 0.0500, 0.0500)
+            float4 inputs:in2 = (0.1000, 0.7500, 0.0750, 0.0750)
+            float4 inputs:in3 = (0.1000, 0.2000, 0.4500, 0.4500)
+            float4 inputs:in4 = (0.8500, 0.7000, 0.0500, 0.0500)
+            float4 inputs:in5 = (0.7500, 0.1500, 0.4250, 0.4250)
+            float4 inputs:in6 = (0.1000, 0.7500, 0.4000, 0.4000)
+            float4 inputs:in7 = (0.5500, 0.3500, 0.0750, 0.0750)
+            float4 inputs:in8 = (0.3500, 0.5500, 0.4500, 0.4500)
+            float4 inputs:in9 = (0.7500, 0.4500, 0.2250, 0.2250)
+            float4 inputs:in10 = (0.2500, 0.8500, 0.2250, 0.2250)
+            float inputs:which.connect = </Looks/switch_vector4/selector_float.outputs:out>
+            float4 outputs:out
+        }
+
+        def Shader "display_channels"
+        {
+            uniform token info:id = "ND_separate4_vector4"
+            float4 inputs:in.connect = </Looks/switch_vector4/node_under_test.outputs:out>
+            float outputs:outx
+            float outputs:outy
+            float outputs:outz
+            float outputs:outw
+        }
+        def Shader "display_blue"
+        {
+            uniform token info:id = "ND_add_float"
+            float inputs:in1.connect = </Looks/switch_vector4/display_channels.outputs:outz>
+            float inputs:in2.connect = </Looks/switch_vector4/display_channels.outputs:outw>
+            float outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/switch_vector4/display_channels.outputs:outx>
+            float inputs:in2.connect = </Looks/switch_vector4/display_channels.outputs:outy>
+            float inputs:in3.connect = </Looks/switch_vector4/display_blue.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/switch_vector4/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/switch_vector4/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/switch_vector4>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/conditional/switch_vector4.exr"
+        }
+    }
+}

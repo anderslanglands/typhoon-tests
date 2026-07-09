@@ -1,0 +1,207 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_switch_floatI on the plane using explicit UV0 texcoords. The graph computes integer selector clamp(floor(U * 10), 0, 9), partitioning U into ten vertical sections; those sections select switch inputs in1 through in10 across the plane. The float output is packed into RGB as (value, 0, 0). The expected emitted RGB stripes from left to right are (0.0500, 0.0000, 0.0000), (0.1500, 0.0000, 0.0000), (0.2500, 0.0000, 0.0000), (0.3500, 0.0000, 0.0000), (0.4500, 0.0000, 0.0000), (0.5500, 0.0000, 0.0000), (0.6500, 0.0000, 0.0000), (0.7500, 0.0000, 0.0000), (0.8500, 0.0000, 0.0000), (0.9500, 0.0000, 0.0000)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "switch_floatI" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/switch/switch_floatI.mtlx"
+                string sourceMaterial = "M_switch_floatI"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/switch_floatI/surface.outputs:out>
+        token outputs:surface.connect = </Looks/switch_floatI/surface.outputs:out>
+
+        def Shader "uv0"
+        {
+            uniform token info:id = "ND_texcoord_vector2"
+            float2 outputs:out
+        }
+        def Shader "uv_split"
+        {
+            uniform token info:id = "ND_separate2_vector2"
+            float2 inputs:in.connect = </Looks/switch_floatI/uv0.outputs:out>
+            float outputs:outx
+            float outputs:outy
+        }
+        def Shader "u_scaled"
+        {
+            uniform token info:id = "ND_multiply_float"
+            float inputs:in1.connect = </Looks/switch_floatI/uv_split.outputs:outx>
+            float inputs:in2 = 10
+            float outputs:out
+        }
+        def Shader "section_raw"
+        {
+            uniform token info:id = "ND_floor_float"
+            float inputs:in.connect = </Looks/switch_floatI/u_scaled.outputs:out>
+            float outputs:out
+        }
+        def Shader "section_index"
+        {
+            uniform token info:id = "ND_clamp_float"
+            float inputs:in.connect = </Looks/switch_floatI/section_raw.outputs:out>
+            float inputs:low = 0
+            float inputs:high = 9
+            float outputs:out
+        }
+        def Shader "section_ge_1"
+        {
+            uniform token info:id = "ND_ifgreatereq_integer"
+            float inputs:value1.connect = </Looks/switch_floatI/section_index.outputs:out>
+            float inputs:value2 = 1
+            int inputs:in1 = 1
+            int inputs:in2 = 0
+            int outputs:out
+        }
+        def Shader "section_ge_2"
+        {
+            uniform token info:id = "ND_ifgreatereq_integer"
+            float inputs:value1.connect = </Looks/switch_floatI/section_index.outputs:out>
+            float inputs:value2 = 2
+            int inputs:in1 = 2
+            int inputs:in2.connect = </Looks/switch_floatI/section_ge_1.outputs:out>
+            int outputs:out
+        }
+        def Shader "section_ge_3"
+        {
+            uniform token info:id = "ND_ifgreatereq_integer"
+            float inputs:value1.connect = </Looks/switch_floatI/section_index.outputs:out>
+            float inputs:value2 = 3
+            int inputs:in1 = 3
+            int inputs:in2.connect = </Looks/switch_floatI/section_ge_2.outputs:out>
+            int outputs:out
+        }
+        def Shader "section_ge_4"
+        {
+            uniform token info:id = "ND_ifgreatereq_integer"
+            float inputs:value1.connect = </Looks/switch_floatI/section_index.outputs:out>
+            float inputs:value2 = 4
+            int inputs:in1 = 4
+            int inputs:in2.connect = </Looks/switch_floatI/section_ge_3.outputs:out>
+            int outputs:out
+        }
+        def Shader "section_ge_5"
+        {
+            uniform token info:id = "ND_ifgreatereq_integer"
+            float inputs:value1.connect = </Looks/switch_floatI/section_index.outputs:out>
+            float inputs:value2 = 5
+            int inputs:in1 = 5
+            int inputs:in2.connect = </Looks/switch_floatI/section_ge_4.outputs:out>
+            int outputs:out
+        }
+        def Shader "section_ge_6"
+        {
+            uniform token info:id = "ND_ifgreatereq_integer"
+            float inputs:value1.connect = </Looks/switch_floatI/section_index.outputs:out>
+            float inputs:value2 = 6
+            int inputs:in1 = 6
+            int inputs:in2.connect = </Looks/switch_floatI/section_ge_5.outputs:out>
+            int outputs:out
+        }
+        def Shader "section_ge_7"
+        {
+            uniform token info:id = "ND_ifgreatereq_integer"
+            float inputs:value1.connect = </Looks/switch_floatI/section_index.outputs:out>
+            float inputs:value2 = 7
+            int inputs:in1 = 7
+            int inputs:in2.connect = </Looks/switch_floatI/section_ge_6.outputs:out>
+            int outputs:out
+        }
+        def Shader "section_ge_8"
+        {
+            uniform token info:id = "ND_ifgreatereq_integer"
+            float inputs:value1.connect = </Looks/switch_floatI/section_index.outputs:out>
+            float inputs:value2 = 8
+            int inputs:in1 = 8
+            int inputs:in2.connect = </Looks/switch_floatI/section_ge_7.outputs:out>
+            int outputs:out
+        }
+        def Shader "selector_integer"
+        {
+            uniform token info:id = "ND_ifgreatereq_integer"
+            float inputs:value1.connect = </Looks/switch_floatI/section_index.outputs:out>
+            float inputs:value2 = 9
+            int inputs:in1 = 9
+            int inputs:in2.connect = </Looks/switch_floatI/section_ge_8.outputs:out>
+            int outputs:out
+        }
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_switch_floatI"
+            float inputs:in1 = 0.0500
+            float inputs:in2 = 0.1500
+            float inputs:in3 = 0.2500
+            float inputs:in4 = 0.3500
+            float inputs:in5 = 0.4500
+            float inputs:in6 = 0.5500
+            float inputs:in7 = 0.6500
+            float inputs:in8 = 0.7500
+            float inputs:in9 = 0.8500
+            float inputs:in10 = 0.9500
+            int inputs:which.connect = </Looks/switch_floatI/selector_integer.outputs:out>
+            float outputs:out
+        }
+
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/switch_floatI/node_under_test.outputs:out>
+            float inputs:in2 = 0
+            float inputs:in3 = 0
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/switch_floatI/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/switch_floatI/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/switch_floatI>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/conditional/switch_floatI.exr"
+        }
+    }
+}

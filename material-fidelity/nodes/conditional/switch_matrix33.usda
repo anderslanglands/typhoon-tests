@@ -1,0 +1,166 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_switch_matrix33 on the plane using explicit UV0 texcoords. The graph computes float selector clamp(floor(U * 10), 0, 9) + 0.5, partitioning U into ten vertical sections; those sections select switch inputs in1 through in10 across the plane. The matrix33 output rows are added component-wise and converted to color3 for display. The expected emitted RGB stripes from left to right are (0.9000, 0.1000, 0.1000), (0.1000, 0.7500, 0.1500), (0.1000, 0.2000, 0.9000), (0.8500, 0.7000, 0.1000), (0.7500, 0.1500, 0.8500), (0.1000, 0.7500, 0.8000), (0.5500, 0.3500, 0.1500), (0.3500, 0.5500, 0.9000), (0.7500, 0.4500, 0.4500), (0.2500, 0.8500, 0.4500)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "switch_matrix33" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/switch/switch_matrix33.mtlx"
+                string sourceMaterial = "M_switch_matrix33"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/switch_matrix33/surface.outputs:out>
+        token outputs:surface.connect = </Looks/switch_matrix33/surface.outputs:out>
+
+        def Shader "uv0"
+        {
+            uniform token info:id = "ND_texcoord_vector2"
+            float2 outputs:out
+        }
+        def Shader "uv_split"
+        {
+            uniform token info:id = "ND_separate2_vector2"
+            float2 inputs:in.connect = </Looks/switch_matrix33/uv0.outputs:out>
+            float outputs:outx
+            float outputs:outy
+        }
+        def Shader "u_scaled"
+        {
+            uniform token info:id = "ND_multiply_float"
+            float inputs:in1.connect = </Looks/switch_matrix33/uv_split.outputs:outx>
+            float inputs:in2 = 10
+            float outputs:out
+        }
+        def Shader "section_raw"
+        {
+            uniform token info:id = "ND_floor_float"
+            float inputs:in.connect = </Looks/switch_matrix33/u_scaled.outputs:out>
+            float outputs:out
+        }
+        def Shader "section_index"
+        {
+            uniform token info:id = "ND_clamp_float"
+            float inputs:in.connect = </Looks/switch_matrix33/section_raw.outputs:out>
+            float inputs:low = 0
+            float inputs:high = 9
+            float outputs:out
+        }
+        def Shader "selector_float"
+        {
+            uniform token info:id = "ND_add_float"
+            float inputs:in1.connect = </Looks/switch_matrix33/section_index.outputs:out>
+            float inputs:in2 = 0.5
+            float outputs:out
+        }
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_switch_matrix33"
+            matrix3d inputs:in1 = ( (0.30000000, 0.03333333, 0.03333333), (0.30000000, 0.03333333, 0.03333333), (0.30000000, 0.03333333, 0.03333333) )
+            matrix3d inputs:in2 = ( (0.03333333, 0.25000000, 0.05000000), (0.03333333, 0.25000000, 0.05000000), (0.03333333, 0.25000000, 0.05000000) )
+            matrix3d inputs:in3 = ( (0.03333333, 0.06666667, 0.30000000), (0.03333333, 0.06666667, 0.30000000), (0.03333333, 0.06666667, 0.30000000) )
+            matrix3d inputs:in4 = ( (0.28333333, 0.23333333, 0.03333333), (0.28333333, 0.23333333, 0.03333333), (0.28333333, 0.23333333, 0.03333333) )
+            matrix3d inputs:in5 = ( (0.25000000, 0.05000000, 0.28333333), (0.25000000, 0.05000000, 0.28333333), (0.25000000, 0.05000000, 0.28333333) )
+            matrix3d inputs:in6 = ( (0.03333333, 0.25000000, 0.26666667), (0.03333333, 0.25000000, 0.26666667), (0.03333333, 0.25000000, 0.26666667) )
+            matrix3d inputs:in7 = ( (0.18333333, 0.11666667, 0.05000000), (0.18333333, 0.11666667, 0.05000000), (0.18333333, 0.11666667, 0.05000000) )
+            matrix3d inputs:in8 = ( (0.11666667, 0.18333333, 0.30000000), (0.11666667, 0.18333333, 0.30000000), (0.11666667, 0.18333333, 0.30000000) )
+            matrix3d inputs:in9 = ( (0.25000000, 0.15000000, 0.15000000), (0.25000000, 0.15000000, 0.15000000), (0.25000000, 0.15000000, 0.15000000) )
+            matrix3d inputs:in10 = ( (0.08333333, 0.28333333, 0.15000000), (0.08333333, 0.28333333, 0.15000000), (0.08333333, 0.28333333, 0.15000000) )
+            float inputs:which.connect = </Looks/switch_matrix33/selector_float.outputs:out>
+            matrix3d outputs:out
+        }
+
+        def Shader "display_row0"
+        {
+            uniform token info:id = "ND_extract_matrix33"
+            matrix3d inputs:in.connect = </Looks/switch_matrix33/node_under_test.outputs:out>
+            int inputs:index = 0
+            float3 outputs:out
+        }
+        def Shader "display_row1"
+        {
+            uniform token info:id = "ND_extract_matrix33"
+            matrix3d inputs:in.connect = </Looks/switch_matrix33/node_under_test.outputs:out>
+            int inputs:index = 1
+            float3 outputs:out
+        }
+        def Shader "display_row2"
+        {
+            uniform token info:id = "ND_extract_matrix33"
+            matrix3d inputs:in.connect = </Looks/switch_matrix33/node_under_test.outputs:out>
+            int inputs:index = 2
+            float3 outputs:out
+        }
+        def Shader "display_row01"
+        {
+            uniform token info:id = "ND_add_vector3"
+            float3 inputs:in1.connect = </Looks/switch_matrix33/display_row0.outputs:out>
+            float3 inputs:in2.connect = </Looks/switch_matrix33/display_row1.outputs:out>
+            float3 outputs:out
+        }
+        def Shader "display_packed"
+        {
+            uniform token info:id = "ND_add_vector3"
+            float3 inputs:in1.connect = </Looks/switch_matrix33/display_row01.outputs:out>
+            float3 inputs:in2.connect = </Looks/switch_matrix33/display_row2.outputs:out>
+            float3 outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_convert_vector3_color3"
+            float3 inputs:in.connect = </Looks/switch_matrix33/display_packed.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/switch_matrix33/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/switch_matrix33/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/switch_matrix33>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/conditional/switch_matrix33.exr"
+        }
+    }
+}

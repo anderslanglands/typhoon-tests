@@ -1,5 +1,8 @@
 #usda 1.0
 (
+    customLayerData = {
+        string doc = "Tests ND_switch_color3 with a float selector outside the simple 0..9 integer-section case. The selector is U * 7 - 1, so the float switch thresholds select in1 for U below 2/7, then in2, in3, in4, and in5 in the next four one-seventh-wide bands. For U at or above 6/7 the selector reaches the unauthored in6 input, which uses the NodeDef default black color. The expected render is therefore wide red, then green, blue, yellow, magenta, and a black band at the right edge."
+    }
     defaultPrim = "World"
     metersPerUnit = 1
     renderSettingsPrimPath = "/Render/Settings"

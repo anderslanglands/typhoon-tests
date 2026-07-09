@@ -953,9 +953,9 @@
       "release": "reference-data-20260709T080558Z-b4cb806c-a9712b04"
     },
     "material-fidelity/nodes/conditional": {
-      "archive": "material-fidelity--nodes--conditional--6e30c97f1ea5.zip",
-      "archive_sha256": "d9057775de4fc083889017859f6d5647e8c79a7d358c7028013de534e7205237",
-      "archive_size": 1356112,
+      "archive": "material-fidelity--nodes--conditional--a51c9291a28e.zip",
+      "archive_sha256": "9e1a2ccc64ed0ce44cbc4651e703d9c1dcfda7e2159cff1babce82271161f8cd",
+      "archive_size": 2467571,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/conditional/ifequal_boolean.exr",
@@ -1309,8 +1309,28 @@
         },
         {
           "path": "material-fidelity/reference/nodes/conditional/switch.exr",
-          "sha256": "24a97d46e763b19516d4486893c6d6b091331421cb51821efdbf04fe07a909dc",
-          "size": 23967
+          "sha256": "6b16791e51ee93c931e9ce3957117e079ab4ab30389c0d0788fd1aa8edb5faea",
+          "size": 78994
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/switch_color4.exr",
+          "sha256": "6b16791e51ee93c931e9ce3957117e079ab4ab30389c0d0788fd1aa8edb5faea",
+          "size": 78994
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/switch_color4I.exr",
+          "sha256": "6b16791e51ee93c931e9ce3957117e079ab4ab30389c0d0788fd1aa8edb5faea",
+          "size": 78994
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/switch_float.exr",
+          "sha256": "dfa6b288ce89d5d20c8c2ab92d2f3ca3f26bac326dbe296a0dd1a9810c67e716",
+          "size": 41178
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/switch_floatI.exr",
+          "sha256": "dfa6b288ce89d5d20c8c2ab92d2f3ca3f26bac326dbe296a0dd1a9810c67e716",
+          "size": 41178
         },
         {
           "path": "material-fidelity/reference/nodes/conditional/switch_float_floor_clamp.exr",
@@ -1319,11 +1339,61 @@
         },
         {
           "path": "material-fidelity/reference/nodes/conditional/switch_integer_zero_based.exr",
-          "sha256": "a9ac2dbb68a64641ea94e673af500b432bee7cc0dea5d6ea2a7aba02d77284f3",
-          "size": 24514
+          "sha256": "6b16791e51ee93c931e9ce3957117e079ab4ab30389c0d0788fd1aa8edb5faea",
+          "size": 78994
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/switch_matrix33.exr",
+          "sha256": "f02996f943ef6cd1f93abc781be1b63e73f01ab5a3fa83d28d1074cffc72c33d",
+          "size": 80313
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/switch_matrix33I.exr",
+          "sha256": "f02996f943ef6cd1f93abc781be1b63e73f01ab5a3fa83d28d1074cffc72c33d",
+          "size": 80313
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/switch_matrix44.exr",
+          "sha256": "6b16791e51ee93c931e9ce3957117e079ab4ab30389c0d0788fd1aa8edb5faea",
+          "size": 78994
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/switch_matrix44I.exr",
+          "sha256": "6b16791e51ee93c931e9ce3957117e079ab4ab30389c0d0788fd1aa8edb5faea",
+          "size": 78994
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/switch_vector2.exr",
+          "sha256": "faaf3cd890000ea6d71219930f2e79fd8c6c554e9e94874d220a56504c1b96a5",
+          "size": 62076
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/switch_vector2I.exr",
+          "sha256": "faaf3cd890000ea6d71219930f2e79fd8c6c554e9e94874d220a56504c1b96a5",
+          "size": 62076
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/switch_vector3.exr",
+          "sha256": "6b16791e51ee93c931e9ce3957117e079ab4ab30389c0d0788fd1aa8edb5faea",
+          "size": 78994
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/switch_vector3I.exr",
+          "sha256": "6b16791e51ee93c931e9ce3957117e079ab4ab30389c0d0788fd1aa8edb5faea",
+          "size": 78994
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/switch_vector4.exr",
+          "sha256": "6b16791e51ee93c931e9ce3957117e079ab4ab30389c0d0788fd1aa8edb5faea",
+          "size": 78994
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/switch_vector4I.exr",
+          "sha256": "6b16791e51ee93c931e9ce3957117e079ab4ab30389c0d0788fd1aa8edb5faea",
+          "size": 78994
         }
       ],
-      "release": "reference-data-20260709T072325Z-edd6e019-0ed61f43"
+      "release": "reference-data-20260709T202011Z-9693fc77-3c92a58f"
     },
     "material-fidelity/nodes/geometric": {
       "archive": "material-fidelity--nodes--geometric--c06f86c18f3e.zip",
