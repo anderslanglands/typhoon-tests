@@ -1,0 +1,81 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_maxcomponent_vector2 from the MaterialX Standard Nodes math section with literal in = (0.65, 0.25). The spec defines maxcomponent as outputting the maximum component of the input stream as a float, so the node result is 0.65. The scalar result is packed into red with green and blue zero, so the expected emitted RGB on the plane is (0.65, 0, 0)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "maxcomponent_vector2" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/maxcomponent/maxcomponent_vector2.mtlx"
+                string sourceMaterial = "M_maxcomponent_vector2"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/maxcomponent_vector2/surface.outputs:out>
+        token outputs:surface.connect = </Looks/maxcomponent_vector2/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_maxcomponent_vector2"
+            float2 inputs:in = (0.65, 0.25)
+            float outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/maxcomponent_vector2/node_under_test.outputs:out>
+            float inputs:in2 = 0
+            float inputs:in3 = 0
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/maxcomponent_vector2/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/maxcomponent_vector2/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/maxcomponent_vector2>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/math/maxcomponent_vector2.exr"
+        }
+    }
+}

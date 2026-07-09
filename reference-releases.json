@@ -1,9 +1,9 @@
 {
   "groups": {
     "material-fidelity/nodes/adjustment": {
-      "archive": "material-fidelity--nodes--adjustment--598e8e1ae61d.zip",
-      "archive_sha256": "cabafe350f591ca8d361d300c1f8a644554c4d60cb774c5b20d379002fa71690",
-      "archive_size": 8554077,
+      "archive": "material-fidelity--nodes--adjustment--910e0370ecf2.zip",
+      "archive_sha256": "4c0d02ac818c9d7088ee349f20bc75bc131cb8dccf53d7ff167c0c2f4b8fb18b",
+      "archive_size": 8588705,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/adjustment/colorcorrect.exr",
@@ -14,6 +14,16 @@
           "path": "material-fidelity/reference/nodes/adjustment/contrast.exr",
           "sha256": "49e1b4b2d09c2c06f122a82969383a076f4f9221ee2b9e2c438eba5c2ad03dfe",
           "size": 807535
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/hsvadjust_color3.exr",
+          "sha256": "86edcd42cec4df46d4e1d3d4156f8e5866163b8db294dd0ffb5502055272ab41",
+          "size": 15060
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/hsvadjust_color4.exr",
+          "sha256": "44a40cc02273e8bfc835ea7287e8457c106cceeba668e362a9d148132c76f797",
+          "size": 19156
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/hsvtorgb.exr",
@@ -251,7 +261,7 @@
           "size": 17896
         }
       ],
-      "release": "reference-data-20260709T012442Z-9136c278-5724bfad"
+      "release": "reference-data-20260709T020142Z-ba315cf3-646ed532"
     },
     "material-fidelity/nodes/application": {
       "archive": "material-fidelity--nodes--application--5ddcd570703c.zip",
@@ -1287,9 +1297,9 @@
       "release": "reference-data-20260708T071504Z-c94df4a9-02d9f075"
     },
     "material-fidelity/nodes/math": {
-      "archive": "material-fidelity--nodes--math--c7a8aa18b6d9.zip",
-      "archive_sha256": "118fe1d9c653e803bc7f01ed10d15569fd0d42253c82bd7fd1fa2d4347880d6d",
-      "archive_size": 64918705,
+      "archive": "material-fidelity--nodes--math--28940a7cb501.zip",
+      "archive_sha256": "76b08f5fe5728cde5a04b1f5f1ea2304477cf621d56d754380384e019d30a823",
+      "archive_size": 65097173,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/math/absval.exr",
@@ -1752,9 +1762,59 @@
           "size": 800688
         },
         {
+          "path": "material-fidelity/reference/nodes/math/maxcomponent_color3.exr",
+          "sha256": "8c2f63caacc5169d9bba7b06e60272f7b19bfbe1ec03716ed8969f9d3ae61a77",
+          "size": 17876
+        },
+        {
+          "path": "material-fidelity/reference/nodes/math/maxcomponent_color4.exr",
+          "sha256": "8c2f63caacc5169d9bba7b06e60272f7b19bfbe1ec03716ed8969f9d3ae61a77",
+          "size": 17876
+        },
+        {
+          "path": "material-fidelity/reference/nodes/math/maxcomponent_vector2.exr",
+          "sha256": "ee83eb9847ca28443ccd27bbb030f715183e414455b20ab812560791419bd46a",
+          "size": 17620
+        },
+        {
+          "path": "material-fidelity/reference/nodes/math/maxcomponent_vector3.exr",
+          "sha256": "8c2f63caacc5169d9bba7b06e60272f7b19bfbe1ec03716ed8969f9d3ae61a77",
+          "size": 17876
+        },
+        {
+          "path": "material-fidelity/reference/nodes/math/maxcomponent_vector4.exr",
+          "sha256": "8c2f63caacc5169d9bba7b06e60272f7b19bfbe1ec03716ed8969f9d3ae61a77",
+          "size": 17876
+        },
+        {
           "path": "material-fidelity/reference/nodes/math/min.exr",
           "sha256": "f5005c00764a7463988bffec5b1da5fd41112e8dc01d01dcf00e66129fbc005e",
           "size": 800688
+        },
+        {
+          "path": "material-fidelity/reference/nodes/math/mincomponent_color3.exr",
+          "sha256": "21d05e75cdc09156c2eccf9a3b1e0c85f497f79e35dc8fbf1db3040a3a5f1de9",
+          "size": 17876
+        },
+        {
+          "path": "material-fidelity/reference/nodes/math/mincomponent_color4.exr",
+          "sha256": "cc463fde727431e2e7976a513913bb6b6e1cb467ac4b41c8806193fd35fd59c1",
+          "size": 17876
+        },
+        {
+          "path": "material-fidelity/reference/nodes/math/mincomponent_vector2.exr",
+          "sha256": "e066ec33112cc2faf35490c6e9dba0fef4c627c6d65fd69306ce1015e81dca82",
+          "size": 15828
+        },
+        {
+          "path": "material-fidelity/reference/nodes/math/mincomponent_vector3.exr",
+          "sha256": "21d05e75cdc09156c2eccf9a3b1e0c85f497f79e35dc8fbf1db3040a3a5f1de9",
+          "size": 17876
+        },
+        {
+          "path": "material-fidelity/reference/nodes/math/mincomponent_vector4.exr",
+          "sha256": "cc463fde727431e2e7976a513913bb6b6e1cb467ac4b41c8806193fd35fd59c1",
+          "size": 17876
         },
         {
           "path": "material-fidelity/reference/nodes/math/modulo.exr",
@@ -2247,7 +2307,7 @@
           "size": 280540
         }
       ],
-      "release": "reference-data-20260708T223554Z-8a50a422-420ff836"
+      "release": "reference-data-20260709T020142Z-ba315cf3-646ed532"
     },
     "material-fidelity/nodes/noise": {
       "archive": "material-fidelity--nodes--noise--aa6cb31f8830.zip",
@@ -2766,6 +2826,24 @@
         }
       ],
       "release": "reference-data-20260708T071504Z-c94df4a9-02d9f075"
+    },
+    "material-fidelity/nodes/npr": {
+      "archive": "material-fidelity--nodes--npr--8ff692e57339.zip",
+      "archive_sha256": "4e6dcc20b78f7210d3ead2428430c9afe059aee84a8b7b65881b1cfb307d898f",
+      "archive_size": 32592,
+      "files": [
+        {
+          "path": "material-fidelity/reference/nodes/npr/facingratio_float.exr",
+          "sha256": "e0a50452ebe5c7557750fd88abb098667b915228babb89970a8c2b6d3f49bb40",
+          "size": 16084
+        },
+        {
+          "path": "material-fidelity/reference/nodes/npr/facingratio_float_invert.exr",
+          "sha256": "e0a50452ebe5c7557750fd88abb098667b915228babb89970a8c2b6d3f49bb40",
+          "size": 16084
+        }
+      ],
+      "release": "reference-data-20260709T020142Z-ba315cf3-646ed532"
     },
     "material-fidelity/nodes/patterns": {
       "archive": "material-fidelity--nodes--patterns--6308286fce19.zip",
