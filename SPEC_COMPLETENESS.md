@@ -6,10 +6,10 @@ This report statically compares current `ND_*` definitions from the checked-out 
 
 - AOUSD MaterialX node families: 174
 - Typed NodeDefs in those families: 744
-- Covered NodeDefs: 702/744 (94.4%)
+- Covered NodeDefs: 721/744 (96.9%)
 - Uncovered families: 16
-- Partial families: 6
-- Complete families: 152
+- Partial families: 2
+- Complete families: 156
 - Omitted local MaterialX-library families absent from the AOUSD MaterialX spec: `ramp`, `ramp_gradient`, `surfacematerial`, `volumematerial`
 - Fixture-referenced omitted local families: `ramp`, `ramp_gradient`
 - USD fixtures also reference 2 `ND_*` ids outside this MaterialX library set: `ND_open_pbr_surface_surfaceshader`, `ND_standard_surface_surfaceshader`
@@ -39,10 +39,6 @@ Status is based on exact NodeDef ids. `uncovered` means no variants in that fami
 | `triplanarprojection` | uncovered | 0/6 | `color3`, `color4`, `float`, `vector2`, `vector3`, `vector4` |
 | `displacement` | partial | 1/2 | `vector3` |
 | `hextiledimage` | partial | 1/2 | `color4` |
-| `randomcolor` | partial | 1/2 | `integer` |
-| `randomfloat` | partial | 1/2 | `integer` |
-| `switch` | partial | 2/16 | `color4`, `color4I`, `float`, `floatI`, `matrix33`, `matrix33I`, `matrix44`, `matrix44I`, `vector2`, `vector2I`, `vector3`, `vector3I`, `vector4`, `vector4I` |
-| `tiledimage` | partial | 3/6 | `color4`, `vector2`, `vector4` |
 | `absorption_vdf` | complete | 1/1 | - |
 | `absval` | complete | 6/6 | - |
 | `acos` | complete | 4/4 | - |
@@ -148,6 +144,8 @@ Status is based on exact NodeDef ids. `uncovered` means no variants in that fami
 | `ramp4` | complete | 6/6 | - |
 | `ramplr` | complete | 6/6 | - |
 | `ramptb` | complete | 6/6 | - |
+| `randomcolor` | complete | 2/2 | - |
+| `randomfloat` | complete | 2/2 | - |
 | `range` | complete | 11/11 | - |
 | `reflect` | complete | 1/1 | - |
 | `refract` | complete | 1/1 | - |
@@ -171,6 +169,7 @@ Status is based on exact NodeDef ids. `uncovered` means no variants in that fami
 | `sqrt` | complete | 4/4 | - |
 | `subsurface_bsdf` | complete | 1/1 | - |
 | `subtract` | complete | 16/16 | - |
+| `switch` | complete | 16/16 | - |
 | `surface` | complete | 1/1 | - |
 | `tan` | complete | 4/4 | - |
 | `tangent` | complete | 1/1 | - |
@@ -178,6 +177,7 @@ Status is based on exact NodeDef ids. `uncovered` means no variants in that fami
 | `tiledcircles` | complete | 1/1 | - |
 | `tiledcloverleafs` | complete | 1/1 | - |
 | `tiledhexagons` | complete | 1/1 | - |
+| `tiledimage` | complete | 6/6 | - |
 | `time` | complete | 1/1 | - |
 | `transformmatrix` | complete | 4/4 | - |
 | `transformnormal` | complete | 1/1 | - |

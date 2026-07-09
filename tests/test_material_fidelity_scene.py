@@ -270,8 +270,9 @@ def test_material_fidelity_conversion_preserves_nontrivial_graph_semantics() -> 
     switch = (
         MATERIAL_FIDELITY / "nodes" / "conditional" / "switch.usda"
     ).read_text(encoding="utf-8")
-    assert "inputs:which.connect = </Looks/switch/NG_switch/convert_1.outputs:out>" in switch
-    assert 'uniform token info:id = "ND_convert_integer_float"' in switch
+    assert "float inputs:which.connect = </Looks/switch/selector_float.outputs:out>" in switch
+    assert 'uniform token info:id = "ND_floor_float"' in switch
+    assert "color3f inputs:in10 = (0.2500, 0.8500, 0.4500)" in switch
 
     texture_opacity = (
         MATERIAL_FIDELITY
