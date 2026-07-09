@@ -1,0 +1,107 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_fractal3d_vector4FA with its MaterialX default inputs: amplitude, octaves, lacunarity, diminish, and position defaulting to object-space P. fractal3d should render a non-uniform 2D slice through a zero-centered 3D fractal noise field using the default octave stack rather than a flat color. The signed vector4 output is clamped and remapped from [-1, 1] to [0, 1] per component for display, then packed into RGB as (x, y, z + w); the packed blue channel may saturate where both source channels are high. This is a visual coverage fixture for the typed NodeDef variant, so the important result is visible procedural variation in the packed RGB channels."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "fractal3d_vector4FA" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/fractal3d/fractal3d_vector4FA.mtlx"
+                string sourceMaterial = "M_fractal3d_vector4FA"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/fractal3d_vector4FA/surface.outputs:out>
+        token outputs:surface.connect = </Looks/fractal3d_vector4FA/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_fractal3d_vector4FA"
+            float4 outputs:out
+        }
+        def Shader "display_remap"
+        {
+            uniform token info:id = "ND_range_vector4"
+            bool inputs:doclamp = 1
+            float4 inputs:in.connect = </Looks/fractal3d_vector4FA/node_under_test.outputs:out>
+            float4 inputs:inlow = (-1, -1, -1, -1)
+            float4 inputs:inhigh = (1, 1, 1, 1)
+            float4 inputs:outlow = (0, 0, 0, 0)
+            float4 inputs:outhigh = (1, 1, 1, 1)
+            float4 outputs:out
+        }
+        def Shader "display_channels"
+        {
+            uniform token info:id = "ND_separate4_vector4"
+            float4 inputs:in.connect = </Looks/fractal3d_vector4FA/display_remap.outputs:out>
+            float outputs:outx
+            float outputs:outy
+            float outputs:outz
+            float outputs:outw
+        }
+        def Shader "display_blue"
+        {
+            uniform token info:id = "ND_add_float"
+            float inputs:in1.connect = </Looks/fractal3d_vector4FA/display_channels.outputs:outz>
+            float inputs:in2.connect = </Looks/fractal3d_vector4FA/display_channels.outputs:outw>
+            float outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/fractal3d_vector4FA/display_channels.outputs:outx>
+            float inputs:in2.connect = </Looks/fractal3d_vector4FA/display_channels.outputs:outy>
+            float inputs:in3.connect = </Looks/fractal3d_vector4FA/display_blue.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/fractal3d_vector4FA/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/fractal3d_vector4FA/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/fractal3d_vector4FA>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/noise/fractal3d_vector4FA.exr"
+        }
+    }
+}

@@ -3195,9 +3195,9 @@
       "release": "reference-data-20260709T043951Z-efb3b910-64fb81bd"
     },
     "material-fidelity/nodes/noise": {
-      "archive": "material-fidelity--nodes--noise--aa6cb31f8830.zip",
-      "archive_sha256": "dca29112b171923df2b07f6d0026a33b220d10c283d54e205e75dc7416e59138",
-      "archive_size": 40983554,
+      "archive": "material-fidelity--nodes--noise--13dd91552804.zip",
+      "archive_sha256": "0e79defc8da170798e5ce7e76c91c602bec06d3b532b633e106396352aa81bbc",
+      "archive_size": 54503594,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/noise/cellnoise2d.exr",
@@ -3260,6 +3260,21 @@
           "size": 809129
         },
         {
+          "path": "material-fidelity/reference/nodes/noise/fractal2d_color3FA.exr",
+          "sha256": "43e7b4241ba9d6e5d5d9250c545103b650e26ab55fe169805aa3267c7af2c920",
+          "size": 807381
+        },
+        {
+          "path": "material-fidelity/reference/nodes/noise/fractal2d_color4.exr",
+          "sha256": "6ad7215c9dbe05620225fa3f5908b9e7da4d66fe35a0025d0c6e43950d50e72d",
+          "size": 807202
+        },
+        {
+          "path": "material-fidelity/reference/nodes/noise/fractal2d_color4FA.exr",
+          "sha256": "6ad7215c9dbe05620225fa3f5908b9e7da4d66fe35a0025d0c6e43950d50e72d",
+          "size": 807202
+        },
+        {
           "path": "material-fidelity/reference/nodes/noise/fractal2d_defaults.exr",
           "sha256": "aef6457ce4abcacae0f460583ed73d41444baf8343e7dd8d8452dc7479c352fb",
           "size": 551114
@@ -3300,6 +3315,36 @@
           "size": 551132
         },
         {
+          "path": "material-fidelity/reference/nodes/noise/fractal2d_vector2.exr",
+          "sha256": "b1eb6a078ede3f36eb850c0ee492ed9036df6bdbc15d64b7717a5cf29e011100",
+          "size": 550789
+        },
+        {
+          "path": "material-fidelity/reference/nodes/noise/fractal2d_vector2FA.exr",
+          "sha256": "b1eb6a078ede3f36eb850c0ee492ed9036df6bdbc15d64b7717a5cf29e011100",
+          "size": 550789
+        },
+        {
+          "path": "material-fidelity/reference/nodes/noise/fractal2d_vector3.exr",
+          "sha256": "43e7b4241ba9d6e5d5d9250c545103b650e26ab55fe169805aa3267c7af2c920",
+          "size": 807381
+        },
+        {
+          "path": "material-fidelity/reference/nodes/noise/fractal2d_vector3FA.exr",
+          "sha256": "43e7b4241ba9d6e5d5d9250c545103b650e26ab55fe169805aa3267c7af2c920",
+          "size": 807381
+        },
+        {
+          "path": "material-fidelity/reference/nodes/noise/fractal2d_vector4.exr",
+          "sha256": "6ad7215c9dbe05620225fa3f5908b9e7da4d66fe35a0025d0c6e43950d50e72d",
+          "size": 807202
+        },
+        {
+          "path": "material-fidelity/reference/nodes/noise/fractal2d_vector4FA.exr",
+          "sha256": "6ad7215c9dbe05620225fa3f5908b9e7da4d66fe35a0025d0c6e43950d50e72d",
+          "size": 807202
+        },
+        {
           "path": "material-fidelity/reference/nodes/noise/fractal3d.exr",
           "sha256": "60620a7331d3c94d7c261e185d0090ce4b6cda0c1c302debd0bb08e19b161410",
           "size": 551110
@@ -3308,6 +3353,21 @@
           "path": "material-fidelity/reference/nodes/noise/fractal3d_color.exr",
           "sha256": "d2eb6dd6c62216d38b3b5b4dac38128e8993d2a2833528f2785e24643c36c8cf",
           "size": 809203
+        },
+        {
+          "path": "material-fidelity/reference/nodes/noise/fractal3d_color3FA.exr",
+          "sha256": "71466902e473bb7717aa6318a09fe4767ad6a7faa9f352aa5720ef39d894365b",
+          "size": 808937
+        },
+        {
+          "path": "material-fidelity/reference/nodes/noise/fractal3d_color4.exr",
+          "sha256": "111f0ae53f011f30a11e16ff06b8cc5fa08d3e8a8d7d6c3d72c087527edadfd9",
+          "size": 808830
+        },
+        {
+          "path": "material-fidelity/reference/nodes/noise/fractal3d_color4FA.exr",
+          "sha256": "111f0ae53f011f30a11e16ff06b8cc5fa08d3e8a8d7d6c3d72c087527edadfd9",
+          "size": 808830
         },
         {
           "path": "material-fidelity/reference/nodes/noise/fractal3d_defaults.exr",
@@ -3348,6 +3408,36 @@
           "path": "material-fidelity/reference/nodes/noise/fractal3d_omit_position.exr",
           "sha256": "2372b2ae179b80bb70aebec7a7b88e50af76cb0462fae112f404910bd8bd9003",
           "size": 549454
+        },
+        {
+          "path": "material-fidelity/reference/nodes/noise/fractal3d_vector2.exr",
+          "sha256": "67254bed470ed7b6a1783be1c22c31bf675e02de0dc94c9bc6173e4ca048ee54",
+          "size": 550894
+        },
+        {
+          "path": "material-fidelity/reference/nodes/noise/fractal3d_vector2FA.exr",
+          "sha256": "67254bed470ed7b6a1783be1c22c31bf675e02de0dc94c9bc6173e4ca048ee54",
+          "size": 550894
+        },
+        {
+          "path": "material-fidelity/reference/nodes/noise/fractal3d_vector3.exr",
+          "sha256": "71466902e473bb7717aa6318a09fe4767ad6a7faa9f352aa5720ef39d894365b",
+          "size": 808937
+        },
+        {
+          "path": "material-fidelity/reference/nodes/noise/fractal3d_vector3FA.exr",
+          "sha256": "71466902e473bb7717aa6318a09fe4767ad6a7faa9f352aa5720ef39d894365b",
+          "size": 808937
+        },
+        {
+          "path": "material-fidelity/reference/nodes/noise/fractal3d_vector4.exr",
+          "sha256": "111f0ae53f011f30a11e16ff06b8cc5fa08d3e8a8d7d6c3d72c087527edadfd9",
+          "size": 808830
+        },
+        {
+          "path": "material-fidelity/reference/nodes/noise/fractal3d_vector4FA.exr",
+          "sha256": "111f0ae53f011f30a11e16ff06b8cc5fa08d3e8a8d7d6c3d72c087527edadfd9",
+          "size": 808830
         },
         {
           "path": "material-fidelity/reference/nodes/noise/noise2d.exr",
@@ -3710,7 +3800,7 @@
           "size": 303330
         }
       ],
-      "release": "reference-data-20260708T071504Z-c94df4a9-02d9f075"
+      "release": "reference-data-20260709T060213Z-9ab66809-99770f84"
     },
     "material-fidelity/nodes/npr": {
       "archive": "material-fidelity--nodes--npr--8ff692e57339.zip",

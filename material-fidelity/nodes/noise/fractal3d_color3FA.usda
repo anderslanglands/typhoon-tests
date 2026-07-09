@@ -1,0 +1,83 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_fractal3d_color3FA with its MaterialX default inputs: amplitude, octaves, lacunarity, diminish, and position defaulting to object-space P. fractal3d should render a non-uniform 2D slice through a zero-centered 3D fractal noise field using the default octave stack rather than a flat color. The signed color3 output is clamped and remapped from [-1, 1] to [0, 1] for display, then connected to uniform_edf.color. This is a visual coverage fixture for the typed NodeDef variant, so the important result is visible procedural variation in the packed RGB channels."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "fractal3d_color3FA" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/fractal3d/fractal3d_color3FA.mtlx"
+                string sourceMaterial = "M_fractal3d_color3FA"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/fractal3d_color3FA/surface.outputs:out>
+        token outputs:surface.connect = </Looks/fractal3d_color3FA/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_fractal3d_color3FA"
+            color3f outputs:out
+        }
+        def Shader "display_remap"
+        {
+            uniform token info:id = "ND_range_color3"
+            bool inputs:doclamp = 1
+            color3f inputs:in.connect = </Looks/fractal3d_color3FA/node_under_test.outputs:out>
+            color3f inputs:inlow = (-1, -1, -1)
+            color3f inputs:inhigh = (1, 1, 1)
+            color3f inputs:outlow = (0, 0, 0)
+            color3f inputs:outhigh = (1, 1, 1)
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/fractal3d_color3FA/display_remap.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/fractal3d_color3FA/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/fractal3d_color3FA>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/noise/fractal3d_color3FA.exr"
+        }
+    }
+}
