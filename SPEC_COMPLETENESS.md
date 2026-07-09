@@ -1,156 +1,206 @@
 # MaterialX in USD Specification Test Completeness
 
-This report statically compares every current `ND_*` definition from the checked-out MaterialX `stdlib`, `pbrlib`, and `nprlib` libraries against every USD fixture in `material-fidelity`, including connected and directly authored inputs.
+This report statically compares current `ND_*` definitions from the checked-out MaterialX `stdlib`, `pbrlib`, and `nprlib` libraries against every USD fixture in `material-fidelity`, restricted to node families present in the AOUSD MaterialX specification under `~/code/materials-node-definitions/specification`.
 
-## Executive summary
+## Summary
 
-The suite is deep in a few areas, but its overall node coverage is incomplete:
+- AOUSD MaterialX node families: 174
+- Typed NodeDefs in those families: 744
+- Covered NodeDefs: 702/744 (94.4%)
+- Uncovered families: 16
+- Partial families: 6
+- Complete families: 152
+- Omitted local MaterialX-library families absent from the AOUSD MaterialX spec: `ramp`, `ramp_gradient`, `surfacematerial`, `volumematerial`
+- Fixture-referenced omitted local families: `ramp`, `ramp_gradient`
+- USD fixtures also reference 2 `ND_*` ids outside this MaterialX library set: `ND_open_pbr_surface_surfaceshader`, `ND_standard_surface_surfaceshader`
+- Closure helper families can still be over-counted when a NodeDef appears only as support inside another fixture; the static scan counts exact NodeDef ids but does not prove every helper-family use has a dedicated behavioral assertion.
 
-- 178 MaterialX node families have concrete `ND_*` definitions in the current checked-out libraries.
-- Those families comprise 748 typed NodeDefs.
-- 379 of those 748 exact NodeDefs appear in the tests: 50.7%.
-- At the family level:
+Status is based on exact NodeDef ids. `uncovered` means no variants in that family appear in the fixtures, `partial` means some but not all variants appear, and `complete` means every variant appears at least once. This is a static coverage view, not a reference-readiness audit; newly added fixtures can be counted before their reference renders exist. It is also an upper bound on meaningful coverage because incidental helper nodes in larger graphs count as covered.
 
-  - 25 families are completely untested.
-  - 57 have only some typed overloads tested.
-  - 96 have every specified overload represented.
+## Coverage Table
 
-These are optimistic numbers: any occurrence counted, including incidental use in a showcase graph. Direct, targeted coverage is lower.
+| Node family | Status | Coverage | Uncovered type variants |
+|---|---|---:|---|
+| `chiang_hair_absorption_from_color` | uncovered | 0/1 | `ND_chiang_hair_absorption_from_color` |
+| `chiang_hair_roughness` | uncovered | 0/1 | `ND_chiang_hair_roughness` |
+| `conductor_bsdf` | uncovered | 0/1 | `ND_conductor_bsdf` |
+| `conical_edf` | uncovered | 0/1 | `ND_conical_edf` |
+| `deon_hair_absorption_from_melanin` | uncovered | 0/1 | `ND_deon_hair_absorption_from_melanin` |
+| `flake2d` | uncovered | 0/1 | `ND_flake2d` |
+| `flake3d` | uncovered | 0/1 | `ND_flake3d` |
+| `generalized_schlick_bsdf` | uncovered | 0/1 | `ND_generalized_schlick_bsdf` |
+| `generalized_schlick_edf` | uncovered | 0/1 | `ND_generalized_schlick_edf` |
+| `glossiness_anisotropy` | uncovered | 0/1 | `ND_glossiness_anisotropy` |
+| `gooch_shade` | uncovered | 0/1 | `ND_gooch_shade` |
+| `measured_edf` | uncovered | 0/1 | `ND_measured_edf` |
+| `roughness_anisotropy` | uncovered | 0/1 | `ND_roughness_anisotropy` |
+| `roughness_dual` | uncovered | 0/1 | `ND_roughness_dual` |
+| `surface_unlit` | uncovered | 0/1 | `ND_surface_unlit` |
+| `triplanarprojection` | uncovered | 0/6 | `color3`, `color4`, `float`, `vector2`, `vector3`, `vector4` |
+| `displacement` | partial | 1/2 | `vector3` |
+| `hextiledimage` | partial | 1/2 | `color4` |
+| `randomcolor` | partial | 1/2 | `integer` |
+| `randomfloat` | partial | 1/2 | `integer` |
+| `switch` | partial | 2/16 | `color4`, `color4I`, `float`, `floatI`, `matrix33`, `matrix33I`, `matrix44`, `matrix44I`, `vector2`, `vector2I`, `vector3`, `vector3I`, `vector4`, `vector4I` |
+| `tiledimage` | partial | 3/6 | `color4`, `vector2`, `vector4` |
+| `absorption_vdf` | complete | 1/1 | - |
+| `absval` | complete | 6/6 | - |
+| `acos` | complete | 4/4 | - |
+| `add` | complete | 19/19 | - |
+| `and` | complete | 1/1 | - |
+| `anisotropic_vdf` | complete | 1/1 | - |
+| `artistic_ior` | complete | 1/1 | - |
+| `asin` | complete | 4/4 | - |
+| `atan2` | complete | 4/4 | - |
+| `bitangent` | complete | 1/1 | - |
+| `blackbody` | complete | 1/1 | - |
+| `blur` | complete | 6/6 | - |
+| `bump` | complete | 1/1 | - |
+| `burley_diffuse_bsdf` | complete | 1/1 | - |
+| `burn` | complete | 3/3 | - |
+| `ceil` | complete | 7/7 | - |
+| `cellnoise2d` | complete | 1/1 | - |
+| `cellnoise3d` | complete | 1/1 | - |
+| `checkerboard` | complete | 1/1 | - |
+| `chiang_hair_bsdf` | complete | 1/1 | - |
+| `circle` | complete | 1/1 | - |
+| `clamp` | complete | 11/11 | - |
+| `cloverleaf` | complete | 1/1 | - |
+| `colorcorrect` | complete | 2/2 | - |
+| `combine2` | complete | 4/4 | - |
+| `combine3` | complete | 2/2 | - |
+| `combine4` | complete | 2/2 | - |
+| `constant` | complete | 12/12 | - |
+| `contrast` | complete | 11/11 | - |
+| `convert` | complete | 47/47 | - |
+| `cos` | complete | 4/4 | - |
+| `creatematrix` | complete | 3/3 | - |
+| `crosshatch` | complete | 1/1 | - |
+| `crossproduct` | complete | 1/1 | - |
+| `determinant` | complete | 2/2 | - |
+| `dielectric_bsdf` | complete | 1/1 | - |
+| `difference` | complete | 3/3 | - |
+| `disjointover` | complete | 1/1 | - |
+| `distance` | complete | 3/3 | - |
+| `divide` | complete | 13/13 | - |
+| `dodge` | complete | 3/3 | - |
+| `dot` | complete | 16/16 | - |
+| `dotproduct` | complete | 3/3 | - |
+| `exp` | complete | 4/4 | - |
+| `extract` | complete | 7/7 | - |
+| `facingratio` | complete | 1/1 | - |
+| `floor` | complete | 7/7 | - |
+| `fract` | complete | 6/6 | - |
+| `fractal2d` | complete | 11/11 | - |
+| `fractal3d` | complete | 11/11 | - |
+| `frame` | complete | 1/1 | - |
+| `geomcolor` | complete | 3/3 | - |
+| `geompropvalue` | complete | 8/8 | - |
+| `geompropvalueuniform` | complete | 2/2 | - |
+| `grid` | complete | 1/1 | - |
+| `heighttonormal` | complete | 1/1 | - |
+| `hexagon` | complete | 1/1 | - |
+| `hextilednormalmap` | complete | 1/1 | - |
+| `hsvadjust` | complete | 2/2 | - |
+| `hsvtorgb` | complete | 2/2 | - |
+| `ifequal` | complete | 30/30 | - |
+| `ifgreater` | complete | 20/20 | - |
+| `ifgreatereq` | complete | 20/20 | - |
+| `image` | complete | 6/6 | - |
+| `in` | complete | 1/1 | - |
+| `inside` | complete | 3/3 | - |
+| `invert` | complete | 11/11 | - |
+| `invertmatrix` | complete | 2/2 | - |
+| `latlongimage` | complete | 1/1 | - |
+| `layer` | complete | 2/2 | - |
+| `luminance` | complete | 2/2 | - |
+| `light` | complete | 1/1 | - |
+| `line` | complete | 1/1 | - |
+| `ln` | complete | 4/4 | - |
+| `magnitude` | complete | 3/3 | - |
+| `mask` | complete | 1/1 | - |
+| `matte` | complete | 1/1 | - |
+| `max` | complete | 11/11 | - |
+| `maxcomponent` | complete | 5/5 | - |
+| `min` | complete | 11/11 | - |
+| `mincomponent` | complete | 5/5 | - |
+| `minus` | complete | 3/3 | - |
+| `mix` | complete | 17/17 | - |
+| `modulo` | complete | 11/11 | - |
+| `multiply` | complete | 19/19 | - |
+| `normal` | complete | 1/1 | - |
+| `normalize` | complete | 3/3 | - |
+| `noise2d` | complete | 11/11 | - |
+| `noise3d` | complete | 11/11 | - |
+| `normalmap` | complete | 2/2 | - |
+| `not` | complete | 1/1 | - |
+| `or` | complete | 1/1 | - |
+| `oren_nayar_diffuse_bsdf` | complete | 1/1 | - |
+| `out` | complete | 1/1 | - |
+| `outside` | complete | 3/3 | - |
+| `over` | complete | 1/1 | - |
+| `overlay` | complete | 3/3 | - |
+| `place2d` | complete | 1/1 | - |
+| `plus` | complete | 3/3 | - |
+| `position` | complete | 1/1 | - |
+| `power` | complete | 11/11 | - |
+| `premult` | complete | 1/1 | - |
+| `ramp4` | complete | 6/6 | - |
+| `ramplr` | complete | 6/6 | - |
+| `ramptb` | complete | 6/6 | - |
+| `range` | complete | 11/11 | - |
+| `reflect` | complete | 1/1 | - |
+| `refract` | complete | 1/1 | - |
+| `remap` | complete | 11/11 | - |
+| `rgbtohsv` | complete | 2/2 | - |
+| `rotate2d` | complete | 1/1 | - |
+| `rotate3d` | complete | 1/1 | - |
+| `round` | complete | 7/7 | - |
+| `safepower` | complete | 11/11 | - |
+| `saturate` | complete | 2/2 | - |
+| `screen` | complete | 3/3 | - |
+| `separate2` | complete | 1/1 | - |
+| `separate3` | complete | 2/2 | - |
+| `separate4` | complete | 2/2 | - |
+| `sheen_bsdf` | complete | 1/1 | - |
+| `sign` | complete | 6/6 | - |
+| `sin` | complete | 4/4 | - |
+| `splitlr` | complete | 6/6 | - |
+| `splittb` | complete | 6/6 | - |
+| `smoothstep` | complete | 11/11 | - |
+| `sqrt` | complete | 4/4 | - |
+| `subsurface_bsdf` | complete | 1/1 | - |
+| `subtract` | complete | 16/16 | - |
+| `surface` | complete | 1/1 | - |
+| `tan` | complete | 4/4 | - |
+| `tangent` | complete | 1/1 | - |
+| `texcoord` | complete | 2/2 | - |
+| `tiledcircles` | complete | 1/1 | - |
+| `tiledcloverleafs` | complete | 1/1 | - |
+| `tiledhexagons` | complete | 1/1 | - |
+| `time` | complete | 1/1 | - |
+| `transformmatrix` | complete | 4/4 | - |
+| `transformnormal` | complete | 1/1 | - |
+| `transformpoint` | complete | 1/1 | - |
+| `transformvector` | complete | 1/1 | - |
+| `translucent_bsdf` | complete | 1/1 | - |
+| `transpose` | complete | 2/2 | - |
+| `trianglewave` | complete | 1/1 | - |
+| `unifiednoise2d` | complete | 1/1 | - |
+| `unifiednoise3d` | complete | 1/1 | - |
+| `uniform_edf` | complete | 1/1 | - |
+| `unpremult` | complete | 1/1 | - |
+| `viewdirection` | complete | 1/1 | - |
+| `volume` | complete | 1/1 | - |
+| `worleynoise2d` | complete | 3/3 | - |
+| `worleynoise3d` | complete | 3/3 | - |
+| `xor` | complete | 1/1 | - |
 
-## Completely untested nodes
+## Methodology
 
-### PBR closures and constructors
-
-This is the largest and highest-priority gap:
-
-- `conductor_bsdf`
-- `generalized_schlick_bsdf`
-- `chiang_hair_roughness`
-- `chiang_hair_absorption_from_color`
-- `deon_hair_absorption_from_melanin`
-- `conical_edf`
-- `generalized_schlick_edf`
-- `measured_edf`
-- `glossiness_anisotropy`
-- `roughness_anisotropy`
-- `roughness_dual`
-- `volume`
-- `light`
-
-Direct fixtures now cover the core diffuse/transmission/sheen/hair BSDFs, `dielectric_bsdf`, `absorption_vdf`, `anisotropic_vdf`, and both `layer` NodeDefs. The remaining lower-level closure and constructor NodeDefs still lack direct coverage, and the independent `opacity` and `thin_walled` behavior of `ND_surface` is not yet tested.
-
-### Texture, convolution, shader, and material nodes
-
-- `triplanarprojection` — all six typed NodeDefs absent
-- `displacement` — both typed NodeDefs absent
-- `surface_unlit`
-- `surfacematerial`
-- `volumematerial`
-
-`triplanarprojection` is particularly significant: none of its three texture axes, per-axis layers, position/normal blending, `upaxis`, filtering, animation controls, or fallback behavior is exercised.
-`latlongimage` now has a targeted fixture that maps the suite dome HDR onto the plane through the `viewdir` input.
-`blur` now has direct fixtures for all six typed variants, using the image-format PNG checker/grid texture on the plane.
-
-### Geometry, adjustment, NPR, and helper nodes
-
-- `hsvadjust`
-- `facingratio`
-- `gooch_shade`
-- `flake2d`
-- `flake3d`
-- `mincomponent`
-- `maxcomponent`
-
-`geomcolor`, `geompropvalue`, and `geompropvalueuniform` now have direct plane fixtures for every typed overload, using typed custom primvars instead of USD display-color primvars. The uniform string fixture reads a scalar `primvars:testString = "clamp"` value and uses it as the image `uaddressmode` while sampling plane UVs offset by 0.5, and the filename fixture reads a scalar asset primvar to drive the image file input.
-
-## Poorly tested nodes
-
-| Area | Current coverage | Important omissions |
-|---|---:|---|
-| `image` | 6/6 overloads | All typed outputs now appear, and there is a targeted `<UDIM>` fixture. There is still no meaningful layer test, unreadable/missing file fallback, channel expansion/truncation, UVTILE/interface/host substitution, or animated sequence boundary behavior. |
-| `tiledimage` | 3/6 | No color4/vector2/vector4. Only a basic targeted tiling probe; no strong real-world-size, fallback, filtering, or sequence coverage. |
-| `hextiledimage` | 1/2 | Color3 is tested unusually well, but color4 is wholly absent. |
-| `heighttonormal` | 1/1 | `in` and `scale` are exercised, but no explicit custom `texcoord`. |
-| `switch` | 2/16 | Only color3 output, with float and integer selectors. Inputs 6–10 are never authored; all float, color4, vector, and matrix forms are absent. |
-| `ifequal` | 2/30 | Almost all result and comparison-type combinations are absent. |
-| `ifgreater` | 4/20 | Sparse overload coverage. |
-| `ifgreatereq` | 2/20 | Sparse overload coverage. |
-| `mix` | 12/17 | All float/color/vector value variants and the surfaceshader variant now have direct EXR fixtures; the remaining gaps are displacementshader, volumeshader, BSDF, EDF, and VDF. |
-| `range`, `remap`, `smoothstep` | 3/11 each | Good degenerate float/vector4 cases, but most color/vector and float-amount overloads absent. |
-| noise families | usually 1/7 | Excellent parameter/default/large-coordinate tests for the principal float or color form, but most output types remain absent. |
-| `ramp4` | 1/6 | Only one result type. |
-| `ramplr`, `ramptb`, `splitlr`, `splittb` | 2/6 each | Mostly float/color3; other vector/color forms absent. |
-| `normalize` | 1/3 | Only vector3; color3/vector2 absent. Zero-vector fixture is also a declared validation failure. |
-| transcendental math | commonly 1/4 | `sin`, `cos`, `tan`, `exp`, `sqrt`, and `atan2` omit most vector forms. |
-| adjustment nodes | commonly 1/2 or 1/11 | Usually color3 or float only; color4/vector and float-amount variants are sparse. |
-| `dot` | 5/16 | Current local MaterialX libraries define typed `dot` NodeDefs; only float, integer, boolean, color3, and vector3 appear in fixtures. |
-
-The previously missing compositing families now all have direct fixtures. `premult`, `unpremult`, `plus`, `minus`, `difference`, `burn`, `dodge`, `screen`, `overlay`, `disjointover`, `in`, `mask`, `matte`, `out`, `over`, `inside`, and `outside` are fully covered at the NodeDef level. `mix` has direct EXR fixtures for every float/color/vector value variant and the surfaceshader variant, but remains partial because displacement, volume, and closure variants need separate structural fixtures.
-
-The basic arithmetic and constant families are now fully covered at the NodeDef level: `add` 19/19, `multiply` 19/19, `divide` 13/13, `subtract` 16/16, and `constant` 12/12. These fixtures are direct tests rather than incidental graph usage: value-output variants use minimal literal-input graphs, vector4/color4/matrix outputs are packed into RGB so every component contributes to the rendered pixels, and each layer has `customLayerData.doc` explaining the expected value. The generic `constant` fixture has been renamed to the typed `constant_color3`, and `constant_string` now uses the same shifted-grid image sampling graph as `geompropvalueuniform_string`, with `ND_constant_string` outputting the literal string `"clamp"` into `ND_image_color3.uaddressmode`. The `divide_degenerate_zero` fixture remains a targeted UV-driven zero-divisor case rather than a flat numeric color test.
-
-### Specific texture-edge gaps
-
-The `image` tests cover all four U/V address modes, `closest`/`linear`, and a targeted `<UDIM>` substitution case with standard `1001`, `1002`, `1011`, and `1012` tile assets, which is good. They do not cover:
-
-- `cubic` filtering.
-- Different U and V address modes in the same test.
-- Named layers or absent layers.
-- Failed URI resolution and the `default` result.
-- Output channel truncation and padding rules.
-- `<UVTILE>`, interface-token, host-attribute, `{frame}`, or padded-frame substitution.
-- `frameoffset` with a real sequence.
-- `clamp`, `periodic`, and `mirror` as `frameendaction`.
-
-One fixture authors `framerange = "1,1"`, whereas the specification defines the syntax as `"minframe-maxframe"`, such as `"10-99"`. That fixture therefore does not convincingly validate conforming frame-range behavior.
-
-### Math edge cases still worth adding
-
-Existing degenerate cases are a strong part of the suite: inverted bounds, invalid inverse-trig inputs, nonpositive log inputs, negative square roots, zero divisors, zero normalization, and negative-base fractional powers all appear.
-
-Remaining useful cases include:
-
-- `refract`: total internal reflection, grazing incidence, `ior` equal to 1, zero/negative IOR policy, non-normalized inputs.
-- `reflect`: non-normalized and zero normals.
-- Matrix inverse: singular and nearly singular matrices.
-- `atan2`: both inputs zero and axis/quadrant boundaries.
-- `modulo`: negative operands and zero divisor across types.
-- `power`/`safepower`: zero-to-zero, zero with negative exponent, infinities/NaNs if the implementation exposes them.
-- Vector/color versions of the already-tested scalar degeneracies.
-
-## Former No-NodeDef Notes
-
-The previous pass listed several headings as lacking generated NodeDefs. In the current checked-out MaterialX libraries, those families now have concrete `ND_*` definitions:
-
-- `dielectric_bsdf` is covered directly.
-- `dot` is partially covered.
-- `time` is covered directly.
-- `conductor_bsdf`, `generalized_schlick_bsdf`, `flake2d`, `flake3d`, `mincomponent`, and `maxcomponent` are still completely untested.
-
-This section is retained to make that library/spec drift explicit. The current static counts above are based on the checked-out libraries, not the older no-NodeDef classification.
-
-## Test-suite quality observations
-
-The tests are golden-image comparisons. The suite renders each fixture and compares it with a reference image. This is useful for renderer fidelity but has limitations:
-
-- It does not directly assert NodeDef identity, input types, uniformity, defaults, allowed tokens, output types, or validation behavior.
-- A node can be present but visually inert, especially in large surface/showcase graphs.
-- The generator already acknowledges this risk and overrides several upstream fixtures whose named controls were otherwise inert.
-- Some behavior is deliberately excluded because a beauty render cannot observe it, including glTF occlusion and dispersion.
-- There are 29 accepted source-validation failures, including `switch` and zero-vector normalization cases.
-
-## Recommended priority
-
-1. Remaining PBR EDF/helper constructors, `volume`/`light`, and `surface`/`volume` constructor behavior.
-2. `triplanarprojection` and image fallback/layer/UVTILE/sequence tests.
-3. Conditional and remaining non-arithmetic operator overload coverage, especially `switch`, `ifequal`, `mix`, and matrix-specific helpers.
-4. Remaining component helper, adjustment, and NPR nodes.
-5. Structural conformance tests alongside image comparisons, so USD typing/default/token errors cannot pass merely because the render looks plausible.
-
-## Methodology and interpretation
-
-- NodeDef inputs were extracted from the current checked-out `stdlib_defs.mtlx`, `pbrlib_defs.mtlx`, and `nprlib_defs.mtlx` files.
-- Test usage was extracted from all `.usda` files below `material-fidelity` by matching exact `info:id` values and both authored and connected `inputs:*` properties.
-- Exact typed NodeDef coverage and logical node-family coverage were calculated separately.
-- Any occurrence was counted, even if incidental to a larger graph. Consequently, the reported coverage is an upper bound on meaningful targeted coverage.
-- This was a static completeness review; it did not execute the render suite or assess current pass/fail results.
+- AOUSD MaterialX node families were extracted from `###`-level code headings in `MaterialX*.md` files under `~/code/materials-node-definitions/specification`.
+- NodeDefs were read from the current checked-out MaterialX `stdlib`, `pbrlib`, and `nprlib` library files, then filtered to the AOUSD family set above.
+- Fixture usage was extracted from all `.usda` files below `material-fidelity` by matching exact `uniform token info:id = "ND_*"` values.
+- Variant labels in the table are the suffix after `ND_<family>_`; unsuffixed NodeDefs are shown by their full `ND_*` id.
+- Complete rows intentionally show `-` for uncovered variants.
+- This was a static completeness check; it did not execute renders or assess pass/fail results.
