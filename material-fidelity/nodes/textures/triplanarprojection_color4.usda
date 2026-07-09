@@ -1,0 +1,136 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_triplanarprojection_color4 on the shaderball. Object-space position is scaled by 0.75 and used as the projection coordinate, object-space normal drives the triplanar blend, upaxis is Y, blend is 0.25, and closest filtering keeps the projected grid crisp. The X/Y/Z file inputs are axis-tinted RGBA copies of the clear grid texture tagged as srgb_rec709_scene and with authored alpha. The color4 output is packed into RGB as (r, g, b + a), so the image should show the blended axis grid with alpha contributing to blue."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/shaderball.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "triplanarprojection_color4" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/triplanarprojection/triplanarprojection_color4.mtlx"
+                string sourceMaterial = "M_triplanarprojection_color4"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/triplanarprojection_color4/SR_triplanarprojection_color4.outputs:out>
+        token outputs:surface.connect = </Looks/triplanarprojection_color4/SR_triplanarprojection_color4.outputs:out>
+
+        def Shader "SR_triplanarprojection_color4"
+        {
+            uniform token info:id = "ND_standard_surface_surfaceshader"
+            color3f inputs:base_color.connect = </Looks/triplanarprojection_color4/NG_triplanarprojection_color4.outputs:out>
+            float inputs:specular = 0.5
+            float inputs:specular_roughness = 0.4
+            token outputs:out
+        }
+
+        def NodeGraph "NG_triplanarprojection_color4"
+        {
+            color3f outputs:out.connect = </Looks/triplanarprojection_color4/NG_triplanarprojection_color4/display_color.outputs:out>
+
+            def Shader "position"
+            {
+                uniform token info:id = "ND_position_vector3"
+                string inputs:space = "object"
+                float3 outputs:out
+            }
+
+            def Shader "position_scaled"
+            {
+                uniform token info:id = "ND_multiply_vector3"
+                float3 inputs:in1.connect = </Looks/triplanarprojection_color4/NG_triplanarprojection_color4/position.outputs:out>
+                float3 inputs:in2 = (0.75, 0.75, 0.75)
+                float3 outputs:out
+            }
+
+            def Shader "normal"
+            {
+                uniform token info:id = "ND_normal_vector3"
+                string inputs:space = "object"
+                float3 outputs:out
+            }
+
+            def Shader "node_under_test"
+            {
+                uniform token info:id = "ND_triplanarprojection_color4"
+                float inputs:blend = 0.25
+                color4f inputs:default = (1, 0, 1, 1)
+                asset inputs:filex = @../../_assets/Materials/nodes/triplanarprojection/textures/axis_x.png@ (
+                    colorSpace = "srgb_rec709_scene"
+                )
+                asset inputs:filey = @../../_assets/Materials/nodes/triplanarprojection/textures/axis_y.png@ (
+                    colorSpace = "srgb_rec709_scene"
+                )
+                asset inputs:filez = @../../_assets/Materials/nodes/triplanarprojection/textures/axis_z.png@ (
+                    colorSpace = "srgb_rec709_scene"
+                )
+                string inputs:filtertype = "closest"
+                float3 inputs:normal.connect = </Looks/triplanarprojection_color4/NG_triplanarprojection_color4/normal.outputs:out>
+                float3 inputs:position.connect = </Looks/triplanarprojection_color4/NG_triplanarprojection_color4/position_scaled.outputs:out>
+                int inputs:upaxis = 1
+                color4f outputs:out
+            }
+
+            def Shader "display_channels"
+            {
+                uniform token info:id = "ND_separate4_color4"
+                color4f inputs:in.connect = </Looks/triplanarprojection_color4/NG_triplanarprojection_color4/node_under_test.outputs:out>
+                float outputs:outr
+                float outputs:outg
+                float outputs:outb
+                float outputs:outa
+            }
+
+            def Shader "display_blue"
+            {
+                uniform token info:id = "ND_add_float"
+                float inputs:in1.connect = </Looks/triplanarprojection_color4/NG_triplanarprojection_color4/display_channels.outputs:outb>
+                float inputs:in2.connect = </Looks/triplanarprojection_color4/NG_triplanarprojection_color4/display_channels.outputs:outa>
+                float outputs:out
+            }
+
+            def Shader "display_color"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Looks/triplanarprojection_color4/NG_triplanarprojection_color4/display_channels.outputs:outr>
+                float inputs:in2.connect = </Looks/triplanarprojection_color4/NG_triplanarprojection_color4/display_channels.outputs:outg>
+                float inputs:in3.connect = </Looks/triplanarprojection_color4/NG_triplanarprojection_color4/display_blue.outputs:out>
+                color3f outputs:out
+            }
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/triplanarprojection_color4>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/textures/triplanarprojection_color4.exr"
+        }
+    }
+}

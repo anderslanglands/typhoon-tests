@@ -4860,9 +4860,9 @@
       "release": "reference-data-20260709T084716Z-753dd582-457c671c"
     },
     "material-fidelity/nodes/textures": {
-      "archive": "material-fidelity--nodes--textures--b808caa49a6c.zip",
-      "archive_sha256": "13fedc19ce627856ba3d7626af60f4d88b5b22306648716e7666b2c28a40033d",
-      "archive_size": 31547692,
+      "archive": "material-fidelity--nodes--textures--5c510e7e6552.zip",
+      "archive_sha256": "b0cdc844ebd717e759eadb35f71295f9db278f32db772c534241b347e9b3e714",
+      "archive_size": 36263401,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/textures/blur_color3.exr",
@@ -5128,9 +5128,39 @@
           "path": "material-fidelity/reference/nodes/textures/tiledimage_vector4.exr",
           "sha256": "a5403dac43baff6625c9100706d4f8201b583998f82ca9f0ea89bb3bfa116995",
           "size": 556208
+        },
+        {
+          "path": "material-fidelity/reference/nodes/textures/triplanarprojection_color3.exr",
+          "sha256": "b817047cd7fb406472442b5527dee97f76c2baccc1c8eb916604a5f0551c68cf",
+          "size": 785774
+        },
+        {
+          "path": "material-fidelity/reference/nodes/textures/triplanarprojection_color4.exr",
+          "sha256": "08bf29497a4ee9de3f01e2e3807d107e45e3a3e5410acb4a6fa357750398766e",
+          "size": 785780
+        },
+        {
+          "path": "material-fidelity/reference/nodes/textures/triplanarprojection_float.exr",
+          "sha256": "f34461c8998ef3ec6a37a9b9014a8a024b403eba82ab0defc2bd2a74228276cc",
+          "size": 785657
+        },
+        {
+          "path": "material-fidelity/reference/nodes/textures/triplanarprojection_vector2.exr",
+          "sha256": "7e50a5bf11a2688e6b015219877dfcae01a62471d247f67152cca6ded88db797",
+          "size": 785711
+        },
+        {
+          "path": "material-fidelity/reference/nodes/textures/triplanarprojection_vector3.exr",
+          "sha256": "638f6a3dcaf1a4c4230fb6754e5797746811ca7cea2d1168af6f85d9ad14660e",
+          "size": 785712
+        },
+        {
+          "path": "material-fidelity/reference/nodes/textures/triplanarprojection_vector4.exr",
+          "sha256": "cc0ffc3d52c983f1007d669e5ce24d8fb08fb640e0548e12557aecd588586a82",
+          "size": 785739
         }
       ],
-      "release": "reference-data-20260709T214501Z-61106711-e0190ea8"
+      "release": "reference-data-20260709T221648Z-e487ef4a-ae2ef4e8"
     },
     "material-fidelity/showcase/open_pbr_surface": {
       "archive": "material-fidelity--showcase--open_pbr_surface--84cbeaadfa75.zip",
