@@ -1,0 +1,91 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_ifequal_vector2B with value1 = true, value2 = true, in1 = (0.2, 0.7), and in2 = (0.8, 0.1). true == true, so the comparison is true and the node selects in1, so the node result is (0.2, 0.7). The vector2 result is packed into RGB as (x, y, 0), so the expected emitted RGB is (0.2, 0.7, 0)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "ifequal_vector2B" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/ifequal/ifequal_vector2B.mtlx"
+                string sourceMaterial = "M_ifequal_vector2B"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/ifequal_vector2B/surface.outputs:out>
+        token outputs:surface.connect = </Looks/ifequal_vector2B/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_ifequal_vector2B"
+            bool inputs:value1 = true
+            bool inputs:value2 = true
+            float2 inputs:in1 = (0.2, 0.7)
+            float2 inputs:in2 = (0.8, 0.1)
+            float2 outputs:out
+        }
+        def Shader "display_channels"
+        {
+            uniform token info:id = "ND_separate2_vector2"
+            float2 inputs:in.connect = </Looks/ifequal_vector2B/node_under_test.outputs:out>
+            float outputs:outx
+            float outputs:outy
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/ifequal_vector2B/display_channels.outputs:outx>
+            float inputs:in2.connect = </Looks/ifequal_vector2B/display_channels.outputs:outy>
+            float inputs:in3 = 0
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/ifequal_vector2B/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/ifequal_vector2B/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/ifequal_vector2B>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/conditional/ifequal_vector2B.exr"
+        }
+    }
+}

@@ -1,0 +1,149 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_ifequal_matrix44I with value1 = 1, value2 = 2, in1 = ((0.05, 0.05, 0.05, 0.05), (0.05, 0.1, 0.05, 0.05), (0.05, 0.05, 0.05, 0.1), (0.05, 0.1, 0.05, 0.1)), and in2 = ((0.1, 0.05, 0.1, 0.0), (0.05, 0.05, 0.05, 0.05), (0.1, 0.05, 0.1, 0.0), (0.05, 0.05, 0.05, 0.05)). 1 != 2, so the comparison is false and the node selects in2, so the node result is ((0.1, 0.05, 0.1, 0.0), (0.05, 0.05, 0.05, 0.05), (0.1, 0.05, 0.1, 0.0), (0.05, 0.05, 0.05, 0.05)). The matrix44 result rows are added component-wise to a vector4 and then packed as (x, y, z + w), so the expected emitted RGB is (0.3, 0.2, 0.4)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "ifequal_matrix44I" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/ifequal/ifequal_matrix44I.mtlx"
+                string sourceMaterial = "M_ifequal_matrix44I"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/ifequal_matrix44I/surface.outputs:out>
+        token outputs:surface.connect = </Looks/ifequal_matrix44I/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_ifequal_matrix44I"
+            int inputs:value1 = 1
+            int inputs:value2 = 2
+            matrix4d inputs:in1 = ( (0.05, 0.05, 0.05, 0.05), (0.05, 0.1, 0.05, 0.05), (0.05, 0.05, 0.05, 0.1), (0.05, 0.1, 0.05, 0.1) )
+            matrix4d inputs:in2 = ( (0.1, 0.05, 0.1, 0.0), (0.05, 0.05, 0.05, 0.05), (0.1, 0.05, 0.1, 0.0), (0.05, 0.05, 0.05, 0.05) )
+            matrix4d outputs:out
+        }
+        def Shader "display_row0"
+        {
+            uniform token info:id = "ND_extract_matrix44"
+            matrix4d inputs:in.connect = </Looks/ifequal_matrix44I/node_under_test.outputs:out>
+            int inputs:index = 0
+            float4 outputs:out
+        }
+        def Shader "display_row1"
+        {
+            uniform token info:id = "ND_extract_matrix44"
+            matrix4d inputs:in.connect = </Looks/ifequal_matrix44I/node_under_test.outputs:out>
+            int inputs:index = 1
+            float4 outputs:out
+        }
+        def Shader "display_row2"
+        {
+            uniform token info:id = "ND_extract_matrix44"
+            matrix4d inputs:in.connect = </Looks/ifequal_matrix44I/node_under_test.outputs:out>
+            int inputs:index = 2
+            float4 outputs:out
+        }
+        def Shader "display_row3"
+        {
+            uniform token info:id = "ND_extract_matrix44"
+            matrix4d inputs:in.connect = </Looks/ifequal_matrix44I/node_under_test.outputs:out>
+            int inputs:index = 3
+            float4 outputs:out
+        }
+        def Shader "display_row01"
+        {
+            uniform token info:id = "ND_add_vector4"
+            float4 inputs:in1.connect = </Looks/ifequal_matrix44I/display_row0.outputs:out>
+            float4 inputs:in2.connect = </Looks/ifequal_matrix44I/display_row1.outputs:out>
+            float4 outputs:out
+        }
+        def Shader "display_row23"
+        {
+            uniform token info:id = "ND_add_vector4"
+            float4 inputs:in1.connect = </Looks/ifequal_matrix44I/display_row2.outputs:out>
+            float4 inputs:in2.connect = </Looks/ifequal_matrix44I/display_row3.outputs:out>
+            float4 outputs:out
+        }
+        def Shader "display_packed_vector"
+        {
+            uniform token info:id = "ND_add_vector4"
+            float4 inputs:in1.connect = </Looks/ifequal_matrix44I/display_row01.outputs:out>
+            float4 inputs:in2.connect = </Looks/ifequal_matrix44I/display_row23.outputs:out>
+            float4 outputs:out
+        }
+        def Shader "display_channels"
+        {
+            uniform token info:id = "ND_separate4_vector4"
+            float4 inputs:in.connect = </Looks/ifequal_matrix44I/display_packed_vector.outputs:out>
+            float outputs:outx
+            float outputs:outy
+            float outputs:outz
+            float outputs:outw
+        }
+        def Shader "display_blue"
+        {
+            uniform token info:id = "ND_add_float"
+            float inputs:in1.connect = </Looks/ifequal_matrix44I/display_channels.outputs:outz>
+            float inputs:in2.connect = </Looks/ifequal_matrix44I/display_channels.outputs:outw>
+            float outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/ifequal_matrix44I/display_channels.outputs:outx>
+            float inputs:in2.connect = </Looks/ifequal_matrix44I/display_channels.outputs:outy>
+            float inputs:in3.connect = </Looks/ifequal_matrix44I/display_blue.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/ifequal_matrix44I/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/ifequal_matrix44I/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/ifequal_matrix44I>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/conditional/ifequal_matrix44I.exr"
+        }
+    }
+}
