@@ -1,0 +1,75 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_saturate_color3 with in = (0.2000000, 0.4000000, 0.6000000), amount = 0.25, and ACEScg luma coefficients (0.2722287, 0.6740818, 0.0536895). The luminance is 0.3562922; saturate mixes grayscale luminance toward the input by amount, so out = luminance * 0.75 + in * 0.25 = (0.3172192, 0.3672192, 0.4172192). The result is connected directly to uniform_edf.color, so the expected emitted RGB is (0.3172192, 0.3672192, 0.4172192)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "saturate_color3" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/saturate/saturate_color3.mtlx"
+                string sourceMaterial = "M_saturate_color3"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/saturate_color3/surface.outputs:out>
+        token outputs:surface.connect = </Looks/saturate_color3/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_saturate_color3"
+            color3f inputs:in = (0.2000000, 0.4000000, 0.6000000)
+            float inputs:amount = 0.25
+            color3f inputs:lumacoeffs = (0.2722287, 0.6740818, 0.0536895)
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/saturate_color3/node_under_test.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/saturate_color3/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/saturate_color3>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/adjustment/saturate_color3.exr"
+        }
+    }
+}

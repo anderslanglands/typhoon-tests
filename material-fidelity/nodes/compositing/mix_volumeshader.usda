@@ -1,0 +1,117 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_mix_volumeshader by mixing two ND_volume closures at mix = 0.25. The bg volume wraps an absorption VDF with absorption (0.2, 0.4, 0.6); the fg volume wraps an absorption VDF with absorption (0.7, 0.2, 0.1), so the mixed absorption should be approximately (0.325, 0.35, 0.475). The mixed volume closure is connected to the material volume output on the closed shaderball, and a zero-roughness dielectric transmission/reflection surface lets dome-lit rays pass through that volume, so supported renderers should show a tinted transparent ball rather than a flat surface-only result."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/shaderball.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "mix_volumeshader"
+    {
+        token outputs:mtlx:surface.connect = </Looks/mix_volumeshader/surface.outputs:out>
+        token outputs:surface.connect = </Looks/mix_volumeshader/surface.outputs:out>
+        token outputs:mtlx:volume.connect = </Looks/mix_volumeshader/node_under_test.outputs:out>
+        token outputs:volume.connect = </Looks/mix_volumeshader/node_under_test.outputs:out>
+
+        def Shader "specular_bsdf"
+        {
+            uniform token info:id = "ND_dielectric_bsdf"
+            float2 inputs:roughness = (0, 0)
+            string inputs:scatter_mode = "R"
+            token outputs:out
+        }
+
+        def Shader "transmission_bsdf"
+        {
+            uniform token info:id = "ND_dielectric_bsdf"
+            float2 inputs:roughness = (0, 0)
+            string inputs:scatter_mode = "T"
+            token outputs:out
+        }
+
+        def Shader "surface_bsdf"
+        {
+            uniform token info:id = "ND_layer_bsdf"
+            token inputs:top.connect = </Looks/mix_volumeshader/specular_bsdf.outputs:out>
+            token inputs:base.connect = </Looks/mix_volumeshader/transmission_bsdf.outputs:out>
+            token outputs:out
+        }
+
+        def Shader "bg_vdf"
+        {
+            uniform token info:id = "ND_absorption_vdf"
+            float3 inputs:absorption = (0.2, 0.4, 0.6)
+            token outputs:out
+        }
+
+        def Shader "fg_vdf"
+        {
+            uniform token info:id = "ND_absorption_vdf"
+            float3 inputs:absorption = (0.7, 0.2, 0.1)
+            token outputs:out
+        }
+
+        def Shader "bg_volume"
+        {
+            uniform token info:id = "ND_volume"
+            token inputs:vdf.connect = </Looks/mix_volumeshader/bg_vdf.outputs:out>
+            token outputs:out
+        }
+
+        def Shader "fg_volume"
+        {
+            uniform token info:id = "ND_volume"
+            token inputs:vdf.connect = </Looks/mix_volumeshader/fg_vdf.outputs:out>
+            token outputs:out
+        }
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_mix_volumeshader"
+            token inputs:bg.connect = </Looks/mix_volumeshader/bg_volume.outputs:out>
+            token inputs:fg.connect = </Looks/mix_volumeshader/fg_volume.outputs:out>
+            float inputs:mix = 0.25
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:bsdf.connect = </Looks/mix_volumeshader/surface_bsdf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/mix_volumeshader>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 64
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/compositing/mix_volumeshader.exr"
+        }
+    }
+}

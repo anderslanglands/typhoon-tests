@@ -1,0 +1,90 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_mix_displacementshader by mixing two ND_displacement_float closures, bg displacement -0.04 and fg displacement 0.12, at mix = 0.75. The mixed displacement closure is connected to the material displacement output on the shaderball, while a Burley diffuse BSDF provides lit shading. The effective scalar displacement is bg * 0.25 + fg * 0.75 = 0.08, so a renderer that supports this closure path should visibly offset the shaded shaderball rather than producing the undisplaced baseline."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/shaderball.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "mix_displacementshader"
+    {
+        token outputs:mtlx:surface.connect = </Looks/mix_displacementshader/surface.outputs:out>
+        token outputs:surface.connect = </Looks/mix_displacementshader/surface.outputs:out>
+        token outputs:mtlx:displacement.connect = </Looks/mix_displacementshader/node_under_test.outputs:out>
+        token outputs:displacement.connect = </Looks/mix_displacementshader/node_under_test.outputs:out>
+
+        def Shader "bg_displacement"
+        {
+            uniform token info:id = "ND_displacement_float"
+            float inputs:displacement = -0.04
+            float inputs:scale = 1
+            token outputs:out
+        }
+
+        def Shader "fg_displacement"
+        {
+            uniform token info:id = "ND_displacement_float"
+            float inputs:displacement = 0.12
+            float inputs:scale = 1
+            token outputs:out
+        }
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_mix_displacementshader"
+            token inputs:bg.connect = </Looks/mix_displacementshader/bg_displacement.outputs:out>
+            token inputs:fg.connect = </Looks/mix_displacementshader/fg_displacement.outputs:out>
+            float inputs:mix = 0.75
+            token outputs:out
+        }
+
+        def Shader "diffuse_bsdf"
+        {
+            uniform token info:id = "ND_burley_diffuse_bsdf"
+            color3f inputs:color = (0.45, 0.55, 0.7)
+            float inputs:roughness = 0.55
+            float inputs:weight = 1
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:bsdf.connect = </Looks/mix_displacementshader/diffuse_bsdf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/mix_displacementshader>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 64
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/compositing/mix_displacementshader.exr"
+        }
+    }
+}

@@ -1,9 +1,9 @@
 {
   "groups": {
     "material-fidelity/nodes/adjustment": {
-      "archive": "material-fidelity--nodes--adjustment--5ef02d8d734a.zip",
-      "archive_sha256": "033801c1f1cae1d884503eb3746669e7f39624fc3d4b58fdc5cb0d94e583320b",
-      "archive_size": 7804971,
+      "archive": "material-fidelity--nodes--adjustment--003be7d8cb15.zip",
+      "archive_sha256": "09015b64c69d5c5ca35c6725b524e18cb2e3e79aa7224aed33cd285fdd748e36",
+      "archive_size": 6262923,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/adjustment/colorcorrect_color3.exr",
@@ -91,9 +91,14 @@
           "size": 556892
         },
         {
-          "path": "material-fidelity/reference/nodes/adjustment/luminance.exr",
-          "sha256": "db4180044a07d680cf9ac0571b79f2f8fcb9f579869b33925acbcfb5cfc40f27",
-          "size": 807551
+          "path": "material-fidelity/reference/nodes/adjustment/luminance_color3.exr",
+          "sha256": "b215dcd06d69d368b7baaa6c65cd90e418644b94bd34e9ba4e8af5513129407e",
+          "size": 15572
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/luminance_color4.exr",
+          "sha256": "8756d6f988f8419e138265f4b41d63d1a677d61ec30f994dec4b7bc57c276ca4",
+          "size": 17876
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/range_color3.exr",
@@ -251,9 +256,14 @@
           "size": 540511
         },
         {
-          "path": "material-fidelity/reference/nodes/adjustment/saturate.exr",
-          "sha256": "93beb2ab5aa8fe2d7ecae4dfdc12907c74ed83e3ebb0e31b82e31efbd1bde9a6",
-          "size": 808231
+          "path": "material-fidelity/reference/nodes/adjustment/saturate_color3.exr",
+          "sha256": "9402b61d775f14b15d45a5b37d77d873b6c59a9f88684b5c7737a7eacc668c78",
+          "size": 19924
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/saturate_color4.exr",
+          "sha256": "7982859cb0b7ecdce68f21a4fbe0f7704691b3c1f99a5c13c4f514f1a79bc1f3",
+          "size": 19924
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/smoothstep_color3.exr",
@@ -326,7 +336,7 @@
           "size": 17896
         }
       ],
-      "release": "reference-data-20260709T061937Z-3736b7b6-b495867a"
+      "release": "reference-data-20260709T080558Z-b4cb806c-a9712b04"
     },
     "material-fidelity/nodes/application": {
       "archive": "material-fidelity--nodes--application--5ddcd570703c.zip",
@@ -680,9 +690,9 @@
       "release": "reference-data-20260709T052056Z-b4e534f4-584cf703"
     },
     "material-fidelity/nodes/compositing": {
-      "archive": "material-fidelity--nodes--compositing--42e9d0db15bd.zip",
-      "archive_sha256": "515de80c634ec73889f7d9ba1d94823d5f3e9e1057e63715b366fc50d386d89a",
-      "archive_size": 12180762,
+      "archive": "material-fidelity--nodes--compositing--6028e303ec6a.zip",
+      "archive_sha256": "0d177acf265e17ce0ad900d1766f79186cb76743a24e8b1c0e0a30e9dd370877",
+      "archive_size": 13771064,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/compositing/burn.exr",
@@ -790,6 +800,11 @@
           "size": 400293
         },
         {
+          "path": "material-fidelity/reference/nodes/compositing/mix_bsdf.exr",
+          "sha256": "0bb49e0981c23ab66e8d28e949ec613d5b70e3347d2a3b8e38775e5dbea3a39e",
+          "size": 785617
+        },
+        {
           "path": "material-fidelity/reference/nodes/compositing/mix_color3_color3.exr",
           "sha256": "642ac20ce7158302e6a84cb77845f6281776db816485992e703c4725cb92655a",
           "size": 405722
@@ -810,9 +825,19 @@
           "size": 182936
         },
         {
+          "path": "material-fidelity/reference/nodes/compositing/mix_edf.exr",
+          "sha256": "f1e2c94468888d4c4715fc5c2f36e56c1a8800d48a62c0648f49c0b7f5a86e08",
+          "size": 18132
+        },
+        {
           "path": "material-fidelity/reference/nodes/compositing/mix_surfaceshader.exr",
           "sha256": "10f3708cb7333b02dcea655e61d01311d09efc054904400859758a17984b3573",
           "size": 400293
+        },
+        {
+          "path": "material-fidelity/reference/nodes/compositing/mix_vdf.exr",
+          "sha256": "73b6af2a7db5bda9a83a4fc267556461cc0d7b888387208aaeb3fea27c91d7e3",
+          "size": 785981
         },
         {
           "path": "material-fidelity/reference/nodes/compositing/mix_vector2.exr",
@@ -925,7 +950,7 @@
           "size": 154158
         }
       ],
-      "release": "reference-data-20260708T053923Z-91b9902b-e237b0a4"
+      "release": "reference-data-20260709T080558Z-b4cb806c-a9712b04"
     },
     "material-fidelity/nodes/conditional": {
       "archive": "material-fidelity--nodes--conditional--6e30c97f1ea5.zip",

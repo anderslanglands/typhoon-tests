@@ -1,0 +1,103 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_mix_vdf by mixing an absorption VDF, absorption (0.75, 0.35, 0.12), with an anisotropic VDF, absorption (0.15, 0.25, 0.55), scattering (0.08, 0.18, 0.28), anisotropy 0.45, at mix = 0.25. The mixed VDF is placed under zero-roughness transmission and reflection layers so transmitted shaderball pixels should show a blend of the two participating media."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/shaderball.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "mix_vdf"
+    {
+        token outputs:mtlx:surface.connect = </Looks/mix_vdf/surface.outputs:out>
+        token outputs:surface.connect = </Looks/mix_vdf/surface.outputs:out>
+        def Shader "specular_bsdf"
+        {
+            uniform token info:id = "ND_dielectric_bsdf"
+            float2 inputs:roughness = (0, 0)
+            string inputs:scatter_mode = "R"
+            token outputs:out
+        }
+        def Shader "transmission_bsdf"
+        {
+            uniform token info:id = "ND_dielectric_bsdf"
+            float2 inputs:roughness = (0, 0)
+            string inputs:scatter_mode = "T"
+            token outputs:out
+        }
+        def Shader "bg_vdf"
+        {
+            uniform token info:id = "ND_absorption_vdf"
+            float3 inputs:absorption = (0.75, 0.35, 0.12)
+            token outputs:out
+        }
+        def Shader "fg_vdf"
+        {
+            uniform token info:id = "ND_anisotropic_vdf"
+            float3 inputs:absorption = (0.15, 0.25, 0.55)
+            float3 inputs:scattering = (0.08, 0.18, 0.28)
+            float inputs:anisotropy = 0.45
+            token outputs:out
+        }
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_mix_vdf"
+            token inputs:bg.connect = </Looks/mix_vdf/bg_vdf.outputs:out>
+            token inputs:fg.connect = </Looks/mix_vdf/fg_vdf.outputs:out>
+            float inputs:mix = 0.25
+            token outputs:out
+        }
+        def Shader "transmission_layer"
+        {
+            uniform token info:id = "ND_layer_vdf"
+            token inputs:top.connect = </Looks/mix_vdf/transmission_bsdf.outputs:out>
+            token inputs:base.connect = </Looks/mix_vdf/node_under_test.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface_bsdf"
+        {
+            uniform token info:id = "ND_layer_bsdf"
+            token inputs:top.connect = </Looks/mix_vdf/specular_bsdf.outputs:out>
+            token inputs:base.connect = </Looks/mix_vdf/transmission_layer.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:bsdf.connect = </Looks/mix_vdf/surface_bsdf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/mix_vdf>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 64
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/compositing/mix_vdf.exr"
+        }
+    }
+}

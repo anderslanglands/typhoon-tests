@@ -1,0 +1,82 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_mix_bsdf by mixing a warm Burley diffuse BSDF as bg with a cool-tinted dielectric reflection BSDF as fg at mix = 0.35. The mixed BSDF is connected directly to ND_surface.bsdf on the shaderball, so the render should contain the diffuse lighting response from the bg branch plus a visible reflected/specular contribution from the fg branch. This is not a flat RGB case because BSDF output depends on lighting and view, but both closure branches should affect the shaded pixels."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/shaderball.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "mix_bsdf"
+    {
+        token outputs:mtlx:surface.connect = </Looks/mix_bsdf/surface.outputs:out>
+        token outputs:surface.connect = </Looks/mix_bsdf/surface.outputs:out>
+
+        def Shader "bg_bsdf"
+        {
+            uniform token info:id = "ND_burley_diffuse_bsdf"
+            color3f inputs:color = (0.85, 0.16, 0.06)
+            float inputs:roughness = 0.55
+            float inputs:weight = 1
+            token outputs:out
+        }
+
+        def Shader "fg_bsdf"
+        {
+            uniform token info:id = "ND_dielectric_bsdf"
+            color3f inputs:tint = (0.75, 0.9, 1)
+            float2 inputs:roughness = (0.12, 0.12)
+            string inputs:scatter_mode = "R"
+            float inputs:weight = 1
+            token outputs:out
+        }
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_mix_bsdf"
+            token inputs:bg.connect = </Looks/mix_bsdf/bg_bsdf.outputs:out>
+            token inputs:fg.connect = </Looks/mix_bsdf/fg_bsdf.outputs:out>
+            float inputs:mix = 0.35
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:bsdf.connect = </Looks/mix_bsdf/node_under_test.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/mix_bsdf>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 64
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/compositing/mix_bsdf.exr"
+        }
+    }
+}
