@@ -1,0 +1,87 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_splittb_vector3 on the plane using explicit UV0 texcoords and center = 0.5. The node selects bottom value (0.12, 0.18, 0.72) for V below the split and top value (0.80, 0.55, 0.18) for V above the split, with the implementation antialiasing the boundary. The render should show a visible horizontal split on the plane. The vector3 output is converted directly to color3 for display."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "splittb_vector3" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/splittb/splittb_vector3.mtlx"
+                string sourceMaterial = "M_splittb_vector3"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/splittb_vector3/surface.outputs:out>
+        token outputs:surface.connect = </Looks/splittb_vector3/surface.outputs:out>
+
+        def Shader "uv0"
+        {
+            uniform token info:id = "ND_texcoord_vector2"
+            float2 outputs:out
+        }
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_splittb_vector3"
+            float3 inputs:valuet = (0.80, 0.55, 0.18)
+            float3 inputs:valueb = (0.12, 0.18, 0.72)
+            float inputs:center = 0.5
+            float2 inputs:texcoord.connect = </Looks/splittb_vector3/uv0.outputs:out>
+            float3 outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_convert_vector3_color3"
+            float3 inputs:in.connect = </Looks/splittb_vector3/node_under_test.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/splittb_vector3/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/splittb_vector3/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/splittb_vector3>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/procedurals/splittb_vector3.exr"
+        }
+    }
+}

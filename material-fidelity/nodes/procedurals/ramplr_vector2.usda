@@ -1,0 +1,95 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_ramplr_vector2 on the plane using explicit UV0 texcoords. The node linearly interpolates from left value (0.10, 0.65) at U = 0 to right value (0.85, 0.20) at U = 1. The render should show a visible left-to-right ramp across the plane. The vector2 output is packed into RGB as (x, y, 0), so red and green show the two ramped components."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "ramplr_vector2" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/ramplr/ramplr_vector2.mtlx"
+                string sourceMaterial = "M_ramplr_vector2"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/ramplr_vector2/surface.outputs:out>
+        token outputs:surface.connect = </Looks/ramplr_vector2/surface.outputs:out>
+
+        def Shader "uv0"
+        {
+            uniform token info:id = "ND_texcoord_vector2"
+            float2 outputs:out
+        }
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_ramplr_vector2"
+            float2 inputs:valuel = (0.10, 0.65)
+            float2 inputs:valuer = (0.85, 0.20)
+            float2 inputs:texcoord.connect = </Looks/ramplr_vector2/uv0.outputs:out>
+            float2 outputs:out
+        }
+        def Shader "display_channels"
+        {
+            uniform token info:id = "ND_separate2_vector2"
+            float2 inputs:in.connect = </Looks/ramplr_vector2/node_under_test.outputs:out>
+            float outputs:outx
+            float outputs:outy
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/ramplr_vector2/display_channels.outputs:outx>
+            float inputs:in2.connect = </Looks/ramplr_vector2/display_channels.outputs:outy>
+            float inputs:in3 = 0
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/ramplr_vector2/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/ramplr_vector2/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/ramplr_vector2>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/procedurals/ramplr_vector2.exr"
+        }
+    }
+}

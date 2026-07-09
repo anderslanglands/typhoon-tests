@@ -4512,9 +4512,9 @@
       "release": "reference-data-20260707T195053Z-da49cb9d-0cc0ef55"
     },
     "material-fidelity/nodes/procedurals": {
-      "archive": "material-fidelity--nodes--procedurals--4df9f61462cb.zip",
-      "archive_sha256": "49fbe51f2e228d513f6e843914953d8dc161af580c104abd700ac933fed378c2",
-      "archive_size": 9272060,
+      "archive": "material-fidelity--nodes--procedurals--57f89b43d5af.zip",
+      "archive_sha256": "f1d08baac1e8299c5e72b036bd43765c6233d92cc984731be924ca76c267a166",
+      "archive_size": 16837328,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/procedurals/constant_boolean.exr",
@@ -4588,8 +4588,33 @@
         },
         {
           "path": "material-fidelity/reference/nodes/procedurals/ramp4.exr",
-          "sha256": "f5005c00764a7463988bffec5b1da5fd41112e8dc01d01dcf00e66129fbc005e",
-          "size": 800688
+          "sha256": "68ba355557a2544d62f8085ee6e09bfef14af0e15fb6c275757f3b348362c1f2",
+          "size": 806173
+        },
+        {
+          "path": "material-fidelity/reference/nodes/procedurals/ramp4_color4.exr",
+          "sha256": "ced3c422ecaa7ffa7da107d4ead6f666b098eb8dbc856137c65ae4153c137b89",
+          "size": 805668
+        },
+        {
+          "path": "material-fidelity/reference/nodes/procedurals/ramp4_float.exr",
+          "sha256": "aed16c5e6f16a25f5f5c7ea81978a407f8562a472dc40691a3cdb166f700ae84",
+          "size": 289671
+        },
+        {
+          "path": "material-fidelity/reference/nodes/procedurals/ramp4_vector2.exr",
+          "sha256": "ab378f786d73c3b526965cc5077c61cd02c43785ecebe3b703eca947f2dcae3a",
+          "size": 550179
+        },
+        {
+          "path": "material-fidelity/reference/nodes/procedurals/ramp4_vector3.exr",
+          "sha256": "68ba355557a2544d62f8085ee6e09bfef14af0e15fb6c275757f3b348362c1f2",
+          "size": 806173
+        },
+        {
+          "path": "material-fidelity/reference/nodes/procedurals/ramp4_vector4.exr",
+          "sha256": "ced3c422ecaa7ffa7da107d4ead6f666b098eb8dbc856137c65ae4153c137b89",
+          "size": 805668
         },
         {
           "path": "material-fidelity/reference/nodes/procedurals/ramp_degenerate_inverted_endpoints_out_of_range_texcoord.exr",
@@ -4603,8 +4628,13 @@
         },
         {
           "path": "material-fidelity/reference/nodes/procedurals/ramplr.exr",
-          "sha256": "f5005c00764a7463988bffec5b1da5fd41112e8dc01d01dcf00e66129fbc005e",
-          "size": 800688
+          "sha256": "95846511a1799c706cc4a5f848d61fd53d4032bb10fa0ee9ad61849d1858efd3",
+          "size": 807051
+        },
+        {
+          "path": "material-fidelity/reference/nodes/procedurals/ramplr_color4.exr",
+          "sha256": "4b7837c9d1e25675f631e5adad7abb34b883c1e7acfddbe3e448c3ea30380c6c",
+          "size": 801394
         },
         {
           "path": "material-fidelity/reference/nodes/procedurals/ramplr_compare_default_vs_inverted.exr",
@@ -4617,9 +4647,29 @@
           "size": 114628
         },
         {
+          "path": "material-fidelity/reference/nodes/procedurals/ramplr_vector2.exr",
+          "sha256": "df5d7fc835e58c99144cc38aa45ab9cb4896cf5d119aa41349f11a3f3f4e62a4",
+          "size": 550671
+        },
+        {
+          "path": "material-fidelity/reference/nodes/procedurals/ramplr_vector3.exr",
+          "sha256": "95846511a1799c706cc4a5f848d61fd53d4032bb10fa0ee9ad61849d1858efd3",
+          "size": 807051
+        },
+        {
+          "path": "material-fidelity/reference/nodes/procedurals/ramplr_vector4.exr",
+          "sha256": "4b7837c9d1e25675f631e5adad7abb34b883c1e7acfddbe3e448c3ea30380c6c",
+          "size": 801394
+        },
+        {
           "path": "material-fidelity/reference/nodes/procedurals/ramptb.exr",
-          "sha256": "f5005c00764a7463988bffec5b1da5fd41112e8dc01d01dcf00e66129fbc005e",
-          "size": 800688
+          "sha256": "455170449092a1d08288a58114f48e436953e8b76e6db99333327dc83788d3d5",
+          "size": 743307
+        },
+        {
+          "path": "material-fidelity/reference/nodes/procedurals/ramptb_color4.exr",
+          "sha256": "20d3ad1560110388d9c8d14700f790b887166e43185adc2cb6ad0de0b1e20390",
+          "size": 728904
         },
         {
           "path": "material-fidelity/reference/nodes/procedurals/ramptb_compare_default_vs_inverted.exr",
@@ -4642,9 +4692,29 @@
           "size": 17876
         },
         {
+          "path": "material-fidelity/reference/nodes/procedurals/ramptb_vector2.exr",
+          "sha256": "92ba4786480ba6d12120643f03d289536c17ed257289442e64d1f221d49e700c",
+          "size": 510766
+        },
+        {
+          "path": "material-fidelity/reference/nodes/procedurals/ramptb_vector3.exr",
+          "sha256": "455170449092a1d08288a58114f48e436953e8b76e6db99333327dc83788d3d5",
+          "size": 743307
+        },
+        {
+          "path": "material-fidelity/reference/nodes/procedurals/ramptb_vector4.exr",
+          "sha256": "20d3ad1560110388d9c8d14700f790b887166e43185adc2cb6ad0de0b1e20390",
+          "size": 728904
+        },
+        {
           "path": "material-fidelity/reference/nodes/procedurals/splitlr.exr",
-          "sha256": "f5005c00764a7463988bffec5b1da5fd41112e8dc01d01dcf00e66129fbc005e",
-          "size": 800688
+          "sha256": "cf527a4b75f8638cb53bdedc95db0dafdb9452be206950915ce646af14dd1276",
+          "size": 29923
+        },
+        {
+          "path": "material-fidelity/reference/nodes/procedurals/splitlr_color4.exr",
+          "sha256": "d010c1c9e53d4ba5da81039aa847a15069ff32685c8dfa2fcf443defbe0a2c6e",
+          "size": 32097
         },
         {
           "path": "material-fidelity/reference/nodes/procedurals/splitlr_compare_center_shift.exr",
@@ -4657,9 +4727,29 @@
           "size": 27572
         },
         {
+          "path": "material-fidelity/reference/nodes/procedurals/splitlr_vector2.exr",
+          "sha256": "c5782ffec6c9ddc0cd64112fc18413ff833734e84b1c22e67fc81d86ec2be783",
+          "size": 27593
+        },
+        {
+          "path": "material-fidelity/reference/nodes/procedurals/splitlr_vector3.exr",
+          "sha256": "cf527a4b75f8638cb53bdedc95db0dafdb9452be206950915ce646af14dd1276",
+          "size": 29923
+        },
+        {
+          "path": "material-fidelity/reference/nodes/procedurals/splitlr_vector4.exr",
+          "sha256": "d010c1c9e53d4ba5da81039aa847a15069ff32685c8dfa2fcf443defbe0a2c6e",
+          "size": 32097
+        },
+        {
           "path": "material-fidelity/reference/nodes/procedurals/splittb.exr",
-          "sha256": "f5005c00764a7463988bffec5b1da5fd41112e8dc01d01dcf00e66129fbc005e",
-          "size": 800688
+          "sha256": "f1da19c5a63d99007b4b8fdecbef841545e8463c095aab9f475baaec42a55c8a",
+          "size": 25332
+        },
+        {
+          "path": "material-fidelity/reference/nodes/procedurals/splittb_color4.exr",
+          "sha256": "815f905a9191f49d0ad8adb493c47e9af6468e0ec42646d8540b7a73a20cad1a",
+          "size": 26084
         },
         {
           "path": "material-fidelity/reference/nodes/procedurals/splittb_compare_center_shift.exr",
@@ -4670,9 +4760,24 @@
           "path": "material-fidelity/reference/nodes/procedurals/splittb_compare_default_vs_inverted.exr",
           "sha256": "9a95ddf4aec7afc976c561955ade7236bf13ecadbe84e578d96a41fb852b97ea",
           "size": 21878
+        },
+        {
+          "path": "material-fidelity/reference/nodes/procedurals/splittb_vector2.exr",
+          "sha256": "5ea6cdbecbeb1c9357f8e75e3bae07aa7ee1e2b3eb3d328b59b59f5e170b4810",
+          "size": 23686
+        },
+        {
+          "path": "material-fidelity/reference/nodes/procedurals/splittb_vector3.exr",
+          "sha256": "f1da19c5a63d99007b4b8fdecbef841545e8463c095aab9f475baaec42a55c8a",
+          "size": 25332
+        },
+        {
+          "path": "material-fidelity/reference/nodes/procedurals/splittb_vector4.exr",
+          "sha256": "815f905a9191f49d0ad8adb493c47e9af6468e0ec42646d8540b7a73a20cad1a",
+          "size": 26084
         }
       ],
-      "release": "reference-data-20260708T223554Z-8a50a422-420ff836"
+      "release": "reference-data-20260709T084716Z-753dd582-457c671c"
     },
     "material-fidelity/nodes/textures": {
       "archive": "material-fidelity--nodes--textures--2e3441e492d3.zip",

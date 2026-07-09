@@ -1,0 +1,86 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_ramptb_vector3 on the plane using explicit UV0 texcoords. The node linearly interpolates from bottom value (0.10, 0.20, 0.72) at V = 0 to top value (0.82, 0.58, 0.18) at V = 1. The render should show a visible bottom-to-top ramp across the plane. The vector3 output is converted directly to color3 for display."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "ramptb_vector3" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/ramptb/ramptb_vector3.mtlx"
+                string sourceMaterial = "M_ramptb_vector3"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/ramptb_vector3/surface.outputs:out>
+        token outputs:surface.connect = </Looks/ramptb_vector3/surface.outputs:out>
+
+        def Shader "uv0"
+        {
+            uniform token info:id = "ND_texcoord_vector2"
+            float2 outputs:out
+        }
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_ramptb_vector3"
+            float3 inputs:valuet = (0.82, 0.58, 0.18)
+            float3 inputs:valueb = (0.10, 0.20, 0.72)
+            float2 inputs:texcoord.connect = </Looks/ramptb_vector3/uv0.outputs:out>
+            float3 outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_convert_vector3_color3"
+            float3 inputs:in.connect = </Looks/ramptb_vector3/node_under_test.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/ramptb_vector3/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/ramptb_vector3/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/ramptb_vector3>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/procedurals/ramptb_vector3.exr"
+        }
+    }
+}

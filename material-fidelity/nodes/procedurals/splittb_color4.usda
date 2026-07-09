@@ -1,0 +1,105 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_splittb_color4 on the plane using explicit UV0 texcoords and center = 0.5. The node selects bottom value (0.12, 0.18, 0.10, 0.12) for V below the split and top value (0.78, 0.52, 0.26, 0.34) for V above the split, with the implementation antialiasing the boundary. The render should show a visible horizontal split on the plane. The color4 output is packed into RGB as (r, g, b + a), folding alpha into blue for display."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "splittb_color4" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/splittb/splittb_color4.mtlx"
+                string sourceMaterial = "M_splittb_color4"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/splittb_color4/surface.outputs:out>
+        token outputs:surface.connect = </Looks/splittb_color4/surface.outputs:out>
+
+        def Shader "uv0"
+        {
+            uniform token info:id = "ND_texcoord_vector2"
+            float2 outputs:out
+        }
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_splittb_color4"
+            color4f inputs:valuet = (0.78, 0.52, 0.26, 0.34)
+            color4f inputs:valueb = (0.12, 0.18, 0.10, 0.12)
+            float inputs:center = 0.5
+            float2 inputs:texcoord.connect = </Looks/splittb_color4/uv0.outputs:out>
+            color4f outputs:out
+        }
+        def Shader "display_channels"
+        {
+            uniform token info:id = "ND_separate4_color4"
+            color4f inputs:in.connect = </Looks/splittb_color4/node_under_test.outputs:out>
+            float outputs:outr
+            float outputs:outg
+            float outputs:outb
+            float outputs:outa
+        }
+        def Shader "display_blue"
+        {
+            uniform token info:id = "ND_add_float"
+            float inputs:in1.connect = </Looks/splittb_color4/display_channels.outputs:outb>
+            float inputs:in2.connect = </Looks/splittb_color4/display_channels.outputs:outa>
+            float outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/splittb_color4/display_channels.outputs:outr>
+            float inputs:in2.connect = </Looks/splittb_color4/display_channels.outputs:outg>
+            float inputs:in3.connect = </Looks/splittb_color4/display_blue.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/splittb_color4/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/splittb_color4/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/splittb_color4>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/procedurals/splittb_color4.exr"
+        }
+    }
+}

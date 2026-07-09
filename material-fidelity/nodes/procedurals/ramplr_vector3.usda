@@ -1,0 +1,86 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_ramplr_vector3 on the plane using explicit UV0 texcoords. The node linearly interpolates from left value (0.10, 0.20, 0.72) at U = 0 to right value (0.82, 0.58, 0.18) at U = 1. The render should show a visible left-to-right ramp across the plane. The vector3 output is converted directly to color3 for display."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "ramplr_vector3" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/ramplr/ramplr_vector3.mtlx"
+                string sourceMaterial = "M_ramplr_vector3"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/ramplr_vector3/surface.outputs:out>
+        token outputs:surface.connect = </Looks/ramplr_vector3/surface.outputs:out>
+
+        def Shader "uv0"
+        {
+            uniform token info:id = "ND_texcoord_vector2"
+            float2 outputs:out
+        }
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_ramplr_vector3"
+            float3 inputs:valuel = (0.10, 0.20, 0.72)
+            float3 inputs:valuer = (0.82, 0.58, 0.18)
+            float2 inputs:texcoord.connect = </Looks/ramplr_vector3/uv0.outputs:out>
+            float3 outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_convert_vector3_color3"
+            float3 inputs:in.connect = </Looks/ramplr_vector3/node_under_test.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/ramplr_vector3/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/ramplr_vector3/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/ramplr_vector3>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/procedurals/ramplr_vector3.exr"
+        }
+    }
+}
