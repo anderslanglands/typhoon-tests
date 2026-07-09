@@ -1,0 +1,93 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_hsvtorgb_color3 on the plane with UV-driven HSV input: u drives hue, v drives saturation, and value is fixed at 1. The render should show white along the zero-saturation edge and a fully saturated hue ramp along the high-saturation edge. The color3 result is connected directly to uniform_edf.color."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "hsvtorgb_color3" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/hsvtorgb/hsvtorgb_color3.mtlx"
+                string sourceMaterial = "M_hsvtorgb_color3"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/hsvtorgb_color3/surface.outputs:out>
+        token outputs:surface.connect = </Looks/hsvtorgb_color3/surface.outputs:out>
+
+        def Shader "texcoord"
+        {
+            uniform token info:id = "ND_texcoord_vector2"
+            float2 outputs:out
+        }
+        def Shader "uv_channels"
+        {
+            uniform token info:id = "ND_separate2_vector2"
+            float2 inputs:in.connect = </Looks/hsvtorgb_color3/texcoord.outputs:out>
+            float outputs:outx
+            float outputs:outy
+        }
+        def Shader "hsv_input"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/hsvtorgb_color3/uv_channels.outputs:outx>
+            float inputs:in2.connect = </Looks/hsvtorgb_color3/uv_channels.outputs:outy>
+            float inputs:in3 = 1
+            color3f outputs:out
+        }
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_hsvtorgb_color3"
+            color3f inputs:in.connect = </Looks/hsvtorgb_color3/hsv_input.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/hsvtorgb_color3/node_under_test.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/hsvtorgb_color3/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/hsvtorgb_color3>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/adjustment/hsvtorgb_color3.exr"
+        }
+    }
+}

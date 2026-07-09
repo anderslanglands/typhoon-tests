@@ -1,9 +1,9 @@
 {
   "groups": {
     "material-fidelity/nodes/adjustment": {
-      "archive": "material-fidelity--nodes--adjustment--52c825670d4e.zip",
-      "archive_sha256": "3aa968539612ba42065efe1246e392e255361568b4ce4b1a42e6aaeb58fa7443",
-      "archive_size": 7230962,
+      "archive": "material-fidelity--nodes--adjustment--5ef02d8d734a.zip",
+      "archive_sha256": "033801c1f1cae1d884503eb3746669e7f39624fc3d4b58fdc5cb0d94e583320b",
+      "archive_size": 7804971,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/adjustment/colorcorrect_color3.exr",
@@ -81,9 +81,14 @@
           "size": 19156
         },
         {
-          "path": "material-fidelity/reference/nodes/adjustment/hsvtorgb.exr",
-          "sha256": "b33362d930a2324be4827bebf2210c3fab686b9a37a98ac398855c335debbe02",
-          "size": 808687
+          "path": "material-fidelity/reference/nodes/adjustment/hsvtorgb_color3.exr",
+          "sha256": "b1621c367d577be21d8f035bc94ee996507227a18cb158defc805b83d4d1c80c",
+          "size": 553889
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/hsvtorgb_color4.exr",
+          "sha256": "b488837850b11ef44f05e23b308bc48f56e1b2690c643da39c111f47903bd27d",
+          "size": 556892
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/luminance.exr",
@@ -236,9 +241,14 @@
           "size": 479452
         },
         {
-          "path": "material-fidelity/reference/nodes/adjustment/rgbtohsv.exr",
-          "sha256": "4cea8e23cdc3012c4b6f6ec35bcbb674626b7e66d4a52b39ca9bd93a39ed6676",
-          "size": 807961
+          "path": "material-fidelity/reference/nodes/adjustment/rgbtohsv_color3.exr",
+          "sha256": "f40cd2ec7edec58a58ab1a949dbc4dc8baa495296cdcc292e9b78efbba3bfcec",
+          "size": 538929
+        },
+        {
+          "path": "material-fidelity/reference/nodes/adjustment/rgbtohsv_color4.exr",
+          "sha256": "09082966289dbd0012e8eef1601f7bb99cc024e60cc9ad18cd2c2633503acef8",
+          "size": 540511
         },
         {
           "path": "material-fidelity/reference/nodes/adjustment/saturate.exr",
@@ -316,7 +326,7 @@
           "size": 17896
         }
       ],
-      "release": "reference-data-20260709T052056Z-b4e534f4-584cf703"
+      "release": "reference-data-20260709T061937Z-3736b7b6-b495867a"
     },
     "material-fidelity/nodes/application": {
       "archive": "material-fidelity--nodes--application--5ddcd570703c.zip",
