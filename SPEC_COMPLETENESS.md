@@ -6,10 +6,10 @@ This report statically compares current `ND_*` definitions from the checked-out 
 
 - AOUSD MaterialX node families: 174
 - Typed NodeDefs in those families: 744
-- Covered NodeDefs: 721/744 (96.9%)
-- Uncovered families: 16
+- Covered NodeDefs: 727/744 (97.7%)
+- Uncovered families: 15
 - Partial families: 2
-- Complete families: 156
+- Complete families: 157
 - Omitted local MaterialX-library families absent from the AOUSD MaterialX spec: `ramp`, `ramp_gradient`, `surfacematerial`, `volumematerial`
 - Fixture-referenced omitted local families: `ramp`, `ramp_gradient`
 - USD fixtures also reference 2 `ND_*` ids outside this MaterialX library set: `ND_open_pbr_surface_surfaceshader`, `ND_standard_surface_surfaceshader`
@@ -36,7 +36,6 @@ Status is based on exact NodeDef ids. `uncovered` means no variants in that fami
 | `roughness_anisotropy` | uncovered | 0/1 | `ND_roughness_anisotropy` |
 | `roughness_dual` | uncovered | 0/1 | `ND_roughness_dual` |
 | `surface_unlit` | uncovered | 0/1 | `ND_surface_unlit` |
-| `triplanarprojection` | uncovered | 0/6 | `color3`, `color4`, `float`, `vector2`, `vector3`, `vector4` |
 | `displacement` | partial | 1/2 | `vector3` |
 | `hextiledimage` | partial | 1/2 | `color4` |
 | `absorption_vdf` | complete | 1/1 | - |
@@ -186,6 +185,7 @@ Status is based on exact NodeDef ids. `uncovered` means no variants in that fami
 | `translucent_bsdf` | complete | 1/1 | - |
 | `transpose` | complete | 2/2 | - |
 | `trianglewave` | complete | 1/1 | - |
+| `triplanarprojection` | complete | 6/6 | - |
 | `unifiednoise2d` | complete | 1/1 | - |
 | `unifiednoise3d` | complete | 1/1 | - |
 | `uniform_edf` | complete | 1/1 | - |
