@@ -4860,9 +4860,9 @@
       "release": "reference-data-20260709T084716Z-753dd582-457c671c"
     },
     "material-fidelity/nodes/textures": {
-      "archive": "material-fidelity--nodes--textures--2e3441e492d3.zip",
-      "archive_sha256": "d92d38f0f5be946bfc45963cf1d23a12db80c73debe305bf70c3dd998500b02c",
-      "archive_size": 29070259,
+      "archive": "material-fidelity--nodes--textures--c074a949adc5.zip",
+      "archive_sha256": "a7cb31aeffe587621346acaa467303814650e24e46c4f6f4342a8884bddf77f2",
+      "archive_size": 31287528,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/textures/blur_color3.exr",
@@ -5095,12 +5095,42 @@
           "size": 785642
         },
         {
+          "path": "material-fidelity/reference/nodes/textures/tiledimage_color3.exr",
+          "sha256": "50295a8dc270537490569052453a2bfbae67d8fea34cfe2ca895bea24d525832",
+          "size": 458443
+        },
+        {
+          "path": "material-fidelity/reference/nodes/textures/tiledimage_color4.exr",
+          "sha256": "ab1b1e45dded6971ddf726ccfc375c64f690c47ee54b686d334b271a0733b8e2",
+          "size": 461112
+        },
+        {
+          "path": "material-fidelity/reference/nodes/textures/tiledimage_float.exr",
+          "sha256": "0bf94a57c88f081cd4cefae97cb2f21df159316d9b48a5d1003a286a67f022ee",
+          "size": 162770
+        },
+        {
           "path": "material-fidelity/reference/nodes/textures/tiledimage_probe_tiling.exr",
           "sha256": "48ab1bbdf410dfee5eac44fccb7112dedc869273b4f30adc85290a2474097e3e",
           "size": 785898
+        },
+        {
+          "path": "material-fidelity/reference/nodes/textures/tiledimage_vector2.exr",
+          "sha256": "8eabd149014ad56e8fc7d6629be6f875e0002f635fcac5e51097446ab10a4398",
+          "size": 296848
+        },
+        {
+          "path": "material-fidelity/reference/nodes/textures/tiledimage_vector3.exr",
+          "sha256": "be4ddc2c495cbd4b67cb188a2a70fba07fd8811a23879778c567bc3f4bbbf292",
+          "size": 418434
+        },
+        {
+          "path": "material-fidelity/reference/nodes/textures/tiledimage_vector4.exr",
+          "sha256": "be4ddc2c495cbd4b67cb188a2a70fba07fd8811a23879778c567bc3f4bbbf292",
+          "size": 418434
         }
       ],
-      "release": "reference-data-20260708T223554Z-8a50a422-420ff836"
+      "release": "reference-data-20260709T205140Z-19284e0a-cfbe2657"
     },
     "material-fidelity/showcase/open_pbr_surface": {
       "archive": "material-fidelity--showcase--open_pbr_surface--84cbeaadfa75.zip",

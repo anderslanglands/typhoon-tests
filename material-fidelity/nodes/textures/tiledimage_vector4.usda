@@ -1,0 +1,114 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_tiledimage_vector4 by sampling the tiledimage grid PNG on the plane using UV0. uvtiling is (2, 2), uvoffset is left at the default, and filtertype is closest, so the grid should repeat twice horizontally and twice vertically with crisp texel boundaries. The vector4 output is packed into RGB as (x, y, z + w), so the render should show the repeated grid with the fourth sampled channel contributing to blue."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "tiledimage_vector4" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/tiledimage/tiledimage_vector4.mtlx"
+                string sourceMaterial = "M_tiledimage_vector4"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/tiledimage_vector4/surface.outputs:out>
+        token outputs:surface.connect = </Looks/tiledimage_vector4/surface.outputs:out>
+
+        def Shader "uv0"
+        {
+            uniform token info:id = "ND_texcoord_vector2"
+            float2 outputs:out
+        }
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_tiledimage_vector4"
+            float4 inputs:default = (1, 0, 1, 1)
+            asset inputs:file = @../../_assets/Materials/nodes/tiledimage/textures/grid.png@ (
+                colorSpace = "srgb_rec709_scene"
+            )
+            string inputs:filtertype = "closest"
+            float2 inputs:texcoord.connect = </Looks/tiledimage_vector4/uv0.outputs:out>
+            float2 inputs:uvtiling = (2, 2)
+            float4 outputs:out
+        }
+
+        def Shader "display_channels"
+        {
+            uniform token info:id = "ND_separate4_vector4"
+            float4 inputs:in.connect = </Looks/tiledimage_vector4/node_under_test.outputs:out>
+            float outputs:outx
+            float outputs:outy
+            float outputs:outz
+            float outputs:outw
+        }
+
+        def Shader "display_blue"
+        {
+            uniform token info:id = "ND_add_float"
+            float inputs:in1.connect = </Looks/tiledimage_vector4/display_channels.outputs:outz>
+            float inputs:in2.connect = </Looks/tiledimage_vector4/display_channels.outputs:outw>
+            float outputs:out
+        }
+
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/tiledimage_vector4/display_channels.outputs:outx>
+            float inputs:in2.connect = </Looks/tiledimage_vector4/display_channels.outputs:outy>
+            float inputs:in3.connect = </Looks/tiledimage_vector4/display_blue.outputs:out>
+            color3f outputs:out
+        }
+
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/tiledimage_vector4/display_color.outputs:out>
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/tiledimage_vector4/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/tiledimage_vector4>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/textures/tiledimage_vector4.exr"
+        }
+    }
+}

@@ -1,0 +1,94 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_tiledimage_vector3 by sampling the tiledimage grid PNG on the plane using UV0. uvtiling is (2, 2), uvoffset is left at the default, and filtertype is closest, so the grid should repeat twice horizontally and twice vertically with crisp texel boundaries. The vector3 output is converted to color3 for display, so emitted RGB should contain the three sampled texture channels."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "tiledimage_vector3" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/tiledimage/tiledimage_vector3.mtlx"
+                string sourceMaterial = "M_tiledimage_vector3"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/tiledimage_vector3/surface.outputs:out>
+        token outputs:surface.connect = </Looks/tiledimage_vector3/surface.outputs:out>
+
+        def Shader "uv0"
+        {
+            uniform token info:id = "ND_texcoord_vector2"
+            float2 outputs:out
+        }
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_tiledimage_vector3"
+            float3 inputs:default = (1, 0, 1)
+            asset inputs:file = @../../_assets/Materials/nodes/tiledimage/textures/grid.png@ (
+                colorSpace = "srgb_rec709_scene"
+            )
+            string inputs:filtertype = "closest"
+            float2 inputs:texcoord.connect = </Looks/tiledimage_vector3/uv0.outputs:out>
+            float2 inputs:uvtiling = (2, 2)
+            float3 outputs:out
+        }
+
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_convert_vector3_color3"
+            float3 inputs:in.connect = </Looks/tiledimage_vector3/node_under_test.outputs:out>
+            color3f outputs:out
+        }
+
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/tiledimage_vector3/display_color.outputs:out>
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/tiledimage_vector3/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/tiledimage_vector3>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/textures/tiledimage_vector3.exr"
+        }
+    }
+}
