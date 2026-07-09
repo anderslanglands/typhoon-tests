@@ -2076,10 +2076,11 @@ def test_report_select_all_controls_rows_within_section_tables(tmp_path: Path) -
             closest() { return null; },
           };
         }
-        function table(rows) {
+        function table(rows, selectAll) {
           return {
             querySelectorAll(selector) {
               if (selector === "[data-result-select]") return rows;
+              if (selector === "[data-select-all]") return [selectAll];
               return [];
             },
           };
@@ -2091,9 +2092,9 @@ def test_report_select_all_controls_rows_within_section_tables(tmp_path: Path) -
         const referenceButton = control();
         const rowsA = [control(), control()];
         const rowsB = [control(), control()];
-        const tableA = table(rowsA);
-        const tableB = table(rowsB);
-        selectAllA.closest = (selector) => selector === "table[data-sortable-table]" ? tableA : null;
+        const tableA = table(rowsA, selectAllA);
+        const tableB = table(rowsB, selectAllB);
+        selectAllA.closest = () => null;
         selectAllB.closest = (selector) => selector === "table[data-sortable-table]" ? tableB : null;
         const rows = [...rowsA, ...rowsB];
         globalThis.window = { setTimeout };
@@ -2106,6 +2107,7 @@ def test_report_select_all_controls_rows_within_section_tables(tmp_path: Path) -
             return null;
           },
           querySelectorAll(selector) {
+            if (selector === "table[data-sortable-table]") return [tableA, tableB];
             if (selector === "[data-select-all]") return [selectAllA, selectAllB];
             if (selector === "[data-result-select]") return rows;
             if (selector === "[data-result-select]:checked") return rows.filter((row) => row.checked);

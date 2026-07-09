@@ -714,10 +714,13 @@ export function captureReportUiState() {
   }
 }
 
+const selectAllTableScopes = new WeakMap();
+
 function selectableRowsForSelectAll(selectAll) {
-  const table = selectAll?.closest?.("table[data-sortable-table]");
-  const root = table || document;
-  return Array.from(root.querySelectorAll("[data-result-select]"));
+  const table = selectAllTableScopes.get(selectAll)
+    || selectAll?.closest?.("table[data-sortable-table]");
+  if (!table) return [];
+  return Array.from(table.querySelectorAll("[data-result-select]"));
 }
 
 function updateSelectAllControl(selectAll) {
@@ -781,6 +784,11 @@ async function runReportAction(
 }
 
 function initializeSelectionControls() {
+  for (const table of document.querySelectorAll("table[data-sortable-table]")) {
+    for (const selectAll of table.querySelectorAll("[data-select-all]")) {
+      selectAllTableScopes.set(selectAll, table);
+    }
+  }
   const selectAllControls = Array.from(document.querySelectorAll("[data-select-all]"));
   const checkboxes = Array.from(document.querySelectorAll("[data-result-select]"));
   for (const selectAll of selectAllControls) {
