@@ -295,6 +295,62 @@ def test_update_publishes_only_changed_groups_and_removes_deleted_groups(
     assert not reference.exists()
 
 
+def test_update_references_skips_missing_reference_images(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    usd, reference = make_suite(tmp_path)
+    missing_usd = usd.with_name("missing.usda")
+    missing_usd.write_text("#usda 1.0\n", encoding="utf-8")
+    missing_reference = reference.with_name("missing.png")
+    assert not missing_reference.exists()
+    published: list[tuple[str, list[str]]] = []
+    monkeypatch.setattr(
+        archives,
+        "publish_release",
+        lambda _root, _repository, release, paths: published.append(
+            (release, [path.name for path in paths])
+        ),
+    )
+
+    result = archives.update_references(
+        tmp_path, commit=False, repository="owner/repository"
+    )
+
+    assert result["changed"] == ["sample/surfaces/metal"]
+    assert len(published) == 1
+    manifest = archives.load_manifest(tmp_path)
+    assert manifest is not None
+    files = manifest["groups"]["sample/surfaces/metal"]["files"]
+    assert [record["path"] for record in files] == [
+        "sample/reference/surfaces/metal/case.png"
+    ]
+    assert missing_reference.exists() is False
+
+
+def test_update_references_rejects_missing_previously_archived_reference(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _, reference = make_suite(tmp_path)
+    monkeypatch.setattr(
+        archives,
+        "publish_release",
+        lambda _root, _repository, _release, _paths: None,
+    )
+    archives.update_references(tmp_path, commit=False, repository="owner/repository")
+    manifest_before = (tmp_path / archives.MANIFEST_NAME).read_text(encoding="utf-8")
+    reference.unlink()
+
+    with pytest.raises(
+        archives.ReferenceArchiveError,
+        match="archived reference image is missing locally",
+    ):
+        archives.update_references(tmp_path, commit=False)
+
+    assert (
+        tmp_path / archives.MANIFEST_NAME
+    ).read_text(encoding="utf-8") == manifest_before
+
+
 def test_update_cleans_partial_release_and_restores_manifest_on_commit_failure(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

@@ -310,12 +310,9 @@ def _validate_manifest_paths(project_root: Path, manifest: dict[str, Any]) -> No
         raise ReferenceArchiveError(
             f"manifest reference is outside configured reference directories: {unsafe}"
         )
-    if actual != expected:
-        missing = sorted(expected - actual, key=str)
+    if not actual.issubset(expected):
         extra = sorted(actual - expected, key=str)
         details = []
-        if missing:
-            details.append(f"missing {missing[0].relative_to(project_root)}")
         if extra:
             details.append(f"unexpected {extra[0].relative_to(project_root)}")
         raise ReferenceArchiveError(
@@ -731,7 +728,29 @@ def update_references(
         or (old_manifest or {}).get("repository")
         or repository_from_remote(project_root)
     )
-    groups, reference_roots = discover_reference_groups(project_root)
+    discovered_groups, reference_roots = discover_reference_groups(project_root)
+    old_files = _manifest_files(old_manifest or {"groups": {}})
+    missing_archived = [
+        path
+        for paths in discovered_groups.values()
+        for path in paths
+        if not path.is_file()
+        and path.relative_to(project_root).as_posix() in old_files
+    ]
+    if missing_archived:
+        sample = "\n".join(
+            f"  {path.relative_to(project_root)}"
+            for path in sorted(missing_archived, key=str)[:10]
+        )
+        raise ReferenceArchiveError(
+            "archived reference image is missing locally; run "
+            f"`pixi run download-references --force` or restore it before updating:\n{sample}"
+        )
+    groups = {
+        group_id: [path for path in paths if path.is_file()]
+        for group_id, paths in discovered_groups.items()
+    }
+    groups = {group_id: paths for group_id, paths in groups.items() if paths}
     expected = {path for paths in groups.values() for path in paths}
     unexpected = _unexpected_reference_files(reference_roots, expected)
     for path in unexpected:
