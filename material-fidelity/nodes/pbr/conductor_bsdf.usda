@@ -1,0 +1,65 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_conductor_bsdf with all inputs left at their MaterialX defaults on the shaderball. The default node is a reflective GGX conductor with weight 1, roughness (0.05, 0.05), no thin film, no retroreflection, and default ior/extinction values that approximate gold. The output is connected directly to ND_surface.bsdf, so the shaderball should show a sharp metallic reflection of the dome lighting with a warm gold bias from the default complex IOR."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/shaderball.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "conductor_bsdf" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/conductor_bsdf/conductor_bsdf.mtlx"
+                string sourceMaterial = "M_conductor_bsdf"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/conductor_bsdf/surface.outputs:out>
+        token outputs:surface.connect = </Looks/conductor_bsdf/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_conductor_bsdf"
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:bsdf.connect = </Looks/conductor_bsdf/node_under_test.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/conductor_bsdf>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/pbr/conductor_bsdf.exr"
+        }
+    }
+}

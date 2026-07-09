@@ -4419,9 +4419,9 @@
       "release": "reference-data-20260709T203348Z-f0f932aa-ddd61359"
     },
     "material-fidelity/nodes/pbr": {
-      "archive": "material-fidelity--nodes--pbr--9dc525981ac5.zip",
-      "archive_sha256": "f64c4b4bcd503ee6540c0cbc9805c521e51828135f517dcec440f4000adc182e",
-      "archive_size": 25287023,
+      "archive": "material-fidelity--nodes--pbr--75a5a2cf7399.zip",
+      "archive_sha256": "962b17035d26995d5972650f609a5fd2225b8bd61499d2e45fc166eff2932dab",
+      "archive_size": 26858911,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/pbr/artistic_ior.exr",
@@ -4514,6 +4514,16 @@
           "size": 570002
         },
         {
+          "path": "material-fidelity/reference/nodes/pbr/conductor_bsdf.exr",
+          "sha256": "c3f4a0012794b628f7b05445f669983c0d1fa80ac694e3d3d4d0748aedd3c35b",
+          "size": 785698
+        },
+        {
+          "path": "material-fidelity/reference/nodes/pbr/conductor_bsdf_thinfilm_aluminum_500.exr",
+          "sha256": "268ff63d543cd80ebfc51ce561d90ccf32e14cd5b09af6ad13fec2e203e87e78",
+          "size": 785770
+        },
+        {
           "path": "material-fidelity/reference/nodes/pbr/dielectric_layer.exr",
           "sha256": "edd13f26c51064b93ba57df5a4069235c2950c6aaf48aaa62a0393d5eb2cdeca",
           "size": 785831
@@ -4589,7 +4599,7 @@
           "size": 785894
         }
       ],
-      "release": "reference-data-20260707T195053Z-da49cb9d-0cc0ef55"
+      "release": "reference-data-20260709T234740Z-875fa13e-c2022b0b"
     },
     "material-fidelity/nodes/procedurals": {
       "archive": "material-fidelity--nodes--procedurals--57f89b43d5af.zip",
