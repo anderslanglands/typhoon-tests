@@ -1,0 +1,80 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_ifgreater_boolean with value1 = 0.75 and value2 = 0.25. 0.75 > 0.25, so the node result is true. The boolean result is converted to color3, so the expected emitted RGB is (1, 1, 1)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "ifgreater_boolean" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/ifgreater/ifgreater_boolean.mtlx"
+                string sourceMaterial = "M_ifgreater_boolean"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/ifgreater_boolean/surface.outputs:out>
+        token outputs:surface.connect = </Looks/ifgreater_boolean/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_ifgreater_boolean"
+            float inputs:value1 = 0.75
+            float inputs:value2 = 0.25
+            bool outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_convert_boolean_color3"
+            bool inputs:in.connect = </Looks/ifgreater_boolean/node_under_test.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/ifgreater_boolean/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/ifgreater_boolean/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/ifgreater_boolean>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/conditional/ifgreater_boolean.exr"
+        }
+    }
+}

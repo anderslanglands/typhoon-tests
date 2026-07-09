@@ -928,9 +928,9 @@
       "release": "reference-data-20260708T053923Z-91b9902b-e237b0a4"
     },
     "material-fidelity/nodes/conditional": {
-      "archive": "material-fidelity--nodes--conditional--5010f47dcf32.zip",
-      "archive_sha256": "b112f00281816d2c8fd3e0c37a51efda463a66273a0bbf51e840128941111857",
-      "archive_size": 1797566,
+      "archive": "material-fidelity--nodes--conditional--6e30c97f1ea5.zip",
+      "archive_sha256": "d9057775de4fc083889017859f6d5647e8c79a7d358c7028013de534e7205237",
+      "archive_size": 1356112,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/conditional/ifequal_boolean.exr",
@@ -1083,9 +1083,104 @@
           "size": 16852
         },
         {
-          "path": "material-fidelity/reference/nodes/conditional/ifgreater.exr",
-          "sha256": "f5005c00764a7463988bffec5b1da5fd41112e8dc01d01dcf00e66129fbc005e",
-          "size": 800688
+          "path": "material-fidelity/reference/nodes/conditional/ifgreater_boolean.exr",
+          "sha256": "c9614f242ad08b12826f6a9286846f400e125526d5e7692ec3529850ff2416c3",
+          "size": 11988
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/ifgreater_booleanI.exr",
+          "sha256": "878a0bf29b87b770a15644a2aca4eec70d812bcd98553b639134bf5035d45db4",
+          "size": 14804
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/ifgreater_color3.exr",
+          "sha256": "82bf4d10b970e5101b53d352a1f5cf0ed86147981669721d1fdde104a18e1224",
+          "size": 18900
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/ifgreater_color3I.exr",
+          "sha256": "5846d4b6812696bc50b103942bc499bd08d979ea2a1ecc43b5b41886ed59360a",
+          "size": 20180
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/ifgreater_color4.exr",
+          "sha256": "b906f09b7f9637537e568fc13e3e462955516946ec1d4f7b74cb21c8c6df92e7",
+          "size": 18388
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/ifgreater_color4I.exr",
+          "sha256": "d6fa93febeb0ba3af0a6a5342aa0c43f1cd9eb99aa44d2b9a3a9bc4b22e2fe0d",
+          "size": 16852
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/ifgreater_float.exr",
+          "sha256": "e066ec33112cc2faf35490c6e9dba0fef4c627c6d65fd69306ce1015e81dca82",
+          "size": 15828
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/ifgreater_floatI.exr",
+          "sha256": "972426061294ede5ef475346d63d9082c4c5e42e16d8ed779d95164f621034fa",
+          "size": 16596
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/ifgreater_integer.exr",
+          "sha256": "3a11c9765d970746aceb56b8ddcbfd8baf07d41c50a415d132072fca27c14744",
+          "size": 16596
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/ifgreater_integerI.exr",
+          "sha256": "3a11c9765d970746aceb56b8ddcbfd8baf07d41c50a415d132072fca27c14744",
+          "size": 16596
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/ifgreater_matrix33.exr",
+          "sha256": "c1e2e69a858fd65a6ece0e045550f54441d811905be918673fa85e75a843ced8",
+          "size": 19668
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/ifgreater_matrix33I.exr",
+          "sha256": "19a0242a2edfbfd4c183b374b80d3e67289e4e83c36392a65ec9307bb5d9bd56",
+          "size": 18388
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/ifgreater_matrix44.exr",
+          "sha256": "b906f09b7f9637537e568fc13e3e462955516946ec1d4f7b74cb21c8c6df92e7",
+          "size": 18388
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/ifgreater_matrix44I.exr",
+          "sha256": "394ce3edbd0b04cf5888a770b29097d4cb484d36085be758f1a614356d630a89",
+          "size": 19156
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/ifgreater_vector2.exr",
+          "sha256": "f7fe6d4bd0b0aabee711e404dee5897190a6baca21403c0a6d6988541aeac79c",
+          "size": 19668
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/ifgreater_vector2I.exr",
+          "sha256": "61649687acd0e818b8540f0c4725d0d0f65dacb3c34ff4196c2d3a88228d44e6",
+          "size": 19156
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/ifgreater_vector3.exr",
+          "sha256": "7805e43685c771eb23b5145bfae289be399445dea9f46d356687004a8ac36382",
+          "size": 19924
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/ifgreater_vector3I.exr",
+          "sha256": "fa2a8ec579b29a70c7c6cee6ae72811d9815d2f810bd27e77cdbf0e6358d0d2b",
+          "size": 18900
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/ifgreater_vector4.exr",
+          "sha256": "b906f09b7f9637537e568fc13e3e462955516946ec1d4f7b74cb21c8c6df92e7",
+          "size": 18388
+        },
+        {
+          "path": "material-fidelity/reference/nodes/conditional/ifgreater_vector4I.exr",
+          "sha256": "d6fa93febeb0ba3af0a6a5342aa0c43f1cd9eb99aa44d2b9a3a9bc4b22e2fe0d",
+          "size": 16852
         },
         {
           "path": "material-fidelity/reference/nodes/conditional/ifgreatereq_boolean.exr",
@@ -1203,7 +1298,7 @@
           "size": 24514
         }
       ],
-      "release": "reference-data-20260709T070700Z-37d55145-2e12535a"
+      "release": "reference-data-20260709T072325Z-edd6e019-0ed61f43"
     },
     "material-fidelity/nodes/geometric": {
       "archive": "material-fidelity--nodes--geometric--c06f86c18f3e.zip",

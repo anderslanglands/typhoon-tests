@@ -1,0 +1,90 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_ifgreater_integer with value1 = 0.75, value2 = 0.25, in1 = 1, and in2 = 0. 0.75 > 0.25, so the greater-than comparison is true and the node selects in1, so the node result is 1. The integer result is converted to float and packed into RGB as (value, 0, 0), so the expected emitted RGB is (1, 0, 0)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "ifgreater_integer" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/ifgreater/ifgreater_integer.mtlx"
+                string sourceMaterial = "M_ifgreater_integer"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/ifgreater_integer/surface.outputs:out>
+        token outputs:surface.connect = </Looks/ifgreater_integer/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_ifgreater_integer"
+            float inputs:value1 = 0.75
+            float inputs:value2 = 0.25
+            int inputs:in1 = 1
+            int inputs:in2 = 0
+            int outputs:out
+        }
+        def Shader "display_float"
+        {
+            uniform token info:id = "ND_convert_integer_float"
+            int inputs:in.connect = </Looks/ifgreater_integer/node_under_test.outputs:out>
+            float outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/ifgreater_integer/display_float.outputs:out>
+            float inputs:in2 = 0
+            float inputs:in3 = 0
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/ifgreater_integer/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/ifgreater_integer/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/ifgreater_integer>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/conditional/ifgreater_integer.exr"
+        }
+    }
+}
