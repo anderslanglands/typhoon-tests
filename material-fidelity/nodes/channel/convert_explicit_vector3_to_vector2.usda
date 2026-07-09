@@ -1,5 +1,8 @@
 #usda 1.0
 (
+    customLayerData = {
+        string doc = "Tests ND_convert_vector3_vector2 with literal vector3 input (0.2, 0.4, 0.6). The explicit convert node should produce vector2 value (0.2, 0.4). The vector2 result is packed into RGB as (x, y, 0). The expected emitted RGB is (0.2, 0.4, 0)."
+    }
     defaultPrim = "World"
     metersPerUnit = 1
     renderSettingsPrimPath = "/Render/Settings"
@@ -16,7 +19,7 @@ def Scope "Looks"
     def Material "convert_explicit_vector3_to_vector2" (
         customData = {
             dictionary materialFidelity = {
-                string source = "materials/nodes/convert_explicit_vector3_to_vector2/convert_explicit_vector3_to_vector2.mtlx"
+                string source = "materials/nodes/convert/convert_explicit_vector3_to_vector2.mtlx"
                 string sourceMaterial = "M_convert_explicit_vector3_to_vector2"
             }
         }
@@ -24,76 +27,38 @@ def Scope "Looks"
     {
         token outputs:mtlx:surface.connect = </Looks/convert_explicit_vector3_to_vector2/surface.outputs:out>
         token outputs:surface.connect = </Looks/convert_explicit_vector3_to_vector2/surface.outputs:out>
-
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_convert_vector3_vector2"
+            float3 inputs:in = (0.2, 0.4, 0.6)
+            float2 outputs:out
+        }
+        def Shader "display_channels"
+        {
+            uniform token info:id = "ND_separate2_vector2"
+            float2 inputs:in.connect = </Looks/convert_explicit_vector3_to_vector2/node_under_test.outputs:out>
+            float outputs:outx
+            float outputs:outy
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/convert_explicit_vector3_to_vector2/display_channels.outputs:outx>
+            float inputs:in2.connect = </Looks/convert_explicit_vector3_to_vector2/display_channels.outputs:outy>
+            float inputs:in3 = 0
+            color3f outputs:out
+        }
         def Shader "uniform_edf"
         {
             uniform token info:id = "ND_uniform_edf"
-            color3f inputs:color.connect = </Looks/convert_explicit_vector3_to_vector2/NG_convert_explicit_vector3_to_vector2.outputs:out_base_color>
+            color3f inputs:color.connect = </Looks/convert_explicit_vector3_to_vector2/display_color.outputs:out>
             token outputs:out
         }
-
         def Shader "surface"
         {
             uniform token info:id = "ND_surface"
             token inputs:edf.connect = </Looks/convert_explicit_vector3_to_vector2/uniform_edf.outputs:out>
             token outputs:out
-        }
-
-        def NodeGraph "NG_convert_explicit_vector3_to_vector2"
-        {
-            color3f outputs:out_base_color.connect = </Looks/convert_explicit_vector3_to_vector2/NG_convert_explicit_vector3_to_vector2/display_color.outputs:out>
-
-            def Shader "uv0"
-            {
-                uniform token info:id = "ND_texcoord_vector2"
-                float2 outputs:out
-            }
-
-            def Shader "uv_split"
-            {
-                uniform token info:id = "ND_separate2_vector2"
-                float2 inputs:in.connect = </Looks/convert_explicit_vector3_to_vector2/NG_convert_explicit_vector3_to_vector2/uv0.outputs:out>
-                float outputs:outx
-                float outputs:outy
-            }
-
-            def Shader "uv_sum"
-            {
-                uniform token info:id = "ND_add_float"
-                float inputs:in1.connect = </Looks/convert_explicit_vector3_to_vector2/NG_convert_explicit_vector3_to_vector2/uv_split.outputs:outx>
-                float inputs:in2.connect = </Looks/convert_explicit_vector3_to_vector2/NG_convert_explicit_vector3_to_vector2/uv_split.outputs:outy>
-                float outputs:out
-            }
-
-            def Shader "uv_mix"
-            {
-                uniform token info:id = "ND_fract_float"
-                float inputs:in.connect = </Looks/convert_explicit_vector3_to_vector2/NG_convert_explicit_vector3_to_vector2/uv_sum.outputs:out>
-                float outputs:out
-            }
-
-            def Shader "source_node"
-            {
-                uniform token info:id = "ND_combine3_vector3"
-                float inputs:in1.connect = </Looks/convert_explicit_vector3_to_vector2/NG_convert_explicit_vector3_to_vector2/uv_split.outputs:outx>
-                float inputs:in2.connect = </Looks/convert_explicit_vector3_to_vector2/NG_convert_explicit_vector3_to_vector2/uv_split.outputs:outy>
-                float inputs:in3.connect = </Looks/convert_explicit_vector3_to_vector2/NG_convert_explicit_vector3_to_vector2/uv_mix.outputs:out>
-                float3 outputs:out
-            }
-
-            def Shader "node_under_test"
-            {
-                uniform token info:id = "ND_convert_vector3_vector2"
-                float3 inputs:in.connect = </Looks/convert_explicit_vector3_to_vector2/NG_convert_explicit_vector3_to_vector2/source_node.outputs:out>
-                float2 outputs:out
-            }
-
-            def Shader "display_color"
-            {
-                uniform token info:id = "ND_convert_vector2_color3"
-                float2 inputs:in.connect = </Looks/convert_explicit_vector3_to_vector2/NG_convert_explicit_vector3_to_vector2/node_under_test.outputs:out>
-                color3f outputs:out
-            }
         }
     }
 }

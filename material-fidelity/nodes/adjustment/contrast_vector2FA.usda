@@ -1,0 +1,89 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_contrast_vector2FA with in = (0.3, 0.5), amount = 1.2, and pivot = 0.4. Contrast computes pivot + (in - pivot) * amount component-wise, producing (0.28, 0.52). The vector2 result is packed into RGB as (x, y, 0). The expected emitted RGB is (0.28, 0.52, 0)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "contrast_vector2FA" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/contrast/contrast_vector2FA.mtlx"
+                string sourceMaterial = "M_contrast_vector2FA"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/contrast_vector2FA/surface.outputs:out>
+        token outputs:surface.connect = </Looks/contrast_vector2FA/surface.outputs:out>
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_contrast_vector2FA"
+            float2 inputs:in = (0.3, 0.5)
+            float inputs:amount = 1.2
+            float inputs:pivot = 0.4
+            float2 outputs:out
+        }
+        def Shader "display_channels"
+        {
+            uniform token info:id = "ND_separate2_vector2"
+            float2 inputs:in.connect = </Looks/contrast_vector2FA/node_under_test.outputs:out>
+            float outputs:outx
+            float outputs:outy
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/contrast_vector2FA/display_channels.outputs:outx>
+            float inputs:in2.connect = </Looks/contrast_vector2FA/display_channels.outputs:outy>
+            float inputs:in3 = 0
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/contrast_vector2FA/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/contrast_vector2FA/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/contrast_vector2FA>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/adjustment/contrast_vector2FA.exr"
+        }
+    }
+}

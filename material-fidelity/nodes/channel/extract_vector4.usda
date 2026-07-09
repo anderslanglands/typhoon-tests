@@ -1,0 +1,81 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_extract_vector4 with in = (0.2, 0.4, 0.6, 0.8) and uniform index = 3. The node should extract component or row 3, producing 0.8. The float result is packed into RGB as (value, 0, 0). The expected emitted RGB is (0.8, 0, 0)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "extract_vector4" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/extract/extract_vector4.mtlx"
+                string sourceMaterial = "M_extract_vector4"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/extract_vector4/surface.outputs:out>
+        token outputs:surface.connect = </Looks/extract_vector4/surface.outputs:out>
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_extract_vector4"
+            float4 inputs:in = (0.2, 0.4, 0.6, 0.8)
+            int inputs:index = 3
+            float outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/extract_vector4/node_under_test.outputs:out>
+            float inputs:in2 = 0
+            float inputs:in3 = 0
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/extract_vector4/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/extract_vector4/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/extract_vector4>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/channel/extract_vector4.exr"
+        }
+    }
+}

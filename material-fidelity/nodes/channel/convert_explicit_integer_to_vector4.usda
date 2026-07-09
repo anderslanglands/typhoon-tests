@@ -1,5 +1,8 @@
 #usda 1.0
 (
+    customLayerData = {
+        string doc = "Tests ND_convert_integer_vector4 with literal integer input 1. The explicit convert node should produce vector4 value (1, 1, 1, 1). The four-channel result is packed into RGB as (x, y, z + w). The expected emitted RGB is (1, 1, 2)."
+    }
     defaultPrim = "World"
     metersPerUnit = 1
     renderSettingsPrimPath = "/Render/Settings"
@@ -16,7 +19,7 @@ def Scope "Looks"
     def Material "convert_explicit_integer_to_vector4" (
         customData = {
             dictionary materialFidelity = {
-                string source = "materials/nodes/convert_explicit_integer_to_vector4/convert_explicit_integer_to_vector4.mtlx"
+                string source = "materials/nodes/convert/convert_explicit_integer_to_vector4.mtlx"
                 string sourceMaterial = "M_convert_explicit_integer_to_vector4"
             }
         }
@@ -24,77 +27,47 @@ def Scope "Looks"
     {
         token outputs:mtlx:surface.connect = </Looks/convert_explicit_integer_to_vector4/surface.outputs:out>
         token outputs:surface.connect = </Looks/convert_explicit_integer_to_vector4/surface.outputs:out>
-
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_convert_integer_vector4"
+            int inputs:in = 1
+            float4 outputs:out
+        }
+        def Shader "display_channels"
+        {
+            uniform token info:id = "ND_separate4_vector4"
+            float4 inputs:in.connect = </Looks/convert_explicit_integer_to_vector4/node_under_test.outputs:out>
+            float outputs:outx
+            float outputs:outy
+            float outputs:outz
+            float outputs:outw
+        }
+        def Shader "display_blue"
+        {
+            uniform token info:id = "ND_add_float"
+            float inputs:in1.connect = </Looks/convert_explicit_integer_to_vector4/display_channels.outputs:outz>
+            float inputs:in2.connect = </Looks/convert_explicit_integer_to_vector4/display_channels.outputs:outw>
+            float outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/convert_explicit_integer_to_vector4/display_channels.outputs:outx>
+            float inputs:in2.connect = </Looks/convert_explicit_integer_to_vector4/display_channels.outputs:outy>
+            float inputs:in3.connect = </Looks/convert_explicit_integer_to_vector4/display_blue.outputs:out>
+            color3f outputs:out
+        }
         def Shader "uniform_edf"
         {
             uniform token info:id = "ND_uniform_edf"
-            color3f inputs:color.connect = </Looks/convert_explicit_integer_to_vector4/NG_convert_explicit_integer_to_vector4.outputs:out_base_color>
+            color3f inputs:color.connect = </Looks/convert_explicit_integer_to_vector4/display_color.outputs:out>
             token outputs:out
         }
-
         def Shader "surface"
         {
             uniform token info:id = "ND_surface"
             token inputs:edf.connect = </Looks/convert_explicit_integer_to_vector4/uniform_edf.outputs:out>
             token outputs:out
-        }
-
-        def NodeGraph "NG_convert_explicit_integer_to_vector4"
-        {
-            color3f outputs:out_base_color.connect = </Looks/convert_explicit_integer_to_vector4/NG_convert_explicit_integer_to_vector4/display_color.outputs:out>
-
-            def Shader "uv0"
-            {
-                uniform token info:id = "ND_texcoord_vector2"
-                float2 outputs:out
-            }
-
-            def Shader "uv_split"
-            {
-                uniform token info:id = "ND_separate2_vector2"
-                float2 inputs:in.connect = </Looks/convert_explicit_integer_to_vector4/NG_convert_explicit_integer_to_vector4/uv0.outputs:out>
-                float outputs:outx
-                float outputs:outy
-            }
-
-            def Shader "uv_sum"
-            {
-                uniform token info:id = "ND_add_float"
-                float inputs:in1.connect = </Looks/convert_explicit_integer_to_vector4/NG_convert_explicit_integer_to_vector4/uv_split.outputs:outx>
-                float inputs:in2.connect = </Looks/convert_explicit_integer_to_vector4/NG_convert_explicit_integer_to_vector4/uv_split.outputs:outy>
-                float outputs:out
-            }
-
-            def Shader "uv_mix"
-            {
-                uniform token info:id = "ND_fract_float"
-                float inputs:in.connect = </Looks/convert_explicit_integer_to_vector4/NG_convert_explicit_integer_to_vector4/uv_sum.outputs:out>
-                float outputs:out
-            }
-
-            def Shader "source_node"
-            {
-                uniform token info:id = "ND_ifgreater_integer"
-                int inputs:in1 = 2
-                int inputs:in2 = 0
-                float inputs:value1.connect = </Looks/convert_explicit_integer_to_vector4/NG_convert_explicit_integer_to_vector4/uv_mix.outputs:out>
-                float inputs:value2 = 0.5
-                int outputs:out
-            }
-
-            def Shader "node_under_test"
-            {
-                uniform token info:id = "ND_convert_integer_vector4"
-                int inputs:in.connect = </Looks/convert_explicit_integer_to_vector4/NG_convert_explicit_integer_to_vector4/source_node.outputs:out>
-                float4 outputs:out
-            }
-
-            def Shader "display_color"
-            {
-                uniform token info:id = "ND_convert_vector4_color3"
-                float4 inputs:in.connect = </Looks/convert_explicit_integer_to_vector4/NG_convert_explicit_integer_to_vector4/node_under_test.outputs:out>
-                color3f outputs:out
-            }
         }
     }
 }

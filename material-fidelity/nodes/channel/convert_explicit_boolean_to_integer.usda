@@ -1,5 +1,8 @@
 #usda 1.0
 (
+    customLayerData = {
+        string doc = "Tests ND_convert_boolean_integer with literal boolean input true. The explicit convert node should produce integer value 1. The integer result is converted to float and packed into RGB as (value, 0, 0). The expected emitted RGB is (1, 0, 0)."
+    }
     defaultPrim = "World"
     metersPerUnit = 1
     renderSettingsPrimPath = "/Render/Settings"
@@ -16,7 +19,7 @@ def Scope "Looks"
     def Material "convert_explicit_boolean_to_integer" (
         customData = {
             dictionary materialFidelity = {
-                string source = "materials/nodes/convert_explicit_boolean_to_integer/convert_explicit_boolean_to_integer.mtlx"
+                string source = "materials/nodes/convert/convert_explicit_boolean_to_integer.mtlx"
                 string sourceMaterial = "M_convert_explicit_boolean_to_integer"
             }
         }
@@ -24,84 +27,37 @@ def Scope "Looks"
     {
         token outputs:mtlx:surface.connect = </Looks/convert_explicit_boolean_to_integer/surface.outputs:out>
         token outputs:surface.connect = </Looks/convert_explicit_boolean_to_integer/surface.outputs:out>
-
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_convert_boolean_integer"
+            bool inputs:in = true
+            int outputs:out
+        }
+        def Shader "display_float"
+        {
+            uniform token info:id = "ND_convert_integer_float"
+            int inputs:in.connect = </Looks/convert_explicit_boolean_to_integer/node_under_test.outputs:out>
+            float outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/convert_explicit_boolean_to_integer/display_float.outputs:out>
+            float inputs:in2 = 0
+            float inputs:in3 = 0
+            color3f outputs:out
+        }
         def Shader "uniform_edf"
         {
             uniform token info:id = "ND_uniform_edf"
-            color3f inputs:color.connect = </Looks/convert_explicit_boolean_to_integer/NG_convert_explicit_boolean_to_integer.outputs:out_base_color>
+            color3f inputs:color.connect = </Looks/convert_explicit_boolean_to_integer/display_color.outputs:out>
             token outputs:out
         }
-
         def Shader "surface"
         {
             uniform token info:id = "ND_surface"
             token inputs:edf.connect = </Looks/convert_explicit_boolean_to_integer/uniform_edf.outputs:out>
             token outputs:out
-        }
-
-        def NodeGraph "NG_convert_explicit_boolean_to_integer"
-        {
-            color3f outputs:out_base_color.connect = </Looks/convert_explicit_boolean_to_integer/NG_convert_explicit_boolean_to_integer/display_color.outputs:out>
-
-            def Shader "uv0"
-            {
-                uniform token info:id = "ND_texcoord_vector2"
-                float2 outputs:out
-            }
-
-            def Shader "uv_split"
-            {
-                uniform token info:id = "ND_separate2_vector2"
-                float2 inputs:in.connect = </Looks/convert_explicit_boolean_to_integer/NG_convert_explicit_boolean_to_integer/uv0.outputs:out>
-                float outputs:outx
-                float outputs:outy
-            }
-
-            def Shader "uv_sum"
-            {
-                uniform token info:id = "ND_add_float"
-                float inputs:in1.connect = </Looks/convert_explicit_boolean_to_integer/NG_convert_explicit_boolean_to_integer/uv_split.outputs:outx>
-                float inputs:in2.connect = </Looks/convert_explicit_boolean_to_integer/NG_convert_explicit_boolean_to_integer/uv_split.outputs:outy>
-                float outputs:out
-            }
-
-            def Shader "uv_mix"
-            {
-                uniform token info:id = "ND_fract_float"
-                float inputs:in.connect = </Looks/convert_explicit_boolean_to_integer/NG_convert_explicit_boolean_to_integer/uv_sum.outputs:out>
-                float outputs:out
-            }
-
-            def Shader "source_node"
-            {
-                uniform token info:id = "ND_ifgreater_boolean"
-                float inputs:value1.connect = </Looks/convert_explicit_boolean_to_integer/NG_convert_explicit_boolean_to_integer/uv_mix.outputs:out>
-                float inputs:value2 = 0.5
-                bool outputs:out
-            }
-
-            def Shader "node_under_test"
-            {
-                uniform token info:id = "ND_convert_boolean_integer"
-                bool inputs:in.connect = </Looks/convert_explicit_boolean_to_integer/NG_convert_explicit_boolean_to_integer/source_node.outputs:out>
-                int outputs:out
-            }
-
-            def Shader "display_float"
-            {
-                uniform token info:id = "ND_convert_integer_float"
-                int inputs:in.connect = </Looks/convert_explicit_boolean_to_integer/NG_convert_explicit_boolean_to_integer/node_under_test.outputs:out>
-                float outputs:out
-            }
-
-            def Shader "display_color"
-            {
-                uniform token info:id = "ND_combine3_color3"
-                float inputs:in1.connect = </Looks/convert_explicit_boolean_to_integer/NG_convert_explicit_boolean_to_integer/display_float.outputs:out>
-                float inputs:in2.connect = </Looks/convert_explicit_boolean_to_integer/NG_convert_explicit_boolean_to_integer/uv_split.outputs:outx>
-                float inputs:in3 = 0.2
-                color3f outputs:out
-            }
         }
     }
 }

@@ -1,0 +1,98 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_contrast_vector4 with in = (0.2, 0.5, 0.6, 0.3), amount = (0.5, 1.4, 1.2, 0.5), and pivot = (0.4, 0.3, 0.5, 0.2). Contrast computes pivot + (in - pivot) * amount component-wise, producing (0.3, 0.58, 0.62, 0.25). The four-channel result is packed into RGB as (x, y, z + w). The expected emitted RGB is (0.3, 0.58, 0.87)."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "contrast_vector4" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/contrast/contrast_vector4.mtlx"
+                string sourceMaterial = "M_contrast_vector4"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/contrast_vector4/surface.outputs:out>
+        token outputs:surface.connect = </Looks/contrast_vector4/surface.outputs:out>
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_contrast_vector4"
+            float4 inputs:in = (0.2, 0.5, 0.6, 0.3)
+            float4 inputs:amount = (0.5, 1.4, 1.2, 0.5)
+            float4 inputs:pivot = (0.4, 0.3, 0.5, 0.2)
+            float4 outputs:out
+        }
+        def Shader "display_channels"
+        {
+            uniform token info:id = "ND_separate4_vector4"
+            float4 inputs:in.connect = </Looks/contrast_vector4/node_under_test.outputs:out>
+            float outputs:outx
+            float outputs:outy
+            float outputs:outz
+            float outputs:outw
+        }
+        def Shader "display_blue"
+        {
+            uniform token info:id = "ND_add_float"
+            float inputs:in1.connect = </Looks/contrast_vector4/display_channels.outputs:outz>
+            float inputs:in2.connect = </Looks/contrast_vector4/display_channels.outputs:outw>
+            float outputs:out
+        }
+        def Shader "display_color"
+        {
+            uniform token info:id = "ND_combine3_color3"
+            float inputs:in1.connect = </Looks/contrast_vector4/display_channels.outputs:outx>
+            float inputs:in2.connect = </Looks/contrast_vector4/display_channels.outputs:outy>
+            float inputs:in3.connect = </Looks/contrast_vector4/display_blue.outputs:out>
+            color3f outputs:out
+        }
+        def Shader "uniform_edf"
+        {
+            uniform token info:id = "ND_uniform_edf"
+            color3f inputs:color.connect = </Looks/contrast_vector4/display_color.outputs:out>
+            token outputs:out
+        }
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:edf.connect = </Looks/contrast_vector4/uniform_edf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/contrast_vector4>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/adjustment/contrast_vector4.exr"
+        }
+    }
+}
