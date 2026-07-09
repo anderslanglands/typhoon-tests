@@ -49,7 +49,7 @@ def Scope "Looks"
                 uniform token info:id = "ND_tiledimage_color3"
                 color3f inputs:default = (1, 0, 1)
                 asset inputs:file = @../../_assets/Materials/nodes/image_format_png/textures/texture.png@ (
-                    colorSpace = "srgb_texture"
+                    colorSpace = "srgb_rec709_scene"
                 )
                 float2 inputs:texcoord.connect = </Looks/tiledimage_probe_tiling/NG_tiledimage_probe_tiling/uv0.outputs:out>
                 float2 inputs:uvoffset = (0, 0)

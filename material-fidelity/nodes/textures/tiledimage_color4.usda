@@ -1,7 +1,7 @@
 #usda 1.0
 (
     customLayerData = {
-        string doc = "Tests ND_tiledimage_color4 by sampling the tiledimage grid PNG on the plane using UV0. uvtiling is (2, 2), uvoffset is left at the default, and filtertype is closest, so the grid should repeat twice horizontally and twice vertically with crisp texel boundaries. The PNG filename input is tagged srgb_rec709_scene. The color4 output is packed into RGB as (r, g, b + a), so the render should show the repeated grid with the alpha channel contributing to blue."
+        string doc = "Tests ND_tiledimage_color4 by sampling an RGBA copy of the tiledimage grid PNG on the plane using UV0. uvtiling is (2, 2), uvoffset is left at the default, and filtertype is closest, so the original grid texture should repeat twice horizontally and twice vertically with crisp texel boundaries. The PNG filename input is tagged srgb_rec709_scene for the color channels, and the asset has an authored alpha channel. The color4 output is packed into RGB as (r, g, b + a), so the render should show the repeated texture with alpha contributing to blue."
     }
     defaultPrim = "World"
     metersPerUnit = 1
@@ -38,7 +38,7 @@ def Scope "Looks"
         {
             uniform token info:id = "ND_tiledimage_color4"
             color4f inputs:default = (1, 0, 1, 1)
-            asset inputs:file = @../../_assets/Materials/nodes/tiledimage/textures/grid.png@ (
+            asset inputs:file = @../../_assets/Materials/nodes/tiledimage/textures/grid_rgba.png@ (
                 colorSpace = "srgb_rec709_scene"
             )
             string inputs:filtertype = "closest"
