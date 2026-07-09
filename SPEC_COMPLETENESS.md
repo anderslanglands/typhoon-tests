@@ -8,12 +8,12 @@ The suite is deep in a few areas, but its overall node coverage is incomplete:
 
 - 178 MaterialX node families have concrete `ND_*` definitions in the current checked-out libraries.
 - Those families comprise 748 typed NodeDefs.
-- 321 of those 748 exact NodeDefs appear in the tests: 42.9%.
+- 379 of those 748 exact NodeDefs appear in the tests: 50.7%.
 - At the family level:
 
   - 25 families are completely untested.
-  - 62 have only some typed overloads tested.
-  - 91 have every specified overload represented.
+  - 57 have only some typed overloads tested.
+  - 96 have every specified overload represented.
 
 These are optimistic numbers: any occurrence counted, including incidental use in a showcase graph. Direct, targeted coverage is lower.
 
@@ -76,11 +76,6 @@ Direct fixtures now cover the core diffuse/transmission/sheen/hair BSDFs, `diele
 | `ifgreater` | 4/20 | Sparse overload coverage. |
 | `ifgreatereq` | 2/20 | Sparse overload coverage. |
 | `mix` | 12/17 | All float/color/vector value variants and the surfaceshader variant now have direct EXR fixtures; the remaining gaps are displacementshader, volumeshader, BSDF, EDF, and VDF. |
-| `add` | 4/19 | Most vector/color/matrix and mixed float variants absent. |
-| `multiply` | 6/19 | Better than `add`, but most typed variants still absent. |
-| `divide` | 2/13 | Zero-divisor case exists, but only for a narrow subset of types. |
-| `subtract` | 4/16 | Most overloads absent. |
-| `constant` | 5/12 | Float, color4, vector4, matrices, string, and filename coverage is missing. |
 | `range`, `remap`, `smoothstep` | 3/11 each | Good degenerate float/vector4 cases, but most color/vector and float-amount overloads absent. |
 | noise families | usually 1/7 | Excellent parameter/default/large-coordinate tests for the principal float or color form, but most output types remain absent. |
 | `ramp4` | 1/6 | Only one result type. |
@@ -91,6 +86,8 @@ Direct fixtures now cover the core diffuse/transmission/sheen/hair BSDFs, `diele
 | `dot` | 5/16 | Current local MaterialX libraries define typed `dot` NodeDefs; only float, integer, boolean, color3, and vector3 appear in fixtures. |
 
 The previously missing compositing families now all have direct fixtures. `premult`, `unpremult`, `plus`, `minus`, `difference`, `burn`, `dodge`, `screen`, `overlay`, `disjointover`, `in`, `mask`, `matte`, `out`, `over`, `inside`, and `outside` are fully covered at the NodeDef level. `mix` has direct EXR fixtures for every float/color/vector value variant and the surfaceshader variant, but remains partial because displacement, volume, and closure variants need separate structural fixtures.
+
+The basic arithmetic and constant families are now fully covered at the NodeDef level: `add` 19/19, `multiply` 19/19, `divide` 13/13, `subtract` 16/16, and `constant` 12/12. These fixtures are direct tests rather than incidental graph usage: value-output variants use minimal literal-input graphs, vector4/color4/matrix outputs are packed into RGB so every component contributes to the rendered pixels, and each layer has `customLayerData.doc` explaining the expected value. The generic `constant` fixture has been renamed to the typed `constant_color3`, and `constant_string` now uses the same shifted-grid image sampling graph as `geompropvalueuniform_string`, with `ND_constant_string` outputting the literal string `"clamp"` into `ND_image_color3.uaddressmode`. The `divide_degenerate_zero` fixture remains a targeted UV-driven zero-divisor case rather than a flat numeric color test.
 
 ### Specific texture-edge gaps
 
@@ -146,7 +143,7 @@ The tests are golden-image comparisons. The suite renders each fixture and compa
 
 1. Remaining PBR EDF/helper constructors, `volume`/`light`, and `surface`/`volume` constructor behavior.
 2. `triplanarprojection` and image fallback/layer/UVTILE/sequence tests.
-3. Conditional and operator overload coverage, especially `switch`, `ifequal`, `mix`, and matrix variants.
+3. Conditional and remaining non-arithmetic operator overload coverage, especially `switch`, `ifequal`, `mix`, and matrix-specific helpers.
 4. Remaining component helper, adjustment, and NPR nodes.
 5. Structural conformance tests alongside image comparisons, so USD typing/default/token errors cannot pass merely because the render looks plausible.
 
