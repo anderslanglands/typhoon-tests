@@ -652,8 +652,21 @@ export function reportRowFromControl(control) {
   };
 }
 
+function resultRowForControl(control) {
+  return control?.closest?.("tr.result-row") || null;
+}
+
+function isResultRowVisible(row) {
+  return !row || row.hidden !== true;
+}
+
+function isSelectableControlVisible(control) {
+  return isResultRowVisible(resultRowForControl(control));
+}
+
 function selectedReportRows() {
   return Array.from(document.querySelectorAll("[data-result-select]:checked"))
+    .filter(isSelectableControlVisible)
     .map(reportRowFromControl);
 }
 
@@ -720,7 +733,8 @@ function selectableRowsForSelectAll(selectAll) {
   const table = selectAllTableScopes.get(selectAll)
     || selectAll?.closest?.("table[data-sortable-table]");
   if (!table) return [];
-  return Array.from(table.querySelectorAll("[data-result-select]"));
+  return Array.from(table.querySelectorAll("[data-result-select]"))
+    .filter(isSelectableControlVisible);
 }
 
 function updateSelectAllControl(selectAll) {
@@ -731,7 +745,8 @@ function updateSelectAllControl(selectAll) {
 }
 
 function updateSelectionControls() {
-  const checkboxes = Array.from(document.querySelectorAll("[data-result-select]"));
+  const checkboxes = Array.from(document.querySelectorAll("[data-result-select]"))
+    .filter(isSelectableControlVisible);
   const selected = checkboxes.filter((checkbox) => checkbox.checked);
   const actions = document.querySelector("[data-selection-actions]");
   if (actions) actions.hidden = selected.length === 0;
@@ -743,6 +758,87 @@ function updateSelectionControls() {
     updateSelectAllControl(selectAll);
   }
   if (selected.length === 0) setReportActionStatus("");
+}
+
+function normalizeReportSearchText(value) {
+  let text = String(value || "").toLowerCase();
+  if (typeof text.normalize === "function") {
+    text = text.normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+  }
+  return text;
+}
+
+function fuzzyReportMatch(text, query) {
+  const haystack = normalizeReportSearchText(text);
+  const tokens = normalizeReportSearchText(query).trim().split(/\s+/).filter(Boolean);
+  if (!tokens.length) return true;
+  return tokens.every((token) => {
+    let index = 0;
+    for (const char of haystack) {
+      if (char === token[index]) index += 1;
+      if (index === token.length) return true;
+    }
+    return false;
+  });
+}
+
+function detailRowForResultRow(row) {
+  const detailId = row?.dataset?.detailRow || "";
+  return detailId ? document.getElementById(detailId) : null;
+}
+
+function syncDetailRowFilterVisibility(row) {
+  const detail = detailRowForResultRow(row);
+  if (!detail) return;
+  const expanded = row.getAttribute?.("aria-expanded") === "true";
+  detail.hidden = row.hidden === true || !expanded;
+}
+
+function rowMatchesReportFilters(row, searchQuery, failuresOnly) {
+  const testName = row.dataset?.testName || row.dataset?.key || row.textContent || "";
+  if (!fuzzyReportMatch(testName, searchQuery)) return false;
+  return !failuresOnly || row.dataset?.resultFailed === "true";
+}
+
+function updateReportFilterContainers() {
+  for (const table of document.querySelectorAll("table[data-sortable-table]")) {
+    const rows = Array.from(table.querySelectorAll("tr.result-row[data-detail-row]"));
+    table.hidden = rows.length > 0 && !rows.some(isResultRowVisible);
+  }
+  const sections = Array.from(document.querySelectorAll("details[data-section-id]"));
+  sections.sort(
+    (left, right) => Number(right.dataset?.sectionDepth || 0) - Number(left.dataset?.sectionDepth || 0),
+  );
+  for (const section of sections) {
+    const rows = Array.from(section.querySelectorAll("tr.result-row[data-detail-row]"));
+    section.hidden = rows.length > 0 && !rows.some(isResultRowVisible);
+  }
+}
+
+function applyReportFilters() {
+  const searchInput = document.querySelector("[data-report-search]");
+  const failuresOnlyInput = document.querySelector("[data-failures-only]");
+  const searchQuery = searchInput?.value || "";
+  const failuresOnly = failuresOnlyInput?.checked === true;
+  for (const row of document.querySelectorAll("tr.result-row[data-detail-row]")) {
+    row.hidden = !rowMatchesReportFilters(row, searchQuery, failuresOnly);
+    if (row.hidden === true) {
+      const control = row.querySelector?.("[data-result-select]");
+      if (control) control.checked = false;
+    }
+    syncDetailRowFilterVisibility(row);
+  }
+  updateReportFilterContainers();
+  updateSelectionControls();
+}
+
+function initializeReportFilters() {
+  const searchInput = document.querySelector("[data-report-search]");
+  const failuresOnlyInput = document.querySelector("[data-failures-only]");
+  if (!searchInput && !failuresOnlyInput) return;
+  if (searchInput) searchInput.addEventListener("input", applyReportFilters);
+  if (failuresOnlyInput) failuresOnlyInput.addEventListener("change", applyReportFilters);
+  applyReportFilters();
 }
 
 async function runReportAction(
@@ -968,6 +1064,7 @@ document.addEventListener("keydown", (event) => {
 
 initializeRunComparisonControls();
 initializeSelectionControls();
+initializeReportFilters();
 restoreReportViewport();
 
 const thumbnailStrips = Array.from(document.querySelectorAll("[data-thumbnail-viewer]"));

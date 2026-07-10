@@ -1655,6 +1655,7 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
         flip = row.get("flip_mean")
         threshold = row.get("flip_threshold")
         status = status_label(row.get("status", ""))
+        failed = is_failure_result(row)
         suspect = row.get("suspect") is True
         row_id = f"result-row-{index}"
         detail_id = f"result-detail-{index}"
@@ -1700,6 +1701,8 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
                 row,
                 f'<tr id="{row_id}" class="{row_class}" data-detail-row="{detail_id}" '
                 f'data-case-id="{escaped_case_id}" '
+                f'data-test-name="{escaped_key}" '
+                f'data-result-failed="{str(failed).lower()}" '
                 f'aria-expanded="false">'
                 + "".join(cells)
                 + "</tr>"
@@ -1770,8 +1773,11 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
     .top-nav-provider strong {{ display: inline-block; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }}
     .top-nav-controls {{ display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-left: auto; color: #bbb; }}
     .top-nav-controls label {{ color: #eee; font-weight: 700; }}
-    .top-nav-controls select {{ color: #eee; background: #181818; border: 1px solid #4a5568; border-radius: 4px; padding: 5px 8px; font: inherit; }}
+    .top-nav-controls select, .top-nav-controls input[type="search"] {{ color: #eee; background: #181818; border: 1px solid #4a5568; border-radius: 4px; padding: 5px 8px; font: inherit; }}
+    .top-nav-controls input[type="search"] {{ width: 220px; min-width: 160px; }}
+    .top-nav-controls input[type="search"]::placeholder {{ color: #777; }}
     .top-nav-controls select:disabled {{ color: #777; border-color: #333; }}
+    .failures-only-control {{ display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }}
     .run-comparison-status {{ min-height: 20px; color: #aaa; }}
     .top-nav-link {{ color: #dbeafe; white-space: nowrap; }}
     table {{ width: 100%; border-collapse: collapse; background: #181818; }}
@@ -1872,6 +1878,9 @@ def build_html_report(results: list[dict[str, Any]], context: RunContext) -> str
       <span class="top-nav-stat">Started <strong>{esc(summary['started_at'])}</strong></span>
     </div>
     <div class="top-nav-controls" data-run-comparison-controls>
+      <label for="report-search-input">Search</label>
+      <input id="report-search-input" type="search" data-report-search placeholder="Search tests" autocomplete="off">
+      <label class="failures-only-control"><input type="checkbox" data-failures-only>Failures only</label>
       <div class="selection-actions" data-selection-actions hidden>
         <button type="button" class="report-action-button" data-update-threshold>Update threshold</button>
         <button type="button" class="report-action-button" data-update-reference>Update reference</button>

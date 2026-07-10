@@ -1401,6 +1401,24 @@ def test_html_counts_strict_failures(tmp_path: Path) -> None:
     assert "<strong>2</strong> failed" in html
 
 
+def test_html_report_includes_filter_controls_and_row_metadata(tmp_path: Path) -> None:
+    html = plugin.build_html_report(
+        [
+            {"suite": "sample", "key": "math/add_vector3FA", "status": "failed-threshold"},
+            {"suite": "sample", "key": "surface/pass_case", "status": "passed"},
+        ],
+        run_context(tmp_path),
+    )
+
+    assert '<input id="report-search-input" type="search" data-report-search' in html
+    assert 'placeholder="Search tests"' in html
+    assert '<input type="checkbox" data-failures-only>Failures only' in html
+    assert 'data-test-name="math/add_vector3FA"' in html
+    assert 'data-result-failed="true"' in html
+    assert 'data-test-name="surface/pass_case"' in html
+    assert 'data-result-failed="false"' in html
+
+
 def test_html_report_styles_statuses_and_makes_columns_sortable(tmp_path: Path) -> None:
     context = run_context(tmp_path)
     html = plugin.build_html_report(
@@ -1752,6 +1770,8 @@ def test_html_report_rows_expand_with_exr_canvas_viewer(tmp_path: Path) -> None:
         '<tr id="result-row-0" class="result-row suspect-row" '
         'data-detail-row="result-detail-0" '
         'data-case-id="[&quot;sample&quot;,&quot;case&quot;]" '
+        'data-test-name="case" '
+        'data-result-failed="false" '
         'aria-expanded="false">'
     ) in html
     assert '<tr id="result-detail-0" class="result-detail-row" hidden>' in html
@@ -2192,6 +2212,277 @@ def test_report_select_all_controls_rows_within_section_tables(tmp_path: Path) -
     }
 
 
+def test_report_filters_preserve_sections_and_select_only_visible_failures(
+    tmp_path: Path,
+) -> None:
+    if shutil.which("node") is None:
+        pytest.skip("node is required to validate report filtering")
+
+    viewer_js = Path(__file__).resolve().parents[1] / "typhoon_tests" / "static" / "typhoon-exr-viewer.js"
+    viewer_module = tmp_path / "typhoon-exr-viewer.mjs"
+    viewer_module.write_text(viewer_js.read_text(encoding="utf-8"), encoding="utf-8")
+    script = tmp_path / "report-filter-test.mjs"
+    script.write_text(
+        """
+        import { pathToFileURL } from "node:url";
+
+        function control(dataset = {}) {
+          return {
+            checked: false,
+            indeterminate: false,
+            hidden: true,
+            dataset,
+            handlers: {},
+            addEventListener(name, handler) { this.handlers[name] = handler; },
+            closest() { return null; },
+          };
+        }
+
+        const details = new Map();
+        function detail(id) {
+          const item = { id, hidden: true, querySelectorAll() { return []; } };
+          details.set(id, item);
+          return item;
+        }
+
+        function resultRow(name, failed, expanded = false) {
+          const detailId = `${name}-detail`;
+          detail(detailId);
+          const attrs = { "aria-expanded": expanded ? "true" : "false" };
+          const row = {
+            hidden: false,
+            dataset: {
+              caseId: name,
+              detailRow: detailId,
+              testName: name,
+              resultFailed: failed ? "true" : "false",
+            },
+            textContent: `display text for ${name}`,
+            handlers: {},
+            addEventListener(name, handler) { this.handlers[name] = handler; },
+            getAttribute(name) { return attrs[name] || ""; },
+            setAttribute(name, value) { attrs[name] = value; },
+            querySelector(selector) {
+              return selector === "[data-result-select]" ? this.checkbox : null;
+            },
+          };
+          row.checkbox = control({
+            caseId: name,
+            suite: "sample",
+            key: name,
+            usdPath: `${name}.usda`,
+            referencePath: `${name}.exr`,
+            renderPath: `${name}.render.exr`,
+            flipMean: failed ? "0.2" : "0.01",
+          });
+          row.checkbox.closest = (selector) => selector === "tr.result-row" ? row : null;
+          return row;
+        }
+
+        function table(rows, selectAll) {
+          return {
+            hidden: false,
+            rows,
+            querySelectorAll(selector) {
+              if (selector === "[data-result-select]") return rows.map((row) => row.checkbox);
+              if (selector === "[data-select-all]") return [selectAll];
+              if (selector === "tr.result-row[data-detail-row]") return rows;
+              return [];
+            },
+          };
+        }
+
+        function section(rows, depth) {
+          return {
+            hidden: false,
+            open: true,
+            dataset: { sectionId: `section-${depth}-${rows.length}`, sectionDepth: String(depth) },
+            querySelectorAll(selector) {
+              if (selector === "tr.result-row[data-detail-row]") return rows;
+              return [];
+            },
+          };
+        }
+
+        const passRoot = resultRow("passed_surface", false, true);
+        const passChild = resultRow("passed_vector", false, true);
+        const failChild = resultRow("failed_vector3FA", true, true);
+        const passOnly = resultRow("passed_light", false, true);
+        const rows = [passRoot, passChild, failChild, passOnly];
+        const selectRoot = control();
+        const selectChild = control();
+        const selectPassOnly = control();
+        const tableRoot = table([passRoot], selectRoot);
+        const tableChild = table([passChild, failChild], selectChild);
+        const tablePassOnly = table([passOnly], selectPassOnly);
+        selectRoot.closest = (selector) => selector === "table[data-sortable-table]" ? tableRoot : null;
+        selectChild.closest = (selector) => selector === "table[data-sortable-table]" ? tableChild : null;
+        selectPassOnly.closest = (selector) => selector === "table[data-sortable-table]" ? tablePassOnly : null;
+        const rootSection = section([passRoot, passChild, failChild], 0);
+        const childSection = section([passChild, failChild], 1);
+        const passOnlySection = section([passOnly], 0);
+        const tables = [tableRoot, tableChild, tablePassOnly];
+        const sections = [rootSection, childSection, passOnlySection];
+        const search = control();
+        search.value = "";
+        const failuresOnly = control();
+        const actions = control();
+        const thresholdButton = control();
+        const referenceButton = control();
+        const status = control();
+
+        globalThis.window = {
+          location: { href: "file:///run/index.html", pathname: "/run/index.html" },
+          setTimeout,
+        };
+        globalThis.document = {
+          baseURI: "file:///run/index.html",
+          querySelector(selector) {
+            if (selector === "[data-report-search]") return search;
+            if (selector === "[data-failures-only]") return failuresOnly;
+            if (selector === "[data-selection-actions]") return actions;
+            if (selector === "[data-update-threshold]") return thresholdButton;
+            if (selector === "[data-update-reference]") return referenceButton;
+            if (selector === "[data-report-action-status]") return status;
+            return null;
+          },
+          querySelectorAll(selector) {
+            if (selector === "table[data-sortable-table]") return tables;
+            if (selector === "details[data-section-id]") return sections;
+            if (selector === "[data-select-all]") return [selectRoot, selectChild, selectPassOnly];
+            if (selector === "[data-result-select]") return rows.map((row) => row.checkbox);
+            if (selector === "[data-result-select]:checked") {
+              return rows.map((row) => row.checkbox).filter((checkbox) => checkbox.checked);
+            }
+            if (selector === "tr.result-row[data-detail-row]") return rows;
+            return [];
+          },
+          getElementById(id) { return details.get(id) || null; },
+          addEventListener() {},
+        };
+        await import(pathToFileURL(process.argv[2]).href);
+
+        passChild.checkbox.checked = true;
+        failuresOnly.checked = true;
+        failuresOnly.handlers.change();
+        selectRoot.checked = true;
+        selectRoot.handlers.change();
+        selectPassOnly.checked = true;
+        selectPassOnly.handlers.change();
+        selectChild.checked = true;
+        selectChild.handlers.change();
+        const failuresOnlyState = {
+          rowHidden: rows.map((row) => row.hidden),
+          detailHidden: rows.map((row) => details.get(row.dataset.detailRow).hidden),
+          tableHidden: tables.map((item) => item.hidden),
+          sectionHidden: sections.map((item) => item.hidden),
+          selected: rows.map((row) => row.checkbox.checked),
+          selectRoot: [selectRoot.checked, selectRoot.indeterminate],
+          selectChild: [selectChild.checked, selectChild.indeterminate],
+          selectPassOnly: [selectPassOnly.checked, selectPassOnly.indeterminate],
+          thresholdLabel: thresholdButton.textContent,
+          referenceLabel: referenceButton.textContent,
+        };
+
+        search.value = "fv3";
+        search.handlers.input();
+        const fuzzyState = {
+          rowHidden: rows.map((row) => row.hidden),
+          sectionHidden: sections.map((item) => item.hidden),
+          selectedCountLabel: thresholdButton.textContent,
+        };
+
+        search.value = "passed";
+        search.handlers.input();
+        const noVisibleFailureState = {
+          rowHidden: rows.map((row) => row.hidden),
+          tableHidden: tables.map((item) => item.hidden),
+          sectionHidden: sections.map((item) => item.hidden),
+          actionsHidden: actions.hidden,
+          selected: rows.map((row) => row.checkbox.checked),
+          selectChild: [selectChild.checked, selectChild.indeterminate],
+          thresholdLabel: thresholdButton.textContent,
+          statusText: status.textContent || "",
+        };
+
+        failuresOnly.checked = false;
+        failuresOnly.handlers.change();
+        search.value = "PSF";
+        search.handlers.input();
+        const searchOnlyState = {
+          rowHidden: rows.map((row) => row.hidden),
+          tableHidden: tables.map((item) => item.hidden),
+          sectionHidden: sections.map((item) => item.hidden),
+          thresholdLabel: thresholdButton.textContent,
+        };
+
+        search.value = "";
+        search.handlers.input();
+        const clearedSearchState = {
+          rowHidden: rows.map((row) => row.hidden),
+          sectionHidden: sections.map((item) => item.hidden),
+        };
+
+        console.log(JSON.stringify({
+          failuresOnlyState,
+          fuzzyState,
+          noVisibleFailureState,
+          searchOnlyState,
+          clearedSearchState,
+        }));
+        """,
+        encoding="utf-8",
+    )
+
+    completed = subprocess.run(
+        ["node", str(script), str(viewer_module)],
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+
+    assert json.loads(completed.stdout) == {
+        "failuresOnlyState": {
+            "rowHidden": [True, True, False, True],
+            "detailHidden": [True, True, False, True],
+            "tableHidden": [True, False, True],
+            "sectionHidden": [False, False, True],
+            "selected": [False, False, True, False],
+            "selectRoot": [False, False],
+            "selectChild": [True, False],
+            "selectPassOnly": [False, False],
+            "thresholdLabel": "Update threshold (1)",
+            "referenceLabel": "Update reference (1)",
+        },
+        "fuzzyState": {
+            "rowHidden": [True, True, False, True],
+            "sectionHidden": [False, False, True],
+            "selectedCountLabel": "Update threshold (1)",
+        },
+        "noVisibleFailureState": {
+            "rowHidden": [True, True, True, True],
+            "tableHidden": [True, True, True],
+            "sectionHidden": [True, True, True],
+            "actionsHidden": True,
+            "selected": [False, False, False, False],
+            "selectChild": [False, False],
+            "thresholdLabel": "Update threshold (0)",
+            "statusText": "",
+        },
+        "searchOnlyState": {
+            "rowHidden": [False, True, True, True],
+            "tableHidden": [False, True, True],
+            "sectionHidden": [False, True, True],
+            "thresholdLabel": "Update threshold (0)",
+        },
+        "clearedSearchState": {
+            "rowHidden": [False, False, False, False],
+            "sectionHidden": [False, False, False],
+        },
+    }
+
+
 def test_report_row_action_targets_only_its_row_and_preserves_ui_state(
     tmp_path: Path,
 ) -> None:
@@ -2262,6 +2553,7 @@ def test_report_row_action_targets_only_its_row_and_preserves_ui_state(
         const table = {
           dataset: { sortTableKey: "sample/surfaces" },
           querySelector: () => sortButton,
+          querySelectorAll: () => [],
         };
         const expandedRow = { dataset: { caseId: "target-case" } };
         let storedState = null;
