@@ -41,13 +41,20 @@ def Scope "Looks"
 
         def NodeGraph "NG_geomcolor_color4"
         {
-            color3f outputs:out_base_color.connect = </Looks/geomcolor_color4/NG_geomcolor_color4/to_color.outputs:out>
+            color3f outputs:out_base_color.connect = </Looks/geomcolor_color4/NG_geomcolor_color4/convert_color4_color3.outputs:out>
 
             def Shader "node_under_test"
             {
                 uniform token info:id = "ND_geomcolor_color4"
                 int inputs:index = 0
                 color4f outputs:out
+            }
+
+            def Shader "convert_color4_color3"
+            {
+                uniform token info:id = "ND_convert_color4_color3"
+                color4f inputs:in.connect = </Looks/geomcolor_color4/NG_geomcolor_color4/node_under_test.outputs:out>
+                color3f outputs:out
             }
 
             def Shader "split_color"
@@ -60,10 +67,10 @@ def Scope "Looks"
                 float outputs:outa
             }
 
-            def Shader "green_weight"
+            def Shader "alpha_weight"
             {
                 uniform token info:id = "ND_multiply_float"
-                float inputs:in1.connect = </Looks/geomcolor_color4/NG_geomcolor_color4/split_color.outputs:outg>
+                float inputs:in1.connect = </Looks/geomcolor_color4/NG_geomcolor_color4/split_color.outputs:outa>
                 float inputs:in2 = 0.35
                 float outputs:out
             }
@@ -79,7 +86,7 @@ def Scope "Looks"
             def Shader "green_blue_mix"
             {
                 uniform token info:id = "ND_add_float"
-                float inputs:in1.connect = </Looks/geomcolor_color4/NG_geomcolor_color4/green_weight.outputs:out>
+                float inputs:in1.connect = </Looks/geomcolor_color4/NG_geomcolor_color4/alpha_weight.outputs:out>
                 float inputs:in2.connect = </Looks/geomcolor_color4/NG_geomcolor_color4/blue_weight.outputs:out>
                 float outputs:out
             }
@@ -102,7 +109,7 @@ over "World"
         prepend apiSchemas = ["MaterialBindingAPI"]
     )
     {
-        color4f[] primvars:geomColor = [(1, 0, 0, 0.15), (0, 1, 0, 0.35), (0, 0, 1, 0.65), (1, 1, 0, 0.95)] (
+        color3f[] primvars:displayColor = [(0, 0, 0), (1, 0, 0), (1, 1, 1), (0, 1, 1)] (
             interpolation = "vertex"
         )
         rel material:binding = </Looks/geomcolor_color4>

@@ -59,7 +59,7 @@ over "World"
         prepend apiSchemas = ["MaterialBindingAPI"]
     )
     {
-        color3f[] primvars:geomColor = [(1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0)] (
+        color3f[] primvars:displayColor = [(0, 0, 0), (1, 0, 0), (1, 1, 1), (0, 1, 1)] (
             interpolation = "vertex"
         )
         rel material:binding = </Looks/geomcolor_color3>

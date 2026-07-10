@@ -1401,9 +1401,9 @@
       "release": "reference-data-20260709T202011Z-9693fc77-3c92a58f"
     },
     "material-fidelity/nodes/geometric": {
-      "archive": "material-fidelity--nodes--geometric--c06f86c18f3e.zip",
-      "archive_sha256": "5ce14e1fe3cd881f2d853d8cf51becc2b6225baa79a850b127832b1159455e52",
-      "archive_size": 74998212,
+      "archive": "material-fidelity--nodes--geometric--89e1507e8c09.zip",
+      "archive_sha256": "c8c098ed8e5e72724ef9e43dd9c22c0752b183cae3193ee1aee221cecf6a8a19",
+      "archive_size": 74465189,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/geometric/binormal_default.exr",
@@ -1477,18 +1477,18 @@
         },
         {
           "path": "material-fidelity/reference/nodes/geometric/geomcolor_color3.exr",
-          "sha256": "1f6929b673d02a9a5d3a60757c4dde0402a708e51c05e54f6980e18d8b9e9a71",
-          "size": 806382
+          "sha256": "9012a45e5410dbdd85f0ee15a775f099e3928cb3928b86c4f1979bbe9192d16c",
+          "size": 540696
         },
         {
           "path": "material-fidelity/reference/nodes/geometric/geomcolor_color4.exr",
-          "sha256": "d906fe60b33f48d8b8a7fe115445e79a382635123d0cd38a61d06f328d7c9bf7",
-          "size": 808083
+          "sha256": "9012a45e5410dbdd85f0ee15a775f099e3928cb3928b86c4f1979bbe9192d16c",
+          "size": 540696
         },
         {
           "path": "material-fidelity/reference/nodes/geometric/geomcolor_float.exr",
-          "sha256": "91da72d5e7cc2d2c85d718ecd79542b26c52973224a7880eea16c29495ed1fcf",
-          "size": 290364
+          "sha256": "090407360374c7bd55f4d1d60b583cb2599498d7a96052924b57199783f09767",
+          "size": 290414
         },
         {
           "path": "material-fidelity/reference/nodes/geometric/geompropvalue_boolean.exr",
@@ -1856,7 +1856,7 @@
           "size": 785716
         }
       ],
-      "release": "reference-data-20260708T051159Z-d1b789a1-b3a4424a"
+      "release": "reference-data-20260710T081716Z-7ed6a660-b2d1dd95"
     },
     "material-fidelity/nodes/logical": {
       "archive": "material-fidelity--nodes--logical--3ed5f8010448.zip",
