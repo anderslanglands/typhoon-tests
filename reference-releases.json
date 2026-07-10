@@ -4419,9 +4419,9 @@
       "release": "reference-data-20260709T203348Z-f0f932aa-ddd61359"
     },
     "material-fidelity/nodes/pbr": {
-      "archive": "material-fidelity--nodes--pbr--75a5a2cf7399.zip",
-      "archive_sha256": "962b17035d26995d5972650f609a5fd2225b8bd61499d2e45fc166eff2932dab",
-      "archive_size": 26858911,
+      "archive": "material-fidelity--nodes--pbr--ec8c2a12a93f.zip",
+      "archive_sha256": "08792404a550e1becea3b6dd1dfdbc7967941d85760a629de55d4a930a4501ca",
+      "archive_size": 28425089,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/pbr/artistic_ior.exr",
@@ -4544,6 +4544,16 @@
           "size": 785874
         },
         {
+          "path": "material-fidelity/reference/nodes/pbr/generalized_schlick_bsdf.exr",
+          "sha256": "4b8153ee80d1d856536eeb4edfc4c6e2821c8afb4a769147df9b8390b8875183",
+          "size": 785666
+        },
+        {
+          "path": "material-fidelity/reference/nodes/pbr/generalized_schlick_edf.exr",
+          "sha256": "b2d69385d2b69dc3752640bfaaa2479e8bcf487f024995e358e9cb860d4e1f79",
+          "size": 780098
+        },
+        {
           "path": "material-fidelity/reference/nodes/pbr/oren_nayar_diffuse_bsdf.exr",
           "sha256": "b80b095f536905d0313836985db7cabb729b8d134f269342c60f20bb3a954e42",
           "size": 785653
@@ -4599,7 +4609,7 @@
           "size": 785894
         }
       ],
-      "release": "reference-data-20260709T234740Z-875fa13e-c2022b0b"
+      "release": "reference-data-20260710T001343Z-77acf7a6-9746f893"
     },
     "material-fidelity/nodes/procedurals": {
       "archive": "material-fidelity--nodes--procedurals--57f89b43d5af.zip",
