@@ -3640,9 +3640,9 @@
       "release": "reference-data-20260709T043951Z-efb3b910-64fb81bd"
     },
     "material-fidelity/nodes/noise": {
-      "archive": "material-fidelity--nodes--noise--86bb21c93e44.zip",
-      "archive_sha256": "ab81f23bea2a62697733ca97bb8d7440643c6c3d5eddefe4e28b1d046df698b2",
-      "archive_size": 68037304,
+      "archive": "material-fidelity--nodes--noise--d20de80200c5.zip",
+      "archive_sha256": "e8e715a6c20bc6bc0371d99dc7d80a929877e3dd68f320f767205d60f0c1ea67",
+      "archive_size": 68037216,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/noise/cellnoise2d.exr",
@@ -3806,13 +3806,13 @@
         },
         {
           "path": "material-fidelity/reference/nodes/noise/fractal3d_color4.exr",
-          "sha256": "111f0ae53f011f30a11e16ff06b8cc5fa08d3e8a8d7d6c3d72c087527edadfd9",
-          "size": 808830
+          "sha256": "e6025fb98d0cbbe1bdf9b40c742099c9ef2258ebf64a91abd5a150658cb4d393",
+          "size": 808792
         },
         {
           "path": "material-fidelity/reference/nodes/noise/fractal3d_color4FA.exr",
-          "sha256": "111f0ae53f011f30a11e16ff06b8cc5fa08d3e8a8d7d6c3d72c087527edadfd9",
-          "size": 808830
+          "sha256": "e6025fb98d0cbbe1bdf9b40c742099c9ef2258ebf64a91abd5a150658cb4d393",
+          "size": 808792
         },
         {
           "path": "material-fidelity/reference/nodes/noise/fractal3d_defaults.exr",
@@ -3856,13 +3856,13 @@
         },
         {
           "path": "material-fidelity/reference/nodes/noise/fractal3d_vector2.exr",
-          "sha256": "67254bed470ed7b6a1783be1c22c31bf675e02de0dc94c9bc6173e4ca048ee54",
-          "size": 550894
+          "sha256": "fa29fdb1e86dec5fa7832e52e2a82b201a73ddc00d9da2d42c800b1e682049cd",
+          "size": 550773
         },
         {
           "path": "material-fidelity/reference/nodes/noise/fractal3d_vector2FA.exr",
-          "sha256": "67254bed470ed7b6a1783be1c22c31bf675e02de0dc94c9bc6173e4ca048ee54",
-          "size": 550894
+          "sha256": "fa29fdb1e86dec5fa7832e52e2a82b201a73ddc00d9da2d42c800b1e682049cd",
+          "size": 550773
         },
         {
           "path": "material-fidelity/reference/nodes/noise/fractal3d_vector3.exr",
@@ -3876,13 +3876,13 @@
         },
         {
           "path": "material-fidelity/reference/nodes/noise/fractal3d_vector4.exr",
-          "sha256": "111f0ae53f011f30a11e16ff06b8cc5fa08d3e8a8d7d6c3d72c087527edadfd9",
-          "size": 808830
+          "sha256": "e6025fb98d0cbbe1bdf9b40c742099c9ef2258ebf64a91abd5a150658cb4d393",
+          "size": 808792
         },
         {
           "path": "material-fidelity/reference/nodes/noise/fractal3d_vector4FA.exr",
-          "sha256": "111f0ae53f011f30a11e16ff06b8cc5fa08d3e8a8d7d6c3d72c087527edadfd9",
-          "size": 808830
+          "sha256": "e6025fb98d0cbbe1bdf9b40c742099c9ef2258ebf64a91abd5a150658cb4d393",
+          "size": 808792
         },
         {
           "path": "material-fidelity/reference/nodes/noise/noise2d.exr",
@@ -3986,8 +3986,8 @@
         },
         {
           "path": "material-fidelity/reference/nodes/noise/noise3d_color4FA.exr",
-          "sha256": "4bf78d3dfed968be98ee4bfa05504e219e16e12bb98bae8357ea46cc36983b0c",
-          "size": 808958
+          "sha256": "66dffb8ee2e5dd6c69a422baadab4cee5fd925f0bd27ee2a722c12e486069b84",
+          "size": 809111
         },
         {
           "path": "material-fidelity/reference/nodes/noise/noise3d_defaults.exr",
@@ -4041,8 +4041,8 @@
         },
         {
           "path": "material-fidelity/reference/nodes/noise/noise3d_vector4FA.exr",
-          "sha256": "4bf78d3dfed968be98ee4bfa05504e219e16e12bb98bae8357ea46cc36983b0c",
-          "size": 808958
+          "sha256": "66dffb8ee2e5dd6c69a422baadab4cee5fd925f0bd27ee2a722c12e486069b84",
+          "size": 809111
         },
         {
           "path": "material-fidelity/reference/nodes/noise/unifiednoise2d.exr",
@@ -4335,7 +4335,7 @@
           "size": 303330
         }
       ],
-      "release": "reference-data-20260710T015944Z-2930c938-fef8b2b4"
+      "release": "reference-data-20260710T073117Z-58b56c96-f812a585"
     },
     "material-fidelity/nodes/npr": {
       "archive": "material-fidelity--nodes--npr--4326d5afd862.zip",
@@ -4361,9 +4361,9 @@
       "release": "reference-data-20260710T011823Z-cd6895b3-48446eab"
     },
     "material-fidelity/nodes/patterns": {
-      "archive": "material-fidelity--nodes--patterns--6edeb34d6bc4.zip",
-      "archive_sha256": "99b8ff2ced5a3e766213f8c7cac47a2222238c05bbbf069caf6e0396953780cf",
-      "archive_size": 1502669,
+      "archive": "material-fidelity--nodes--patterns--ccd47ecaad58.zip",
+      "archive_sha256": "59c40bed3fb63b4ab9e1e8a2630c9d50d9d0b467e42effe0dfe5fcec3713de35",
+      "archive_size": 1501411,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/patterns/checkerboard.exr",
@@ -4402,13 +4402,13 @@
         },
         {
           "path": "material-fidelity/reference/nodes/patterns/randomcolor.exr",
-          "sha256": "c4634307aa245c18dec6ce7e28b8aa6a510b859b36d13624cda284ce3cc6f618",
-          "size": 84217
+          "sha256": "a4265a2c3cd6808633a476c22c2f92f691ff73e8c16aaaf4c0e6a41ac21059a0",
+          "size": 83588
         },
         {
           "path": "material-fidelity/reference/nodes/patterns/randomcolor_integer.exr",
-          "sha256": "c4634307aa245c18dec6ce7e28b8aa6a510b859b36d13624cda284ce3cc6f618",
-          "size": 84217
+          "sha256": "a4265a2c3cd6808633a476c22c2f92f691ff73e8c16aaaf4c0e6a41ac21059a0",
+          "size": 83588
         },
         {
           "path": "material-fidelity/reference/nodes/patterns/randomfloat.exr",
@@ -4441,7 +4441,7 @@
           "size": 808659
         }
       ],
-      "release": "reference-data-20260709T203348Z-f0f932aa-ddd61359"
+      "release": "reference-data-20260710T073117Z-58b56c96-f812a585"
     },
     "material-fidelity/nodes/pbr": {
       "archive": "material-fidelity--nodes--pbr--770c03e97263.zip",
