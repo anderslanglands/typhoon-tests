@@ -4419,9 +4419,9 @@
       "release": "reference-data-20260709T203348Z-f0f932aa-ddd61359"
     },
     "material-fidelity/nodes/pbr": {
-      "archive": "material-fidelity--nodes--pbr--ec8c2a12a93f.zip",
-      "archive_sha256": "08792404a550e1becea3b6dd1dfdbc7967941d85760a629de55d4a930a4501ca",
-      "archive_size": 28425089,
+      "archive": "material-fidelity--nodes--pbr--0e8701f9daa1.zip",
+      "archive_sha256": "1a4782dc086a1faa120bdbf8ae8714ab11ec1ebe1141831c506d7808051c8155",
+      "archive_size": 30726156,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/pbr/artistic_ior.exr",
@@ -4554,6 +4554,11 @@
           "size": 780098
         },
         {
+          "path": "material-fidelity/reference/nodes/pbr/glossiness_anisotropy.exr",
+          "sha256": "67d01d94177224ddd6834543ad6242f3d55ee4d9032a8b8cfdacb2a30cffdfa9",
+          "size": 766788
+        },
+        {
           "path": "material-fidelity/reference/nodes/pbr/oren_nayar_diffuse_bsdf.exr",
           "sha256": "b80b095f536905d0313836985db7cabb729b8d134f269342c60f20bb3a954e42",
           "size": 785653
@@ -4567,6 +4572,16 @@
           "path": "material-fidelity/reference/nodes/pbr/oren_nayar_diffuse_bsdf_smooth_uncompensated.exr",
           "sha256": "5f4aacd91ea286d58fd0b635c659801bd3e790b4c32b446715a70e59703a60cc",
           "size": 785612
+        },
+        {
+          "path": "material-fidelity/reference/nodes/pbr/roughness_anisotropy.exr",
+          "sha256": "67d01d94177224ddd6834543ad6242f3d55ee4d9032a8b8cfdacb2a30cffdfa9",
+          "size": 766788
+        },
+        {
+          "path": "material-fidelity/reference/nodes/pbr/roughness_dual.exr",
+          "sha256": "860639f08ce3a1a647e03cc5c5bc99db361da495ae246124e9651e8a35c31613",
+          "size": 766901
         },
         {
           "path": "material-fidelity/reference/nodes/pbr/sheen_bsdf.exr",
@@ -4609,7 +4624,7 @@
           "size": 785894
         }
       ],
-      "release": "reference-data-20260710T001343Z-77acf7a6-9746f893"
+      "release": "reference-data-20260710T005657Z-f099985a-3e97c633"
     },
     "material-fidelity/nodes/procedurals": {
       "archive": "material-fidelity--nodes--procedurals--57f89b43d5af.zip",

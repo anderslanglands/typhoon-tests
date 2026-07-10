@@ -1,0 +1,75 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_roughness_dual by using its vector2 output to drive ND_conductor_bsdf. The node receives roughness (0.9, 0.1), squares both components, and outputs approximately (0.81, 0.01). That roughness is connected to a default gold-like conductor BSDF on the shaderball, so the reflected dome lighting should show the default anisotropy orientation with a very broad tangent-direction lobe paired with a very tight bitangent-direction lobe."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/shaderball.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "roughness_dual" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/roughness_dual/roughness_dual.mtlx"
+                string sourceMaterial = "M_roughness_dual"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/roughness_dual/surface.outputs:out>
+        token outputs:surface.connect = </Looks/roughness_dual/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_roughness_dual"
+            float2 inputs:roughness = (0.9, 0.1)
+            float2 outputs:out
+        }
+
+        def Shader "conductor_bsdf"
+        {
+            uniform token info:id = "ND_conductor_bsdf"
+            float2 inputs:roughness.connect = </Looks/roughness_dual/node_under_test.outputs:out>
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:bsdf.connect = </Looks/roughness_dual/conductor_bsdf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/roughness_dual>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 32
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/pbr/roughness_dual.exr"
+        }
+    }
+}

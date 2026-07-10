@@ -1,0 +1,77 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_glossiness_anisotropy by using its vector2 output to drive ND_conductor_bsdf. The node receives glossiness 0.55 and anisotropy 0.95; glossiness is inverted to roughness 0.45, then the roughness/anisotropy calculation produces approximately (0.9056, 0.0453). That roughness is connected directly to a default gold-like conductor BSDF on the shaderball, so the visible result should match the default anisotropic conductor orientation from roughness_anisotropy while proving the glossiness parameterization is converted first."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/shaderball.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "glossiness_anisotropy" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/glossiness_anisotropy/glossiness_anisotropy.mtlx"
+                string sourceMaterial = "M_glossiness_anisotropy"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/glossiness_anisotropy/surface.outputs:out>
+        token outputs:surface.connect = </Looks/glossiness_anisotropy/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_glossiness_anisotropy"
+            float inputs:anisotropy = 0.95
+            float inputs:glossiness = 0.55
+            float2 outputs:out
+        }
+
+
+        def Shader "conductor_bsdf"
+        {
+            uniform token info:id = "ND_conductor_bsdf"
+            float2 inputs:roughness.connect = </Looks/glossiness_anisotropy/node_under_test.outputs:out>
+            token outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface"
+            token inputs:bsdf.connect = </Looks/glossiness_anisotropy/conductor_bsdf.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/glossiness_anisotropy>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 32
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/pbr/glossiness_anisotropy.exr"
+        }
+    }
+}
