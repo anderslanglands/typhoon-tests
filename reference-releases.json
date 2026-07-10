@@ -4318,9 +4318,9 @@
       "release": "reference-data-20260709T082818Z-1ff4142f-1bede34f"
     },
     "material-fidelity/nodes/npr": {
-      "archive": "material-fidelity--nodes--npr--8ff692e57339.zip",
-      "archive_sha256": "4e6dcc20b78f7210d3ead2428430c9afe059aee84a8b7b65881b1cfb307d898f",
-      "archive_size": 32592,
+      "archive": "material-fidelity--nodes--npr--4326d5afd862.zip",
+      "archive_sha256": "f94e6be35e668f2e378f499df02211d381ef35bdbdc16a9aee084260f07ee6c7",
+      "archive_size": 676217,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/npr/facingratio_float.exr",
@@ -4331,9 +4331,14 @@
           "path": "material-fidelity/reference/nodes/npr/facingratio_float_invert.exr",
           "sha256": "e0a50452ebe5c7557750fd88abb098667b915228babb89970a8c2b6d3f49bb40",
           "size": 16084
+        },
+        {
+          "path": "material-fidelity/reference/nodes/npr/gooch_shade.exr",
+          "sha256": "7b2dd3452a39d9f0ce218ee46801c46db5748d9dc8f1c34f8ba6ec691ac5feaf",
+          "size": 643443
         }
       ],
-      "release": "reference-data-20260709T020142Z-ba315cf3-646ed532"
+      "release": "reference-data-20260710T011823Z-cd6895b3-48446eab"
     },
     "material-fidelity/nodes/patterns": {
       "archive": "material-fidelity--nodes--patterns--6edeb34d6bc4.zip",
@@ -4419,9 +4424,9 @@
       "release": "reference-data-20260709T203348Z-f0f932aa-ddd61359"
     },
     "material-fidelity/nodes/pbr": {
-      "archive": "material-fidelity--nodes--pbr--0e8701f9daa1.zip",
-      "archive_sha256": "1a4782dc086a1faa120bdbf8ae8714ab11ec1ebe1141831c506d7808051c8155",
-      "archive_size": 30726156,
+      "archive": "material-fidelity--nodes--pbr--86e5d7a4b2ac.zip",
+      "archive_sha256": "477660483c9557e44eb3e85953bb7b58bd13a278cf47854ca64d2cf1d37487b7",
+      "archive_size": 31148875,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/pbr/artistic_ior.exr",
@@ -4614,6 +4619,11 @@
           "size": 785705
         },
         {
+          "path": "material-fidelity/reference/nodes/pbr/surface_unlit.exr",
+          "sha256": "9277e659222d78692b35e404cbf3661489989a50bd7576f93eef6f098e00ccb5",
+          "size": 422533
+        },
+        {
           "path": "material-fidelity/reference/nodes/pbr/translucent_bsdf.exr",
           "sha256": "6e084453fe77f911840923fd4ec4da2fbb0503d1ac3ced4fb9df05b15aa5c2f8",
           "size": 785842
@@ -4624,7 +4634,7 @@
           "size": 785894
         }
       ],
-      "release": "reference-data-20260710T005657Z-f099985a-3e97c633"
+      "release": "reference-data-20260710T011823Z-cd6895b3-48446eab"
     },
     "material-fidelity/nodes/procedurals": {
       "archive": "material-fidelity--nodes--procedurals--57f89b43d5af.zip",

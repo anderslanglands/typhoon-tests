@@ -1,14 +1,14 @@
 #usda 1.0
 (
     customLayerData = {
-        string doc = "Tests ND_surface_unlit by binding its surfaceshader output directly on the plane. The node receives emission 0.75, emission_color (0.2, 0.5, 0.9), transmission 0, and opacity 1. With transmission disabled and opacity fully opaque, the unlit surface should emit emission * emission_color, so the expected RGB on the plane is (0.15, 0.375, 0.675) independent of scene lighting."
+        string doc = "Tests ND_surface_unlit by binding its surfaceshader output directly on the shaderball. The node receives emission 0.75, emission_color (0.2, 0.5, 0.9), transmission 0, and opacity 1. With transmission disabled and opacity fully opaque, the unlit surface should emit emission * emission_color, so the visible shaderball surface should render RGB (0.15, 0.375, 0.675) independent of normals and scene lighting."
     }
     defaultPrim = "World"
     metersPerUnit = 1
     renderSettingsPrimPath = "/Render/Settings"
     subLayers = [
         @../../_assets/base.usda@,
-        @../../_assets/Geometry/plane.usda@,
+        @../../_assets/Geometry/shaderball.usda@,
         @../../_assets/Lights/dome.usda@
     ]
     upAxis = "Y"
