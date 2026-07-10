@@ -1,7 +1,7 @@
 #usda 1.0
 (
     customLayerData = {
-        string doc = "Tests ND_mix_volumeshader by mixing two ND_volume closures at mix = 0.25. The bg volume wraps an absorption VDF with absorption (0.2, 0.4, 0.6); the fg volume wraps an absorption VDF with absorption (0.7, 0.2, 0.1), so the mixed absorption should be approximately (0.325, 0.35, 0.475). The mixed volume closure is connected to the material volume output on the closed shaderball, and a zero-roughness dielectric transmission/reflection surface lets dome-lit rays pass through that volume, so supported renderers should show a tinted transparent ball rather than a flat surface-only result."
+        string doc = "Tests ND_mix_volumeshader by mixing two ND_volume closures at mix = 0.25. The bg volume wraps an absorption VDF with absorption (0.6, 1.2, 1.8); the fg volume wraps an absorption VDF with absorption (2.1, 0.6, 0.3), so the mixed absorption should be approximately (0.975, 1.05, 1.425). The mixed volume closure is connected to the material volume output on the closed shaderball, and a zero-roughness dielectric transmission/reflection surface lets dome-lit rays pass through that denser volume, so supported renderers should show a strongly tinted transparent ball rather than a flat surface-only result."
     }
     defaultPrim = "World"
     metersPerUnit = 1
@@ -18,8 +18,8 @@ def Scope "Looks"
 {
     def Material "mix_volumeshader"
     {
-        token outputs:mtlx:surface.connect = </Looks/mix_volumeshader/surface.outputs:out>
-        token outputs:surface.connect = </Looks/mix_volumeshader/surface.outputs:out>
+        # token outputs:mtlx:surface.connect = </Looks/mix_volumeshader/surface.outputs:out>
+        # token outputs:surface.connect = </Looks/mix_volumeshader/surface.outputs:out>
         token outputs:mtlx:volume.connect = </Looks/mix_volumeshader/node_under_test.outputs:out>
         token outputs:volume.connect = </Looks/mix_volumeshader/node_under_test.outputs:out>
 
@@ -50,14 +50,15 @@ def Scope "Looks"
         def Shader "bg_vdf"
         {
             uniform token info:id = "ND_absorption_vdf"
-            float3 inputs:absorption = (0.2, 0.4, 0.6)
+            float3 inputs:absorption = (0.6, 1.2, 1.8)
             token outputs:out
         }
 
         def Shader "fg_vdf"
         {
-            uniform token info:id = "ND_absorption_vdf"
-            float3 inputs:absorption = (0.7, 0.2, 0.1)
+            uniform token info:id = "ND_anisotropic_vdf"
+            float3 inputs:absorption = (2.1, 0.6, 0.3)
+            float3 inputs:scattering = (2.1, 0.6, 0.3)
             token outputs:out
         }
 

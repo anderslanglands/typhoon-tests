@@ -690,9 +690,9 @@
       "release": "reference-data-20260709T052056Z-b4e534f4-584cf703"
     },
     "material-fidelity/nodes/compositing": {
-      "archive": "material-fidelity--nodes--compositing--6028e303ec6a.zip",
-      "archive_sha256": "0d177acf265e17ce0ad900d1766f79186cb76743a24e8b1c0e0a30e9dd370877",
-      "archive_size": 13771064,
+      "archive": "material-fidelity--nodes--compositing--a4570d429fef.zip",
+      "archive_sha256": "3e07bf163a760046ef80916c5380171ca0ddedfafb9eae8bc3bf9396955a30d1",
+      "archive_size": 14556948,
       "files": [
         {
           "path": "material-fidelity/reference/nodes/compositing/burn.exr",
@@ -870,6 +870,11 @@
           "size": 405595
         },
         {
+          "path": "material-fidelity/reference/nodes/compositing/mix_volumeshader.exr",
+          "sha256": "00852e34a8251deecbf40933c57fffe67e6a087990578e92a5a4fc6ae572e8fe",
+          "size": 785676
+        },
+        {
           "path": "material-fidelity/reference/nodes/compositing/out.exr",
           "sha256": "9cfaf60b0fc5f6da8598b879136955f671b358936f7862e19c7005fc6b501fb8",
           "size": 136268
@@ -950,7 +955,7 @@
           "size": 154158
         }
       ],
-      "release": "reference-data-20260709T080558Z-b4cb806c-a9712b04"
+      "release": "reference-data-20260710T023131Z-26e1348a-d8bbf582"
     },
     "material-fidelity/nodes/conditional": {
       "archive": "material-fidelity--nodes--conditional--a51c9291a28e.zip",
