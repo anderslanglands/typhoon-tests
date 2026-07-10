@@ -6,16 +6,17 @@ This report statically compares current `ND_*` definitions from the checked-out 
 
 - AOUSD MaterialX node families: 174
 - Typed NodeDefs in those families: 744
-- Covered NodeDefs: 727/744 (97.7%)
-- Uncovered families: 15
+- Covered NodeDefs: 735/744 (98.8%)
+- Uncovered families: 5
 - Partial families: 2
-- Complete families: 157
+- Skipped families: 2
+- Complete families: 165
 - Omitted local MaterialX-library families absent from the AOUSD MaterialX spec: `ramp`, `ramp_gradient`, `surfacematerial`, `volumematerial`
 - Fixture-referenced omitted local families: `ramp`, `ramp_gradient`
 - USD fixtures also reference 2 `ND_*` ids outside this MaterialX library set: `ND_open_pbr_surface_surfaceshader`, `ND_standard_surface_surfaceshader`
 - Closure helper families can still be over-counted when a NodeDef appears only as support inside another fixture; the static scan counts exact NodeDef ids but does not prove every helper-family use has a dedicated behavioral assertion.
 
-Status is based on exact NodeDef ids. `uncovered` means no variants in that family appear in the fixtures, `partial` means some but not all variants appear, and `complete` means every variant appears at least once. This is a static coverage view, not a reference-readiness audit; newly added fixtures can be counted before their reference renders exist. It is also an upper bound on meaningful coverage because incidental helper nodes in larger graphs count as covered.
+Status is based on exact NodeDef ids. `uncovered` means no variants in that family appear in the fixtures, `partial` means some but not all variants appear, `skipped` means the family is intentionally not covered by this suite, and `complete` means every variant appears at least once. This is a static coverage view, not a reference-readiness audit; newly added fixtures can be counted before their reference renders exist. It is also an upper bound on meaningful coverage because incidental helper nodes in larger graphs count as covered.
 
 ## Coverage Table
 
@@ -23,21 +24,13 @@ Status is based on exact NodeDef ids. `uncovered` means no variants in that fami
 |---|---|---:|---|
 | `chiang_hair_absorption_from_color` | uncovered | 0/1 | `ND_chiang_hair_absorption_from_color` |
 | `chiang_hair_roughness` | uncovered | 0/1 | `ND_chiang_hair_roughness` |
-| `conductor_bsdf` | uncovered | 0/1 | `ND_conductor_bsdf` |
-| `conical_edf` | uncovered | 0/1 | `ND_conical_edf` |
 | `deon_hair_absorption_from_melanin` | uncovered | 0/1 | `ND_deon_hair_absorption_from_melanin` |
 | `flake2d` | uncovered | 0/1 | `ND_flake2d` |
 | `flake3d` | uncovered | 0/1 | `ND_flake3d` |
-| `generalized_schlick_bsdf` | uncovered | 0/1 | `ND_generalized_schlick_bsdf` |
-| `generalized_schlick_edf` | uncovered | 0/1 | `ND_generalized_schlick_edf` |
-| `glossiness_anisotropy` | uncovered | 0/1 | `ND_glossiness_anisotropy` |
-| `gooch_shade` | uncovered | 0/1 | `ND_gooch_shade` |
-| `measured_edf` | uncovered | 0/1 | `ND_measured_edf` |
-| `roughness_anisotropy` | uncovered | 0/1 | `ND_roughness_anisotropy` |
-| `roughness_dual` | uncovered | 0/1 | `ND_roughness_dual` |
-| `surface_unlit` | uncovered | 0/1 | `ND_surface_unlit` |
 | `displacement` | partial | 1/2 | `vector3` |
 | `hextiledimage` | partial | 1/2 | `color4` |
+| `conical_edf` | skipped | 0/1 | `ND_conical_edf` |
+| `measured_edf` | skipped | 0/1 | `ND_measured_edf` |
 | `absorption_vdf` | complete | 1/1 | - |
 | `absval` | complete | 6/6 | - |
 | `acos` | complete | 4/4 | - |
@@ -66,6 +59,7 @@ Status is based on exact NodeDef ids. `uncovered` means no variants in that fami
 | `combine3` | complete | 2/2 | - |
 | `combine4` | complete | 2/2 | - |
 | `constant` | complete | 12/12 | - |
+| `conductor_bsdf` | complete | 1/1 | - |
 | `contrast` | complete | 11/11 | - |
 | `convert` | complete | 47/47 | - |
 | `cos` | complete | 4/4 | - |
@@ -89,9 +83,13 @@ Status is based on exact NodeDef ids. `uncovered` means no variants in that fami
 | `fractal2d` | complete | 11/11 | - |
 | `fractal3d` | complete | 11/11 | - |
 | `frame` | complete | 1/1 | - |
+| `generalized_schlick_bsdf` | complete | 1/1 | - |
+| `generalized_schlick_edf` | complete | 1/1 | - |
 | `geomcolor` | complete | 3/3 | - |
 | `geompropvalue` | complete | 8/8 | - |
 | `geompropvalueuniform` | complete | 2/2 | - |
+| `glossiness_anisotropy` | complete | 1/1 | - |
+| `gooch_shade` | complete | 1/1 | - |
 | `grid` | complete | 1/1 | - |
 | `heighttonormal` | complete | 1/1 | - |
 | `hexagon` | complete | 1/1 | - |
@@ -153,6 +151,8 @@ Status is based on exact NodeDef ids. `uncovered` means no variants in that fami
 | `rotate2d` | complete | 1/1 | - |
 | `rotate3d` | complete | 1/1 | - |
 | `round` | complete | 7/7 | - |
+| `roughness_anisotropy` | complete | 1/1 | - |
+| `roughness_dual` | complete | 1/1 | - |
 | `safepower` | complete | 11/11 | - |
 | `saturate` | complete | 2/2 | - |
 | `screen` | complete | 3/3 | - |
@@ -170,6 +170,7 @@ Status is based on exact NodeDef ids. `uncovered` means no variants in that fami
 | `subtract` | complete | 16/16 | - |
 | `switch` | complete | 16/16 | - |
 | `surface` | complete | 1/1 | - |
+| `surface_unlit` | complete | 1/1 | - |
 | `tan` | complete | 4/4 | - |
 | `tangent` | complete | 1/1 | - |
 | `texcoord` | complete | 2/2 | - |
