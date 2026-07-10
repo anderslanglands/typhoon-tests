@@ -1,0 +1,72 @@
+#usda 1.0
+(
+    customLayerData = {
+        string doc = "Tests ND_gooch_shade from the MaterialX NPR nodes by emitting its color output on the shaderball. The node uses warm_color (0.9, 0.45, 0.1), cool_color (0.1, 0.2, 0.9), light_direction (1, -0.5, -0.5), specular_intensity 0.35, and shininess 32. It normalizes the world-space normal, view direction, and light direction internally, then applies the published formula t = (1 + dot(N, L)) / 2 and diffuse = (1 - t) * warm_color + t * cool_color before adding a Phong-style highlight. That means light-facing normals trend toward cool_color and normals facing away trend toward warm_color, even though the parameter names suggest the opposite. The result is connected to ND_surface_unlit.emission_color, so the shaderball should show an unlit blue-to-orange Gooch ramp with a small bright highlight rather than illumination from the dome."
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    subLayers = [
+        @../../_assets/base.usda@,
+        @../../_assets/Geometry/shaderball.usda@,
+        @../../_assets/Lights/dome.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "gooch_shade" (
+        customData = {
+            dictionary materialFidelity = {
+                string source = "materials/nodes/gooch_shade/gooch_shade.mtlx"
+                string sourceMaterial = "M_gooch_shade"
+            }
+        }
+    )
+    {
+        token outputs:mtlx:surface.connect = </Looks/gooch_shade/surface.outputs:out>
+        token outputs:surface.connect = </Looks/gooch_shade/surface.outputs:out>
+
+        def Shader "node_under_test"
+        {
+            uniform token info:id = "ND_gooch_shade"
+            color3f inputs:warm_color = (0.9, 0.45, 0.1)
+            color3f inputs:cool_color = (0.1, 0.2, 0.9)
+            float inputs:specular_intensity = 0.35
+            float inputs:shininess = 32
+            float3 inputs:light_direction = (1, -0.5, -0.5)
+            color3f outputs:out
+        }
+
+        def Shader "surface"
+        {
+            uniform token info:id = "ND_surface_unlit"
+            color3f inputs:emission_color.connect = </Looks/gooch_shade/node_under_test.outputs:out>
+            token outputs:out
+        }
+    }
+}
+
+over "World"
+{
+    over "Geometry" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Looks/gooch_shade>
+    }
+}
+
+over "Render"
+{
+    over "Settings"
+    {
+        uniform int ty:convergedSamplesPerPixel = 4
+
+        over "Product"
+        {
+            token productName = "material-fidelity/nodes/npr/gooch_shade.exr"
+        }
+    }
+}
