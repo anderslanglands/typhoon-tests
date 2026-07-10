@@ -4439,10 +4439,15 @@
       "release": "reference-data-20260709T203348Z-f0f932aa-ddd61359"
     },
     "material-fidelity/nodes/pbr": {
-      "archive": "material-fidelity--nodes--pbr--86e5d7a4b2ac.zip",
-      "archive_sha256": "477660483c9557e44eb3e85953bb7b58bd13a278cf47854ca64d2cf1d37487b7",
-      "archive_size": 31148875,
+      "archive": "material-fidelity--nodes--pbr--770c03e97263.zip",
+      "archive_sha256": "2561fb6b79ab84055f1cfc4f2fffb3865af28028e17b87e81988a90588f43732",
+      "archive_size": 31934752,
       "files": [
+        {
+          "path": "material-fidelity/reference/nodes/pbr/anisotropic_vdf_volume_only.exr",
+          "sha256": "c6cf9969f3422ba3a035d34663f56bbd3fc4ad9ac0d2a0efa3ca37c3993700f7",
+          "size": 785663
+        },
         {
           "path": "material-fidelity/reference/nodes/pbr/artistic_ior.exr",
           "sha256": "91c31c993bb899b6124d8dff6e6e6365d79e516dd237461e1d92a35b68e0d40c",
@@ -4649,7 +4654,7 @@
           "size": 785894
         }
       ],
-      "release": "reference-data-20260710T011823Z-cd6895b3-48446eab"
+      "release": "reference-data-20260710T021931Z-21f704ae-d10196f6"
     },
     "material-fidelity/nodes/procedurals": {
       "archive": "material-fidelity--nodes--procedurals--57f89b43d5af.zip",
@@ -5661,9 +5666,9 @@
       "release": "reference-data-20260709T235617Z-517fd89e-555081d1"
     },
     "material-fidelity/surfaces/standard_surface": {
-      "archive": "material-fidelity--surfaces--standard_surface--cdc2bd1f7eab.zip",
-      "archive_sha256": "7a02a296d52b7d7f54aed6441846e9909d1163407f26822a0dc19d838d205636",
-      "archive_size": 91904988,
+      "archive": "material-fidelity--surfaces--standard_surface--b713b7757d1a.zip",
+      "archive_sha256": "641d46c44eeed855ffd7defa646fbcec474bc21c2363029cdd3755d9bfe41f4c",
+      "archive_size": 91905006,
       "files": [
         {
           "path": "material-fidelity/reference/surfaces/standard_surface/brass_tiled.exr",
@@ -6227,8 +6232,8 @@
         },
         {
           "path": "material-fidelity/reference/surfaces/standard_surface/transmission.exr",
-          "sha256": "b17355c43766fad7e60a192c5b4654e986a1b419f1ed305e435284ac6725de12",
-          "size": 785766
+          "sha256": "7ff06ed01e5b1f36d453805ec1e8de6d7789cc755c721df07f2ddcf3f23ed1a7",
+          "size": 785784
         },
         {
           "path": "material-fidelity/reference/surfaces/standard_surface/transmission_only.exr",
@@ -6251,7 +6256,7 @@
           "size": 785731
         }
       ],
-      "release": "reference-data-20260710T015944Z-2930c938-fef8b2b4"
+      "release": "reference-data-20260710T021931Z-21f704ae-d10196f6"
     },
     "materialx": {
       "archive": "materialx--4e54f0e02666.zip",

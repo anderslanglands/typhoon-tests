@@ -1,7 +1,7 @@
 #usda 1.0
 (
     customLayerData = {
-        string doc = "Tests a volume-only material path with ND_anisotropic_vdf. The material intentionally authors only outputs:mtlx:volume and outputs:volume, with no surface output connected. ND_anisotropic_vdf receives absorption (0.35, 0.18, 0.08), scattering (0.08, 0.18, 0.32), and anisotropy 0.55, then ND_volume wraps that VDF into a volumeshader. Bound to the closed shaderball, supported renderers should render the participating medium alone: dome-lit rays through the object should show tinted attenuation and forward-biased scattering without any surface BSDF or EDF contribution."
+        string doc = "Tests a volume-only material path with ND_anisotropic_vdf. The material intentionally authors only outputs:mtlx:volume and outputs:volume, with no surface output connected. ND_anisotropic_vdf receives absorption (1.05, 0.54, 0.24), scattering (0.24, 0.54, 0.96), and anisotropy 0.55, then ND_volume wraps that VDF into a volumeshader. Bound to the closed shaderball, supported renderers should render the participating medium alone: dome-lit rays through the object should show denser tinted attenuation and forward-biased scattering without any surface BSDF or EDF contribution."
     }
     defaultPrim = "World"
     metersPerUnit = 1
@@ -31,8 +31,8 @@ def Scope "Looks"
         def Shader "node_under_test"
         {
             uniform token info:id = "ND_anisotropic_vdf"
-            float3 inputs:absorption = (0.35, 0.18, 0.08)
-            float3 inputs:scattering = (0.08, 0.18, 0.32)
+            float3 inputs:absorption = (1.05, 0.54, 0.24)
+            float3 inputs:scattering = (0.24, 0.54, 0.96)
             float inputs:anisotropy = 0.55
             token outputs:out
         }
