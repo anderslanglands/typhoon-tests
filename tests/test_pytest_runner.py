@@ -3168,9 +3168,10 @@ def test_regenerate_html_leaves_existing_artifacts_untouched(tmp_path: Path) -> 
     } == before
 
 
-def test_regenerate_html_module_cli_and_pixi_task(tmp_path: Path) -> None:
+def test_regenerate_html_module_cli(tmp_path: Path) -> None:
     output_base = tmp_path / "_output"
     run_dir = write_report_run(output_base, 1, key="cli_case")
+    latest_run = write_report_run(output_base, 2, key="latest_case")
     repo_root = Path(__file__).resolve().parents[1]
 
     completed = subprocess.run(
@@ -3180,6 +3181,8 @@ def test_regenerate_html_module_cli_and_pixi_task(tmp_path: Path) -> None:
             "typhoon_tests.report_html",
             "--output-root",
             str(output_base),
+            "--run",
+            "run-0001",
         ],
         cwd=repo_root,
         check=False,
@@ -3192,17 +3195,41 @@ def test_regenerate_html_module_cli_and_pixi_task(tmp_path: Path) -> None:
     assert f"wrote {run_dir / 'index.html'}" in completed.stdout
     assert completed.stderr == ""
     assert "cli_case" in (run_dir / "index.html").read_text(encoding="utf-8")
+    assert not (latest_run / "index.html").exists()
 
+
+def test_pixi_toml_exposes_only_user_facing_tasks() -> None:
+    repo_root = Path(__file__).resolve().parents[1]
     pixi = tomllib.loads((repo_root / "pixi.toml").read_text(encoding="utf-8"))
+
+    def task_tables(table: dict[str, object], path: tuple[str, ...] = ()) -> list[tuple[str, ...]]:
+        found = []
+        for key, value in table.items():
+            if key == "tasks" and isinstance(value, dict):
+                found.append(path + (key,))
+            if isinstance(value, dict):
+                found.extend(task_tables(value, path + (key,)))
+        return found
+
+    assert task_tables(pixi) == [("tasks",)]
+
     tasks = pixi["tasks"]
-    assert tasks["regenerate-html"] == {
-        "cmd": "python -m typhoon_tests.report_html"
+    assert set(tasks) == {
+        "build",
+        "download-references",
+        "extract-failures",
+        "update-references",
+        "view",
+    }
+    assert tasks["build"] == {"cmd": "python -m typhoon_tests.build_exr_wasm"}
+    assert tasks["download-references"] == {
+        "cmd": "python -m typhoon_tests.reference_archives download"
     }
     assert tasks["extract-failures"] == {
         "cmd": "python -m typhoon_tests.extract_failures"
     }
-    assert tasks["build"] == {
-        "cmd": "python -m typhoon_tests.build_exr_wasm"
+    assert tasks["update-references"] == {
+        "cmd": "python -m typhoon_tests.reference_archives update"
     }
     assert tasks["view"] == {
         "cmd": "python -m typhoon_tests.view_server --directory _output --port 8000"
@@ -4129,37 +4156,6 @@ def test_regenerate_html_rejects_incompatible_run_selection(tmp_path: Path) -> N
         report_html.regenerate_html(output_root=output_base, run="1", all_runs=True)
 
 
-def test_regenerate_html_pixi_task_dry_run_forwards_arguments(tmp_path: Path) -> None:
-    if shutil.which("pixi") is None:
-        pytest.skip("pixi is not installed")
-
-    repo_root = Path(__file__).resolve().parents[1]
-    output_base = tmp_path / "_output"
-    completed = subprocess.run(
-        [
-            "pixi",
-            "run",
-            "--dry-run",
-            "regenerate-html",
-            "--output-root",
-            str(output_base),
-            "--run",
-            "run-0001",
-        ],
-        cwd=repo_root,
-        check=False,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    )
-
-    output = completed.stdout + completed.stderr
-    assert completed.returncode == 0
-    assert (
-        "python -m typhoon_tests.report_html "
-        f"--output-root {output_base} --run run-0001"
-        in output
-    )
 
 
 def test_regenerate_html_rejects_missing_report_json(tmp_path: Path) -> None:

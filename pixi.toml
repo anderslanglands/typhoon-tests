@@ -22,21 +22,8 @@ pillow = "*"
 flip-evaluator = "==1.7"
 
 [tasks]
-download-references = { cmd = "python -m typhoon_tests.reference_archives download" }
-update-references = { cmd = "python -m typhoon_tests.reference_archives update" }
-generate-material-fidelity = { cmd = "python material-fidelity/generate_suite.py" }
-test = { cmd = "pytest" }
-test-local = { args = ["provider"], cmd = "pytest --typhoon-provider {{ provider }}" }
-test-materialx = { cmd = "pytest materialx" }
-test-material-fidelity = { cmd = "pytest material-fidelity" }
-render-materialx-one = { args = ["usd"], cmd = "pytest {{ usd }}" }
-render-materialx-all = { cmd = "pytest materialx" }
-render-material-fidelity-one = { args = ["usd"], cmd = "pytest {{ usd }}" }
-render-material-fidelity-all = { cmd = "pytest material-fidelity" }
-regenerate-html = { cmd = "python -m typhoon_tests.report_html" }
-regenerate-comparisons = { cmd = "python -m typhoon_tests.regenerate_comparisons" }
-extract-failures = { cmd = "python -m typhoon_tests.extract_failures" }
 build = { cmd = "python -m typhoon_tests.build_exr_wasm" }
+download-references = { cmd = "python -m typhoon_tests.reference_archives download" }
+extract-failures = { cmd = "python -m typhoon_tests.extract_failures" }
+update-references = { cmd = "python -m typhoon_tests.reference_archives update" }
 view = { cmd = "python -m typhoon_tests.view_server --directory _output --port 8000" }
-compare-materialx-renders = { cmd = "python materialx/generate_comparison_html.py" }
-

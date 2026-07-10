@@ -12,7 +12,7 @@
 - Test execution is pytest-based. The plugin is loaded by `conftest.py` and implemented under `typhoon_tests/`.
 - USDA render tests are collected from `.usda` files that have an ancestor `typhoon-suite.toml`. Unconfigured USDA directories require `--typhoon-collect-unconfigured`.
 - Directories beginning with `_` are never collected. Suites keep support layers and resources under `_assets/`; `[skip]` remains for intentional test-level exclusions.
-- Package mode is the default: `pixi run test` calls the installed `usdrender` from the `openusd-typhoon` conda package.
+- Package mode is the default: `pixi run pytest` calls the installed `usdrender` from the `openusd-typhoon` conda package.
 - Local source mode uses `--typhoon-provider /path/to/openusd-omniverse`; the provider path may be a checkout directory or a direct path to its `pixi.toml`.
 - In package mode, the runner calls `usdrender --complexity high --renderer Embree`. In provider mode, it calls `pixi run --manifest-path <provider>/pixi.toml --clean-env usdrender` so inherited plugin and Python paths do not override the provider checkout while the OpenUSD Pixi task still provides the base renderer flags.
 
@@ -21,9 +21,9 @@
 Common commands:
 
 ```bash
-pixi run test
-pixi run test-materialx
-pixi run test-local /home/anders/code/openusd-omniverse
+pixi run pytest
+pixi run pytest materialx
+pixi run pytest material-fidelity
 pixi run pytest materialx --typhoon-provider /home/anders/code/openusd-omniverse
 ```
 
@@ -39,18 +39,24 @@ pixi run pytest materialx -x
 pixi run pytest materialx --typhoon-dry-run -s
 ```
 
-Pixi convenience tasks:
+User-facing Pixi tasks:
 
 ```bash
-pixi run render-materialx-one materialx/open_pbr_carpaint_Car_Paint.usda
-pixi run render-materialx-all
-pixi run regenerate-html
-pixi run regenerate-html --run _output/run-0003
-pixi run regenerate-html --all
-pixi run regenerate-comparisons
-pixi run regenerate-comparisons --run _output/run-0003
 pixi run build
+pixi run download-references
+pixi run extract-failures
+pixi run update-references
 pixi run view
+```
+
+Report maintenance modules can still be run directly when needed:
+
+```bash
+pixi run python -m typhoon_tests.report_html
+pixi run python -m typhoon_tests.report_html --run _output/run-0003
+pixi run python -m typhoon_tests.report_html --all
+pixi run python -m typhoon_tests.regenerate_comparisons
+pixi run python -m typhoon_tests.regenerate_comparisons --run _output/run-0003
 ```
 
 ## Outputs
@@ -61,9 +67,9 @@ pixi run view
 - `_output/index.html` is updated after each run with run summaries and timestamps.
 - `--typhoon-output-root=/path/to/output` changes the base directory that receives numbered `run-NNNN` directories.
 - `--typhoon-dry-run` prints commands without rendering, but still allocates a numbered run directory and writes report/index files.
-- `pixi run regenerate-html` regenerates the latest run HTML and top-level index from saved JSON without rerunning renders. Use `--run _output/run-0003`, `--all`, or `--output-root /path/to/output` for non-default cases.
+- `pixi run python -m typhoon_tests.report_html` regenerates the latest run HTML and top-level index from saved JSON without rerunning renders. Use `--run _output/run-0003`, `--all`, or `--output-root /path/to/output` for non-default cases.
 - The HTML regeneration task reads `typhoon-report.json`, rewrites `index.html` and `run-summary.json`, refreshes the top-level `index.html`, and copies the EXR viewer assets into the run. It does not rerun `usdrender`, recompute FLIP, or modify rendered image artifacts.
-- `pixi run regenerate-comparisons` recomputes comparison EXRs and FLIP metrics from existing render outputs without rerunning `usdrender`. It defaults to the latest run and accepts `--run _output/run-0003`, `--all`, or `--output-root /path/to/output`.
+- `pixi run python -m typhoon_tests.regenerate_comparisons` recomputes comparison EXRs and FLIP metrics from existing render outputs without rerunning `usdrender`. It defaults to the latest run and accepts `--run _output/run-0003`, `--all`, or `--output-root /path/to/output`.
 - `pixi run build` rebuilds the browser EXR decoder from `tools/exr_wasm/` and copies it into `typhoon_tests/static/`.
 - Per-run HTML report columns are sortable and default to Mean FLIP descending. Status cells use `passed`, `no-ref`, `dry-run`, `failed-threshold`, `failed-render`, or another `failed-*` value. `passed` is green, `no-ref` uses the table background, `failed-threshold` is red, and failed statuses other than `failed-render` and `failed-threshold` are pink.
 

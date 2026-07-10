@@ -74,13 +74,13 @@ http://localhost:8000/run-0009/index.html
 Regenerate comparisons from existing rendered EXRs without rerendering scenes:
 
 ```bash
-pixi run regenerate-comparisons --run _output/run-0009
+pixi run python -m typhoon_tests.regenerate_comparisons --run _output/run-0009
 ```
 
 Regenerate only the HTML reports and copied viewer assets from existing JSON:
 
 ```bash
-pixi run regenerate-html --run _output/run-0009
+pixi run python -m typhoon_tests.report_html --run _output/run-0009
 ```
 
 ## Other Common Runs
@@ -88,19 +88,18 @@ pixi run regenerate-html --run _output/run-0009
 Run against the packaged `openusd-typhoon` conda package:
 
 ```bash
-pixi run test
+pixi run pytest
 ```
 
 Run only the MaterialX suite:
 
 ```bash
-pixi run test-materialx
+pixi run pytest materialx
 ```
 
 Run the usdlux suite against a local OpenUSD/Typhoon checkout instead of the conda package:
 
 ```bash
-pixi run test-local /home/anders/code/openusd-omniverse
 pixi run pytest usdlux --typhoon-provider /home/anders/code/openusd-omniverse
 ```
 
@@ -140,18 +139,14 @@ pixi run pytest usdlux -x --typhoon-provider /home/anders/code/openusd-omniverse
 pixi run pytest usdlux --typhoon-dry-run -s --typhoon-provider /home/anders/code/openusd-omniverse
 ```
 
-Pixi convenience tasks are available for the current MaterialX suite and report maintenance:
+The user-facing Pixi tasks are limited to setup, reference maintenance, failure extraction, and report viewing:
 
 ```bash
 pixi run build
+pixi run download-references
+pixi run extract-failures
+pixi run update-references
 pixi run view
-pixi run render-materialx-one materialx/open_pbr_carpaint_Car_Paint.usda
-pixi run render-materialx-all
-pixi run regenerate-html
-pixi run regenerate-html --run _output/run-0003
-pixi run regenerate-html --all
-pixi run regenerate-comparisons
-pixi run regenerate-comparisons --run _output/run-0003
 ```
 
 ## Output Runs
@@ -199,21 +194,21 @@ Regenerate report HTML from existing JSON without rerunning renders:
 
 ```bash
 # Regenerate the latest run and the top-level run index.
-pixi run regenerate-html
+pixi run python -m typhoon_tests.report_html
 
 # Regenerate a specific run.
-pixi run regenerate-html --run _output/run-0003
+pixi run python -m typhoon_tests.report_html --run _output/run-0003
 
 # Regenerate every run under _output.
-pixi run regenerate-html --all
+pixi run python -m typhoon_tests.report_html --all
 
 # Use a non-default output base.
-pixi run regenerate-html --output-root /tmp/typhoon-output --run run-0003
+pixi run python -m typhoon_tests.report_html --output-root /tmp/typhoon-output --run run-0003
 ```
 
-The `regenerate-html` task reads `typhoon-report.json`, rewrites that run's `index.html` and `run-summary.json`, refreshes the top-level `_output/index.html`, and copies the EXR viewer assets into the run. It does not rerun `usdrender`, recompute FLIP, or modify rendered image artifacts.
+The report HTML module reads `typhoon-report.json`, rewrites that run's `index.html` and `run-summary.json`, refreshes the top-level `_output/index.html`, and copies the EXR viewer assets into the run. It does not rerun `usdrender`, recompute FLIP, or modify rendered image artifacts.
 
-To recompute comparison EXRs and FLIP metrics from existing render outputs without rerunning `usdrender`, use `pixi run regenerate-comparisons`. It defaults to the latest run and also accepts `--run`, `--all`, and `--output-root`.
+To recompute comparison EXRs and FLIP metrics from existing render outputs without rerunning `usdrender`, use `pixi run python -m typhoon_tests.regenerate_comparisons`. It defaults to the latest run and also accepts `--run`, `--all`, and `--output-root`.
 
 The per-run report decodes EXRs in the browser with `assets/typhoon_exr_wasm.wasm`. Use `pixi run build` after changing the Rust decoder under `tools/exr_wasm/`, and view reports through `pixi run view` rather than `file://`. Expanded result rows include an `Open in usdview` button that launches `pixi run usdview --renderer Embree --disableCameraLight --camera <camera> --complexity high --cf <frame> <usd>` through the local view server. Pass `--typhoon-provider /path/to/openusd-omniverse` to `pixi run view` to launch usdview from a local provider checkout.
 
@@ -377,7 +372,7 @@ Referenced images and HDR maps are copied under `materialx/_assets/`, and asset 
 The legacy scripts remain for compatibility with the old `materialx/renders` workflow:
 
 ```bash
-pixi run compare-materialx-renders
+pixi run python materialx/generate_comparison_html.py
 ```
 
 The legacy comparison generator does not consume numbered `_output/run-NNNN` directories unless its paths are overridden. New suites should use pytest collection and `typhoon-suite.toml`.
